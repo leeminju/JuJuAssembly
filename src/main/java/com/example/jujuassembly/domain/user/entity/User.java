@@ -13,33 +13,33 @@ import lombok.NoArgsConstructor;
 @Table(name = "users")
 public class User extends Timestamped {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(name = "login_id")
-    private String loginId;
+  @Column(name = "login_id")
+  private String loginId;
 
-    @Column(name = "nickname")
-    private String nickname;
+  @Column(name = "nickname")
+  private String nickname;
 
-    @Column(name = "email")
-    private String email;
+  @Column(name = "email")
+  private String email;
 
-    @Column(name = "is_archived")
-    private Boolean isArchived;
+  @Column(name = "is_archived")
+  private Boolean isArchived;
 
-    @Column(nullable = false, name = "role")
-    @Enumerated(value = EnumType.STRING)
-    private UserRoleEnum role;
+  @Column(nullable = false, name = "role")
+  @Enumerated(value = EnumType.STRING)
+  private UserRoleEnum role;
 
-    @OneToOne
-    @JoinColumn(name = "first_preferred_category_id")
-    private Category firstPreferredCategory;
+  @OneToOne
+  @JoinColumn(name = "first_preferred_category_id")
+  private Category firstPreferredCategory;
 
-    @OneToOne
-    @JoinColumn(name = "second_preferred_category_id")
-    private Category secondPreferredCategory;
+  @OneToOne
+  @JoinColumn(name = "second_preferred_category_id")
+  private Category secondPreferredCategory;
 
 
 }
