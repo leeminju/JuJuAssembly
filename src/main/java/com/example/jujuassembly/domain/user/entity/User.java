@@ -26,6 +26,9 @@ public class User extends Timestamped {
   @Column(name = "email")
   private String email;
 
+  @Column(name = "password")
+  private String password;
+
   @Column(name = "is_archived")
   private Boolean isArchived;
 
@@ -41,5 +44,17 @@ public class User extends Timestamped {
   @JoinColumn(name = "second_preferred_category_id")
   private Category secondPreferredCategory;
 
+
+  public User(String loginId, String nickname, String email, String password,
+      Category firstPreferredCategory, Category secondPreferredCategory) {
+    this.loginId = loginId;
+    this.nickname = nickname;
+    this.email = email;
+    this.password = password;
+    this.isArchived = false;
+    this.role = UserRoleEnum.USER;
+    this.firstPreferredCategory = firstPreferredCategory;
+    this.secondPreferredCategory = secondPreferredCategory;
+  }
 
 }
