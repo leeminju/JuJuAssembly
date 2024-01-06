@@ -24,6 +24,8 @@ public class EmailAuthService {
 
   public static final String NICkNAME_AUTHORIZATION_HEADER = "NicknameAuth";
 
+
+  /** 사용자가 회원가입을 위해 인증번호 받을 때 사용되는 메서드 **/
   public void checkAndSendVerificationCode(String loginId, String nickname, String email,
       String password, Long firstPreferredCategoryId, Long secondPreferredCategoryId,
       HttpServletResponse response) {
@@ -47,35 +49,6 @@ public class EmailAuthService {
         new EmailAuth(loginId, nickname, email, passwordEncoder.encode(password),
             firstPreferredCategoryId, secondPreferredCategoryId, sentCode));
   }
-
-  public EmailAuth verifyVerificationCode(String nickname, String verificationCode) {
-    // 가장 최근에 만들어진 인증 데이터 조회 (5분 이내 인증에 실패했을 경우 중복 생성 될 수 있음)
-    var emailAuth = emailAuthRepository.findTopByNicknameOrderByCreatedAtDesc(nickname)
-        .orElseThrow(()
-            -> new IllegalArgumentException("인증 가능한 nickname이 아닙니다."));
-
-    // 5분이 지났는지 검증
-    if (!redisTemplate.hasKey(nickname)) {
-      throw new IllegalArgumentException("5분 초과, 다시 인증하세요");
-    }
-
-    // 인증번호 일치하는지 확인
-    if (!emailAuth.getSentCode().equals(verificationCode)) {
-      throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
-    }
-
-    return emailAuth;
-  }
-
-  public void endEmailAuth(EmailAuth emailAuth, HttpServletResponse response) {
-    redisTemplate.delete(emailAuth.getNickname());
-    emailAuthRepository.delete(emailAuth);
-    Cookie cookie = new Cookie(NICkNAME_AUTHORIZATION_HEADER, null);
-    cookie.setMaxAge(0);
-    cookie.setPath("/");
-    response.addCookie(cookie);
-  }
-
 
   private String sendVerificationCode(String email) {
     String generatedCode = generateRandomCode();
@@ -104,6 +77,36 @@ public class EmailAuthService {
   }
 
 
+  /** 사용자가 인증번호 입력시 사용되는 메서드 **/
+  public EmailAuth checkVerifyVerificationCode(String nickname, String verificationCode) {
+    // 가장 최근에 만들어진 인증 데이터 조회 (5분 이내 인증에 실패했을 경우 중복 생성 될 수 있음)
+    var emailAuth = emailAuthRepository.findTopByNicknameOrderByCreatedAtDesc(nickname)
+        .orElseThrow(()
+            -> new IllegalArgumentException("인증 가능한 nickname이 아닙니다."));
+
+    // 5분이 지났는지 검증
+    if (!redisTemplate.hasKey(nickname)) {
+      throw new IllegalArgumentException("5분 초과, 다시 인증하세요");
+    }
+
+    // 인증번호 일치하는지 확인
+    if (!emailAuth.getSentCode().equals(verificationCode)) {
+      throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
+    }
+
+    return emailAuth;
+  }
+
+  public void endEmailAuth(EmailAuth emailAuth, HttpServletResponse response) {
+    redisTemplate.delete(emailAuth.getNickname());
+    emailAuthRepository.delete(emailAuth);
+    Cookie cookie = new Cookie(NICkNAME_AUTHORIZATION_HEADER, null);
+    cookie.setMaxAge(0);
+    cookie.setPath("/");
+    response.addCookie(cookie);
+  }
+
+  /** 스케쥴러 **/
   // 이메일인증 5분 지났는데도 완료되지않은 데이터 삭제
   @Transactional
   @Scheduled(fixedRate = 5 * 60 * 1000) // 5분에 한번 작동
