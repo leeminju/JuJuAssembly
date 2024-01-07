@@ -4,10 +4,11 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface EmailAuthRepository extends JpaRepository<EmailAuth,Long> {
-    void deleteByCreatedAtBefore(LocalDateTime fiveMinAgo);
+public interface EmailAuthRepository extends JpaRepository<EmailAuth, Long> {
 
-    Optional<EmailAuth> findTopByNicknameOrderByCreatedAtDesc(String nickname);
+  void deleteByCreatedAtBefore(LocalDateTime fiveMinAgo);
+
+  Optional<EmailAuth> findTopByLoginIdOrderByCreatedAtDesc(String nickname);
 
   Optional<EmailAuth> findByLoginId(String loginId);
 

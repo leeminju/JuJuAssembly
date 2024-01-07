@@ -39,9 +39,9 @@ public class UserController {
   @GetMapping("/auth/signup")
   public ResponseEntity<ApiResponse> verificateCode(
       @RequestHeader("verificationCode") String verificationCode,
-      @CookieValue(EmailAuthService.NICkNAME_AUTHORIZATION_HEADER) String nickname,
+      @CookieValue(EmailAuthService.LOGIN_ID_AUTHORIZATION_HEADER) String loginId,
       HttpServletResponse response) {
-    UserResponseDto userResponseDto = userService.verificateCode(verificationCode, nickname,
+    UserResponseDto userResponseDto = userService.verificateCode(verificationCode, loginId,
         response);
     return ResponseEntity.ok()
         .body(new ApiResponse("회원가입 성공", HttpStatus.OK.value(), userResponseDto));

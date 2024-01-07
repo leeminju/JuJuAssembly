@@ -80,10 +80,10 @@ public class UserService {
         firstPreferredCategoryId, secondPreferredCategoryId, response);
   }
 
-  public UserResponseDto verificateCode(String verificationCode, String nickname,
+  public UserResponseDto verificateCode(String verificationCode, String loginId,
       HttpServletResponse response) {
-    EmailAuth emailAuth = emailAuthService.checkVerifyVerificationCode(nickname, verificationCode);
-    String loinId = emailAuth.getLoginId();
+    EmailAuth emailAuth = emailAuthService.checkVerifyVerificationCode(loginId, verificationCode);
+    String nickname = emailAuth.getNickname();
     String email = emailAuth.getEmail();
     String password = emailAuth.getPassword();
 //    Long firstPreferredCategoryId = emailAuth.getFirstPreferredCategoryId();
@@ -97,7 +97,7 @@ public class UserService {
 //        secondPreferredCategory);
 
     // 추후 수정
-    User user = new User(loinId, nickname, email, password, null,
+    User user = new User(loginId, nickname, email, password, null,
         null);
 
     userRepository.save(user);
