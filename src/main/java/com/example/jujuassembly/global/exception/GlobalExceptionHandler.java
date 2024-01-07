@@ -11,9 +11,9 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler({IllegalArgumentException.class})
   public ResponseEntity<ApiResponse> IllegalArgumentExceptionHandler(IllegalArgumentException ex) {
-    ApiResponse commonResponseDto = new ApiResponse(ex.getMessage(),
+    ApiResponse apiResponse = new ApiResponse(ex.getMessage(),
         HttpStatus.BAD_REQUEST.value());
-    return new ResponseEntity<>(commonResponseDto, HttpStatus.BAD_REQUEST);
+    return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
   }
 
 }
