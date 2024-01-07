@@ -1,7 +1,8 @@
 package com.example.jujuassembly.domain.user.controller;
 
+import com.example.jujuassembly.domain.user.dto.LoginRequestDto;
 import com.example.jujuassembly.domain.user.dto.SingupRequestDto;
-import com.example.jujuassembly.domain.user.dto.SignupResponseDto;
+import com.example.jujuassembly.domain.user.dto.UserResponseDto;
 import com.example.jujuassembly.domain.user.service.UserService;
 import com.example.jujuassembly.domain.user.service.emailAuth.EmailAuthService;
 import com.example.jujuassembly.global.response.ApiResponse;
@@ -41,9 +42,19 @@ public class UserController {
       @RequestHeader("verificationCode") String verificationCode,
       @CookieValue(EmailAuthService.NICkNAME_AUTHORIZATION_HEADER) String nickname,
       HttpServletResponse response) {
-    SignupResponseDto signupResponseDto = userService.verificateCode(verificationCode, nickname, response);
+    UserResponseDto userResponseDto = userService.verificateCode(verificationCode, nickname,
+        response);
     return ResponseEntity.ok()
-        .body(new ApiResponse("회원가입 성공", HttpStatus.OK.value(), signupResponseDto));
+        .body(new ApiResponse("회원가입 성공", HttpStatus.OK.value(), userResponseDto));
+  }
+
+  // 로그인
+  @PostMapping("/auth/login")
+  public ResponseEntity<ApiResponse> login(@RequestBody LoginRequestDto requestDto,
+      HttpServletResponse response) {
+    UserResponseDto userResponseDto = userService.login(requestDto, response);
+    return ResponseEntity.ok()
+        .body(new ApiResponse("로그인 성공", HttpStatus.OK.value(), userResponseDto));
   }
 
 }

@@ -83,14 +83,14 @@ public class JwtUtil {
     return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
   }
 
-  public String createToken(String username, UserRoleEnum role) {
+  public String createToken(String loginId, UserRoleEnum role) {
     Date date = new Date();
 
     // 토큰 만료시간 60분
     long TOKEN_TIME = 60 * 60 * 1000;
     return BEARER_PREFIX +
         Jwts.builder()
-            .setSubject(username)
+            .setSubject(loginId)
             .claim(AUTHORIZATION_KEY, role)  // 토큰에도 role 정보를 넣어놨습니다!
             .setExpiration(new Date(date.getTime() + TOKEN_TIME))
             .setIssuedAt(date)

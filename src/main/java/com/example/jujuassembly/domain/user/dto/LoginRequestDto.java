@@ -1,6 +1,5 @@
 package com.example.jujuassembly.domain.user.dto;
 
-import com.example.jujuassembly.domain.user.entity.User;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,15 +8,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class SignupResponseDto {
+public class LoginRequestDto {
 
   private String loginId;
-  private String nickname;
-  private String email;
-
-  public SignupResponseDto(User user) {
-    this.loginId = user.getLoginId();
-    this.nickname = user.getNickname();
-    this.email = user.getEmail();
-  }
+  private String password;
 }

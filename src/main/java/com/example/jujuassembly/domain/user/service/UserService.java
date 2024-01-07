@@ -1,14 +1,15 @@
 package com.example.jujuassembly.domain.user.service;
 
-import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.category.entity.repository.CategoryRepository;
+import com.example.jujuassembly.domain.user.dto.LoginRequestDto;
 import com.example.jujuassembly.domain.user.dto.SingupRequestDto;
-import com.example.jujuassembly.domain.user.dto.SignupResponseDto;
+import com.example.jujuassembly.domain.user.dto.UserResponseDto;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.domain.user.service.emailAuth.EmailAuth;
 import com.example.jujuassembly.domain.user.service.emailAuth.EmailAuthRepository;
 import com.example.jujuassembly.domain.user.service.emailAuth.EmailAuthService;
+import com.example.jujuassembly.global.jwt.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +24,7 @@ public class UserService {
   private final EmailAuthService emailAuthService;
   private final CategoryRepository categoryRepository;
   private final EmailAuthRepository emailAuthRepository;
+  private final JwtUtil jwtUtil;
 
   public void signup(SingupRequestDto singupRequestDto, HttpServletResponse response) {
 
@@ -74,12 +76,11 @@ public class UserService {
       throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
     }
 
-    emailAuthService.checkAndSendVerificationCode(loginId, nickname, email,
-        passwordEncoder.encode(password),
+    emailAuthService.checkAndSendVerificationCode(loginId, nickname, email, password,
         firstPreferredCategoryId, secondPreferredCategoryId, response);
   }
 
-  public SignupResponseDto verificateCode(String verificationCode, String nickname,
+  public UserResponseDto verificateCode(String verificationCode, String nickname,
       HttpServletResponse response) {
     EmailAuth emailAuth = emailAuthService.checkVerifyVerificationCode(nickname, verificationCode);
     String loinId = emailAuth.getLoginId();
@@ -104,6 +105,24 @@ public class UserService {
     //인증 완료되면 임시 데이터 삭제
     emailAuthService.endEmailAuth(emailAuth, response);
 
-    return new SignupResponseDto(user);
+    return new UserResponseDto(user);
+  }
+
+  public UserResponseDto login(LoginRequestDto requestDto, HttpServletResponse response) {
+    // 아이디 확인
+    User user = userRepository.findByLoginId(requestDto.getLoginId()).orElse(null);
+    if (user == null) {
+      throw new IllegalArgumentException("등록된 유저가 없습니다.");
+    }
+    // 패스워드 확인
+    if (!(passwordEncoder.matches(requestDto.getPassword(), user.getPassword()))) {
+      throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+    }
+
+    // loginId가 담긴 JWT를 헤더에 발행
+    String bearerToken = jwtUtil.createToken(user.getLoginId(), user.getRole());
+    response.setHeader(JwtUtil.AUTHORIZATION_HEADER, bearerToken);
+
+    return new UserResponseDto(user);
   }
 }
