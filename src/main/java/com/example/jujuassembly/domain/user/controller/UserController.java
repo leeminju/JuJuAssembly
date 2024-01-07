@@ -35,6 +35,7 @@ public class UserController {
     return ResponseEntity.ok(new ApiResponse<>("인증 번호를 입력해주세요.", HttpStatus.OK.value()));
   }
 
+  // 인증번호 받는 API -> 회원가입 완료 후 DB에 user 정보 저장
   @GetMapping("/auth/signup")
   public ResponseEntity<ApiResponse> verificateCode(
       @RequestHeader("verificationCode") String verificationCode,

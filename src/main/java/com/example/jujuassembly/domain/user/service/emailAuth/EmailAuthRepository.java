@@ -8,4 +8,10 @@ public interface EmailAuthRepository extends JpaRepository<EmailAuth,Long> {
     void deleteByCreatedAtBefore(LocalDateTime fiveMinAgo);
 
     Optional<EmailAuth> findTopByNicknameOrderByCreatedAtDesc(String nickname);
+
+  Optional<EmailAuth> findByLoginId(String loginId);
+
+  Optional<EmailAuth> findByNickname(String nickname);
+
+  Optional<EmailAuth> findByEmail(String email);
 }

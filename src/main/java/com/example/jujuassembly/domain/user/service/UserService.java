@@ -7,6 +7,7 @@ import com.example.jujuassembly.domain.user.dto.SignupResponseDto;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.domain.user.service.emailAuth.EmailAuth;
+import com.example.jujuassembly.domain.user.service.emailAuth.EmailAuthRepository;
 import com.example.jujuassembly.domain.user.service.emailAuth.EmailAuthService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class UserService {
   private final PasswordEncoder passwordEncoder;
   private final EmailAuthService emailAuthService;
   private final CategoryRepository categoryRepository;
+  private final EmailAuthRepository emailAuthRepository;
 
   public void signup(SingupRequestDto singupRequestDto, HttpServletResponse response) {
 
@@ -42,6 +44,17 @@ public class UserService {
       throw new IllegalArgumentException("중복된 nickname 입니다.");
     }
     if (!userRepository.findByEmail(email).isEmpty()) {
+      throw new IllegalArgumentException("중복된 email 입니다.");
+    }
+
+    // 회원가입을 하고있는(인증번호 확인중인 상태) id, nickname, email 중복 검증
+    if (!emailAuthRepository.findByLoginId(loginId).isEmpty()) {
+      throw new IllegalArgumentException("중복된 loginId 입니다.");
+    }
+    if (!emailAuthRepository.findByNickname(nickname).isEmpty()) {
+      throw new IllegalArgumentException("중복된 nickname 입니다.");
+    }
+    if (!emailAuthRepository.findByEmail(email).isEmpty()) {
       throw new IllegalArgumentException("중복된 email 입니다.");
     }
 
