@@ -30,7 +30,6 @@ public class UserController {
   @PostMapping("/auth/signup")
   public ResponseEntity<ApiResponse> siginup(
       @Valid @RequestBody SingupRequestDto singupRequestDto, HttpServletResponse response) {
-    //validation 검증 추가
 
     userService.signup(singupRequestDto, response);
     return ResponseEntity.ok(new ApiResponse<>("인증 번호를 입력해주세요.", HttpStatus.OK.value()));
