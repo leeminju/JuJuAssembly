@@ -5,6 +5,7 @@ import com.example.jujuassembly.domain.user.dto.SingupRequestDto;
 import com.example.jujuassembly.domain.user.dto.UserResponseDto;
 import com.example.jujuassembly.domain.user.service.UserService;
 import com.example.jujuassembly.domain.user.service.emailAuth.EmailAuthService;
+import com.example.jujuassembly.global.jwt.JwtUtil;
 import com.example.jujuassembly.global.response.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -54,6 +55,13 @@ public class UserController {
     UserResponseDto userResponseDto = userService.login(requestDto, response);
     return ResponseEntity.ok()
         .body(new ApiResponse("로그인 성공", HttpStatus.OK.value(), userResponseDto));
+  }
+
+  @PostMapping("/users/logout")
+  public ResponseEntity<ApiResponse> logout(
+      @CookieValue(JwtUtil.AUTHORIZATION_HEADER) String bearerToken) {
+    userService.logout(bearerToken);
+    return ResponseEntity.ok().body(new ApiResponse("로그아웃 성공", HttpStatus.OK.value()));
   }
 
 }

@@ -1,6 +1,5 @@
 package com.example.jujuassembly.global.jwt;
 
-import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -13,14 +12,20 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtUtil {
+
+  private final RedisTemplate<String, String> redisTemplate;
 
 //  private final TokenRepository tokenRepository;
 //
@@ -34,6 +39,10 @@ public class JwtUtil {
   // Token 식별자
   public static final String BEARER_PREFIX = "Bearer ";
 
+  public static final long ACCESS_TOKEN_TIME = 15 * 60 * 1000;  // 15분
+
+  public static final long REFRESH_TOKEN_TIME = 7 * 24 * 60 * 60 * 1000;  // 7일
+
   @Value("${jwt.secret.key}") // Base64 Encode 한 SecretKey
   private String secretKey;
 
@@ -43,10 +52,6 @@ public class JwtUtil {
 
 //  private final String adminToken = "관리자 비밀번호";
 
-  // token의 claims에서 role에 대한 key값
-  // authority를 "(String) info.get(JwtUtil.AUTHORIZATION_KEY)" 으로 받아올 수 있음
-  // 생략 가능
-  public static final String AUTHORIZATION_KEY = "auth";
 
   @PostConstruct
   public void init() {
@@ -83,16 +88,26 @@ public class JwtUtil {
     return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
   }
 
-  public String createToken(String loginId, UserRoleEnum role) {
+  public String createAccessToken(String loginId) {
+    return createToken(loginId, ACCESS_TOKEN_TIME);
+  }
+
+  public String createRefreshToken(String loginId) {
+    return createToken(loginId, REFRESH_TOKEN_TIME);
+  }
+
+  public void saveRefreshToken(String accessToken, String refreshToken) {
+    redisTemplate.opsForValue()
+        .set(accessToken, refreshToken, REFRESH_TOKEN_TIME, TimeUnit.MINUTES);
+  }
+
+  private String createToken(String loginId, long tokenTime) {
     Date date = new Date();
 
-    // 토큰 만료시간 60분
-    long TOKEN_TIME = 60 * 60 * 1000;
     return BEARER_PREFIX +
         Jwts.builder()
             .setSubject(loginId)
-            .claim(AUTHORIZATION_KEY, role)  // 토큰에도 role 정보를 넣어놨습니다!
-            .setExpiration(new Date(date.getTime() + TOKEN_TIME))
+            .setExpiration(new Date(date.getTime() + tokenTime))
             .setIssuedAt(date)
             .signWith(key, signatureAlgorithm)
             .compact();
@@ -109,6 +124,38 @@ public class JwtUtil {
     String tokenValue = resolveToken(request);
     Claims info = getUserInfoFromToken(tokenValue);
     return info.getSubject();
+  }
+
+  public boolean shouldAccessTokenBeRefreshed(String accessToken) {
+    try {
+      Date expirationDate = Jwts.parserBuilder().setSigningKey(key).build()
+          .parseClaimsJws(accessToken).getBody().getExpiration();
+
+      Date now = new Date();
+
+      return expirationDate.before(now);
+    } catch (SecurityException | MalformedJwtException e) {
+      log.error("Invalid JWT signature, 유효하지 않는 Access JWT 서명 입니다.");
+      return false;
+    } catch (ExpiredJwtException e) {
+      log.error("Expired JWT token, 만료된 Access JWT token 입니다.");
+      return true;
+    } catch (UnsupportedJwtException e) {
+      log.error("Unsupported Access JWT token, 지원되지 않는 Access JWT 토큰 입니다.");
+      return false;
+    } catch (IllegalArgumentException e) {
+      log.error("Access JWT claims is empty, 잘못된 Access JWT 토큰 입니다.");
+      return false;
+    }
+  }
+
+  public String getRefreshtokenValue(String accessTokenValue) {
+    return redisTemplate.opsForValue().get(accessTokenValue);
+  }
+
+  public String createAccessTokenByRefreshToken(String refreshToken) {
+    String loginId = getUserInfoFromToken(refreshToken).getSubject();
+    return createAccessToken(loginId);
   }
 
 //  // 발행된 토큰을 테이블에서 만료

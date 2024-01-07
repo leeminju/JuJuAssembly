@@ -109,8 +109,9 @@ public class UserService {
   }
 
   public UserResponseDto login(LoginRequestDto requestDto, HttpServletResponse response) {
+    String loginId = requestDto.getLoginId();
     // 아이디 확인
-    User user = userRepository.findByLoginId(requestDto.getLoginId()).orElse(null);
+    User user = userRepository.findByLoginId(loginId).orElse(null);
     if (user == null) {
       throw new IllegalArgumentException("등록된 유저가 없습니다.");
     }
@@ -119,10 +120,17 @@ public class UserService {
       throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
     }
 
-    // loginId가 담긴 JWT를 헤더에 발행
-    String bearerToken = jwtUtil.createToken(user.getLoginId(), user.getRole());
-    response.setHeader(JwtUtil.AUTHORIZATION_HEADER, bearerToken);
+    // access token 및 refresh token
+    String accessToken = jwtUtil.createAccessToken(loginId);
+    response.setHeader(JwtUtil.AUTHORIZATION_HEADER, accessToken);
+
+    String refreshToken = jwtUtil.createRefreshToken(loginId);
+    jwtUtil.saveRefreshToken(accessToken.substring(7), refreshToken.substring(7));
 
     return new UserResponseDto(user);
+  }
+
+  public void logout(String bearerToken) {
+
   }
 }
