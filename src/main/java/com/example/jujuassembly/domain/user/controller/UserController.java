@@ -4,7 +4,7 @@ import com.example.jujuassembly.domain.user.dto.LoginRequestDto;
 import com.example.jujuassembly.domain.user.dto.SingupRequestDto;
 import com.example.jujuassembly.domain.user.dto.UserResponseDto;
 import com.example.jujuassembly.domain.user.service.UserService;
-import com.example.jujuassembly.domain.user.service.emailAuth.EmailAuthService;
+import com.example.jujuassembly.domain.emailAuth.service.EmailAuthService;
 import com.example.jujuassembly.global.jwt.JwtUtil;
 import com.example.jujuassembly.global.response.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;

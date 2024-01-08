@@ -131,9 +131,8 @@ public class JwtUtil {
       Date expirationDate = Jwts.parserBuilder().setSigningKey(key).build()
           .parseClaimsJws(accessToken).getBody().getExpiration();
 
-      Date now = new Date();
-
-      return expirationDate.before(now);
+      // 토큰의 만료 여부 확인
+      return expirationDate.before(new Date());
     } catch (SecurityException | MalformedJwtException e) {
       log.error("Invalid JWT signature, 유효하지 않는 Access JWT 서명 입니다.");
       return false;

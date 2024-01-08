@@ -1,6 +1,8 @@
-package com.example.jujuassembly.domain.user.service.emailAuth;
+package com.example.jujuassembly.domain.emailAuth.service;
 
-import com.example.jujuassembly.global.service.EmailService;
+import com.example.jujuassembly.domain.emailAuth.entity.EmailAuth;
+import com.example.jujuassembly.domain.emailAuth.repository.EmailAuthRepository;
+import com.example.jujuassembly.global.mail.EmailService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
