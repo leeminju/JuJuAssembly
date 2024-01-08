@@ -17,6 +17,7 @@ public class UserDetailResponseDto {
   private Long firstPreferredCategoryId;
   private Long secondPreferredCategoryId;
   private String email;
+  private String image;
 
   public UserDetailResponseDto(User user) {
     this.loginId = user.getLoginId();
@@ -25,5 +26,6 @@ public class UserDetailResponseDto {
     this.firstPreferredCategoryId = user.getId();
     this.secondPreferredCategoryId = user.getId();
     this.email = user.getEmail();
+    this.image = user.getImage();
   }
 }

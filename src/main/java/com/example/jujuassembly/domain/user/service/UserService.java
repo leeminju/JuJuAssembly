@@ -160,25 +160,16 @@ public class UserService {
  }
 
   //프로필 사진 추가
-  public void uploadImage(Long userId,MultipartFile image) throws Exception{
+  public UserDetailResponseDto uploadImage(Long userId,MultipartFile image) throws Exception{
     User user = userRepository.findById(userId).orElseThrow(()-> new  IllegalArgumentException("존재하지 않는 유저입니다."));
-
-   /* String projectPath = System.getProperty("user.dir") + "\\src\\main\\resources\\static\\files";
-    UUID uuid = UUID.randomUUID();
-    String fileName = uuid + "_" + file.getOriginalFilename();
-    File saveFile = new File(projectPath, fileName);
-    file.transferTo(saveFile);
-
-    user.setFilename(fileName);
-    user.setFilepath("/files/" +fileName);
-
-    userRepository.save(user);*/
+    s3Manager.deleteAllImageFiles(userId.toString(), "users");
 
     if (image!=null && !image.isEmpty()){
-      String url = s3Manager.upload(image,"images");
+      String url = s3Manager.upload(image,"users",userId);
       user.setImage(url);
       userRepository.save(user);
     }
+    return new UserDetailResponseDto(user);
   }
 
 

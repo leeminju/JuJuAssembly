@@ -91,8 +91,10 @@ public class UserController {
 
   //이미지 추가
   @PostMapping("/users/{userId}")
-  public void addImage(@PathVariable Long userId,
+  public ResponseEntity<ApiResponse> addImage(@PathVariable Long userId,
       @RequestParam("image") MultipartFile image) throws Exception{
-    userService.uploadImage(userId, image);
+    UserDetailResponseDto responseDto= userService.uploadImage(userId, image);
+    return ResponseEntity.ok()
+        .body(new ApiResponse<>("사진 추가 성공", HttpStatus.OK.value(), responseDto));
   }
 }

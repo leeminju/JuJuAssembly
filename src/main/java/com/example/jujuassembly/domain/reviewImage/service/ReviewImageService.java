@@ -46,7 +46,7 @@ public class ReviewImageService {
 
   @Transactional(propagation = Propagation.MANDATORY)
   public void deleteImage(Review review, String fileUrl) {
-    s3Manager.deleteReviewImageFile(fileUrl);
+    s3Manager.deleteImageFile(fileUrl,"reviews");
     for (ReviewImage image : review.getReviewImages()) {
       if (image.getImageUrl().equals(fileUrl)) {
         review.getReviewImages().remove(image);
@@ -58,6 +58,6 @@ public class ReviewImageService {
 
   // 리뷰의 모든 파일 삭제
   public void deleteAll(Long reviewId) {
-    s3Manager.deleteAllReviewImageFiles(reviewId.toString());
+    s3Manager.deleteAllImageFiles(reviewId.toString(),"reviews");
   }
 }
