@@ -3,12 +3,14 @@ package com.example.jujuassembly.domain.review.controller;
 import com.example.jujuassembly.domain.review.dto.ReviewRequestDto;
 import com.example.jujuassembly.domain.review.dto.ReviewResponseDto;
 import com.example.jujuassembly.domain.review.service.ReviewService;
+import com.example.jujuassembly.domain.user.entity.UserRoleEnum.Authority;
 import com.example.jujuassembly.global.response.ApiResponse;
 import com.example.jujuassembly.global.security.UserDetailsImpl;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -79,11 +81,20 @@ public class ReviewController {
 
   @GetMapping("/users/{userId}/reviews")
   public ResponseEntity<ApiResponse<List<ReviewResponseDto>>> getMyReviews(
-      @PathVariable Long userId
-  ) {
+      @PathVariable Long userId) {
     List<ReviewResponseDto> reviews = reviewService.getMyReviews(userId);
     return ResponseEntity.ok()
         .body(new ApiResponse(userId + "번 사용자 리뷰 목록 입니다.", HttpStatus.OK.value(), reviews));
+  }
+
+  @Secured(Authority.ADMIN)
+  @PatchMapping("/categories/{categoryId}/products/{productId}/reviews/{reviewId}/verification")
+  public ResponseEntity<ApiResponse<ReviewResponseDto>> verifyReview(@PathVariable Long categoryId,
+      @PathVariable Long productId, @PathVariable Long reviewId,
+      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    ReviewResponseDto responseDto = reviewService.verifyReview(categoryId, productId, reviewId);
+    return ResponseEntity.ok()
+        .body(new ApiResponse(reviewId + "번　리뷰 인증 되었습니다.", HttpStatus.OK.value(), responseDto));
   }
 
 }

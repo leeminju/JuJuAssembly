@@ -70,4 +70,8 @@ public class Review extends Timestamped {
     this.star = requestDto.getStar();
     this.isVerified = false;//수정 했다면 인증을 다시 받아야함.
   }
+
+  public void verify() {
+    this.isVerified = true;
+  }
 }

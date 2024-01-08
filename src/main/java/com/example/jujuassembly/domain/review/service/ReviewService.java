@@ -69,6 +69,7 @@ public class ReviewService {
     Product product = validateProduct(productId);
     validateProductCategory(product, categoryId);
     Review review = validateReview(reviewId);
+    validateProductReview(review, productId);
 
     if (!review.getWriter().getId().equals(user.getId())) {
       throw new ApiException("리뷰 수정은 작성자만 가능합니다.", HttpStatus.FORBIDDEN);
@@ -90,6 +91,7 @@ public class ReviewService {
     Product product = validateProduct(productId);
     validateProductCategory(product, categoryId);
     Review review = validateReview(reviewId);
+    validateProductReview(review, productId);
 
     if (!review.getWriter().getId().equals(user.getId())) {
       throw new ApiException("리뷰 삭제는 작성자만 가능합니다.", HttpStatus.FORBIDDEN);
@@ -106,6 +108,22 @@ public class ReviewService {
 
     List<Review> reviews = reviewRepository.findAllByWriterOrderByModifiedAtDesc(user);
     return reviews.stream().map(ReviewResponseDto::new).toList();
+  }
+
+  @Transactional
+  public ReviewResponseDto verifyReview(Long categoryId, Long productId, Long reviewId) {
+    validateCategory(categoryId);
+    Product product = validateProduct(productId);
+    validateProductCategory(product, categoryId);
+    Review review = validateReview(reviewId);
+    validateProductReview(review, productId);
+
+    if (review.getIsVerified()) {
+      throw new ApiException("이미 인증된 리뷰 입니다.", HttpStatus.BAD_REQUEST);
+    }
+    review.verify();
+
+    return new ReviewResponseDto(review);
   }
 
   //카테고리 존재 검증
@@ -135,6 +153,13 @@ public class ReviewService {
   private void validateProductCategory(Product product, Long categoryId) {
     if (!Objects.equals(product.getCategory().getId(), categoryId)) {
       throw new ApiException("해당 카테고리 상품이 아닙니다.", HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  //리뷰와 상품 일치 검증
+  private void validateProductReview(Review review, Long productId) {
+    if (!Objects.equals(review.getProduct().getId(), productId)) {
+      throw new ApiException("해당 상품의 리뷰가 아닙니다.", HttpStatus.BAD_REQUEST);
     }
   }
 
