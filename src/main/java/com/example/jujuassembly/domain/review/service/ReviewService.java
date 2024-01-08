@@ -9,7 +9,7 @@ import com.example.jujuassembly.domain.review.entity.Review;
 import com.example.jujuassembly.domain.review.repository.ReviewRepository;
 import com.example.jujuassembly.domain.reviewImage.service.ReviewImageService;
 import com.example.jujuassembly.domain.user.entity.User;
-import com.example.jujuassembly.global.response.ApiException;
+import com.example.jujuassembly.global.exception.ApiException;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -6,12 +6,14 @@ import com.example.jujuassembly.domain.user.dto.SingupRequestDto;
 import com.example.jujuassembly.domain.user.dto.UserResponseDto;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
-import com.example.jujuassembly.domain.user.service.emailAuth.EmailAuth;
-import com.example.jujuassembly.domain.user.service.emailAuth.EmailAuthRepository;
-import com.example.jujuassembly.domain.user.service.emailAuth.EmailAuthService;
+import com.example.jujuassembly.domain.emailAuth.entity.EmailAuth;
+import com.example.jujuassembly.domain.emailAuth.repository.EmailAuthRepository;
+import com.example.jujuassembly.domain.emailAuth.service.EmailAuthService;
+import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.jwt.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -51,13 +53,13 @@ public class UserService {
 
     // 회원가입을 하고있는(인증번호 확인중인 상태) id, nickname, email 중복 검증
     if (!emailAuthRepository.findByLoginId(loginId).isEmpty()) {
-      throw new IllegalArgumentException("중복된 loginId 입니다.");
+      throw new IllegalArgumentException("현재 회원가입 중인 loginId 입니다.");
     }
     if (!emailAuthRepository.findByNickname(nickname).isEmpty()) {
-      throw new IllegalArgumentException("중복된 nickname 입니다.");
+      throw new IllegalArgumentException("현재 회원가입 중인 nickname 입니다.");
     }
     if (!emailAuthRepository.findByEmail(email).isEmpty()) {
-      throw new IllegalArgumentException("중복된 email 입니다.");
+      throw new IllegalArgumentException("현재 회원가입중인 email 입니다.");
     }
 
 //    // categoryId 검증
@@ -80,10 +82,10 @@ public class UserService {
         firstPreferredCategoryId, secondPreferredCategoryId, response);
   }
 
-  public UserResponseDto verificateCode(String verificationCode, String nickname,
+  public UserResponseDto verificateCode(String verificationCode, String loginId,
       HttpServletResponse response) {
-    EmailAuth emailAuth = emailAuthService.checkVerifyVerificationCode(nickname, verificationCode);
-    String loinId = emailAuth.getLoginId();
+    EmailAuth emailAuth = emailAuthService.checkVerifyVerificationCode(loginId, verificationCode);
+    String nickname = emailAuth.getNickname();
     String email = emailAuth.getEmail();
     String password = emailAuth.getPassword();
 //    Long firstPreferredCategoryId = emailAuth.getFirstPreferredCategoryId();
@@ -97,7 +99,7 @@ public class UserService {
 //        secondPreferredCategory);
 
     // 추후 수정
-    User user = new User(loinId, nickname, email, password, null,
+    User user = new User(loginId, nickname, email, password, null,
         null);
 
     userRepository.save(user);
@@ -109,20 +111,28 @@ public class UserService {
   }
 
   public UserResponseDto login(LoginRequestDto requestDto, HttpServletResponse response) {
+    String loginId = requestDto.getLoginId();
     // 아이디 확인
-    User user = userRepository.findByLoginId(requestDto.getLoginId()).orElse(null);
+    User user = userRepository.findByLoginId(loginId).orElse(null);
     if (user == null) {
-      throw new IllegalArgumentException("등록된 유저가 없습니다.");
+      throw new ApiException("등록된 유저가 없습니다.", HttpStatus.NOT_FOUND);
     }
     // 패스워드 확인
     if (!(passwordEncoder.matches(requestDto.getPassword(), user.getPassword()))) {
       throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
     }
 
-    // loginId가 담긴 JWT를 헤더에 발행
-    String bearerToken = jwtUtil.createToken(user.getLoginId(), user.getRole());
-    response.setHeader(JwtUtil.AUTHORIZATION_HEADER, bearerToken);
+    // access token 및 refresh token
+    String accessToken = jwtUtil.createAccessToken(loginId);
+    response.setHeader(JwtUtil.AUTHORIZATION_HEADER, accessToken);
+
+    String refreshToken = jwtUtil.createRefreshToken(loginId);
+    jwtUtil.saveRefreshToken(accessToken.substring(7), refreshToken.substring(7));
 
     return new UserResponseDto(user);
+  }
+
+  public void logout(String bearerToken) {
+
   }
 }

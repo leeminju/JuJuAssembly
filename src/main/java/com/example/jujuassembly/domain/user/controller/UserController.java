@@ -4,7 +4,8 @@ import com.example.jujuassembly.domain.user.dto.LoginRequestDto;
 import com.example.jujuassembly.domain.user.dto.SingupRequestDto;
 import com.example.jujuassembly.domain.user.dto.UserResponseDto;
 import com.example.jujuassembly.domain.user.service.UserService;
-import com.example.jujuassembly.domain.user.service.emailAuth.EmailAuthService;
+import com.example.jujuassembly.domain.emailAuth.service.EmailAuthService;
+import com.example.jujuassembly.global.jwt.JwtUtil;
 import com.example.jujuassembly.global.response.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -30,7 +31,6 @@ public class UserController {
   @PostMapping("/auth/signup")
   public ResponseEntity<ApiResponse> siginup(
       @Valid @RequestBody SingupRequestDto singupRequestDto, HttpServletResponse response) {
-    //validation 검증 추가
 
     userService.signup(singupRequestDto, response);
     return ResponseEntity.ok(new ApiResponse<>("인증 번호를 입력해주세요.", HttpStatus.OK.value()));
@@ -40,9 +40,9 @@ public class UserController {
   @GetMapping("/auth/signup")
   public ResponseEntity<ApiResponse> verificateCode(
       @RequestHeader("verificationCode") String verificationCode,
-      @CookieValue(EmailAuthService.NICkNAME_AUTHORIZATION_HEADER) String nickname,
+      @CookieValue(EmailAuthService.LOGIN_ID_AUTHORIZATION_HEADER) String loginId,
       HttpServletResponse response) {
-    UserResponseDto userResponseDto = userService.verificateCode(verificationCode, nickname,
+    UserResponseDto userResponseDto = userService.verificateCode(verificationCode, loginId,
         response);
     return ResponseEntity.ok()
         .body(new ApiResponse("회원가입 성공", HttpStatus.OK.value(), userResponseDto));
@@ -55,6 +55,13 @@ public class UserController {
     UserResponseDto userResponseDto = userService.login(requestDto, response);
     return ResponseEntity.ok()
         .body(new ApiResponse("로그인 성공", HttpStatus.OK.value(), userResponseDto));
+  }
+
+  @PostMapping("/users/logout")
+  public ResponseEntity<ApiResponse> logout(
+      @CookieValue(JwtUtil.AUTHORIZATION_HEADER) String bearerToken) {
+    userService.logout(bearerToken);
+    return ResponseEntity.ok().body(new ApiResponse("로그아웃 성공", HttpStatus.OK.value()));
   }
 
 }

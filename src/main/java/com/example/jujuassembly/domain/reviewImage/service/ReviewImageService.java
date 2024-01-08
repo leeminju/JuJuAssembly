@@ -3,7 +3,7 @@ package com.example.jujuassembly.domain.reviewImage.service;
 import com.example.jujuassembly.domain.review.entity.Review;
 import com.example.jujuassembly.domain.reviewImage.entity.ReviewImage;
 import com.example.jujuassembly.domain.reviewImage.repository.ReviewImageRepository;
-import com.example.jujuassembly.global.response.ApiException;
+import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.s3.S3Manager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
