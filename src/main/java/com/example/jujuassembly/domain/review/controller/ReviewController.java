@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,12 +20,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/v1/categories")
+@RequestMapping("/v1/categories/{categoryId}/products/{productId}/reviews")
 public class ReviewController {
 
   private final ReviewService reviewService;
 
-  @PostMapping("/{categoryId}/products/{productId}/reviews")
+  @PostMapping
   public ResponseEntity<ApiResponse<ReviewResponseDto>> createProductsReview(
       @PathVariable Long categoryId,
       @PathVariable Long productId,
@@ -32,10 +33,27 @@ public class ReviewController {
       @RequestPart(name = "data") ReviewRequestDto requestDto,
       @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
 
-    ReviewResponseDto responseDto = reviewService.createProductsReview(categoryId, productId, images, requestDto, userDetails.getUser());
+    ReviewResponseDto responseDto = reviewService.createProductsReview(categoryId, productId,
+        images, requestDto, userDetails.getUser());
 
-    return new ResponseEntity<>(
-        new ApiResponse<>("리뷰가 등록되었습니다", HttpStatus.CREATED.value(), responseDto),
-        HttpStatus.CREATED);
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(new ApiResponse("리뷰가 등록되었습니다", HttpStatus.CREATED.value(), responseDto));
   }
+
+  @PatchMapping("/{reviewId}")
+  public ResponseEntity<ApiResponse<ReviewResponseDto>> updateProductsReview(
+      @PathVariable Long categoryId,
+      @PathVariable Long productId,
+      @PathVariable Long reviewId,
+      @RequestParam(name = "images", required = false) MultipartFile[] images,
+      @RequestPart(name = "data") ReviewRequestDto requestDto,
+      @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
+
+    ReviewResponseDto responseDto = reviewService.updateProductsReview(categoryId, productId,
+        reviewId, images, requestDto, userDetails.getUser());
+
+    return ResponseEntity.ok()
+        .body(new ApiResponse<>("리뷰가 수정되었습니다", HttpStatus.CREATED.value(), responseDto));
+  }
+
 }

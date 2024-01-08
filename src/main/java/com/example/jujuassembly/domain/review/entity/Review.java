@@ -62,4 +62,11 @@ public class Review extends Timestamped {
     this.product = product;
     this.writer = user;
   }
+
+  public void update(ReviewRequestDto requestDto) {
+    this.description = requestDto.getDescription();
+    this.munchies = requestDto.getMunchies();
+    this.star = requestDto.getStar();
+    this.isVerified = false;//수정 했다면 인증을 다시 받아야함.
+  }
 }

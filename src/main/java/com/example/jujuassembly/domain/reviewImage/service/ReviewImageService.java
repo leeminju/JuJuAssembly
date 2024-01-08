@@ -22,9 +22,7 @@ public class ReviewImageService {
   private final S3Manager s3Manager;
 
   @Transactional(propagation = Propagation.MANDATORY)
-  public void uploadImages(Review review, MultipartFile[] images) throws Exception {
-    int length = images.length;
-    int count = 0;
+  public void uploadReviewImages(Review review, MultipartFile[] images) throws Exception {
     for (MultipartFile image : images) {
       if (image.getContentType() == null) {
         continue;
@@ -39,14 +37,16 @@ public class ReviewImageService {
           image
       );
 
-      ReviewImage postImage = new ReviewImage(review, imageUrl);
-      reviewImageRepository.save(postImage);
+      ReviewImage reviewImage = new ReviewImage(review, imageUrl);
+      reviewImageRepository.save(reviewImage);
     }
   }
 
+  //리뷰 이미지 1개 삭제
   @Transactional(propagation = Propagation.MANDATORY)
-  public void deleteImage(Review review, String fileUrl) {
-    s3Manager.deleteReviewImageFile(fileUrl);
+  public void deleteReviewImage(Review review, String fileUrl) {
+    reviewImageRepository.deleteByReview(review);
+    s3Manager.deleteImageFile(fileUrl, "reviews");
     for (ReviewImage image : review.getReviewImages()) {
       if (image.getImageUrl().equals(fileUrl)) {
         review.getReviewImages().remove(image);
@@ -56,8 +56,11 @@ public class ReviewImageService {
     }
   }
 
-  // 리뷰의 모든 파일 삭제
-  public void deleteAll(Long reviewId) {
-    s3Manager.deleteAllReviewImageFiles(reviewId.toString());
+  // 디렉토리의 모든 파일 삭제
+  public void deleteAllReviewImages(Review review, String dirName) {
+    reviewImageRepository.deleteAllByReview(review);
+    review.getReviewImages().removeAll(review.getReviewImages());
+    s3Manager.deleteAllImageFiles(review.getId().toString(), dirName);
   }
 }
+
