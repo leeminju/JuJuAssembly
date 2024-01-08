@@ -53,12 +53,12 @@ public class S3Manager {
   }
 
   @Transactional(propagation = Propagation.NOT_SUPPORTED)
-  public void deletePostFile(String fileUrl) {
+  public void deleteReviewImageFile(String fileUrl) {
     amazonS3Client.deleteObject(bucket, extractKey(fileUrl));
   }
 
   @Transactional(propagation = Propagation.NOT_SUPPORTED)
-  public void deleteAllPostFiles(String reviewId) {
+  public void deleteAllReviewImageFiles(String reviewId) {
     ListObjectsRequest listObjectsRequest = new ListObjectsRequest()
         .withBucketName(bucket)
         .withPrefix("reviews/" + reviewId + "/");
