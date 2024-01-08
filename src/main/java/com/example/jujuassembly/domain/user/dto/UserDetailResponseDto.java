@@ -9,14 +9,21 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class SingupRequestDto {
+public class UserDetailResponseDto {
 
   private String loginId;
   private String nickname;
   private String password;
-  private String passwordCheck;
   private Long firstPreferredCategoryId;
   private Long secondPreferredCategoryId;
   private String email;
 
+  public UserDetailResponseDto(User user) {
+    this.loginId = user.getLoginId();
+    this.nickname = user.getNickname();
+    this.password = user.getPassword();
+    this.firstPreferredCategoryId = user.getId();
+    this.secondPreferredCategoryId = user.getId();
+    this.email = user.getEmail();
+  }
 }
