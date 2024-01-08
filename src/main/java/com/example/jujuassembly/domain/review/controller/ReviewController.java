@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,8 +28,7 @@ public class ReviewController {
 
   @PostMapping
   public ResponseEntity<ApiResponse<ReviewResponseDto>> createProductsReview(
-      @PathVariable Long categoryId,
-      @PathVariable Long productId,
+      @PathVariable Long categoryId, @PathVariable Long productId,
       @RequestParam(name = "images", required = false) MultipartFile[] images,
       @RequestPart(name = "data") ReviewRequestDto requestDto,
       @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
@@ -37,14 +37,12 @@ public class ReviewController {
         images, requestDto, userDetails.getUser());
 
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(new ApiResponse("리뷰가 등록되었습니다", HttpStatus.CREATED.value(), responseDto));
+        .body(new ApiResponse("리뷰가 등록되었습니다.", HttpStatus.CREATED.value(), responseDto));
   }
 
   @PatchMapping("/{reviewId}")
   public ResponseEntity<ApiResponse<ReviewResponseDto>> updateProductsReview(
-      @PathVariable Long categoryId,
-      @PathVariable Long productId,
-      @PathVariable Long reviewId,
+      @PathVariable Long categoryId, @PathVariable Long productId, @PathVariable Long reviewId,
       @RequestParam(name = "images", required = false) MultipartFile[] images,
       @RequestPart(name = "data") ReviewRequestDto requestDto,
       @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
@@ -53,7 +51,16 @@ public class ReviewController {
         reviewId, images, requestDto, userDetails.getUser());
 
     return ResponseEntity.ok()
-        .body(new ApiResponse<>("리뷰가 수정되었습니다", HttpStatus.CREATED.value(), responseDto));
+        .body(new ApiResponse<>("리뷰가 수정되었습니다.", HttpStatus.OK.value(), responseDto));
   }
 
+  @DeleteMapping("/{reviewId}")
+  public ResponseEntity<ApiResponse<ReviewResponseDto>> deleteProductsReview(
+      @PathVariable Long categoryId, @PathVariable Long productId, @PathVariable Long reviewId,
+      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+    reviewService.deleteProductsReview(categoryId, productId, reviewId, userDetails.getUser());
+
+    return ResponseEntity.ok().body(new ApiResponse<>("리뷰가 삭제되었습니다.", HttpStatus.OK.value()));
+  }
 }

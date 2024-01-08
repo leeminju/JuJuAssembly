@@ -58,8 +58,8 @@ public class ReviewImageService {
 
   // 디렉토리의 모든 파일 삭제
   public void deleteAllReviewImages(Review review, String dirName) {
-    reviewImageRepository.deleteAllByReview(review);
     review.getReviewImages().removeAll(review.getReviewImages());
+    reviewImageRepository.deleteAllByReview(review);
     s3Manager.deleteAllImageFiles(review.getId().toString(), dirName);
   }
 }
