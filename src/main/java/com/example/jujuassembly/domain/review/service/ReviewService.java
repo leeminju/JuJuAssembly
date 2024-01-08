@@ -9,7 +9,9 @@ import com.example.jujuassembly.domain.review.entity.Review;
 import com.example.jujuassembly.domain.review.repository.ReviewRepository;
 import com.example.jujuassembly.domain.reviewImage.service.ReviewImageService;
 import com.example.jujuassembly.domain.user.entity.User;
+import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.global.exception.ApiException;
+import java.util.List;
 import java.util.Objects;
 import jdk.jshell.spi.ExecutionControl.RunException;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ public class ReviewService {
   private final CategoryRepository categoryRepository;
   private final ProductRepository productRepository;
   private final ReviewRepository reviewRepository;
+  private final UserRepository userRepository;
   private final ReviewImageService reviewImageService;
 
   @Transactional
@@ -46,6 +49,14 @@ public class ReviewService {
     reviewImageService.uploadReviewImages(savedReview, images);
 
     return new ReviewResponseDto(savedReview);
+  }
+
+  public List<ReviewResponseDto> getProductsReview(Long categoryId, Long productId, User user) {
+    validateCategory(categoryId);
+    Product product = validateProduct(productId);
+    validateProductCategory(product, categoryId);
+
+    return product.getReviews().stream().map(ReviewResponseDto::new).toList();
   }
 
   @Transactional
@@ -86,6 +97,15 @@ public class ReviewService {
     //기존의 파일 모두 삭제
     reviewRepository.delete(review);
     reviewImageService.deleteAllReviewImages(review, "reviews");
+  }
+
+  public List<ReviewResponseDto> getMyReviews(Long userId) {
+    User user = userRepository.findById(userId).orElseThrow(
+        () -> new ApiException("해당하는 유저가 없습니다.", HttpStatus.NOT_FOUND)
+    );
+
+    List<Review> reviews = reviewRepository.findAllByWriterOrderByModifiedAtDesc(user);
+    return reviews.stream().map(ReviewResponseDto::new).toList();
   }
 
   //카테고리 존재 검증
