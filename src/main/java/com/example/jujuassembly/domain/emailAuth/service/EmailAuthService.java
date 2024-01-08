@@ -2,6 +2,7 @@ package com.example.jujuassembly.domain.emailAuth.service;
 
 import com.example.jujuassembly.domain.emailAuth.entity.EmailAuth;
 import com.example.jujuassembly.domain.emailAuth.repository.EmailAuthRepository;
+import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.mail.EmailService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,6 +12,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,10 +35,6 @@ public class EmailAuthService {
   public void checkAndSendVerificationCode(String loginId, String nickname, String email,
       String password, Long firstPreferredCategoryId, Long secondPreferredCategoryId,
       HttpServletResponse response) {
-    // 인증번호 보낸 내역이 있는지 확인
-    if (Boolean.TRUE.equals(redisTemplate.hasKey(loginId))) {
-      throw new IllegalArgumentException("해당 이메일 주소로 인증번호가 이미 발송되었습니다.");
-    }
 
     // 인증번호 메일 보내기
     String sentCode = sendVerificationCode(email);
@@ -92,7 +90,7 @@ public class EmailAuthService {
 
     // 5분이 지났는지 검증
     if (!redisTemplate.hasKey(loginId)) {
-      throw new IllegalArgumentException("5분 초과, 다시 인증하세요");
+      throw new ApiException("5분 초과, 다시 인증하세요", HttpStatus.REQUEST_TIMEOUT);
     }
 
     // 인증번호 일치하는지 확인

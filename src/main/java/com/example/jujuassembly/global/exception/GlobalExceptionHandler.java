@@ -1,6 +1,5 @@
 package com.example.jujuassembly.global.exception;
 
-import com.example.jujuassembly.global.response.ApiException;
 import com.example.jujuassembly.global.response.ApiResponse;
 import java.util.HashMap;
 import org.springframework.http.HttpHeaders;

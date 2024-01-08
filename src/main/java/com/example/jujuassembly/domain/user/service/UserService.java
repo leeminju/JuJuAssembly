@@ -9,9 +9,11 @@ import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.domain.emailAuth.entity.EmailAuth;
 import com.example.jujuassembly.domain.emailAuth.repository.EmailAuthRepository;
 import com.example.jujuassembly.domain.emailAuth.service.EmailAuthService;
+import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.jwt.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -51,13 +53,13 @@ public class UserService {
 
     // 회원가입을 하고있는(인증번호 확인중인 상태) id, nickname, email 중복 검증
     if (!emailAuthRepository.findByLoginId(loginId).isEmpty()) {
-      throw new IllegalArgumentException("중복된 loginId 입니다.");
+      throw new IllegalArgumentException("현재 회원가입 중인 loginId 입니다.");
     }
     if (!emailAuthRepository.findByNickname(nickname).isEmpty()) {
-      throw new IllegalArgumentException("중복된 nickname 입니다.");
+      throw new IllegalArgumentException("현재 회원가입 중인 nickname 입니다.");
     }
     if (!emailAuthRepository.findByEmail(email).isEmpty()) {
-      throw new IllegalArgumentException("중복된 email 입니다.");
+      throw new IllegalArgumentException("현재 회원가입중인 email 입니다.");
     }
 
 //    // categoryId 검증
@@ -113,7 +115,7 @@ public class UserService {
     // 아이디 확인
     User user = userRepository.findByLoginId(loginId).orElse(null);
     if (user == null) {
-      throw new IllegalArgumentException("등록된 유저가 없습니다.");
+      throw new ApiException("등록된 유저가 없습니다.", HttpStatus.NOT_FOUND);
     }
     // 패스워드 확인
     if (!(passwordEncoder.matches(requestDto.getPassword(), user.getPassword()))) {
