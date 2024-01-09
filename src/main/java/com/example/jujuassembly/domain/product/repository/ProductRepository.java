@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    // 카테고리 ID를 기준으로 상품 조회
+    // 카테고리 ID를 기준으로 상품 조회.
     Page<Product> findByCategoryId(Long categoryId, Pageable pageable);
 }
