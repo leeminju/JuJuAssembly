@@ -45,11 +45,11 @@ public class User extends Timestamped {
   @Setter
   private String image;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "first_preferred_category_id")
   private Category firstPreferredCategory;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "second_preferred_category_id")
   private Category secondPreferredCategory;
 

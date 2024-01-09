@@ -1,4 +1,4 @@
-package com.example.jujuassembly.global.response;
+package com.example.jujuassembly.global.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
