@@ -83,7 +83,6 @@ public class UserController {
   public ResponseEntity<ApiResponse> updatePofile(@PathVariable Long userId,
       @RequestBody UserModifyRequestDto modifyRequestDto,
       @AuthenticationPrincipal UserDetailsImpl userDetails){
-    log.info("test");
     UserDetailResponseDto responseDto = userService.modifyProfile(userId, userDetails.getUser(), modifyRequestDto);
     return ResponseEntity.ok()
         .body(new ApiResponse("프로필 수정 완료", HttpStatus.OK.value(),responseDto));

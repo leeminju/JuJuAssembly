@@ -41,14 +41,6 @@ public class User extends Timestamped {
   @Enumerated(value = EnumType.STRING)
   private UserRoleEnum role;
 
-/*  @Column(name = "filename")
-  @Setter
-  private String filename;
-
-  @Column(name = "filepath")
-  @Setter
-  private String filepath;*/
-
   @Column
   @Setter
   private String image;

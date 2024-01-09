@@ -36,7 +36,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     if (Objects.nonNull(token)) {
       if (jwtUtil.validateToken(token)) {
-        log.info(token);
         Claims info = jwtUtil.getUserInfoFromToken(token);
 
         // 인증정보에 유저정보(username) 넣기
@@ -51,7 +50,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         // -> securityContent 에 담고
         context.setAuthentication(authentication);
         // -> SecurityContextHolder 에 담고
-        log.info("contextholder저장");
         SecurityContextHolder.setContext(context);
         // -> 이제 @AuthenticationPrincipal 로 조회할 수 있음
       } else {
