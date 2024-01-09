@@ -36,11 +36,11 @@ public class User extends Timestamped {
   @Enumerated(value = EnumType.STRING)
   private UserRoleEnum role;
 
-  @OneToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "first_preferred_category_id")
   private Category firstPreferredCategory;
 
-  @OneToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "second_preferred_category_id")
   private Category secondPreferredCategory;
 
