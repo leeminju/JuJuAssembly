@@ -34,28 +34,36 @@ public class ProductController {
     public ResponseEntity<ApiResponse> createProduct(@PathVariable Long categoryId, @RequestParam(value = "image", required = false) MultipartFile image,
                                                      @RequestPart("data") @Valid ProductRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
         productService.createProduct(categoryId, requestDto, image, userDetails.getUser());
-        return ResponseEntity.ok(new ApiResponse<>("상품 등록에 성공하였습니다.", HttpStatus.CREATED.value()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>("상품 등록에 성공하였습니다.", HttpStatus.CREATED.value()));
     }
 
     // 전체 상품 목록 조회 + 페이징 정렬
     @GetMapping("/products")
     public ResponseEntity<ApiResponse<List<ProductResponseDto>>> getProducts(@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         List<ProductResponseDto> page = productService.getProducts(pageable);
-        return ResponseEntity.ok(new ApiResponse<>("상품 전체 조회에 성공하였습니다.", HttpStatus.OK.value(), page));
+        return ResponseEntity.ok().body(new ApiResponse<>("상품 전체 조회에 성공하였습니다.", HttpStatus.OK.value(), page));
     }
 
     // 카테고리별 상품 목록 조회 + 페이징 정렬
     @GetMapping("/categories/{categoryId}/products")
     public ResponseEntity<ApiResponse<List<ProductResponseDto>>> getProductsByCategory(@PathVariable Long categoryId, @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         List<ProductResponseDto> page = productService.getProductsByCategory(categoryId, pageable);
-        return ResponseEntity.ok(new ApiResponse<>("카테고리별 상품 조회에 성공하였습니다.", HttpStatus.OK.value(), page));
+        return ResponseEntity.ok().body(new ApiResponse<>("카테고리별 상품 조회에 성공하였습니다.", HttpStatus.OK.value(), page));
     }
 
     // 상품 상세 조회
     @GetMapping("/categories/{categoryId}/products/{productId}")
     public ResponseEntity<ApiResponse> getProduct(@PathVariable Long productId, @PathVariable Long categoryId) {
         ProductResponseDto responseDto = productService.getProduct(productId, categoryId);
-        return ResponseEntity.ok(new ApiResponse<>("상품 상세 조회에 성공하였습니다.", HttpStatus.OK.value(), responseDto));
+        return ResponseEntity.ok().body(new ApiResponse<>("상품 상세 조회에 성공하였습니다.", HttpStatus.OK.value(), responseDto));
+    }
+
+    // 상품 검색
+    @GetMapping("/products/search")
+    public ResponseEntity<ApiResponse<List<ProductResponseDto>>> getProductsBySearch(@RequestParam String keyword, @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        List<ProductResponseDto> responseDtoList = productService.getProductsBySearch(keyword, pageable);
+
+        return ResponseEntity.ok().body(new ApiResponse<>("상품 검색에 성공하였습니다.", HttpStatus.OK.value(), responseDtoList));
     }
 
     // 상품 수정
@@ -64,7 +72,7 @@ public class ProductController {
     public ResponseEntity<ApiResponse> updateProduct(@PathVariable Long categoryId, @PathVariable Long productId, @RequestParam(value = "image", required = false) MultipartFile image,
                                                      @RequestPart("data") @Valid ProductRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
         productService.updateProduct(categoryId, productId, requestDto, image, userDetails.getUser());
-        return ResponseEntity.ok(new ApiResponse<>("상품 수정에 성공하였습니다.", HttpStatus.OK.value()));
+        return ResponseEntity.ok().body(new ApiResponse<>("상품 수정에 성공하였습니다.", HttpStatus.OK.value()));
     }
 
     // 상품 삭제
@@ -72,7 +80,7 @@ public class ProductController {
     @DeleteMapping("/categories/{categoryId}/products/{productId}")
     public ResponseEntity<ApiResponse> deleteProduct(@PathVariable Long productId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         productService.deleteProduct(productId, userDetails.getUser());
-        return ResponseEntity.ok(new ApiResponse<>("상품 삭제에 성공하였습니다.", HttpStatus.OK.value()));
+        return ResponseEntity.ok().body(new ApiResponse<>("상품 삭제에 성공하였습니다.", HttpStatus.OK.value()));
     }
 
 
