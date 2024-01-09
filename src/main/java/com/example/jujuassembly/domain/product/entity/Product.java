@@ -1,6 +1,7 @@
 package com.example.jujuassembly.domain.product.entity;
 
 import com.example.jujuassembly.domain.category.entity.Category;
+import com.example.jujuassembly.domain.product.dto.ProductRequestDto;
 import com.example.jujuassembly.domain.review.entity.Review;
 import com.example.jujuassembly.global.entity.Timestamped;
 import jakarta.persistence.*;
@@ -43,7 +44,27 @@ public class Product extends Timestamped {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Review> reviews = new LinkedHashSet<>();
 
+    public Product(ProductRequestDto requestDto, Category category) {
+        this.name = requestDto.getName();
+        this.description = requestDto.getDescription();
+        this.area = requestDto.getArea();
+        this.company = requestDto.getCompany();
+        this.alcoholDegree = requestDto.getAlcoholDegree();
+        this.category = category;
+
+    }
+
+    public void update(ProductRequestDto requestDto) {
+        this.name = requestDto.getName();
+        this.description = requestDto.getDescription();
+        this.alcoholDegree = requestDto.getAlcoholDegree();
+        this.company = requestDto.getCompany();
+    }
+
+    public void setImage(String url) {
+        this.image = url;
+    }
 }
