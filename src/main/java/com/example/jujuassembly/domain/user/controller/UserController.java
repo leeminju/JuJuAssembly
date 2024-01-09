@@ -11,6 +11,7 @@ import com.example.jujuassembly.domain.emailAuth.service.EmailAuthService;
 import com.example.jujuassembly.global.jwt.JwtUtil;
 import com.example.jujuassembly.global.response.ApiResponse;
 import com.example.jujuassembly.global.security.UserDetailsImpl;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@Slf4j (topic = "user_controller")
+@Slf4j(topic = "user_controller")
 @RequiredArgsConstructor
 @RequestMapping("/v1")
 public class UserController {
@@ -68,42 +69,41 @@ public class UserController {
     return ResponseEntity.ok()
         .body(new ApiResponse("로그인 성공", HttpStatus.OK.value(), userResponseDto));
   }
-  
+
   @PostMapping("/users/logout")
-  public ResponseEntity<ApiResponse> logout(
-      @CookieValue(JwtUtil.AUTHORIZATION_HEADER) String bearerToken) {
-    userService.logout(bearerToken);
+  public ResponseEntity<ApiResponse> logout(HttpServletRequest request) {
+    userService.logout(request);
     return ResponseEntity.ok().body(new ApiResponse("로그아웃 성공", HttpStatus.OK.value()));
   }
 
   //프로필 조회 (연우)
-  @GetMapping ("/users/{userId}")
+  @GetMapping("/users/{userId}")
   public ResponseEntity<ApiResponse> viewProfile(@PathVariable Long userId,
-      @AuthenticationPrincipal UserDetailsImpl userDetails){
+      @AuthenticationPrincipal UserDetailsImpl userDetails) {
     UserDetailResponseDto responseDto = userService.viewProfile(userId, userDetails.getUser());
     return ResponseEntity.ok()
-        .body(new ApiResponse("프로필 조회", HttpStatus.OK.value(),responseDto));
+        .body(new ApiResponse("프로필 조회", HttpStatus.OK.value(), responseDto));
   }
 
   //프로실 수정
-  @PatchMapping ("/users/{userId}")
+  @PatchMapping("/users/{userId}")
   public ResponseEntity<ApiResponse> updatePofile(@PathVariable Long userId,
       @RequestBody UserModifyRequestDto modifyRequestDto,
-      @AuthenticationPrincipal UserDetailsImpl userDetails){
-    UserDetailResponseDto responseDto = userService.modifyProfile(userId, userDetails.getUser(), modifyRequestDto);
+      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    UserDetailResponseDto responseDto = userService.modifyProfile(userId, userDetails.getUser(),
+        modifyRequestDto);
     return ResponseEntity.ok()
-        .body(new ApiResponse("프로필 수정 완료", HttpStatus.OK.value(),responseDto));
+        .body(new ApiResponse("프로필 수정 완료", HttpStatus.OK.value(), responseDto));
   }
 
   //이미지 추가
   @PostMapping("/users/{userId}")
   public ResponseEntity<ApiResponse> addImage(@PathVariable Long userId,
-      @RequestParam("image") MultipartFile image) throws Exception{
-    UserDetailResponseDto responseDto= userService.uploadImage(userId, image);
+      @RequestParam("image") MultipartFile image) throws Exception {
+    UserDetailResponseDto responseDto = userService.uploadImage(userId, image);
     return ResponseEntity.ok()
         .body(new ApiResponse<>("사진 추가 성공", HttpStatus.OK.value(), responseDto));
   }
-
 
 
 }

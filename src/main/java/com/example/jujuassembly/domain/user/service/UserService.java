@@ -14,6 +14,7 @@ import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.jwt.JwtUtil;
 import com.example.jujuassembly.global.s3.S3Manager;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -140,6 +141,14 @@ public class UserService {
     return new UserResponseDto(user);
   }
 
+  public void logout(HttpServletRequest request) {
+    String loginId = jwtUtil.getLoginIdFromHeader(request);
+    String accessTokenValue = jwtUtil.resolveToken(request);
+
+    jwtUtil.removeRefreshToken(accessTokenValue);
+    jwtUtil.removeAccessToken(loginId);
+  }
+
 
   public UserDetailResponseDto viewProfile(Long userId, User user) {
     //본인 확인
@@ -178,8 +187,5 @@ public class UserService {
   }
 
 
-  public void logout(String bearerToken) {
-
-  }
 
 }
