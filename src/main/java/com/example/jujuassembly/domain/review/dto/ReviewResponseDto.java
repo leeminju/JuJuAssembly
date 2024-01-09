@@ -2,8 +2,9 @@ package com.example.jujuassembly.domain.review.dto;
 
 import com.example.jujuassembly.domain.review.entity.Review;
 import com.example.jujuassembly.domain.reviewImage.entity.ReviewImage;
+import com.example.jujuassembly.domain.reviewLike.entity.ReviewLike;
+import com.example.jujuassembly.domain.reviewLike.entity.ReviewLikeStatusEnum;
 import com.example.jujuassembly.domain.user.dto.UserResponseDto;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
@@ -21,8 +22,8 @@ public class ReviewResponseDto {
   private Double star;
   private String munchies;
   private Boolean isVerified;
-  private LocalDateTime createdAt;
-  private LocalDateTime modifiedAt;
+  private Integer likeCount=0;
+  private Integer dislikeCount=0;
 
   public ReviewResponseDto(Review savedReview) {
     this.id = savedReview.getId();
@@ -37,7 +38,14 @@ public class ReviewResponseDto {
     this.star = savedReview.getStar();
     this.munchies = savedReview.getMunchies();
     this.isVerified = savedReview.getIsVerified();
-    this.createdAt = savedReview.getCreatedAt();
-    this.modifiedAt = savedReview.getModifiedAt();
+
+    for (ReviewLike reviewLike : savedReview.getReviewLikes()) {
+      if (reviewLike.getStatus().equals(ReviewLikeStatusEnum.LIKE)) {
+        likeCount++;
+      } else {
+        dislikeCount++;
+      }
+    }
+
   }
 }

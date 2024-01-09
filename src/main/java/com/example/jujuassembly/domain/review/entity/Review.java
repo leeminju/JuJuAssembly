@@ -3,6 +3,7 @@ package com.example.jujuassembly.domain.review.entity;
 import com.example.jujuassembly.domain.product.entity.Product;
 import com.example.jujuassembly.domain.review.dto.ReviewRequestDto;
 import com.example.jujuassembly.domain.reviewImage.entity.ReviewImage;
+import com.example.jujuassembly.domain.reviewLike.entity.ReviewLike;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.global.entity.Timestamped;
 import jakarta.persistence.CascadeType;
@@ -54,6 +55,9 @@ public class Review extends Timestamped {
 
   @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<ReviewImage> reviewImages = new LinkedHashSet<>();
+
+  @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+  private Set<ReviewLike> reviewLikes = new LinkedHashSet<>();
 
   public Review(ReviewRequestDto requestDto, Product product, User user) {
     this.description = requestDto.getDescription();
