@@ -11,10 +11,11 @@ import com.example.jujuassembly.domain.reviewImage.service.ReviewImageService;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.global.exception.ApiException;
-import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,12 +51,15 @@ public class ReviewService {
     return new ReviewResponseDto(savedReview);
   }
 
-  public List<ReviewResponseDto> getProductsReview(Long categoryId, Long productId, User user) {
+  public Page<ReviewResponseDto> getProductsReview(Long categoryId, Long productId, User user,
+      Pageable pageable) {
     validateCategory(categoryId);
     Product product = validateProduct(productId);
     validateProductCategory(product, categoryId);
 
-    return product.getReviews().stream().map(ReviewResponseDto::new).toList();
+    Page<Review> reviews = reviewRepository.findAllByProduct(product, pageable);
+
+    return reviews.map(ReviewResponseDto::new);
   }
 
   @Transactional
@@ -100,13 +104,13 @@ public class ReviewService {
     reviewImageService.deleteAllReviewImages(review, "reviews");
   }
 
-  public List<ReviewResponseDto> getMyReviews(Long userId) {
+  public Page<ReviewResponseDto> getMyReviews(Long userId, Pageable pageable) {
     User user = userRepository.findById(userId).orElseThrow(
         () -> new ApiException("해당하는 유저가 없습니다.", HttpStatus.NOT_FOUND)
     );
 
-    List<Review> reviews = reviewRepository.findAllByWriterOrderByModifiedAtDesc(user);
-    return reviews.stream().map(ReviewResponseDto::new).toList();
+    Page<Review> reviews = reviewRepository.findAllByWriter(user, pageable);
+    return reviews.map(ReviewResponseDto::new);
   }
 
   @Transactional

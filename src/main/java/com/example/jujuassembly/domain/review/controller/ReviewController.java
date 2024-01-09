@@ -6,8 +6,11 @@ import com.example.jujuassembly.domain.review.service.ReviewService;
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum.Authority;
 import com.example.jujuassembly.global.response.ApiResponse;
 import com.example.jujuassembly.global.security.UserDetailsImpl;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -44,12 +47,13 @@ public class ReviewController {
         .body(new ApiResponse("리뷰가 등록되었습니다.", HttpStatus.CREATED.value(), responseDto));
   }
 
-  @GetMapping
-  public ResponseEntity<ApiResponse<List<ReviewResponseDto>>> getProductsReview(
+  @GetMapping("/categories/{categoryId}/products/{productId}/reviews")
+  public ResponseEntity<ApiResponse<Page<ReviewResponseDto>>> getProductsReview(
       @PathVariable Long categoryId, @PathVariable Long productId,
-      @AuthenticationPrincipal UserDetailsImpl userDetails) {
-    List<ReviewResponseDto> reviews = reviewService.getProductsReview(categoryId, productId,
-        userDetails.getUser());
+      @AuthenticationPrincipal UserDetailsImpl userDetails,
+      @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    Page<ReviewResponseDto> reviews = reviewService.getProductsReview(categoryId, productId,
+        userDetails.getUser(), pageable);
     return ResponseEntity.ok()
         .body(new ApiResponse(productId + "번 상품 내 리뷰 목록 입니다.", HttpStatus.OK.value(), reviews));
   }
@@ -80,9 +84,11 @@ public class ReviewController {
   }
 
   @GetMapping("/users/{userId}/reviews")
-  public ResponseEntity<ApiResponse<List<ReviewResponseDto>>> getMyReviews(
-      @PathVariable Long userId) {
-    List<ReviewResponseDto> reviews = reviewService.getMyReviews(userId);
+  public ResponseEntity<ApiResponse<Page<ReviewResponseDto>>> getMyReviews(
+      @PathVariable Long userId,
+      @PageableDefault(page = 1, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+  ) {
+    Page<ReviewResponseDto> reviews = reviewService.getMyReviews(userId, pageable);
     return ResponseEntity.ok()
         .body(new ApiResponse(userId + "번 사용자 리뷰 목록 입니다.", HttpStatus.OK.value(), reviews));
   }
