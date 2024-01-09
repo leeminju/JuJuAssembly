@@ -73,11 +73,11 @@ public class UserService {
       throw new ApiException("현재 회원가입중인 email 입니다.", HttpStatus.BAD_REQUEST);
     }
 
-//    // categoryId 검증
-//    categoryRepository.findById(firstPreferredCategoryId)
-//        .orElseThrow(() -> new ApiException("존재하지 않는 firstPreferredCategoryId 입니다.", HttpStatus.NOT_FOUND));
-//    categoryRepository.findById(secondPreferredCategoryId)
-//        .orElseThrow(() -> new ApiException("존재하지 않는 secondPreferredCategoryId 입니다.", HttpStatus.NOT_FOUND));
+    // categoryId 검증
+    categoryRepository.findById(firstPreferredCategoryId)
+        .orElseThrow(() -> new ApiException("존재하지 않는 firstPreferredCategoryId 입니다.", HttpStatus.NOT_FOUND));
+    categoryRepository.findById(secondPreferredCategoryId)
+        .orElseThrow(() -> new ApiException("존재하지 않는 secondPreferredCategoryId 입니다.", HttpStatus.NOT_FOUND));
 
     // password 확인
     // 1. nickname과 같은 값이 포함됐는지
@@ -99,19 +99,15 @@ public class UserService {
     String nickname = emailAuth.getNickname();
     String email = emailAuth.getEmail();
     String password = emailAuth.getPassword();
-//    Long firstPreferredCategoryId = emailAuth.getFirstPreferredCategoryId();
-//    Category firstPreferredCategory = categoryRepository.findById(firstPreferredCategoryId)
-//        .orElseThrow(() -> new ApiException("존재하지 않는 firstPreferredCategoryId입니다.", HttpStatus.NOT_FOUND));
-//    Long secondPreferredCategoryId = emailAuth.getSecondPreferredCategoryId();
-//    Category secondPreferredCategory = categoryRepository.findById(secondPreferredCategoryId)
-//        .orElseThrow(() -> new ApiException("존재하지 않는 secondPreferredCategoryId입니다.", HttpStatus.NOT_FOUND));
-//
-//    User user = new User(loginId, nickname, email, password, firstPreferredCategory,
-//        secondPreferredCategory);
+    Long firstPreferredCategoryId = emailAuth.getFirstPreferredCategoryId();
+    Category firstPreferredCategory = categoryRepository.findById(firstPreferredCategoryId)
+        .orElseThrow(() -> new ApiException("존재하지 않는 firstPreferredCategoryId입니다.", HttpStatus.NOT_FOUND));
+    Long secondPreferredCategoryId = emailAuth.getSecondPreferredCategoryId();
+    Category secondPreferredCategory = categoryRepository.findById(secondPreferredCategoryId)
+        .orElseThrow(() -> new ApiException("존재하지 않는 secondPreferredCategoryId입니다.", HttpStatus.NOT_FOUND));
 
-    // 추후 수정
-    User user = new User(loginId, nickname, email, password, null,
-        null);
+    User user = new User(loginId, nickname, email, password, firstPreferredCategory,
+        secondPreferredCategory);
 
     userRepository.save(user);
 
