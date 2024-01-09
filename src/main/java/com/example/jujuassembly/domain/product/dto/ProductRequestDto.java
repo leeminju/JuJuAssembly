@@ -5,7 +5,6 @@ import lombok.Getter;
 
 @Data
 public class ProductRequestDto {
-    private String image;
     private String name;
     private String description;
     private String area;
