@@ -3,6 +3,7 @@ package com.example.jujuassembly.domain.user.entity;
 import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.review.entity.Review;
 import com.example.jujuassembly.domain.reviewLike.entity.ReviewLike;
+import com.example.jujuassembly.domain.like.entity.Like;
 import com.example.jujuassembly.domain.user.dto.UserModifyRequestDto;
 import com.example.jujuassembly.global.entity.Timestamped;
 import jakarta.persistence.CascadeType;
@@ -71,6 +72,9 @@ public class User extends Timestamped {
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<ReviewLike> reviewLikes = new LinkedHashSet<>();
+
+  @OneToMany (mappedBy = "user", cascade = CascadeType.ALL)
+  private List<Like> likes = new ArrayList<>();
 
 
   public User(String loginId, String nickname, String email, String password,
