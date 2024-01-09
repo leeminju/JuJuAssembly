@@ -3,8 +3,10 @@ package com.example.jujuassembly.domain.like.entity;
 import com.example.jujuassembly.domain.product.entity.Product;
 import com.example.jujuassembly.domain.user.entity.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import net.minidev.json.annotate.JsonIgnore;
 
 @NoArgsConstructor
 @Getter
@@ -24,4 +26,9 @@ public class Like {
     @JoinColumn (name = "product_id")
     private Product product;
 
+    public Like(Product product, User user) {
+        this.id = id;
+        this.product = product;
+        this.user = user;
+    }
 }

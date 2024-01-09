@@ -1,6 +1,7 @@
 package com.example.jujuassembly.domain.user.entity;
 
 import com.example.jujuassembly.domain.category.entity.Category;
+import com.example.jujuassembly.domain.like.entity.Like;
 import com.example.jujuassembly.domain.user.dto.UserModifyRequestDto;
 import com.example.jujuassembly.global.entity.Timestamped;
 import jakarta.persistence.*;
@@ -52,6 +53,9 @@ public class User extends Timestamped {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "second_preferred_category_id")
   private Category secondPreferredCategory;
+
+  @OneToMany (mappedBy = "user", cascade = CascadeType.ALL)
+  private List<Like> likes = new ArrayList<>();
 
 
   public User(String loginId, String nickname, String email, String password,
