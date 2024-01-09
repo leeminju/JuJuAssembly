@@ -1,6 +1,7 @@
 package com.example.jujuassembly.domain.user.entity;
 
 import com.example.jujuassembly.domain.category.entity.Category;
+import com.example.jujuassembly.domain.like.entity.Like;
 import com.example.jujuassembly.domain.user.dto.UserModifyRequestDto;
 import com.example.jujuassembly.global.entity.Timestamped;
 import jakarta.persistence.*;
