@@ -1,6 +1,9 @@
 package com.example.jujuassembly.domain.user.service;
 
-import com.example.jujuassembly.domain.category.entity.repository.CategoryRepository;
+import com.example.jujuassembly.domain.category.repository.CategoryRepository;
+import com.example.jujuassembly.domain.emailAuth.entity.EmailAuth;
+import com.example.jujuassembly.domain.emailAuth.repository.EmailAuthRepository;
+import com.example.jujuassembly.domain.emailAuth.service.EmailAuthService;
 import com.example.jujuassembly.domain.user.dto.LoginRequestDto;
 import com.example.jujuassembly.domain.user.dto.SingupRequestDto;
 import com.example.jujuassembly.domain.user.dto.UserDetailResponseDto;
@@ -8,15 +11,10 @@ import com.example.jujuassembly.domain.user.dto.UserModifyRequestDto;
 import com.example.jujuassembly.domain.user.dto.UserResponseDto;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
-import com.example.jujuassembly.domain.emailAuth.entity.EmailAuth;
-import com.example.jujuassembly.domain.emailAuth.repository.EmailAuthRepository;
-import com.example.jujuassembly.domain.emailAuth.service.EmailAuthService;
 import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.jwt.JwtUtil;
 import com.example.jujuassembly.global.s3.S3Manager;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

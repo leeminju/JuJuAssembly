@@ -1,6 +1,6 @@
 package com.example.jujuassembly.domain.review.service;
 
-import com.example.jujuassembly.domain.category.entity.repository.CategoryRepository;
+import com.example.jujuassembly.domain.category.repository.CategoryRepository;
 import com.example.jujuassembly.domain.product.entity.Product;
 import com.example.jujuassembly.domain.product.repository.ProductRepository;
 import com.example.jujuassembly.domain.review.dto.ReviewRequestDto;
@@ -13,7 +13,6 @@ import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.global.exception.ApiException;
 import java.util.List;
 import java.util.Objects;
-import jdk.jshell.spi.ExecutionControl.RunException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
