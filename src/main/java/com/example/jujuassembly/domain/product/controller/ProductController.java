@@ -58,6 +58,14 @@ public class ProductController {
         return ResponseEntity.ok(new ApiResponse<>("상품 상세 조회에 성공하였습니다.", HttpStatus.OK.value(), responseDto));
     }
 
+    // 상품 검색
+    @GetMapping("/products/search")
+    public ResponseEntity<ApiResponse<List<ProductResponseDto>>> getProductsBySearch(@RequestParam String keyword, @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        List<ProductResponseDto> responseDtoList = productService.getProductsBySearch(keyword, pageable);
+
+        return ResponseEntity.ok(new ApiResponse<>("상품 검색에 성공하였습니다.", HttpStatus.OK.value(), responseDtoList));
+    }
+
     // 상품 수정
     @Secured(UserRoleEnum.Authority.ADMIN)
     @PatchMapping("/categories/{categoryId}/products/{productId}")

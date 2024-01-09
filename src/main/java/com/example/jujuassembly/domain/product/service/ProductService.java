@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -84,6 +85,17 @@ public class ProductService {
         return new ProductResponseDto(product);
     }
 
+    // 상품 검색
+    public List<ProductResponseDto> getProductsBySearch(String keyword, Pageable pageable) {
+        if (!StringUtils.hasText(keyword)) {
+            throw new NullPointerException("검색어를 입력해 주세요.");
+        }
+
+        Page<Product> products = productRepository.findByKeyword(keyword, pageable);
+        return products.getContent().stream()
+                .map(ProductResponseDto::new)
+                .collect(Collectors.toList());
+    }
 
 
     // 상품 수정
@@ -121,4 +133,5 @@ public class ProductService {
 
         productRepository.delete(product);
     }
+
 }
