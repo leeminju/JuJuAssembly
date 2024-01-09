@@ -99,5 +99,7 @@ public class User extends Timestamped {
     this.secondPreferredCategory = modifyRequestDto.getSecondPreferredCategoryId();
   }
 
-
+  public void setIsArchived(boolean b) {
+    this.isArchived = b;
+  }
 }

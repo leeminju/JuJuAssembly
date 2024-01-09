@@ -14,6 +14,7 @@ import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.jwt.JwtUtil;
 import com.example.jujuassembly.global.s3.S3Manager;
+import com.example.jujuassembly.global.security.UserDetailsImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -186,6 +187,18 @@ public class UserService {
     return new UserDetailResponseDto(user);
   }
 
+  // 회원 탈퇴
+  @Transactional
+  public void deleteAccount(Long userId, String password, UserDetailsImpl userDetails) {
+    User user = userRepository.findById(userId).orElseThrow(() -> new ApiException("등록된 유저가 없습니다.", HttpStatus.BAD_REQUEST));
+    if (!userId.equals(userDetails.getUser().getId())) {
+      throw new ApiException("해당 사용자만 로그아웃 할 수 있습니다.", HttpStatus.UNAUTHORIZED);
+    }
 
+    if (!passwordEncoder.matches(password,user.getPassword())) {
+      throw new ApiException("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST);
+    }
 
+    user.setIsArchived(true);
+  }
 }

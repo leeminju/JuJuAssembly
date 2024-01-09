@@ -16,10 +16,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -70,6 +72,7 @@ public class UserController {
         .body(new ApiResponse("로그인 성공", HttpStatus.OK.value(), userResponseDto));
   }
 
+  // 로그아웃
   @PostMapping("/users/logout")
   public ResponseEntity<ApiResponse> logout(HttpServletRequest request) {
     userService.logout(request);
@@ -102,7 +105,15 @@ public class UserController {
       @RequestParam("image") MultipartFile image) throws Exception {
     UserDetailResponseDto responseDto = userService.uploadImage(userId, image);
     return ResponseEntity.ok()
-        .body(new ApiResponse<>("사진 추가 성공", HttpStatus.OK.value(), responseDto));
+        .body(new ApiResponse("사진 추가 성공", HttpStatus.OK.value(), responseDto));
+  }
+
+  @DeleteMapping("/users/{userId}")
+  public ResponseEntity<ApiResponse> deleteAccount(@PathVariable Long userId,
+      @RequestHeader("Password") String password,
+      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    userService.deleteAccount(userId, password, userDetails);
+    return ResponseEntity.ok().body(new ApiResponse("회원 탈퇴 성공", HttpStatus.OK.value()));
   }
 
 
