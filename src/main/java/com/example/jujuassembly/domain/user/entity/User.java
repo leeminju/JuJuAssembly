@@ -53,6 +53,9 @@ public class User extends Timestamped {
   @JoinColumn(name = "second_preferred_category_id")
   private Category secondPreferredCategory;
 
+  @OneToMany (mappedBy = "user", cascade = CascadeType.ALL)
+  private List<Like> likes = new ArrayList<>();
+
 
   public User(String loginId, String nickname, String email, String password,
       Category firstPreferredCategory, Category secondPreferredCategory) {

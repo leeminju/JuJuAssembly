@@ -2,9 +2,12 @@ package com.example.jujuassembly.domain.product.entity;
 
 import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.product.dto.ProductRequestDto;
+import com.example.jujuassembly.domain.like.entity.Like;
 import com.example.jujuassembly.domain.review.entity.Review;
 import com.example.jujuassembly.global.entity.Timestamped;
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -67,4 +70,7 @@ public class Product extends Timestamped {
     public void setImage(String url) {
         this.image = url;
     }
+    @OneToMany (mappedBy = "product", cascade = CascadeType.ALL)
+    private List<Like> likes = new ArrayList<>();
+
 }
