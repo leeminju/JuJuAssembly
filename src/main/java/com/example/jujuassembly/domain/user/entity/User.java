@@ -1,11 +1,16 @@
 package com.example.jujuassembly.domain.user.entity;
 
 import com.example.jujuassembly.domain.category.entity.Category;
+import com.example.jujuassembly.domain.user.dto.UserModifyRequestDto;
 import com.example.jujuassembly.global.entity.Timestamped;
 import jakarta.persistence.*;
+import java.sql.Array;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -36,6 +41,10 @@ public class User extends Timestamped {
   @Enumerated(value = EnumType.STRING)
   private UserRoleEnum role;
 
+  @Column
+  @Setter
+  private String image;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "first_preferred_category_id")
   private Category firstPreferredCategory;
@@ -56,5 +65,14 @@ public class User extends Timestamped {
     this.firstPreferredCategory = firstPreferredCategory;
     this.secondPreferredCategory = secondPreferredCategory;
   }
+
+  public void updateUser(UserModifyRequestDto modifyRequestDto) {
+    this.nickname = modifyRequestDto.getNickname();
+    this.email = modifyRequestDto.getEmail();
+    this.password = modifyRequestDto.getPassword();
+    this.firstPreferredCategory = modifyRequestDto.getFirstPreferredCategoryId();
+    this.secondPreferredCategory = modifyRequestDto.getSecondPreferredCategoryId();
+  }
+
 
 }

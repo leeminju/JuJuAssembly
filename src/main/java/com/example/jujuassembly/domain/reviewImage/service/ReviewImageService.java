@@ -56,6 +56,7 @@ public class ReviewImageService {
     }
   }
 
+
   // 디렉토리의 모든 파일 삭제
   public void deleteAllReviewImages(Review review, String dirName) {
     review.getReviewImages().removeAll(review.getReviewImages());
