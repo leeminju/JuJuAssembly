@@ -31,10 +31,6 @@ public class ProductService {
     // 이미지 업로드 + 상품 등록
     @Transactional
     public ProductResponseDto createProduct(Long categoryId, ProductRequestDto requestDto, MultipartFile image, User user) throws Exception {
-        if (!UserRoleEnum.ADMIN.getAuthority().equals(user.getRole())) {
-            throw new IllegalArgumentException("관리자만 상품을 등록할 수 있습니다.");
-        }
-
         Category category = categoryRepository.findById(categoryId).orElseThrow(()
                 -> new IllegalArgumentException("해당 카테고리가 존재하지 않습니다."));
 
@@ -103,14 +99,6 @@ public class ProductService {
             throw new IllegalArgumentException("해당 카테고리가 존재하지 않습니다.");
         }
 
-        System.out.println("User Role: " + user.getRole());
-        System.out.println("Expected Role: " + UserRoleEnum.ADMIN.getAuthority());
-
-        if (!UserRoleEnum.ADMIN.getAuthority().equals(user.getRole())) {
-            throw new IllegalArgumentException("관리자만 상품을 수정할 수 있습니다.");
-        }
-
-
         //기존의 파일 모두 삭제
         s3Manager.deleteAllImageFiles(productId.toString(), "products");
 
@@ -130,11 +118,9 @@ public class ProductService {
         Product product = productRepository.findById(productId).orElseThrow(()
                 -> new IllegalArgumentException("상품이 존재하지 않습니다."));
 
+        //기존의 파일 모두 삭제
+        s3Manager.deleteAllImageFiles(productId.toString(), "products");
 
-        if (!UserRoleEnum.ADMIN.getAuthority().equals(user.getRole())) {
-            throw new IllegalArgumentException("관리자만 상품을 삭제할 수 있습니다.");
-        }
-        
         productRepository.delete(product);
     }
 }
