@@ -12,20 +12,14 @@ import lombok.NoArgsConstructor;
 @Table(name = "review_images")
 public class ReviewImage {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "review_id")
-  private Review review;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "review_id")
+    private Review review;
 
-  @Column(name = "image_url")
-  private String imageUrl;
-
-  public ReviewImage(Review review, String imageUrl) {
-    this.review = review;
-    this.imageUrl = imageUrl;
-    review.getReviewImages().add(this);
-  }
+    @Column(name = "image_url")
+    private String imageUrl;
 }

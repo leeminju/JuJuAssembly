@@ -1,4 +1,4 @@
-package com.example.jujuassembly.global.mail;
+package com.example.jujuassembly.global.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;

@@ -2,7 +2,6 @@ package com.example.jujuassembly.global.config;
 
 
 import com.example.jujuassembly.global.jwt.JwtUtil;
-import com.example.jujuassembly.global.security.CustomAuthenticationEntryPoint;
 import com.example.jujuassembly.global.security.JwtAuthorizationFilter;
 import com.example.jujuassembly.global.security.UserDetailsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -24,13 +22,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@EnableGlobalMethodSecurity(securedEnabled = true)
 public class WebSecurityConfig {
 
   private final JwtUtil jwtUtil;
+
   private final UserDetailsService userDetailsService;
-  private final AccessDeniedHandler customAccessDeniedHandler;
-  private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+
   private final ObjectMapper objectMapper;
 
   @Bean
@@ -62,12 +59,26 @@ public class WebSecurityConfig {
     );
 
     // 필터 관리
-    http.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
-        .exceptionHandling(handler -> handler.accessDeniedHandler(customAccessDeniedHandler))
-        .exceptionHandling(
-            handler -> handler.authenticationEntryPoint(customAuthenticationEntryPoint));
+    http.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
 
+    // 접근불가 페이지 생성시 활용
+//        http.exceptionHandling(config -> {
+//            config.authenticationEntryPoint(errorPoint());
+//            config.accessDeniedHandler(accessDeniedHandler());
+//        });
 
     return http.build();
+  }
+
+  private AccessDeniedHandler accessDeniedHandler() {
+    return (request, response, ex) -> {
+      response.setStatus(400);
+    };
+  }
+
+  private AuthenticationEntryPoint errorPoint() {
+    return (request, response, authException) -> {
+      authException.printStackTrace();
+    };
   }
 }

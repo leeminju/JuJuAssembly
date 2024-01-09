@@ -34,8 +34,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     bindingResult.getAllErrors()
         .forEach(error -> errors.put(((FieldError) error).getField(), error.getDefaultMessage()));
 
-    ApiResponse<HashMap<String, String>> apiResponse = new ApiResponse("입력값이 유효하지 않습니다.",
-        HttpStatus.BAD_REQUEST.value(), errors);
+    ApiResponse<HashMap<String,String>> apiResponse = new ApiResponse("입력값이 유효하지 않습니다.", HttpStatus.BAD_REQUEST.value(), errors);
     return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
   }
 
@@ -44,15 +43,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   protected ResponseEntity<Object> handleMissingServletRequestParameter(
       MissingServletRequestParameterException ex, HttpHeaders headers, HttpStatusCode status,
       WebRequest request) {
-    ApiResponse apiResponse = new ApiResponse<>("누락된 파라미터" + ex.getParameterName(),
-        HttpStatus.BAD_REQUEST.value());
+    ApiResponse apiResponse = new ApiResponse<>("누락된 파라미터" + ex.getParameterName(),HttpStatus.BAD_REQUEST.value() );
     return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
-  }
-
-  @ExceptionHandler(ApiException.class)
-  public ResponseEntity<ApiResponse> apiExceptionHandler(ApiException ex) {
-    return new ResponseEntity<>(new ApiResponse(ex.getMsg(), ex.getStatus().value()),
-        ex.getStatus());
   }
 }
 

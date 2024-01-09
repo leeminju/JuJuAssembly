@@ -1,4 +1,4 @@
-package com.example.jujuassembly.domain.emailAuth.entity;
+package com.example.jujuassembly.domain.user.service.emailAuth;
 
 import com.example.jujuassembly.global.entity.Timestamped;
 import jakarta.persistence.Column;

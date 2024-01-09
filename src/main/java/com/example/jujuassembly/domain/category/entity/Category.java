@@ -1,6 +1,5 @@
 package com.example.jujuassembly.domain.category.entity;
 
-import com.example.jujuassembly.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -18,6 +17,4 @@ public class Category {
 
     @Column
     private String name;
-
-
 }
