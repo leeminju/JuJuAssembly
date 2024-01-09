@@ -3,6 +3,8 @@ package com.example.jujuassembly.domain.user.service;
 import com.example.jujuassembly.domain.category.entity.repository.CategoryRepository;
 import com.example.jujuassembly.domain.user.dto.LoginRequestDto;
 import com.example.jujuassembly.domain.user.dto.SingupRequestDto;
+import com.example.jujuassembly.domain.user.dto.UserDetailResponseDto;
+import com.example.jujuassembly.domain.user.dto.UserModifyRequestDto;
 import com.example.jujuassembly.domain.user.dto.UserResponseDto;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
@@ -11,14 +13,21 @@ import com.example.jujuassembly.domain.emailAuth.repository.EmailAuthRepository;
 import com.example.jujuassembly.domain.emailAuth.service.EmailAuthService;
 import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.jwt.JwtUtil;
+import com.example.jujuassembly.global.s3.S3Manager;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 
   private final UserRepository userRepository;
@@ -27,6 +36,7 @@ public class UserService {
   private final CategoryRepository categoryRepository;
   private final EmailAuthRepository emailAuthRepository;
   private final JwtUtil jwtUtil;
+  private final S3Manager s3Manager;
 
   public void signup(SingupRequestDto singupRequestDto, HttpServletResponse response) {
 
@@ -132,7 +142,46 @@ public class UserService {
     return new UserResponseDto(user);
   }
 
+
+  public UserDetailResponseDto viewProfile(Long userId, User user) {
+    //본인 확인
+    if (!user.getId().equals(userId)){
+      throw new IllegalArgumentException("본인만 조회할 수 있습니다.");
+    }
+
+    User loginUser = userRepository.findById(userId).orElseThrow(()-> new  IllegalArgumentException("존재하지 않는 유저입니다."));
+    return new UserDetailResponseDto(user);
+  }
+
+  //프로필 수정
+  @Transactional
+ public UserDetailResponseDto modifyProfile(Long userId, User user, UserModifyRequestDto modifyRequestDto){
+   if (!user.getId().equals(userId)){
+     throw new IllegalArgumentException("본인만 조회할 수 있습니다.");
+   }
+
+   User loginUser = userRepository.findById(userId).orElseThrow(()-> new  IllegalArgumentException("존재하지 않는 유저입니다."));
+   loginUser.updateUser(modifyRequestDto);
+   userRepository.save(loginUser);
+   return new UserDetailResponseDto(loginUser);
+ }
+
+  //프로필 사진 추가
+  public UserDetailResponseDto uploadImage(Long userId,MultipartFile image) throws Exception{
+    User user = userRepository.findById(userId).orElseThrow(()-> new  IllegalArgumentException("존재하지 않는 유저입니다."));
+    s3Manager.deleteAllImageFiles(userId.toString(), "users");
+
+    if (image!=null && !image.isEmpty()){
+      String url = s3Manager.upload(image,"users",userId);
+      user.setImage(url);
+      userRepository.save(user);
+    }
+    return new UserDetailResponseDto(user);
+  }
+
+
   public void logout(String bearerToken) {
 
   }
+
 }

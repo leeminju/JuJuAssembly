@@ -5,6 +5,7 @@ import com.example.jujuassembly.domain.review.dto.ReviewRequestDto;
 import com.example.jujuassembly.domain.reviewImage.entity.ReviewImage;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.global.entity.Timestamped;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -51,7 +52,7 @@ public class Review extends Timestamped {
   @JoinColumn(name = "user_id")
   private User writer;
 
-  @OneToMany(mappedBy = "review")
+  @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<ReviewImage> reviewImages = new LinkedHashSet<>();
 
   public Review(ReviewRequestDto requestDto, Product product, User user) {
@@ -61,5 +62,16 @@ public class Review extends Timestamped {
     this.isVerified = false;
     this.product = product;
     this.writer = user;
+  }
+
+  public void update(ReviewRequestDto requestDto) {
+    this.description = requestDto.getDescription();
+    this.munchies = requestDto.getMunchies();
+    this.star = requestDto.getStar();
+    this.isVerified = false;//수정 했다면 인증을 다시 받아야함.
+  }
+
+  public void verify() {
+    this.isVerified = true;
   }
 }
