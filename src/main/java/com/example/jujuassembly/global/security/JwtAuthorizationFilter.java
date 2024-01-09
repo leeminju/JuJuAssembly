@@ -32,11 +32,25 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
       FilterChain filterChain)
       throws ServletException, IOException {
-    String token = jwtUtil.resolveToken(request);
+    String accessTokenValue = jwtUtil.resolveToken(request);
 
-    if (Objects.nonNull(token)) {
-      if (jwtUtil.validateToken(token)) {
-        Claims info = jwtUtil.getUserInfoFromToken(token);
+    if (Objects.nonNull(accessTokenValue)) {
+
+      // accessToken이 만료되었는지 확인
+      if (jwtUtil.shouldAccessTokenBeRefreshed(accessTokenValue)) {
+        String refreshTokenValue = jwtUtil.getRefreshtokenValue(accessTokenValue);
+        // refreshtoken이 유효한지 확인
+        if (jwtUtil.validateToken(refreshTokenValue)) {
+          // accessToken 재발급
+          String accessToken = jwtUtil.createAccessTokenByRefreshToken(refreshTokenValue);
+          response.setHeader(JwtUtil.AUTHORIZATION_HEADER, accessTokenValue);
+          accessTokenValue = accessToken.substring(7);
+        }
+        // 유효하지 않다면 재발급 없이 만료된 상태로 진행
+      }
+
+      if (jwtUtil.validateToken(accessTokenValue)) {
+        Claims info = jwtUtil.getUserInfoFromToken(accessTokenValue);
 
         // 인증정보에 유저정보(username) 넣기
         // username -> user 조회
@@ -58,6 +72,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         response.setContentType("application/json; charset=UTF-8");
         response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
+        return;//return을 해줘야 결과 출력
       }
     }
 
