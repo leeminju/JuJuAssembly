@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ReviewRepository extends JpaRepository<Review,Long> {
 
-  Page<Review> findAllByWriter(User user, Pageable pageable);
+  Page<Review> findAllByUser(User user, Pageable pageable);
 
   Page<Review> findAllByProduct(Product product, Pageable pageable);
 }
