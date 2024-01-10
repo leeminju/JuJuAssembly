@@ -33,13 +33,13 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
       FilterChain filterChain)
       throws ServletException, IOException {
 
-    String accessTokenValue = jwtUtil.resolveToken(request);
+    String accessToken = jwtUtil.getTokenFromRequest(request);
 
-    if (Objects.nonNull(accessTokenValue)) {
-
+    if (Objects.nonNull(accessToken)) {
+      String accessTokenValue = accessToken.substring(7);
       // accessToken이 만료되었는지 확인
-      if (jwtUtil.shouldAccessTokenBeRefreshed(accessTokenValue)) {
-        String refreshTokenValue = jwtUtil.getRefreshtoken(accessTokenValue).substring(7);
+      if (jwtUtil.shouldAccessTokenBeRefreshed(accessToken.substring(7))) {
+        String refreshTokenValue = jwtUtil.getRefreshtoken(accessToken).substring(7);
         // refreshtoken이 유효한지 확인
         if (jwtUtil.validateToken(refreshTokenValue)) {
           // accessToken 재발급
@@ -47,7 +47,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
           response.setHeader(JwtUtil.AUTHORIZATION_HEADER, newAccessToken);
 
           // DB 토큰도 새로고침
-          jwtUtil.regenerateToken(newAccessToken, accessTokenValue, refreshTokenValue);
+          jwtUtil.regenerateToken(newAccessToken, accessToken, refreshTokenValue);
 
           // 재발급된 토큰으로 검증 진행하도록 대입
           accessTokenValue = newAccessToken.substring(7);

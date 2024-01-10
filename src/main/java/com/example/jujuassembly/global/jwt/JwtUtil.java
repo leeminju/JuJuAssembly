@@ -10,6 +10,7 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
@@ -36,7 +37,7 @@ public class JwtUtil {
   public static final String BEARER_PREFIX = "Bearer ";
   public static final String ACCESS_PREFIX = "Access ";
 
-  public static final long ACCESS_TOKEN_TIME =  10*1000;  // 15분
+  public static final long ACCESS_TOKEN_TIME = 10 * 1000;  // 15분
 
   public static final long REFRESH_TOKEN_TIME = 7 * 24 * 60 * 60 * 1000;  // 7일
 
@@ -56,10 +57,10 @@ public class JwtUtil {
     key = Keys.hmacShaKeyFor(bytes);
   }
 
-  public String resolveToken(HttpServletRequest request) {
+  public String getTokenFromRequest(HttpServletRequest request) {
     String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
     if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
-      return bearerToken.substring(7);
+      return bearerToken;
     }
     return null;
   }
@@ -93,14 +94,14 @@ public class JwtUtil {
     return createToken(loginId, REFRESH_TOKEN_TIME);
   }
 
-  public void saveAccessToken(String loginId, String accessToken) {
+  public void saveAccessTokenByLoginId(String loginId, String accessToken) {
     redisTemplate.opsForValue()
-        .set(loginId, accessToken, ACCESS_TOKEN_TIME, TimeUnit.MILLISECONDS);
+        .set(loginId, accessToken, REFRESH_TOKEN_TIME, TimeUnit.MILLISECONDS);
   }
 
-  public void saveRefreshToken(String tokenValue, String refreshToken) {
+  public void saveRefreshTokenByAccessToken(String accessToken, String refreshToken) {
     redisTemplate.opsForValue()
-        .set(tokenValue, refreshToken, REFRESH_TOKEN_TIME, TimeUnit.MILLISECONDS);
+        .set(accessToken, refreshToken, REFRESH_TOKEN_TIME, TimeUnit.MILLISECONDS);
   }
 
   private String createToken(String loginId, long tokenTime) {
@@ -116,22 +117,27 @@ public class JwtUtil {
   }
 
 
-  // 헤더에서 LoginId 가져오기
-  public String getLoginIdFromHeader(HttpServletRequest request) {
-    String tokenValue = resolveToken(request);
-    Claims info = getUserInfoFromToken(tokenValue);
-    return info.getSubject();
-  }
-
   public boolean shouldAccessTokenBeRefreshed(String accessTokenValue) {
-    String refreshTokenValue = getRefreshtoken(accessTokenValue).substring(7);
-    Claims claims = getUserInfoFromToken(refreshTokenValue);
-    String loginId = claims.getSubject();
-    return !redisTemplate.hasKey(loginId);
+    try {
+      Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessTokenValue);
+      return false;
+    } catch (SecurityException | MalformedJwtException e) {
+      log.error("Invalid JWT signature, 유효하지 않는 JWT 서명 입니다.");
+      return false;
+    } catch (ExpiredJwtException e) {
+      log.error("Expired JWT token, 만료된 JWT token 입니다.");
+      return true;
+    } catch (UnsupportedJwtException e) {
+      log.error("Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.");
+      return false;
+    } catch (IllegalArgumentException e) {
+      log.error("JWT claims is empty, 잘못된 JWT 토큰 입니다.");
+      return false;
+    }
   }
 
-  public String getRefreshtoken(String accessTokenValue) {
-    return redisTemplate.opsForValue().get(accessTokenValue);
+  public String getRefreshtoken(String accessToken) {
+    return redisTemplate.opsForValue().get(accessToken);
   }
 
   public String createAccessTokenByRefreshToken(String refreshTokenValue) {
@@ -140,11 +146,11 @@ public class JwtUtil {
   }
 
   // logout시 refresh token 만료시키기
-  public void removeRefreshToken(String accessTokenValue) {
-    if (redisTemplate.opsForValue().get(accessTokenValue).isEmpty()) {
-      throw new ApiException("AccessToken이 유효하지 않습니다.", HttpStatus.BAD_REQUEST);
+  public void removeRefreshToken(String accessToken) {
+    if (redisTemplate.opsForValue().get(accessToken).isEmpty()) {
+      throw new ApiException("RefreshToken이 유효하지 않습니다.", HttpStatus.BAD_REQUEST);
     }
-    redisTemplate.delete(accessTokenValue);
+    redisTemplate.delete(accessToken);
   }
 
   // logout시 access token 만료시키기
@@ -158,20 +164,33 @@ public class JwtUtil {
   }
 
 
-  public void regenerateToken(String newAccessToken, String accessTokenValue, String refreshTokenValue) {
-    Claims info = getUserInfoFromToken(newAccessToken.substring(7));
+  public void regenerateToken(String newAccessToken, String accessToken,
+      String refreshTokenValue) {
+    Claims info = getUserInfoFromToken(refreshTokenValue);
     String loginId = info.getSubject();
 
+    Long expireationTime = info.getExpiration().getTime();
+    Long currentTime = System.currentTimeMillis();
+
     // 새로 만든 AccessToken을 redis에 저장
-    redisTemplate.opsForValue().set(loginId, newAccessToken, ACCESS_TOKEN_TIME, TimeUnit.MILLISECONDS);
+    redisTemplate.opsForValue()
+        .set(loginId, newAccessToken,
+            expireationTime - currentTime, TimeUnit.MILLISECONDS);
 
     // 새로 만든 AccessToken을 key로 refreshToken을 다시 DB에 저장
-    Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(refreshTokenValue).getBody();
-    Long expireationTime = claims.getExpiration().getTime();
-    Long currentTime = System.currentTimeMillis();
-    redisTemplate.opsForValue().set(newAccessToken.substring(7), BEARER_PREFIX+refreshTokenValue, expireationTime - currentTime, TimeUnit.MILLISECONDS);
+    redisTemplate.opsForValue().set(newAccessToken,
+        BEARER_PREFIX + refreshTokenValue,
+        expireationTime - currentTime, TimeUnit.MILLISECONDS);
 
     // 만료된 token으로 저장되어있는 refreshToken은 삭제
-    redisTemplate.delete(accessTokenValue);
+    redisTemplate.delete(accessToken);
   }
+
+  public void checkLoggedIn(String loginId, HttpServletResponse response) {
+    if (redisTemplate.hasKey(loginId)) {
+      throw new ApiException("이미 로그인 되어있습니다.", HttpStatus.BAD_REQUEST);
+    }
+  }
+
+
 }
