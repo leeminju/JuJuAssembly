@@ -92,9 +92,9 @@ public class JwtUtil {
     return createToken(loginId, REFRESH_TOKEN_TIME);
   }
 
-  public void saveRefreshToken(String accessToken, String refreshToken) {
+  public void saveRefreshToken(String loginId, String refreshToken) {
     redisTemplate.opsForValue()
-        .set(accessToken, refreshToken, REFRESH_TOKEN_TIME, TimeUnit.MINUTES);
+        .set(loginId, refreshToken, REFRESH_TOKEN_TIME, TimeUnit.MINUTES);
   }
 
   private String createToken(String loginId, long tokenTime) {

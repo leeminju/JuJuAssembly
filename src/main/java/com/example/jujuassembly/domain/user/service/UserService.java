@@ -134,7 +134,7 @@ public class UserService {
     response.setHeader(JwtUtil.AUTHORIZATION_HEADER, accessToken);
 
     String refreshToken = jwtUtil.createRefreshToken(loginId);
-    jwtUtil.saveRefreshToken(accessToken.substring(7), refreshToken.substring(7));
+    jwtUtil.saveRefreshToken(loginId, refreshToken);
 
     return new UserResponseDto(user);
   }
