@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -29,8 +30,7 @@ import java.util.List;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ProductServiceTest {
@@ -59,6 +59,7 @@ public class ProductServiceTest {
     private ProductRequestDto requestDto;
     private MultipartFile image;
     private User user;
+    private Product product;
 
     @BeforeEach
     void setUp() {
@@ -68,12 +69,12 @@ public class ProductServiceTest {
                 .build();
 
         // Product 초기화
-        requestDto = ProductRequestDto.builder()
-                .name("테스트 상품")
-                .description("테스트 설명")
-                .area("테스트 지역")
-                .company("테스트 회사")
-                .alcoholDegree(5.0)
+        product = Product.builder()
+                .name("Original Product")
+                .description("Original Description")
+                .area("Original Area")
+                .company("Original Company")
+                .alcoholDegree(4.0)
                 .build();
 
         // User 초기화
@@ -88,10 +89,14 @@ public class ProductServiceTest {
                 .secondPreferredCategory(category)
                 .build();
 
-        // MultipartFile 객체 초기화
-        image = mock(MultipartFile.class);
-        when(image.isEmpty()).thenReturn(false);
-        when(image.getContentType()).thenReturn("image/jpeg");
+        // ProductRequestDto 초기화
+        requestDto = ProductRequestDto.builder()
+                .name("테스트 상품")
+                .description("테스트 설명")
+                .area("테스트 지역")
+                .company("테스트 회사")
+                .alcoholDegree(5.0)
+                .build();
 
         // Pageable 및 Page<Product> 객체 초기화
         pageable = mock(Pageable.class);
@@ -114,6 +119,11 @@ public class ProductServiceTest {
             return savedProduct;
         });
 
+        // MultipartFile 객체 초기화
+        image = mock(MultipartFile.class);
+        when(image.isEmpty()).thenReturn(false);
+        when(image.getContentType()).thenReturn("image/jpeg");
+
         String imageUrl = "https://test.com/image.jpg";
         when(s3Manager.upload(eq(image), eq("products"), eq(productId))).thenReturn(imageUrl);
 
@@ -133,13 +143,8 @@ public class ProductServiceTest {
 //    @DisplayName("전체 상품 조회 + 페이징 테스트")
 //    public void getProductsTest() throws Exception {
 //        // given
-//        ProductRequestDto requestDto = ProductRequestDto.builder()
-//                .name("테스트 상품")
-//                .description("테스트 설명")
-//                .area("테스트 지역")
-//                .company("테스트 회사")
-//                .alcoholDegree(5.0)
-//                .build();
+//        categoryId = 1L;
+//        productId = 100L;
 //
 //        List<Product> productList = new ArrayList<>();
 //        productList.add(new Product(requestDto));
@@ -161,13 +166,8 @@ public class ProductServiceTest {
 //    @DisplayName("상세 상품 조회")
 //    public void getProductTest() throws Exception {
 //        // given
-//        ProductRequestDto requestDto = ProductRequestDto.builder()
-//                .name("테스트 상품")
-//                .description("테스트 설명")
-//                .area("테스트 지역")
-//                .company("테스트 회사")
-//                .alcoholDegree(5.0)
-//                .build();
+//        categoryId = 1L;
+//        productId = 100L;
 //
 //        List<Product> productList = new ArrayList<>();
 //        productList.add(new Product(requestDto));
@@ -189,13 +189,8 @@ public class ProductServiceTest {
 //    @DisplayName("상품 검색 + 페이징 테스트")
 //    public void searchProductsTest() throws Exception {
 //        // given
-//        ProductRequestDto requestDto = ProductRequestDto.builder()
-//                .name("테스트 상품")
-//                .description("테스트 설명")
-//                .area("테스트 지역")
-//                .company("테스트 회사")
-//                .alcoholDegree(5.0)
-//                .build();
+//        categoryId = 1L;
+//        productId = 100L;
 //
 //        List<Product> productList = new ArrayList<>();
 //        productList.add(new Product(requestDto));
@@ -213,61 +208,76 @@ public class ProductServiceTest {
 //        assertEquals(productList.size(), responseDto.size());
 //    }
 //
-//    @Test
-//    @DisplayName("상품 수정 테스트")
-//    public void updateProductTest() throws Exception {
-//        // given
-//        ProductRequestDto requestDto = ProductRequestDto.builder()
-//                .name("테스트 상품")
-//                .description("테스트 설명")
-//                .area("테스트 지역")
-//                .company("테스트 회사")
-//                .alcoholDegree(5.0)
-//                .build();
-//
-//        List<Product> productList = new ArrayList<>();
-//        productList.add(new Product(requestDto));
-//        productList.add(new Product());
-//
-//
-//        // when
-//        when(productRepository.findAll(pageable)).thenReturn(new PageImpl<>(productList));
-//        when(productPage.getContent()).thenReturn(productList);
-//
-//        List<ProductResponseDto> responseDto = productService.getProducts(pageable);
-//
-//        // then
-//        assertNotNull(responseDto);
-//        assertEquals(productList.size(), responseDto.size());
-//    }
-//
-//    @Test
-//    @DisplayName("상품 삭제 테스트")
-//    public void deleteProductTest() throws Exception {
-//        // given
-//        ProductRequestDto requestDto = ProductRequestDto.builder()
-//                .name("테스트 상품")
-//                .description("테스트 설명")
-//                .area("테스트 지역")
-//                .company("테스트 회사")
-//                .alcoholDegree(5.0)
-//                .build();
-//
-//        List<Product> productList = new ArrayList<>();
-//        productList.add(new Product(requestDto));
-//        productList.add(new Product());
-//
-//
-//        // when
-//        when(productRepository.findAll(pageable)).thenReturn(new PageImpl<>(productList));
-//        when(productPage.getContent()).thenReturn(productList);
-//
-//        List<ProductResponseDto> responseDto = productService.getProducts(pageable);
-//
-//        // then
-//        assertNotNull(responseDto);
-//        assertEquals(productList.size(), responseDto.size());
-//    }
+@Test
+@DisplayName("상품 수정 테스트")
+public void updateProductTest() throws Exception {
+    // given
+    Long categoryId = 1L;
+    Long productId = 100L;
+    String imageUrl = "https://test.com/updated-image.jpg";
+
+    // 테스트용 수정 DTO 초기화
+    ProductRequestDto testUpdateDto = ProductRequestDto.builder()
+            .name("Updated Product")
+            .description("Updated Description")
+            .area("Updated Area")
+            .company("Updated Company")
+            .alcoholDegree(5.5)
+            .build();
+
+    Product mockProduct = mock(Product.class);
+    when(mockProduct.getName()).thenReturn("Updated Product");
+    when(mockProduct.getDescription()).thenReturn("Updated Description");
+    when(mockProduct.getArea()).thenReturn("Updated Area");
+    when(mockProduct.getCompany()).thenReturn("Updated Company");
+    when(mockProduct.getAlcoholDegree()).thenReturn(5.5);
+    when(mockProduct.getImage()).thenReturn(imageUrl);
+
+    // Repository 모의 설정
+    when(productRepository.findById(productId)).thenReturn(Optional.of(mockProduct));
+    when(categoryRepository.existsById(categoryId)).thenReturn(true);
+
+    // MultipartFile 객체 초기화 및 모의 설정
+    MultipartFile image = mock(MultipartFile.class);
+    when(image.isEmpty()).thenReturn(false);
+    when(s3Manager.upload(eq(image), eq("products"), eq(productId))).thenReturn(imageUrl);
+
+    // ProductService의 updateProduct 호출
+    ProductResponseDto updatedProduct = productService.updateProduct(categoryId, productId, testUpdateDto, image, user);
+
+    // then
+    assertNotNull(updatedProduct);
+    verify(s3Manager).deleteAllImageFiles(productId.toString(), "products"); // 파일 삭제 검증
+    verify(s3Manager).upload(eq(image), eq("products"), eq(productId)); // 이미지 업로드 검증
+    assertEquals(imageUrl, updatedProduct.getImage()); // 이미지 URL 검증
+    assertEquals(testUpdateDto.getName(), updatedProduct.getName()); // 기타 필드 검증
+    assertEquals(testUpdateDto.getDescription(), updatedProduct.getDescription());
+    assertEquals(testUpdateDto.getArea(), updatedProduct.getArea());
+    assertEquals(testUpdateDto.getCompany(), updatedProduct.getCompany());
+    assertEquals(testUpdateDto.getAlcoholDegree(), updatedProduct.getAlcoholDegree());
+}
+
+    @Test
+    @DisplayName("상품 삭제 테스트")
+    public void deleteProductTest() throws Exception {
+        // given
+        categoryId = 1L;
+        productId = 100L;
+
+        Product product = new Product(requestDto, category);
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+
+        // when
+        productService.deleteProduct(productId, user);
+
+
+        // then
+        // 상품이 삭제되었는지 확인
+        verify(productRepository, times(1)).delete(product);
+
+        // 이미지 파일 삭제가 호출되었는지 확인
+        verify(s3Manager, times(1)).deleteAllImageFiles(productId.toString(), "products");
+    }
 
 
 }
