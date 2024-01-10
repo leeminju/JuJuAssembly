@@ -9,6 +9,7 @@ import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum.Authority;
 import com.example.jujuassembly.global.response.ApiResponse;
 import com.example.jujuassembly.global.security.UserDetailsImpl;
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,7 @@ public class ReportController {
   //제보 상품 생성
   @PostMapping("/categories/{categoryId}/reports")
   public ResponseEntity<ApiResponse> postReport (@PathVariable Long categoryId,@RequestParam(value = "image", required = false) MultipartFile image,
-      @RequestPart("data") ReportRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails)
+      @Valid @RequestPart("data") ReportRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails)
       throws IOException {
     ReportResponseDto reportResponseDto = reportService.postReport(categoryId, image, requestDto,userDetails.getUser());
     return ResponseEntity.status(HttpStatus.CREATED).body(
@@ -58,7 +59,7 @@ public class ReportController {
   //제보 상품 수정
   @PatchMapping("/cateogries/{categoryId}/reports/{reportId}")
   public ResponseEntity<ApiResponse> patchReport(@PathVariable Long categoryId,@PathVariable Long reportId,@RequestParam(value = "image", required = false) MultipartFile image,
-      @RequestPart("data") ReportRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails)
+      @Valid @RequestPart("data") ReportRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails)
       throws IOException {
 
     ReportResponseDto reportResponseDto = reportService.patchReport(categoryId,reportId,image,requestDto,userDetails.getUser());
@@ -72,7 +73,7 @@ public class ReportController {
   //제보 상품 상태 수정
   @Secured(Authority.ADMIN)
   @PatchMapping("/categories/{categoryId}/reports/{reportId}/status")
-  public ResponseEntity<ApiResponse> patchReportStatus(@PathVariable Long categoryId,@PathVariable Long reportId,@RequestBody ReportStatusRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails)
+  public ResponseEntity<ApiResponse> patchReportStatus(@PathVariable Long categoryId,@PathVariable Long reportId,@Valid @RequestBody ReportStatusRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails)
   {
 
     ReportResponseDto reportResponseDto = reportService.patchReportStatus(categoryId,reportId,requestDto,userDetails.getUser());
