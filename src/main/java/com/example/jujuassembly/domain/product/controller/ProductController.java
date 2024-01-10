@@ -3,7 +3,7 @@ package com.example.jujuassembly.domain.product.controller;
 import com.example.jujuassembly.domain.product.dto.ProductRequestDto;
 import com.example.jujuassembly.domain.product.dto.ProductResponseDto;
 import com.example.jujuassembly.domain.product.service.ProductService;
-import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
+import com.example.jujuassembly.domain.user.entity.UserRoleEnum.Authority;
 import com.example.jujuassembly.global.response.ApiResponse;
 import com.example.jujuassembly.global.security.UserDetailsImpl;
 import jakarta.validation.Valid;
@@ -29,7 +29,7 @@ public class ProductController {
     private final ProductService productService;
 
     // 이미지 업로드 + 상품 등록
-    @Secured(UserRoleEnum.Authority.ADMIN)
+    @Secured(Authority.ADMIN)
     @PostMapping("/categories/{categoryId}/products")
     public ResponseEntity<ApiResponse> createProduct(@PathVariable Long categoryId, @RequestParam(value = "image", required = false) MultipartFile image,
                                                      @RequestPart("data") @Valid ProductRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
@@ -67,7 +67,7 @@ public class ProductController {
     }
 
     // 상품 수정
-    @Secured(UserRoleEnum.Authority.ADMIN)
+    @Secured(Authority.ADMIN)
     @PatchMapping("/categories/{categoryId}/products/{productId}")
     public ResponseEntity<ApiResponse> updateProduct(@PathVariable Long categoryId, @PathVariable Long productId, @RequestParam(value = "image", required = false) MultipartFile image,
                                                      @RequestPart("data") @Valid ProductRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
@@ -76,7 +76,7 @@ public class ProductController {
     }
 
     // 상품 삭제
-    @Secured(UserRoleEnum.Authority.ADMIN)
+    @Secured(Authority.ADMIN)
     @DeleteMapping("/categories/{categoryId}/products/{productId}")
     public ResponseEntity<ApiResponse> deleteProduct(@PathVariable Long productId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         productService.deleteProduct(productId, userDetails.getUser());
