@@ -6,6 +6,7 @@ import com.example.jujuassembly.domain.report.dto.ReportResponseDto;
 import com.example.jujuassembly.domain.report.dto.ReportStatusRequestDto;
 import com.example.jujuassembly.domain.report.service.ReportService;
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
+import com.example.jujuassembly.domain.user.entity.UserRoleEnum.Authority;
 import com.example.jujuassembly.global.response.ApiResponse;
 import com.example.jujuassembly.global.security.UserDetailsImpl;
 import java.io.IOException;
@@ -69,7 +70,7 @@ public class ReportController {
 
 
   //제보 상품 상태 수정
-  @Secured(UserRoleEnum.Authority.ADMIN)
+  @Secured(Authority.ADMIN)
   @PatchMapping("/categories/{categoryId}/reports/{reportId}/status")
   public ResponseEntity<ApiResponse> patchReportStatus(@PathVariable Long categoryId,@PathVariable Long reportId,@RequestBody ReportStatusRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails)
   {
