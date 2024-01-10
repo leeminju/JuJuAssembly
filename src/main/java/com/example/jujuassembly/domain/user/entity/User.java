@@ -55,6 +55,7 @@ public class User extends Timestamped {
 
   @Column(nullable = false, name = "role")
   @Enumerated(value = EnumType.STRING)
+  @Setter
   private UserRoleEnum role;
 
   @Column
