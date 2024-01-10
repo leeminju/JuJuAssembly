@@ -140,7 +140,9 @@ public class JwtUtil {
   }
 
   public String getRefreshtokenValue(String accessTokenValue) {
-    return redisTemplate.opsForValue().get(accessTokenValue);
+    Claims claims = getUserInfoFromToken(accessTokenValue);
+    String loginId = claims.getSubject();
+    return redisTemplate.opsForValue().get(loginId);
   }
 
   public String createAccessTokenByRefreshToken(String refreshToken) {
