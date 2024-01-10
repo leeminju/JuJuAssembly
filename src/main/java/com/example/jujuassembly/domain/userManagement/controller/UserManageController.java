@@ -2,7 +2,7 @@ package com.example.jujuassembly.domain.userManagement.controller;
 
 import com.example.jujuassembly.domain.user.dto.UserResponseDto;
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum.Authority;
-import com.example.jujuassembly.domain.userManagement.dto.userRoleRequestDto;
+import com.example.jujuassembly.domain.userManagement.dto.UserRoleRequestDto;
 import com.example.jujuassembly.domain.userManagement.service.UserManageService;
 import com.example.jujuassembly.global.response.ApiResponse;
 import java.util.List;
@@ -37,7 +37,7 @@ public class UserManageController {
   @PatchMapping("/users/{userId}/role")
   public ResponseEntity<ApiResponse<UserResponseDto>> modifyUserRole(
       @PathVariable Long userId,
-      @RequestBody userRoleRequestDto userRolerequestDto) {
+      @RequestBody UserRoleRequestDto userRolerequestDto) {
     UserResponseDto userResponseDto = userManageService.modifyUserRole(userId, userRolerequestDto);
     return ResponseEntity.ok().body(
         new ApiResponse<>("사용자 권한 수정 완료", HttpStatus.OK.value(), userResponseDto));
