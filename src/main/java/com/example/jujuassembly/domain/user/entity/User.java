@@ -69,7 +69,7 @@ public class User extends Timestamped {
   @JoinColumn(name = "second_preferred_category_id")
   private Category secondPreferredCategory;
 
-  @OneToMany(mappedBy = "writer", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<Review> reviews = new LinkedHashSet<>();
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
