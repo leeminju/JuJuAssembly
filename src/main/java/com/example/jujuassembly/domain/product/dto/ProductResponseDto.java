@@ -4,16 +4,18 @@ import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.product.entity.Product;
 import com.example.jujuassembly.domain.review.dto.ReviewResponseDto;
 import com.example.jujuassembly.domain.review.entity.Review;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Set;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Getter
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductResponseDto {
     private String image;
     private String name;
