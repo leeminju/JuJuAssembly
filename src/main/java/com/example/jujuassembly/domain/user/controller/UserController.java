@@ -1,14 +1,12 @@
 package com.example.jujuassembly.domain.user.controller;
 
 import com.example.jujuassembly.domain.user.dto.LoginRequestDto;
-import com.example.jujuassembly.domain.user.dto.SingupRequestDto;
+import com.example.jujuassembly.domain.user.dto.SignupRequestDto;
 import com.example.jujuassembly.domain.user.dto.UserDetailResponseDto;
 import com.example.jujuassembly.domain.user.dto.UserModifyRequestDto;
 import com.example.jujuassembly.domain.user.dto.UserResponseDto;
-import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.service.UserService;
 import com.example.jujuassembly.domain.emailAuth.service.EmailAuthService;
-import com.example.jujuassembly.global.jwt.JwtUtil;
 import com.example.jujuassembly.global.response.ApiResponse;
 import com.example.jujuassembly.global.security.UserDetailsImpl;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,7 +14,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,7 +23,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,9 +41,9 @@ public class UserController {
   // 회원가입, 이메일 발송
   @PostMapping("/auth/signup")
   public ResponseEntity<ApiResponse> siginup(
-      @Valid @RequestBody SingupRequestDto singupRequestDto, HttpServletResponse response) {
+      @Valid @RequestBody SignupRequestDto signupRequestDto, HttpServletResponse response) {
 
-    userService.signup(singupRequestDto, response);
+    userService.signup(signupRequestDto, response);
     return ResponseEntity.ok(new ApiResponse<>("인증 번호를 입력해주세요.", HttpStatus.OK.value()));
   }
 

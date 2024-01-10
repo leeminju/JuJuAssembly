@@ -6,7 +6,7 @@ import com.example.jujuassembly.domain.emailAuth.entity.EmailAuth;
 import com.example.jujuassembly.domain.emailAuth.repository.EmailAuthRepository;
 import com.example.jujuassembly.domain.emailAuth.service.EmailAuthService;
 import com.example.jujuassembly.domain.user.dto.LoginRequestDto;
-import com.example.jujuassembly.domain.user.dto.SingupRequestDto;
+import com.example.jujuassembly.domain.user.dto.SignupRequestDto;
 import com.example.jujuassembly.domain.user.dto.UserDetailResponseDto;
 import com.example.jujuassembly.domain.user.dto.UserModifyRequestDto;
 import com.example.jujuassembly.domain.user.dto.UserResponseDto;
@@ -39,17 +39,17 @@ public class UserService {
   private final JwtUtil jwtUtil;
   private final S3Manager s3Manager;
 
-  public void signup(SingupRequestDto singupRequestDto, HttpServletResponse response) {
+  public void signup(SignupRequestDto signupRequestDto, HttpServletResponse response) {
 
-    String loginId = singupRequestDto.getLoginId();
-    String nickname = singupRequestDto.getNickname();
-    String email = singupRequestDto.getEmail();
+    String loginId = signupRequestDto.getLoginId();
+    String nickname = signupRequestDto.getNickname();
+    String email = signupRequestDto.getEmail();
 
-    String password = singupRequestDto.getPassword();
-    String passwordCheck = singupRequestDto.getPasswordCheck();
+    String password = signupRequestDto.getPassword();
+    String passwordCheck = signupRequestDto.getPasswordCheck();
 
-    Long firstPreferredCategoryId = singupRequestDto.getFirstPreferredCategoryId();
-    Long secondPreferredCategoryId = singupRequestDto.getSecondPreferredCategoryId();
+    Long firstPreferredCategoryId = signupRequestDto.getFirstPreferredCategoryId();
+    Long secondPreferredCategoryId = signupRequestDto.getSecondPreferredCategoryId();
 
     // id, nickname, email 중복 검증
     if (!userRepository.findByLoginId(loginId).isEmpty()) {
