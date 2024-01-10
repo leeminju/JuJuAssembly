@@ -54,7 +54,7 @@ public class AuthorizationAspect {
     Review review = reviewRepository.findById(reviewId)
         .orElseThrow(() -> new ApiException("review가 존재하지 않습니다.", HttpStatus.NOT_FOUND));
 
-    if (!review.getWriter().getId().equals(user.getId())) {
+    if (!review.getUser().getId().equals(user.getId())) {
       if (!user.getRole().equals(UserRoleEnum.ADMIN)) {
         throw new ApiException("관리자 또는 리뷰 작성자만 접근 할 수 있습니다.", HttpStatus.UNAUTHORIZED);
       }

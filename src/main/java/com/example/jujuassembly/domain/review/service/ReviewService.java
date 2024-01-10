@@ -102,7 +102,7 @@ public class ReviewService {
         () -> new ApiException("해당하는 유저가 없습니다.", HttpStatus.NOT_FOUND)
     );
 
-    Page<Review> reviews = reviewRepository.findAllByWriter(user, pageable);
+    Page<Review> reviews = reviewRepository.findAllByUser(user, pageable);
     return reviews.map(ReviewResponseDto::new);
   }
 
