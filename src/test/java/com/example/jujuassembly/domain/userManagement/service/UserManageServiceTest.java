@@ -3,7 +3,7 @@ package com.example.jujuassembly.domain.userManagement.service;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.user.dto.UserResponseDto;
@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import javax.swing.text.html.Option;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
