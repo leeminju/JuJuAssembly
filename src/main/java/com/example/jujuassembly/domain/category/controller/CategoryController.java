@@ -39,7 +39,7 @@ public class CategoryController {
   }
 
   //카테고리 생성
-  @Secured(UserRoleEnum.Authority.ADMIN)
+  @Secured(Authority.ADMIN)
   @PostMapping
   public ResponseEntity<ApiResponse> createCategory(
       @RequestParam(value = "image", required = false) MultipartFile image,
@@ -49,7 +49,7 @@ public class CategoryController {
   }
 
   //카테고리 수정
-  @Secured(UserRoleEnum.Authority.ADMIN)
+  @Secured(Authority.ADMIN)
   @PatchMapping("/{categoryId}")
   public ResponseEntity<ApiResponse> updateCategory(@RequestParam(value = "image", required = false) MultipartFile image,
       @RequestPart("data")CategoryRequestDto requestDto,@PathVariable Long categoryId)
@@ -59,7 +59,7 @@ public class CategoryController {
   }
 
   //카테고리 삭제
-  @Secured(UserRoleEnum.Authority.ADMIN)
+  @Secured(Authority.ADMIN)
   @DeleteMapping("/{categoryId}")
   public ResponseEntity<ApiResponse> deleteCategory(@PathVariable Long categoryId
       ) {
