@@ -3,6 +3,8 @@ package com.example.jujuassembly.domain.category.controller;
 import com.example.jujuassembly.domain.category.dto.CategoryRequestDto;
 import com.example.jujuassembly.domain.category.dto.CategoryResponseDto;
 import com.example.jujuassembly.domain.category.service.CategoryService;
+import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
+import com.example.jujuassembly.domain.user.entity.UserRoleEnum.Authority;
 import com.example.jujuassembly.global.response.ApiResponse;
 import java.io.IOException;
 import java.util.List;
@@ -37,7 +39,7 @@ public class CategoryController {
   }
 
   //카테고리 생성
-  @Secured("ROLE_ADMIN")
+  @Secured(UserRoleEnum.Authority.ADMIN)
   @PostMapping
   public ResponseEntity<ApiResponse> createCategory(
       @RequestParam(value = "image", required = false) MultipartFile image,
@@ -47,7 +49,7 @@ public class CategoryController {
   }
 
   //카테고리 수정
-  @Secured("ROLE_ADMIN")
+  @Secured(UserRoleEnum.Authority.ADMIN)
   @PatchMapping("/{categoryId}")
   public ResponseEntity<ApiResponse> updateCategory(@RequestParam(value = "image", required = false) MultipartFile image,
       @RequestPart("data")CategoryRequestDto requestDto,@PathVariable Long categoryId)
@@ -57,7 +59,7 @@ public class CategoryController {
   }
 
   //카테고리 삭제
-  @Secured("ROLE_ADMIN")
+  @Secured(UserRoleEnum.Authority.ADMIN)
   @DeleteMapping("/{categoryId}")
   public ResponseEntity<ApiResponse> deleteCategory(@PathVariable Long categoryId
       ) {
