@@ -1,5 +1,6 @@
 package com.example.jujuassembly.global.jwt;
 
+import com.example.jujuassembly.global.exception.ApiException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -26,12 +28,6 @@ import org.springframework.util.StringUtils;
 public class JwtUtil {
 
   private final RedisTemplate<String, String> redisTemplate;
-
-//  private final TokenRepository tokenRepository;
-//
-//  public JwtUtil(TokenRepository tokenRepository) {
-//    this.tokenRepository = tokenRepository;
-//  }
 
   // Header KEY 값
   public static final String AUTHORIZATION_HEADER = "Authorization";
@@ -43,14 +39,14 @@ public class JwtUtil {
 
   public static final long REFRESH_TOKEN_TIME = 7 * 24 * 60 * 60 * 1000;  // 7일
 
+  public static final long EXPIRE_TOKEN_TIME = 0;
+
   @Value("${jwt.secret.key}") // Base64 Encode 한 SecretKey
   private String secretKey;
 
   private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
 
   private Key key;
-
-//  private final String adminToken = "관리자 비밀번호";
 
 
   @PostConstruct
@@ -113,14 +109,9 @@ public class JwtUtil {
             .compact();
   }
 
-//  public boolean validateAdminPW(String PW) {
-//    return adminToken.equals(PW);
-//  }
 
-
-  // 헤더에서 사용자 이름 가져오기
-  public String getUsernameFromHeader(HttpServletRequest request) {
-    //String tokenValue = getJwtFromHeader(request);
+  // 헤더에서 LoginId 가져오기
+  public String getLoginIdFromHeader(HttpServletRequest request) {
     String tokenValue = resolveToken(request);
     Claims info = getUserInfoFromToken(tokenValue);
     return info.getSubject();
@@ -157,13 +148,18 @@ public class JwtUtil {
     return createAccessToken(loginId);
   }
 
-//  // 발행된 토큰을 테이블에서 만료
-//  @Transactional
-//  @Scheduled(fixedRate = 60 * 1000)  // 1분에 한번 작동
-//  public void cleanupExpireTokens() {
-//    LocalDateTime oneHourAgo = LocalDateTime.now().minusHours(1);
-//    tokenRepository.deleteByCreatedTimeBefore(oneHourAgo);  // 1시간 이전 발행된 모든 토큰 삭제
-//  }
+  // logout시 refresh token 만료시키기
+  public void removeRefreshToken(String accessTokenValue) {
+    if (redisTemplate.opsForValue().get(accessTokenValue).isEmpty()) {
+      throw new ApiException("AccessToken이 유효하지 않습니다.", HttpStatus.BAD_REQUEST);
+    }
+    redisTemplate.delete(accessTokenValue);
+  }
+
+  // logout시 access token 만료시키기
+  public void removeAccessToken(String loginId) {
+    createToken(loginId, EXPIRE_TOKEN_TIME);
+  }
 
 
 }

@@ -24,11 +24,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "users")
@@ -98,6 +100,9 @@ public class User extends Timestamped {
     this.secondPreferredCategory = modifyRequestDto.getSecondPreferredCategoryId();
   }
 
+  public void setIsArchived(boolean b) {
+    this.isArchived = b;
+  }
   public void changeRole(UserRoleEnum userRoleEnum){
     this.role = userRoleEnum;
   }

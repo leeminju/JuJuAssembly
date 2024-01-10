@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 
 
 @Getter
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @Entity
 @Table(name = "reports")
 public class Report extends Timestamped {

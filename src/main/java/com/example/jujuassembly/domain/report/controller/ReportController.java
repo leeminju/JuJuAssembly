@@ -5,7 +5,6 @@ import com.example.jujuassembly.domain.report.dto.ReportRequestDto;
 import com.example.jujuassembly.domain.report.dto.ReportResponseDto;
 import com.example.jujuassembly.domain.report.dto.ReportStatusRequestDto;
 import com.example.jujuassembly.domain.report.service.ReportService;
-import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum.Authority;
 import com.example.jujuassembly.global.response.ApiResponse;
 import com.example.jujuassembly.global.security.UserDetailsImpl;
@@ -38,55 +37,70 @@ public class ReportController {
 
   //제보 상품 생성
   @PostMapping("/categories/{categoryId}/reports")
-  public ResponseEntity<ApiResponse> postReport (@PathVariable Long categoryId,@RequestParam(value = "image", required = false) MultipartFile image,
-      @Valid @RequestPart("data") ReportRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails)
+  public ResponseEntity<ApiResponse> postReport(@PathVariable Long categoryId,
+      @RequestParam(value = "image", required = false) MultipartFile image,
+      @Valid @RequestPart("data") ReportRequestDto requestDto,
+      @AuthenticationPrincipal UserDetailsImpl userDetails)
       throws IOException {
-    ReportResponseDto reportResponseDto = reportService.postReport(categoryId, image, requestDto,userDetails.getUser());
+
+    ReportResponseDto reportResponseDto = reportService.postReport(categoryId, image, requestDto,
+        userDetails.getUser());
+
     return ResponseEntity.status(HttpStatus.CREATED).body(
-        new ApiResponse<>("상품제보 생성 완료", HttpStatus.CREATED.value(),reportResponseDto));
+        new ApiResponse<>("상품제보 생성 완료", HttpStatus.CREATED.value(), reportResponseDto));
   }
 
-  //제보 상품 리스트 조회
+  // user에 해당하는 제보 상품 리스트 조회
   @GetMapping("/users/{userId}/reports")
-  public ResponseEntity<ApiResponse> getReports (@PathVariable Long userId,@AuthenticationPrincipal UserDetailsImpl userDetails){
+  public ResponseEntity<ApiResponse> getReports(@PathVariable Long userId,
+      @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-    List<ReportResponseDto> reportList = reportService.getReports(userId,userDetails.getUser());
+    List<ReportResponseDto> reportList = reportService.getReports(userId, userDetails.getUser());
+
     return ResponseEntity.status(HttpStatus.OK).body(
-        new ApiResponse<>("상품 제보 리스트 조회 완료", HttpStatus.OK.value(),reportList));
+        new ApiResponse<>("상품 제보 리스트 조회 완료", HttpStatus.OK.value(), reportList));
   }
 
 
-  //제보 상품 수정
+  // 제보 상품 수정
   @PatchMapping("/cateogries/{categoryId}/reports/{reportId}")
-  public ResponseEntity<ApiResponse> patchReport(@PathVariable Long categoryId,@PathVariable Long reportId,@RequestParam(value = "image", required = false) MultipartFile image,
-      @Valid @RequestPart("data") ReportRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails)
+  public ResponseEntity<ApiResponse> patchReport(@PathVariable Long categoryId,
+      @PathVariable Long reportId,
+      @RequestParam(value = "image", required = false) MultipartFile image,
+      @Valid @RequestPart("data") ReportRequestDto requestDto,
+      @AuthenticationPrincipal UserDetailsImpl userDetails)
       throws IOException {
 
-    ReportResponseDto reportResponseDto = reportService.patchReport(categoryId,reportId,image,requestDto,userDetails.getUser());
-
+    ReportResponseDto reportResponseDto = reportService.patchReport(categoryId, reportId, image,
+        requestDto, userDetails.getUser());
 
     return ResponseEntity.status(HttpStatus.OK).body(
-        new ApiResponse<>("상품 제보 수정 완료", HttpStatus.OK.value(),reportResponseDto));
+        new ApiResponse<>("상품 제보 수정 완료", HttpStatus.OK.value(), reportResponseDto));
   }
 
 
   //제보 상품 상태 수정
   @Secured(Authority.ADMIN)
   @PatchMapping("/categories/{categoryId}/reports/{reportId}/status")
-  public ResponseEntity<ApiResponse> patchReportStatus(@PathVariable Long categoryId,@PathVariable Long reportId,@Valid @RequestBody ReportStatusRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails)
-  {
+  public ResponseEntity<ApiResponse> patchReportStatus(@PathVariable Long categoryId,
+      @PathVariable Long reportId, @Valid @RequestBody ReportStatusRequestDto requestDto,
+      @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-    ReportResponseDto reportResponseDto = reportService.patchReportStatus(categoryId,reportId,requestDto,userDetails.getUser());
-
+    ReportResponseDto reportResponseDto = reportService.patchReportStatus(categoryId, reportId,
+        requestDto, userDetails.getUser());
 
     return ResponseEntity.status(HttpStatus.OK).body(
-        new ApiResponse<>("상품 제보 수정 완료", HttpStatus.OK.value(),reportResponseDto));
+        new ApiResponse<>("상품 제보 수정 완료", HttpStatus.OK.value(), reportResponseDto));
   }
 
   //제보 상품 삭제
   @DeleteMapping("/categories/{categoryId}/reports/{reportId}")
-  public ResponseEntity<ApiResponse> deleteReport(@PathVariable Long categoryId,@PathVariable Long reportId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-    reportService.deleteReport(categoryId,reportId,userDetails.getUser());
-    return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("제보 상품 삭제 성공",HttpStatus.OK.value()));
+  public ResponseEntity<ApiResponse> deleteReport(@PathVariable Long categoryId,
+      @PathVariable Long reportId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+    reportService.deleteReport(categoryId, reportId, userDetails.getUser());
+
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(new ApiResponse("제보 상품 삭제 성공", HttpStatus.OK.value()));
   }
 }
