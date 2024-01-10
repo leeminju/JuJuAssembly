@@ -5,7 +5,6 @@ import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.domain.userManagement.dto.userRoleRequestDto;
 import com.example.jujuassembly.global.exception.ApiException;
-import com.example.jujuassembly.global.security.UserDetailsImpl;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class UserMangeService {
+public class UserManageService {
 
   private final UserRepository userRepository;
 
