@@ -67,7 +67,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
 
-
+    //mockito
+    implementation 'org.mockito:mockito-junit-jupiter:5.7.0'
 }
 
 tasks.named('test') {
