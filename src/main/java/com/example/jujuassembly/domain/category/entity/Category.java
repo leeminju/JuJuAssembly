@@ -19,7 +19,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "categories")
-@Builder
 public class Category {
 
     @Id
