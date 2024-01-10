@@ -38,8 +38,6 @@ class UserManageServiceTest {
   void viewAllUsersTest() {
     //given
     Category category1 = Category.builder().id(1L).name("소주").image("아아아앙").build();
-    //Category category1 = new Category(new CategoryRequestDto("1"));
-    //Category category2 = new Category(new CategoryRequestDto("2"));
     User user1 = new User("user1", "user1", "user1Email", "12341234", category1, category1);
     User user2 = new User("user2", "user2", "user2Email", "12341234", category1, category1);
 
@@ -63,20 +61,22 @@ class UserManageServiceTest {
 
   @Test
   @DisplayName("회원 권한 수정 테스트")
-  void changeUserRoleTest(){
+  void changeUserRoleTest() {
     //given
     Category category1 = Category.builder().id(1L).name("소주").image("아아아앙").build();
     User user = User.builder().id(1L).loginId("user1").nickname("user1").email("user1Email")
-        .password("12341234").firstPreferredCategory(category1).secondPreferredCategory(category1).build();
-    UserRoleRequestDto userRoleRequestDto = UserRoleRequestDto.builder().userRole(UserRoleEnum.ADMIN).build();
+        .password("12341234").firstPreferredCategory(category1).secondPreferredCategory(category1)
+        .build();
+    UserRoleRequestDto userRoleRequestDto = UserRoleRequestDto.builder()
+        .userRole(UserRoleEnum.ADMIN).build();
 
     when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
     //when
-    var result = userManageService.modifyUserRole(1L,userRoleRequestDto);
+    var result = userManageService.modifyUserRole(1L, userRoleRequestDto);
 
     //then
-    assertThat(result.getUserRole(),is(equalTo(user.getRole().getAuthority())));
+    assertThat(result.getUserRole(), is(equalTo(user.getRole().getAuthority())));
 
   }
 
