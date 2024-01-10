@@ -74,10 +74,6 @@ public class ReviewService {
     Review review = validateReview(reviewId);
     validateProductReview(review, productId);
 
-    if (!review.getWriter().getId().equals(user.getId())) {
-      throw new ApiException("리뷰 수정은 작성자만 가능합니다.", HttpStatus.FORBIDDEN);
-    }
-
     //기존의 파일 모두 삭제
     reviewImageService.deleteAllReviewImages(review, "reviews");
 
@@ -96,9 +92,6 @@ public class ReviewService {
     Review review = validateReview(reviewId);
     validateProductReview(review, productId);
 
-    if (!review.getWriter().getId().equals(user.getId())) {
-      throw new ApiException("리뷰 삭제는 작성자만 가능합니다.", HttpStatus.FORBIDDEN);
-    }
     //기존의 파일 모두 삭제
     reviewRepository.delete(review);
     reviewImageService.deleteAllReviewImages(review, "reviews");
