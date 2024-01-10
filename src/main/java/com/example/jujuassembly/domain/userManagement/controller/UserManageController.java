@@ -2,6 +2,7 @@ package com.example.jujuassembly.domain.userManagement.controller;
 
 import com.example.jujuassembly.domain.user.dto.UserResponseDto;
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
+import com.example.jujuassembly.domain.user.entity.UserRoleEnum.Authority;
 import com.example.jujuassembly.domain.userManagement.dto.userRoleRequestDto;
 import com.example.jujuassembly.domain.userManagement.service.UserMangeService;
 import com.example.jujuassembly.global.response.ApiResponse;
@@ -23,10 +24,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserManageController {
 
   private final UserMangeService userMangeService;
+  public static final String ADMIN = "ROLE_ADMIN";
 
 
   //전체 유저 조회
-  @Secured(UserRoleEnum.Authority.ADMIN)
+  @Secured(Authority.ADMIN)
   @GetMapping("/users")
   public ResponseEntity<ApiResponse<List<UserResponseDto>>> viewAllUsers() {
     List<UserResponseDto> allUserResponseDtoList = userMangeService.viewAllUsers();
@@ -35,7 +37,7 @@ public class UserManageController {
   }
 
   //회원 권한 수정
-  @Secured(UserRoleEnum.Authority.ADMIN)
+  @Secured(Authority.ADMIN)
   @PatchMapping("/users/{userId}/role")
   public ResponseEntity<ApiResponse<UserResponseDto>> modifyUserRole(
       @PathVariable Long userId,
