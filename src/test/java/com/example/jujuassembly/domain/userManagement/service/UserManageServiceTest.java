@@ -3,21 +3,26 @@ package com.example.jujuassembly.domain.userManagement.service;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.user.dto.UserResponseDto;
 import com.example.jujuassembly.domain.user.entity.User;
+import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
+import com.example.jujuassembly.domain.userManagement.dto.UserRoleRequestDto;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import javax.swing.text.html.Option;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 
 @ExtendWith(MockitoExtension.class)
 class UserManageServiceTest {
@@ -30,8 +35,8 @@ class UserManageServiceTest {
 
 
   @Test
-  @DisplayName("관리자 권한으로 회원 전체 조회")
-  void viewAllUsers() {
+  @DisplayName("관리자 권한으로 회원 전체 조회 테스트")
+  void viewAllUsersTest() {
     //given
     Category category1 = Category.builder().id(1L).name("소주").image("아아아앙").build();
     //Category category1 = new Category(new CategoryRequestDto("1"));
@@ -55,6 +60,25 @@ class UserManageServiceTest {
     assertThat(result.size(), is(equalTo(mockAllUserResponseDto.size())));
     assertThat(result.get(0).getNickname(),
         is(equalTo(mockAllUserResponseDto.get(0).getNickname())));
+  }
+
+  @Test
+  @DisplayName("회원 권한 수정 테스트")
+  void changeUserRoleTest(){
+    //given
+    Category category1 = Category.builder().id(1L).name("소주").image("아아아앙").build();
+    User user = User.builder().id(1L).loginId("user1").nickname("user1").email("user1Email")
+        .password("12341234").firstPreferredCategory(category1).secondPreferredCategory(category1).build();
+    UserRoleRequestDto userRoleRequestDto = UserRoleRequestDto.builder().userRole(UserRoleEnum.ADMIN).build();
+
+    when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+    //when
+    var result = userManageService.modifyUserRole(1L,userRoleRequestDto);
+
+    //then
+    assertThat(result.getUserRole(),is(equalTo(user.getRole().getAuthority())));
+
   }
 
 
