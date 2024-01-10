@@ -1,10 +1,9 @@
 package com.example.jujuassembly.domain.userManagement.controller;
 
 import com.example.jujuassembly.domain.user.dto.UserResponseDto;
-import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum.Authority;
 import com.example.jujuassembly.domain.userManagement.dto.userRoleRequestDto;
-import com.example.jujuassembly.domain.userManagement.service.UserMangeService;
+import com.example.jujuassembly.domain.userManagement.service.UserManageService;
 import com.example.jujuassembly.global.response.ApiResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -20,29 +19,26 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@Secured(Authority.ADMIN)
 @RequestMapping("/v1")
 public class UserManageController {
 
-  private final UserMangeService userMangeService;
-  public static final String ADMIN = "ROLE_ADMIN";
-
+  private final UserManageService userManageService;
 
   //전체 유저 조회
-  @Secured(Authority.ADMIN)
   @GetMapping("/users")
   public ResponseEntity<ApiResponse<List<UserResponseDto>>> viewAllUsers() {
-    List<UserResponseDto> allUserResponseDtoList = userMangeService.viewAllUsers();
+    List<UserResponseDto> allUserResponseDtoList = userManageService.viewAllUsers();
     return ResponseEntity.ok().body(
         new ApiResponse<>("전체 사용자 조회", HttpStatus.OK.value(), allUserResponseDtoList));
   }
 
   //회원 권한 수정
-  @Secured(Authority.ADMIN)
   @PatchMapping("/users/{userId}/role")
   public ResponseEntity<ApiResponse<UserResponseDto>> modifyUserRole(
       @PathVariable Long userId,
       @RequestBody userRoleRequestDto userRolerequestDto) {
-    UserResponseDto userResponseDto = userMangeService.modifyUserRole(userId, userRolerequestDto);
+    UserResponseDto userResponseDto = userManageService.modifyUserRole(userId, userRolerequestDto);
     return ResponseEntity.ok().body(
         new ApiResponse<>("사용자 권한 수정 완료", HttpStatus.OK.value(), userResponseDto));
   }
