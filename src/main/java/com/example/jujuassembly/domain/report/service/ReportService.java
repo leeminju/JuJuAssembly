@@ -42,7 +42,7 @@ public class ReportService {
 
     if (image != null && !image.isEmpty()) {
       if (!image.getContentType().startsWith("image")) {
-        throw new IllegalArgumentException("이미지 파일 형식이 아닙니다.");
+        throw new ApiException("이미지 파일 형식이 아닙니다.",HttpStatus.BAD_REQUEST);
       }
       String imageUrl = s3Manager.upload(image, "reports", report.getId());
       report.updateImage(imageUrl);
@@ -85,7 +85,7 @@ public class ReportService {
 
     if (image != null && !image.isEmpty()) {
       if (!image.getContentType().startsWith("image")) {
-        throw new IllegalArgumentException("이미지 파일 형식이 아닙니다.");
+        throw new ApiException("이미지 파일 형식이 아닙니다.",HttpStatus.BAD_REQUEST);
       }
       String imageUrl = s3Manager.upload(image, "reports", report.getId());
       report.updateImage(imageUrl);
