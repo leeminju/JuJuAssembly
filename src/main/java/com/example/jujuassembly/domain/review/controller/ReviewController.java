@@ -3,9 +3,10 @@ package com.example.jujuassembly.domain.review.controller;
 import com.example.jujuassembly.domain.review.dto.ReviewRequestDto;
 import com.example.jujuassembly.domain.review.dto.ReviewResponseDto;
 import com.example.jujuassembly.domain.review.service.ReviewService;
-import com.example.jujuassembly.domain.user.entity.UserRoleEnum.Authority;
+import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
 import com.example.jujuassembly.global.response.ApiResponse;
 import com.example.jujuassembly.global.security.UserDetailsImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,7 +38,7 @@ public class ReviewController {
   public ResponseEntity<ApiResponse<ReviewResponseDto>> createProductsReview(
       @PathVariable Long categoryId, @PathVariable Long productId,
       @RequestParam(name = "images", required = false) MultipartFile[] images,
-      @RequestPart(name = "data") ReviewRequestDto requestDto,
+      @Valid @RequestPart(name = "data") ReviewRequestDto requestDto,
       @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
 
     ReviewResponseDto responseDto = reviewService.createProductsReview(categoryId, productId,
@@ -62,7 +63,7 @@ public class ReviewController {
   public ResponseEntity<ApiResponse<ReviewResponseDto>> updateProductsReview(
       @PathVariable Long categoryId, @PathVariable Long productId, @PathVariable Long reviewId,
       @RequestParam(name = "images", required = false) MultipartFile[] images,
-      @RequestPart(name = "data") ReviewRequestDto requestDto,
+      @Valid @RequestPart(name = "data") ReviewRequestDto requestDto,
       @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
 
     ReviewResponseDto responseDto = reviewService.updateProductsReview(categoryId, productId,
@@ -93,7 +94,7 @@ public class ReviewController {
         .body(new ApiResponse(userId + "번 사용자 리뷰 목록 입니다.", HttpStatus.OK.value(), reviews));
   }
 
-  @Secured(Authority.ADMIN)
+  @Secured(UserRoleEnum.Authority.ADMIN)
   @PatchMapping("/categories/{categoryId}/products/{productId}/reviews/{reviewId}/verification")
   public ResponseEntity<ApiResponse<ReviewResponseDto>> verifyReview(@PathVariable Long categoryId,
       @PathVariable Long productId, @PathVariable Long reviewId,
