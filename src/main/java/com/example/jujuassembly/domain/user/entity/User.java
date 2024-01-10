@@ -55,11 +55,9 @@ public class User extends Timestamped {
 
   @Column(nullable = false, name = "role")
   @Enumerated(value = EnumType.STRING)
-  @Setter
   private UserRoleEnum role;
 
   @Column
-  @Setter
   private String image;
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -98,6 +96,14 @@ public class User extends Timestamped {
     this.password = modifyRequestDto.getPassword();
     this.firstPreferredCategory = modifyRequestDto.getFirstPreferredCategoryId();
     this.secondPreferredCategory = modifyRequestDto.getSecondPreferredCategoryId();
+  }
+
+  public void changeRole(UserRoleEnum userRoleEnum){
+    this.role = userRoleEnum;
+  }
+
+  public void updateUserImage(String url){
+    this.image = url;
   }
 
 

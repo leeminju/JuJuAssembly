@@ -36,7 +36,7 @@ public class UserMangeService {
   public UserResponseDto modifyUserRole(Long userId, userRoleRequestDto userRoleRequestDto) {
     User user = userRepository.findById(userId)
         .orElseThrow(()->new ApiException("존재하지 않는 사용자입니다.", HttpStatus.BAD_REQUEST));
-    user.setRole(userRoleRequestDto.getUserRole());
+    user.changeRole(userRoleRequestDto.getUserRole());
     userRepository.save(user);
     return new UserResponseDto(user);
   }
