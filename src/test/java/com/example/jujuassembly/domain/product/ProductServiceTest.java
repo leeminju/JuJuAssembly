@@ -10,17 +10,16 @@ import com.example.jujuassembly.domain.product.service.ProductService;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
 import com.example.jujuassembly.global.s3.S3Manager;
-import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,8 +27,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -139,123 +141,165 @@ public class ProductServiceTest {
         assertEquals(requestDto.getAlcoholDegree(), responseDto.getAlcoholDegree());
     }
 
-//    @Test
-//    @DisplayName("전체 상품 조회 + 페이징 테스트")
-//    public void getProductsTest() throws Exception {
-//        // given
-//        categoryId = 1L;
-//        productId = 100L;
-//
-//        List<Product> productList = new ArrayList<>();
-//        productList.add(new Product(requestDto));
-//        productList.add(new Product());
-//
-//
-//        // when
-//        when(productRepository.findAll(pageable)).thenReturn(new PageImpl<>(productList));
-//        when(productPage.getContent()).thenReturn(productList);
-//
-//        List<ProductResponseDto> responseDto = productService.getProducts(pageable);
-//
-//        // then
-//        assertNotNull(responseDto);
-//        assertEquals(productList.size(), responseDto.size());
-//    }
-//
-//    @Test
-//    @DisplayName("상세 상품 조회")
-//    public void getProductTest() throws Exception {
-//        // given
-//        categoryId = 1L;
-//        productId = 100L;
-//
-//        List<Product> productList = new ArrayList<>();
-//        productList.add(new Product(requestDto));
-//        productList.add(new Product());
-//
-//
-//        // when
-//        when(productRepository.findAll(pageable)).thenReturn(new PageImpl<>(productList));
-//        when(productPage.getContent()).thenReturn(productList);
-//
-//        List<ProductResponseDto> responseDto = productService.getProducts(pageable);
-//
-//        // then
-//        assertNotNull(responseDto);
-//        assertEquals(productList.size(), responseDto.size());
-//    }
-//
-//    @Test
-//    @DisplayName("상품 검색 + 페이징 테스트")
-//    public void searchProductsTest() throws Exception {
-//        // given
-//        categoryId = 1L;
-//        productId = 100L;
-//
-//        List<Product> productList = new ArrayList<>();
-//        productList.add(new Product(requestDto));
-//        productList.add(new Product());
-//
-//
-//        // when
-//        when(productRepository.findAll(pageable)).thenReturn(new PageImpl<>(productList));
-//        when(productPage.getContent()).thenReturn(productList);
-//
-//        List<ProductResponseDto> responseDto = productService.getProducts(pageable);
-//
-//        // then
-//        assertNotNull(responseDto);
-//        assertEquals(productList.size(), responseDto.size());
-//    }
-//
-@Test
-@DisplayName("상품 수정 테스트")
-public void updateProductTest() throws Exception {
-    // given
-    Long categoryId = 1L;
-    Long productId = 100L;
-    String imageUrl = "https://test.com/updated-image.jpg";
+    @Test
+    @DisplayName("전체 상품 조회 + 페이징 테스트")
+    public void getProductsTest() throws Exception {
+        // given
+        pageable = PageRequest.of(0, 10); // 예시 페이지 요청
 
-    // 테스트용 수정 DTO 초기화
-    ProductRequestDto testUpdateDto = ProductRequestDto.builder()
-            .name("Updated Product")
-            .description("Updated Description")
-            .area("Updated Area")
-            .company("Updated Company")
-            .alcoholDegree(5.5)
-            .build();
+        // Product 리스트 생성 및 초기화
+        List<Product> productList = new ArrayList<>();
+        productList.add(new Product(requestDto, category));
+        productList.add(new Product(requestDto, category));
 
-    Product mockProduct = mock(Product.class);
-    when(mockProduct.getName()).thenReturn("Updated Product");
-    when(mockProduct.getDescription()).thenReturn("Updated Description");
-    when(mockProduct.getArea()).thenReturn("Updated Area");
-    when(mockProduct.getCompany()).thenReturn("Updated Company");
-    when(mockProduct.getAlcoholDegree()).thenReturn(5.5);
-    when(mockProduct.getImage()).thenReturn(imageUrl);
+        Page<Product> productPage = new PageImpl<>(productList, pageable, productList.size());
 
-    // Repository 모의 설정
-    when(productRepository.findById(productId)).thenReturn(Optional.of(mockProduct));
-    when(categoryRepository.existsById(categoryId)).thenReturn(true);
+        // when
+        when(productRepository.findAll(pageable)).thenReturn(productPage);
 
-    // MultipartFile 객체 초기화 및 모의 설정
-    MultipartFile image = mock(MultipartFile.class);
-    when(image.isEmpty()).thenReturn(false);
-    when(s3Manager.upload(eq(image), eq("products"), eq(productId))).thenReturn(imageUrl);
+        // 서비스 메소드 호출
+        List<ProductResponseDto> responseDto = productService.getProducts(pageable);
 
-    // ProductService의 updateProduct 호출
-    ProductResponseDto updatedProduct = productService.updateProduct(categoryId, productId, testUpdateDto, image, user);
+        // then
+        assertNotNull(responseDto);
+        assertEquals(productList.size(), responseDto.size());
+    }
 
-    // then
-    assertNotNull(updatedProduct);
-    verify(s3Manager).deleteAllImageFiles(productId.toString(), "products"); // 파일 삭제 검증
-    verify(s3Manager).upload(eq(image), eq("products"), eq(productId)); // 이미지 업로드 검증
-    assertEquals(imageUrl, updatedProduct.getImage()); // 이미지 URL 검증
-    assertEquals(testUpdateDto.getName(), updatedProduct.getName()); // 기타 필드 검증
-    assertEquals(testUpdateDto.getDescription(), updatedProduct.getDescription());
-    assertEquals(testUpdateDto.getArea(), updatedProduct.getArea());
-    assertEquals(testUpdateDto.getCompany(), updatedProduct.getCompany());
-    assertEquals(testUpdateDto.getAlcoholDegree(), updatedProduct.getAlcoholDegree());
-}
+    @Test
+    @DisplayName("상세 상품 조회")
+    public void getProductTest() throws Exception {
+        // given
+        productId = 100L;
+        categoryId = 1L;
+
+        int expectedReviewCount = 10;
+        double expectedAverageRating = 4.5;
+        int expectedLikesCount = 5;
+
+        // Product 객체에 리뷰 수, 평균 별점, 찜 수 설정
+        Product mockProduct = mock(Product.class);
+        when(mockProduct.getReviewCount()).thenReturn(expectedReviewCount);
+//        when(mockProduct.getaverageRating()).thenReturn(expectedAverageRating);
+        when(mockProduct.getLikesCount()).thenReturn(expectedLikesCount);
+        // 기타 필요한 Product 메소드 반환 값 설정
+        when(mockProduct.getName()).thenReturn("Original Product");
+        when(mockProduct.getDescription()).thenReturn("Original Description");
+        // ...
+
+        // Repository 모의 설정
+        when(productRepository.findById(productId)).thenReturn(Optional.of(mockProduct));
+        when(categoryRepository.existsById(categoryId)).thenReturn(true);
+
+        // when
+        ProductResponseDto responseDto = productService.getProduct(productId, categoryId);
+
+        // then
+        assertNotNull(responseDto);
+        assertEquals("Original Product", responseDto.getName());
+        assertEquals("Original Description", responseDto.getDescription());
+        assertEquals(expectedReviewCount, responseDto.getReviewCount());
+//        assertEquals(expectedAverageRating, responseDto.getAverageRating(), 0.01);
+        assertEquals(expectedLikesCount, responseDto.getLikesCount());
+    }
+
+    @Test
+    @DisplayName("카테고리별 조회 + 페이징 테스트")
+    public void getProductsByCategoryTest() throws Exception {
+        // given
+        categoryId = 1L;
+        pageable = PageRequest.of(0, 10);
+
+        List<Product> productList = new ArrayList<>();
+        productList.add(new Product(requestDto, category));
+        productList.add(new Product(requestDto, category));
+
+        Page<Product> productPage = new PageImpl<>(productList, pageable, productList.size());
+
+        // Repository 모의 설정
+        when(categoryRepository.existsById(categoryId)).thenReturn(true);
+        when(productRepository.findByCategoryId(categoryId, pageable)).thenReturn(productPage);
+
+        // when
+        List<ProductResponseDto> responseDtoList = productService.getProductsByCategory(categoryId, pageable);
+
+        // then
+        assertNotNull(responseDtoList);
+        assertEquals(productList.size(), responseDtoList.size());
+    }
+
+    @Test
+    @DisplayName("상품 검색 + 페이징 테스트")
+    public void searchProductsTest() throws Exception {
+        // given
+        String keyword = "test";
+        pageable = PageRequest.of(0, 10); // 예시 페이지 요청
+
+        List<Product> productList = new ArrayList<>();
+        productList.add(new Product(requestDto, category));
+        productList.add(new Product(requestDto, category));
+
+        Page<Product> productPage = new PageImpl<>(productList, pageable, productList.size());
+
+        // when
+        when(productRepository.findByKeyword(keyword, pageable)).thenReturn(productPage);
+
+        // 서비스 메소드 호출
+        List<ProductResponseDto> responseDtoList = productService.getProductsBySearch(keyword, pageable);
+
+        // then
+        assertNotNull(responseDtoList);
+        assertEquals(productList.size(), responseDtoList.size());
+    }
+
+
+    @Test
+    @DisplayName("상품 수정 테스트")
+    public void updateProductTest() throws Exception {
+        // given
+        categoryId = 1L;
+        productId = 100L;
+        String imageUrl = "https://test.com/updated-image.jpg";
+
+        // 테스트용 수정 DTO 초기화
+        ProductRequestDto testUpdateDto = ProductRequestDto.builder()
+                .name("Updated Product")
+                .description("Updated Description")
+                .area("Updated Area")
+                .company("Updated Company")
+                .alcoholDegree(5.5)
+                .build();
+
+        Product mockProduct = mock(Product.class);
+        when(mockProduct.getName()).thenReturn("Updated Product");
+        when(mockProduct.getDescription()).thenReturn("Updated Description");
+        when(mockProduct.getArea()).thenReturn("Updated Area");
+        when(mockProduct.getCompany()).thenReturn("Updated Company");
+        when(mockProduct.getAlcoholDegree()).thenReturn(5.5);
+        when(mockProduct.getImage()).thenReturn(imageUrl);
+
+        // Repository 모의 설정
+        when(productRepository.findById(productId)).thenReturn(Optional.of(mockProduct));
+        when(categoryRepository.existsById(categoryId)).thenReturn(true);
+
+        // MultipartFile 객체 초기화 및 모의 설정
+        MultipartFile image = mock(MultipartFile.class);
+        when(image.isEmpty()).thenReturn(false);
+        when(s3Manager.upload(eq(image), eq("products"), eq(productId))).thenReturn(imageUrl);
+
+        // ProductService의 updateProduct 호출
+        ProductResponseDto updatedProduct = productService.updateProduct(categoryId, productId, testUpdateDto, image, user);
+
+        // then
+        assertNotNull(updatedProduct);
+        verify(s3Manager).deleteAllImageFiles(productId.toString(), "products"); // 파일 삭제 검증
+        verify(s3Manager).upload(eq(image), eq("products"), eq(productId)); // 이미지 업로드 검증
+        assertEquals(imageUrl, updatedProduct.getImage()); // 이미지 URL 검증
+        assertEquals(testUpdateDto.getName(), updatedProduct.getName()); // 기타 필드 검증
+        assertEquals(testUpdateDto.getDescription(), updatedProduct.getDescription());
+        assertEquals(testUpdateDto.getArea(), updatedProduct.getArea());
+        assertEquals(testUpdateDto.getCompany(), updatedProduct.getCompany());
+        assertEquals(testUpdateDto.getAlcoholDegree(), updatedProduct.getAlcoholDegree());
+    }
 
     @Test
     @DisplayName("상품 삭제 테스트")
