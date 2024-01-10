@@ -29,6 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -55,6 +56,9 @@ class ReviewServiceTest {
   UserRepository userRepository;
   @Mock
   ReviewImageService reviewImageService;
+
+  @InjectMocks
+  ReviewService reviewService;
 
   private Long categoryId = 1L;
   private Long reviewId = 1L;
@@ -119,9 +123,6 @@ class ReviewServiceTest {
     given(productRepository.findById(productId)).willReturn(Optional.of(product));
     given(reviewRepository.save(any(Review.class))).willReturn(review);
 
-    ReviewService reviewService = new ReviewService(categoryRepository, productRepository,
-        reviewRepository, userRepository, reviewImageService);
-
     //when
     ReviewResponseDto responseDto = reviewService.createProductsReview(categoryId, productId,
         images, requestDto, user);
@@ -137,9 +138,6 @@ class ReviewServiceTest {
   void updateProductsReviewTest() throws Exception {
     ReviewRequestDto requestDto = ReviewRequestDto.builder().description("리뷰 내용 수정").star(3.0)
         .munchies("안주").build();
-
-    ReviewService reviewService = new ReviewService(categoryRepository, productRepository,
-        reviewRepository, userRepository, reviewImageService);
 
     Review review = Review.builder().id(reviewId).description(requestDto.getDescription())
         .star(requestDto.getStar()).munchies(requestDto.getMunchies()).product(product).user(user)
@@ -161,9 +159,6 @@ class ReviewServiceTest {
   @Test
   @DisplayName("리뷰 삭제 테스트")
   void deleteProductsReviewTest() {
-
-    ReviewService reviewService = new ReviewService(categoryRepository, productRepository,
-        reviewRepository, userRepository, reviewImageService);
 
     Review review = Review.builder().id(reviewId).description("설명")
         .star(2.0).munchies("안주").product(product).user(user)
@@ -198,8 +193,6 @@ class ReviewServiceTest {
     Page<Review> mockReviews = new PageImpl<>(reviewList, pageable, reviewList.size());
     when(reviewRepository.findAllByProduct(product, pageable)).thenReturn(mockReviews);
 
-    ReviewService reviewService = new ReviewService(categoryRepository, productRepository,
-        reviewRepository, userRepository, reviewImageService);
     //when
     Page<ReviewResponseDto> reviews = reviewService.getProductsReview(categoryId, productId, user,
         pageable);
@@ -238,8 +231,6 @@ class ReviewServiceTest {
 
     when(reviewRepository.findAllByUser(user, pageable)).thenReturn(mockReviews);
 
-    ReviewService reviewService = new ReviewService(categoryRepository, productRepository,
-        reviewRepository, userRepository, reviewImageService);
     //when
     Page<ReviewResponseDto> reviews = reviewService.getMyReviews(userId, pageable);
 
@@ -267,9 +258,6 @@ class ReviewServiceTest {
     given(categoryRepository.findById(categoryId)).willReturn(Optional.of(category1));
     given(productRepository.findById(productId)).willReturn(Optional.of(product));
     given(reviewRepository.findById(reviewId)).willReturn(Optional.of(review));
-
-    ReviewService reviewService = new ReviewService(categoryRepository, productRepository,
-        reviewRepository, userRepository, reviewImageService);
 
     //when
     ReviewResponseDto reviews = reviewService.verifyReview(categoryId, productId, reviewId);

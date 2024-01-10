@@ -18,16 +18,25 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 
+@ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
 class ReviewImageServiceTest {
 
   @Mock
   ReviewImageRepository reviewImageRepository;
   @Mock
   S3Manager s3Manager;
+
+  @InjectMocks
+  ReviewImageService reviewImageService;
 
   private Long reviewId = 1L;
 
@@ -54,9 +63,6 @@ class ReviewImageServiceTest {
     // given
     Review review = Review.builder().id(reviewId).build();
 
-    ReviewImageService reviewImageService = new ReviewImageService(reviewImageRepository,
-        s3Manager);
-
     when(image1.getContentType()).thenReturn("application/pdf"); // set an unsupported content type
 
     // when, then
@@ -71,9 +77,6 @@ class ReviewImageServiceTest {
   void uploadReviewImagesSaveMethodCallTest() throws Exception {
     // given
     Review review = Review.builder().id(reviewId).reviewImages(reviewImages).build();
-
-    ReviewImageService reviewImageService = new ReviewImageService(reviewImageRepository,
-        s3Manager);
 
     when(image1.getContentType()).thenReturn("image/jpeg");
     when(image2.getContentType()).thenReturn("image/jpeg");
@@ -95,9 +98,6 @@ class ReviewImageServiceTest {
     Review review = Review.builder().id(reviewId)
         .reviewImages(reviewImages).build();
     String dirName = "reviews";
-
-    ReviewImageService reviewImageService = new ReviewImageService(reviewImageRepository,
-        s3Manager);
 
     // when
     reviewImageService.deleteAllReviewImages(review, dirName);
