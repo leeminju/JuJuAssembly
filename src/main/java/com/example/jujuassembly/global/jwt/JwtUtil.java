@@ -34,8 +34,9 @@ public class JwtUtil {
 
   // Token 식별자
   public static final String BEARER_PREFIX = "Bearer ";
+  public static final String ACCESS_PREFIX = "Access ";
 
-  public static final long ACCESS_TOKEN_TIME = 15 * 60 * 1000;  // 15분
+  public static final long ACCESS_TOKEN_TIME =  60*1000;  // 15분
 
   public static final long REFRESH_TOKEN_TIME = 7 * 24 * 60 * 60 * 1000;  // 7일
 
@@ -92,9 +93,14 @@ public class JwtUtil {
     return createToken(loginId, REFRESH_TOKEN_TIME);
   }
 
-  public void saveRefreshToken(String loginId, String refreshToken) {
+  public void saveAccessToken(String token, String loginId) {
     redisTemplate.opsForValue()
-        .set(loginId, refreshToken, REFRESH_TOKEN_TIME, TimeUnit.MINUTES);
+        .set(ACCESS_PREFIX+token, loginId, ACCESS_TOKEN_TIME, TimeUnit.MILLISECONDS);
+  }
+
+  public void saveRefreshToken(String tokenValue, String refreshToken) {
+    redisTemplate.opsForValue()
+        .set(tokenValue, refreshToken, REFRESH_TOKEN_TIME, TimeUnit.MILLISECONDS);
   }
 
   private String createToken(String loginId, long tokenTime) {
@@ -117,36 +123,16 @@ public class JwtUtil {
     return info.getSubject();
   }
 
-  public boolean shouldAccessTokenBeRefreshed(String accessToken) {
-    try {
-      Date expirationDate = Jwts.parserBuilder().setSigningKey(key).build()
-          .parseClaimsJws(accessToken).getBody().getExpiration();
-
-      // 토큰의 만료 여부 확인
-      return expirationDate.before(new Date());
-    } catch (SecurityException | MalformedJwtException e) {
-      log.error("Invalid JWT signature, 유효하지 않는 Access JWT 서명 입니다.");
-      return false;
-    } catch (ExpiredJwtException e) {
-      log.error("Expired JWT token, 만료된 Access JWT token 입니다.");
-      return true;
-    } catch (UnsupportedJwtException e) {
-      log.error("Unsupported Access JWT token, 지원되지 않는 Access JWT 토큰 입니다.");
-      return false;
-    } catch (IllegalArgumentException e) {
-      log.error("Access JWT claims is empty, 잘못된 Access JWT 토큰 입니다.");
-      return false;
-    }
+  public boolean shouldAccessTokenBeRefreshed(String accessTokenValue) {
+    return !redisTemplate.hasKey(ACCESS_PREFIX+BEARER_PREFIX+accessTokenValue);
   }
 
   public String getRefreshtokenValue(String accessTokenValue) {
-    Claims claims = getUserInfoFromToken(accessTokenValue);
-    String loginId = claims.getSubject();
-    return redisTemplate.opsForValue().get(loginId);
+    return redisTemplate.opsForValue().get(accessTokenValue);
   }
 
-  public String createAccessTokenByRefreshToken(String refreshToken) {
-    String loginId = getUserInfoFromToken(refreshToken).getSubject();
+  public String createAccessTokenByRefreshToken(String refreshTokenValue) {
+    String loginId = getUserInfoFromToken(refreshTokenValue).getSubject();
     return createAccessToken(loginId);
   }
 
@@ -159,9 +145,28 @@ public class JwtUtil {
   }
 
   // logout시 access token 만료시키기
-  public void removeAccessToken(String loginId) {
-    createToken(loginId, EXPIRE_TOKEN_TIME);
+  public void removeAccessToken(String accessToken) {
+    if (redisTemplate.opsForValue().get(ACCESS_PREFIX+accessToken).isEmpty()) {
+      throw new ApiException("AccessToken이 유효하지 않습니다.", HttpStatus.BAD_REQUEST);
+    }
+    redisTemplate.delete(ACCESS_PREFIX+accessToken);
   }
 
 
+  public void regenerateToken(String newAccessToken, String accessTokenValue, String refreshTokenValue) {
+    Claims info = getUserInfoFromToken(newAccessToken.substring(7));
+    String loginId = info.getSubject();
+
+    // 새로 만든 AccessToken을 redis에 저장
+    redisTemplate.opsForValue().set(ACCESS_PREFIX+newAccessToken, loginId, ACCESS_TOKEN_TIME, TimeUnit.MILLISECONDS);
+
+    // 새로 만든 AccessToken을 key로 refreshToken을 다시 DB에 저장
+    Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(refreshTokenValue).getBody();
+    Long expireationTime = claims.getExpiration().getTime();
+    Long currentTime = System.currentTimeMillis();
+    redisTemplate.opsForValue().set(newAccessToken.substring(7), BEARER_PREFIX+refreshTokenValue, expireationTime - currentTime, TimeUnit.MILLISECONDS);
+
+    // 만료된 token으로 저장되어있는 refreshToken은 삭제
+    redisTemplate.delete(accessTokenValue);
+  }
 }

@@ -132,19 +132,21 @@ public class UserService {
     // access token 및 refresh token
     String accessToken = jwtUtil.createAccessToken(loginId);
     response.setHeader(JwtUtil.AUTHORIZATION_HEADER, accessToken);
+    jwtUtil.saveAccessToken(accessToken,loginId);
 
     String refreshToken = jwtUtil.createRefreshToken(loginId);
-    jwtUtil.saveRefreshToken(loginId, refreshToken);
+    jwtUtil.saveRefreshToken(accessToken.substring(7), refreshToken);
 
     return new UserResponseDto(user);
   }
 
-  public void logout(HttpServletRequest request) {
-    String loginId = jwtUtil.getLoginIdFromHeader(request);
-    String accessTokenValue = jwtUtil.resolveToken(request);
+  public void logout(HttpServletResponse response) {
+    String accessToken = response.getHeader(JwtUtil.AUTHORIZATION_HEADER);
 
-    jwtUtil.removeRefreshToken(accessTokenValue);
-    jwtUtil.removeAccessToken(loginId);
+    jwtUtil.removeRefreshToken(accessToken.substring(7));
+    jwtUtil.removeAccessToken(accessToken);
+
+    response.setHeader(JwtUtil.AUTHORIZATION_HEADER, "logout");
   }
 
 

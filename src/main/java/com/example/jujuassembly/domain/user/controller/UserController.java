@@ -70,8 +70,8 @@ public class UserController {
 
   // 로그아웃
   @PostMapping("/users/logout")
-  public ResponseEntity<ApiResponse> logout(HttpServletRequest request) {
-    userService.logout(request);
+  public ResponseEntity<ApiResponse> logout(HttpServletResponse response) {
+    userService.logout(response);
     return ResponseEntity.ok().body(new ApiResponse("로그아웃 성공", HttpStatus.OK.value()));
   }
 
