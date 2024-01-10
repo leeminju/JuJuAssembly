@@ -188,6 +188,7 @@ public class JwtUtil {
 
   public void checkLoggedIn(String loginId, HttpServletResponse response) {
     if (redisTemplate.hasKey(loginId)) {
+      response.setHeader(AUTHORIZATION_HEADER, redisTemplate.opsForValue().get(loginId));
       throw new ApiException("이미 로그인 되어있습니다.", HttpStatus.BAD_REQUEST);
     }
   }
