@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -27,6 +28,7 @@ public class ProductResponseDto {
     private List<ReviewResponseDto> reviewList;
     private int reviewCount; // 리뷰 수
     private double averageRating; // 별점 평균
+    private int likesCount; // 찜 횟수 추가
 
     public ProductResponseDto(Product product) {
         this.image = product.getImage();
@@ -43,11 +45,19 @@ public class ProductResponseDto {
         }
 
         this.reviewList = product.getReviews().stream().map(ReviewResponseDto::new).toList();
-        this.reviewCount = product.getReviews().size();
-        this.averageRating = product.getReviews().isEmpty() ? 0 :
-                product.getReviews().stream()
-                        .mapToDouble(Review::getStar)
-                        .average()
-                        .orElse(0.0);
+        this.reviewCount = product.getReviewCount();
+        this.averageRating = calculateAverageRating(product.getReviews());
+        this.likesCount = product.getLikesCount();
+    }
+
+
+
+    // 평균 별점 계산 메서드
+    private double calculateAverageRating(Set<Review> reviews) {
+        if (reviews.isEmpty()) {
+            return 0.0;
+        } else {
+            return reviews.stream().mapToDouble(Review::getStar).average().orElse(0.0);
+        }
     }
 }

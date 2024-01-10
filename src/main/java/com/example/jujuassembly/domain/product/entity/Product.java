@@ -49,6 +49,8 @@ public class Product extends Timestamped {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Review> reviews = new LinkedHashSet<>();
+    @OneToMany (mappedBy = "product", cascade = CascadeType.ALL)
+    private List<Like> likes = new ArrayList<>();
 
     public Product(ProductRequestDto requestDto, Category category) {
         this.name = requestDto.getName();
@@ -70,7 +72,14 @@ public class Product extends Timestamped {
     public void setImage(String url) {
         this.image = url;
     }
-    @OneToMany (mappedBy = "product", cascade = CascadeType.ALL)
-    private List<Like> likes = new ArrayList<>();
 
+    // 리뷰 개수 반환
+    public int getReviewCount() {
+        return reviews.size();
+    }
+
+    // 찜(좋아요) 횟수 반환
+    public int getLikesCount() {
+        return likes.size();
+    }
 }

@@ -51,7 +51,7 @@ public class Review extends Timestamped {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
-  private User writer;
+  private User user;
 
   @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<ReviewImage> reviewImages = new LinkedHashSet<>();
@@ -65,7 +65,7 @@ public class Review extends Timestamped {
     this.star = requestDto.getStar();
     this.isVerified = false;
     this.product = product;
-    this.writer = user;
+    this.user = user;
   }
 
   public void update(ReviewRequestDto requestDto) {

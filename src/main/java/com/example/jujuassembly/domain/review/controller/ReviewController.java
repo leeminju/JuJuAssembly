@@ -3,7 +3,7 @@ package com.example.jujuassembly.domain.review.controller;
 import com.example.jujuassembly.domain.review.dto.ReviewRequestDto;
 import com.example.jujuassembly.domain.review.dto.ReviewResponseDto;
 import com.example.jujuassembly.domain.review.service.ReviewService;
-import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
+import com.example.jujuassembly.domain.user.entity.UserRoleEnum.Authority;
 import com.example.jujuassembly.global.response.ApiResponse;
 import com.example.jujuassembly.global.security.UserDetailsImpl;
 import jakarta.validation.Valid;
@@ -94,7 +94,7 @@ public class ReviewController {
         .body(new ApiResponse(userId + "번 사용자 리뷰 목록 입니다.", HttpStatus.OK.value(), reviews));
   }
 
-  @Secured(UserRoleEnum.Authority.ADMIN)
+  @Secured(Authority.ADMIN)
   @PatchMapping("/categories/{categoryId}/products/{productId}/reviews/{reviewId}/verification")
   public ResponseEntity<ApiResponse<ReviewResponseDto>> verifyReview(@PathVariable Long categoryId,
       @PathVariable Long productId, @PathVariable Long reviewId,
