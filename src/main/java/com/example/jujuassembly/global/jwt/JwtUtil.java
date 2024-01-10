@@ -36,7 +36,7 @@ public class JwtUtil {
   public static final String BEARER_PREFIX = "Bearer ";
   public static final String ACCESS_PREFIX = "Access ";
 
-  public static final long ACCESS_TOKEN_TIME =  60*1000;  // 15분
+  public static final long ACCESS_TOKEN_TIME =  10*1000;  // 15분
 
   public static final long REFRESH_TOKEN_TIME = 7 * 24 * 60 * 60 * 1000;  // 7일
 
@@ -93,9 +93,9 @@ public class JwtUtil {
     return createToken(loginId, REFRESH_TOKEN_TIME);
   }
 
-  public void saveAccessToken(String token, String loginId) {
+  public void saveAccessToken(String loginId, String accessToken) {
     redisTemplate.opsForValue()
-        .set(ACCESS_PREFIX+token, loginId, ACCESS_TOKEN_TIME, TimeUnit.MILLISECONDS);
+        .set(loginId, accessToken, ACCESS_TOKEN_TIME, TimeUnit.MILLISECONDS);
   }
 
   public void saveRefreshToken(String tokenValue, String refreshToken) {
@@ -124,10 +124,13 @@ public class JwtUtil {
   }
 
   public boolean shouldAccessTokenBeRefreshed(String accessTokenValue) {
-    return !redisTemplate.hasKey(ACCESS_PREFIX+BEARER_PREFIX+accessTokenValue);
+    String refreshTokenValue = getRefreshtoken(accessTokenValue).substring(7);
+    Claims claims = getUserInfoFromToken(refreshTokenValue);
+    String loginId = claims.getSubject();
+    return !redisTemplate.hasKey(loginId);
   }
 
-  public String getRefreshtokenValue(String accessTokenValue) {
+  public String getRefreshtoken(String accessTokenValue) {
     return redisTemplate.opsForValue().get(accessTokenValue);
   }
 
@@ -146,10 +149,12 @@ public class JwtUtil {
 
   // logout시 access token 만료시키기
   public void removeAccessToken(String accessToken) {
-    if (redisTemplate.opsForValue().get(ACCESS_PREFIX+accessToken).isEmpty()) {
+    Claims claims = getUserInfoFromToken(accessToken.substring(7));
+    String loginId = claims.getSubject();
+    if (redisTemplate.opsForValue().get(loginId).isEmpty()) {
       throw new ApiException("AccessToken이 유효하지 않습니다.", HttpStatus.BAD_REQUEST);
     }
-    redisTemplate.delete(ACCESS_PREFIX+accessToken);
+    redisTemplate.delete(loginId);
   }
 
 
@@ -158,7 +163,7 @@ public class JwtUtil {
     String loginId = info.getSubject();
 
     // 새로 만든 AccessToken을 redis에 저장
-    redisTemplate.opsForValue().set(ACCESS_PREFIX+newAccessToken, loginId, ACCESS_TOKEN_TIME, TimeUnit.MILLISECONDS);
+    redisTemplate.opsForValue().set(loginId, newAccessToken, ACCESS_TOKEN_TIME, TimeUnit.MILLISECONDS);
 
     // 새로 만든 AccessToken을 key로 refreshToken을 다시 DB에 저장
     Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(refreshTokenValue).getBody();

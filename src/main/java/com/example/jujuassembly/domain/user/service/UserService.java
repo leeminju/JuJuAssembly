@@ -16,7 +16,6 @@ import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.jwt.JwtUtil;
 import com.example.jujuassembly.global.s3.S3Manager;
 import com.example.jujuassembly.global.security.UserDetailsImpl;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -129,10 +128,13 @@ public class UserService {
       throw new ApiException("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST);
     }
 
+    // 중복 로그인 확인
+//    jwtUtil.checkLoggedIn()
+
     // access token 및 refresh token
     String accessToken = jwtUtil.createAccessToken(loginId);
     response.setHeader(JwtUtil.AUTHORIZATION_HEADER, accessToken);
-    jwtUtil.saveAccessToken(accessToken,loginId);
+    jwtUtil.saveAccessToken(loginId, accessToken);
 
     String refreshToken = jwtUtil.createRefreshToken(loginId);
     jwtUtil.saveRefreshToken(accessToken.substring(7), refreshToken);
