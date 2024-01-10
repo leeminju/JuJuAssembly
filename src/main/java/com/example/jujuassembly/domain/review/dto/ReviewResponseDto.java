@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ReviewResponseDto {
 
   private Long id;
-  private UserResponseDto writer;
+  private UserResponseDto user;
   private String productName;
   private List<String> images = new ArrayList<>();
   private String description;
@@ -27,7 +27,7 @@ public class ReviewResponseDto {
 
   public ReviewResponseDto(Review savedReview) {
     this.id = savedReview.getId();
-    this.writer = new UserResponseDto(savedReview.getWriter());
+    this.user = new UserResponseDto(savedReview.getUser());
     this.productName = savedReview.getProduct().getName();
     this.description = savedReview.getDescription();
 
