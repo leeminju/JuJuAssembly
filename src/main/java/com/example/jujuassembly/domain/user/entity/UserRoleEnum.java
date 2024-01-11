@@ -8,7 +8,7 @@ public enum UserRoleEnum {
 
   private final String authority;
 
-  UserRoleEnum(Stroing authority) {
+  UserRoleEnum(String authority) {
     this.authority = authority;
   }
 
