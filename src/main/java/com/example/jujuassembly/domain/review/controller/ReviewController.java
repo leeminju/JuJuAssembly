@@ -147,8 +147,7 @@ public class ReviewController {
   @Secured(Authority.ADMIN)
   @PatchMapping("/categories/{categoryId}/products/{productId}/reviews/{reviewId}/verification")
   public ResponseEntity<ApiResponse<ReviewResponseDto>> verifyReview(@PathVariable Long categoryId,
-      @PathVariable Long productId, @PathVariable Long reviewId,
-      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+      @PathVariable Long productId, @PathVariable Long reviewId) {
     ReviewResponseDto responseDto = reviewService.verifyReview(categoryId, productId, reviewId);
     return ResponseEntity.ok()
         .body(new ApiResponse(reviewId + "번　리뷰 인증 되었습니다.", HttpStatus.OK.value(), responseDto));

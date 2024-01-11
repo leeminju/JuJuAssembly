@@ -74,12 +74,8 @@ public class UserService {
     }
 
     // categoryId 검증
-    categoryRepository.findById(firstPreferredCategoryId)
-        .orElseThrow(
-            () -> new ApiException("존재하지 않는 firstPreferredCategoryId 입니다.", HttpStatus.NOT_FOUND));
-    categoryRepository.findById(secondPreferredCategoryId)
-        .orElseThrow(
-            () -> new ApiException("존재하지 않는 secondPreferredCategoryId 입니다.", HttpStatus.NOT_FOUND));
+    categoryRepository.getById(firstPreferredCategoryId);
+    categoryRepository.getById(secondPreferredCategoryId);
 
     // password 확인
     // 1. nickname과 같은 값이 포함됐는지
@@ -102,13 +98,9 @@ public class UserService {
     String email = emailAuth.getEmail();
     String password = emailAuth.getPassword();
     Long firstPreferredCategoryId = emailAuth.getFirstPreferredCategoryId();
-    Category firstPreferredCategory = categoryRepository.findById(firstPreferredCategoryId)
-        .orElseThrow(
-            () -> new ApiException("존재하지 않는 firstPreferredCategoryId입니다.", HttpStatus.NOT_FOUND));
+    Category firstPreferredCategory = categoryRepository.getById(firstPreferredCategoryId);
     Long secondPreferredCategoryId = emailAuth.getSecondPreferredCategoryId();
-    Category secondPreferredCategory = categoryRepository.findById(secondPreferredCategoryId)
-        .orElseThrow(
-            () -> new ApiException("존재하지 않는 secondPreferredCategoryId입니다.", HttpStatus.NOT_FOUND));
+    Category secondPreferredCategory = categoryRepository.getById(secondPreferredCategoryId);
 
     User user = new User(loginId, nickname, email, password, firstPreferredCategory,
         secondPreferredCategory);
@@ -168,8 +160,7 @@ public class UserService {
       throw new ApiException("본인만 조회할 수 있습니다.", HttpStatus.UNAUTHORIZED);
     }
 
-    User loginUser = userRepository.findById(userId)
-        .orElseThrow(() -> new ApiException("존재하지 않는 유저입니다.", HttpStatus.NOT_FOUND));
+    User loginUser = userRepository.getById(userId);
     return new UserDetailResponseDto(user);
   }
 
@@ -181,8 +172,7 @@ public class UserService {
       throw new ApiException("본인만 조회할 수 있습니다.", HttpStatus.UNAUTHORIZED);
     }
 
-    User loginUser = userRepository.findById(userId)
-        .orElseThrow(() -> new ApiException("존재하지 않는 유저입니다.", HttpStatus.NOT_FOUND));
+    User loginUser = userRepository.getById(userId);
     loginUser.updateUser(modifyRequestDto);
     userRepository.save(loginUser);
     return new UserDetailResponseDto(loginUser);
@@ -190,8 +180,7 @@ public class UserService {
 
   //프로필 사진 추가
   public UserDetailResponseDto uploadImage(Long userId, MultipartFile image) throws Exception {
-    User user = userRepository.findById(userId)
-        .orElseThrow(() -> new ApiException("존재하지 않는 유저입니다.", HttpStatus.NOT_FOUND));
+    User user = userRepository.getById(userId);
     s3Manager.deleteAllImageFiles(userId.toString(), "users");
 
     if (image != null && !image.isEmpty()) {
@@ -205,8 +194,7 @@ public class UserService {
   // 회원 탈퇴
   @Transactional
   public void deleteAccount(Long userId, String password, UserDetailsImpl userDetails) {
-    User user = userRepository.findById(userId)
-        .orElseThrow(() -> new ApiException("등록된 유저가 없습니다.", HttpStatus.NOT_FOUND));
+    User user = userRepository.getById(userId);
     if (!userId.equals(userDetails.getUser().getId())) {
       throw new ApiException("해당 사용자만 로그아웃 할 수 있습니다.", HttpStatus.UNAUTHORIZED);
     }

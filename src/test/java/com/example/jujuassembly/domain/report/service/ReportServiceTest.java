@@ -62,8 +62,8 @@ class ReportServiceTest {
     report.updateCategory(category);
     MultipartFile image = mock(MultipartFile.class);
 
-    given(categoryRepository.findById(category.getId())).willReturn(Optional.of(category));
-//    given(reportRepository.findById(report.getId())).willReturn(Optional.of(report));
+    given(categoryRepository.getById(category.getId())).willReturn(category);
+//    given(reportRepository.getById(report.getId())).willReturn(Optional.of(report));
     given(image.getContentType()).willReturn("image/png");
 
 
@@ -148,8 +148,8 @@ class ReportServiceTest {
     report.builder().image("https://test.com/image.jpg").build();
     //이미지 파일 생성
 
-    given(categoryRepository.findById(category.getId())).willReturn(Optional.of(category));
-    given(reportRepository.findById(report.getId())).willReturn(Optional.of(report));
+    given(categoryRepository.getById(category.getId())).willReturn(category);
+    given(reportRepository.getById(report.getId())).willReturn(report);
 
     //수정할 report 생성
     //리포트 초기화
@@ -208,8 +208,8 @@ class ReportServiceTest {
     report.updateCategory(category);
     report.builder().image("https://test.com/image.jpg").build();
 
-    given(categoryRepository.findById(category.getId())).willReturn(Optional.of(category));
-    given(reportRepository.findById(report.getId())).willReturn(Optional.of(report));
+    given(categoryRepository.getById(category.getId())).willReturn(category);
+    given(reportRepository.getById(report.getId())).willReturn(report);
 
     //수정할 report 생성
     //리포트 초기화
@@ -259,15 +259,15 @@ class ReportServiceTest {
 
     CategoryRequestDto categoryRequestDto =CategoryRequestDto.builder().name("ExistingCategory").build();
     Category existingCategory = new Category(categoryRequestDto);
-    when(categoryRepository.findById(category.getId())).thenReturn(Optional.of(existingCategory));
-    when(reportRepository.findById(report.getId())).thenReturn(Optional.of(report));
+    when(categoryRepository.getById(category.getId())).thenReturn(existingCategory);
+    when(reportRepository.getById(report.getId())).thenReturn(report);
 
     // When
     reportService.deleteReport(category.getId(),report.getId(),user);
 
     // Then
-    // CategoryRepository.findById() 메소드가 호출되었는지 확인
-    verify(categoryRepository, times(1)).findById(category.getId());
+    // CategoryRepository.getById() 메소드가 호출되었는지 확인
+    verify(categoryRepository, times(1)).getById(category.getId());
 
     // CategoryRepository.delete() 메소드가 호출되었는지 확인
     verify(reportRepository, times(1)).delete(report);

@@ -3,7 +3,6 @@ package com.example.jujuassembly.domain.reviewLike.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,7 +26,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -69,9 +67,9 @@ class ReviewLikeServiceTest {
     product = Product.builder().id(productId).category(category).build();
     review = Review.builder().id(reviewId).product(product).build();
 
-    when(productRepository.findById(productId)).thenReturn(Optional.of(product));
-    when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
-    when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
+    when(productRepository.getById(productId)).thenReturn(product);
+    when(categoryRepository.getById(categoryId)).thenReturn(category);
+    when(reviewRepository.getById(reviewId)).thenReturn(review);
   }
 
   @Test

@@ -33,8 +33,7 @@ public class ReportService {
       ReportRequestDto requestDto, User user)
       throws IOException {
 
-    Category category = categoryRepository.findById(categoryId)
-        .orElseThrow(() -> new ApiException("카테고리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+    Category category = categoryRepository.getById(categoryId);
     Report report = new Report(requestDto);
     report.updateUser(user);
     report.updateCategory(category);
@@ -67,10 +66,8 @@ public class ReportService {
       ReportRequestDto requestDto, User user)
       throws IOException {
 
-    categoryRepository.findById(categoryId)
-        .orElseThrow(() -> new ApiException("해당하는 카테고리가 없습니다.", HttpStatus.NOT_FOUND));
-    Report report = reportRepository.findById(reportId)
-        .orElseThrow(() -> new ApiException("해당하는 상품 제보가 없습니다.", HttpStatus.NOT_FOUND));
+    categoryRepository.getById(categoryId);
+    Report report = reportRepository.getById(reportId);
 
     report.updateName(requestDto.getName());
 
@@ -91,10 +88,8 @@ public class ReportService {
   public ReportResponseDto patchReportStatus(Long categoryId, Long reportId,
       ReportStatusRequestDto requestDto, User user) {
 
-    categoryRepository.findById(categoryId)
-        .orElseThrow(() -> new ApiException("해당하는 카테고리가 없습니다.", HttpStatus.NOT_FOUND));
-    Report report = reportRepository.findById(reportId)
-        .orElseThrow(() -> new ApiException("해당하는 상품 제보가 없습니다.", HttpStatus.NOT_FOUND));
+    categoryRepository.getById(categoryId);
+    Report report = reportRepository.getById(reportId);
 
     report.updateStatus(requestDto.getStatus());
     return new ReportResponseDto(report);
@@ -104,10 +99,8 @@ public class ReportService {
   @Transactional
   public void deleteReport(Long categoryId, Long reportId, User user) {
 
-    categoryRepository.findById(categoryId)
-        .orElseThrow(() -> new ApiException("해당하는 카테고리가 없습니다.", HttpStatus.NOT_FOUND));
-    Report report = reportRepository.findById(reportId)
-        .orElseThrow(() -> new ApiException("해당하는 상품 제보가 없습니다.", HttpStatus.NOT_FOUND));
+    categoryRepository.getById(categoryId);
+    Report report = reportRepository.getById(reportId);
 
     reportRepository.delete(report);
 

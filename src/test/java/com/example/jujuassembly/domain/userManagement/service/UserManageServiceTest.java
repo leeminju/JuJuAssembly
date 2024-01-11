@@ -14,7 +14,6 @@ import com.example.jujuassembly.domain.userManagement.dto.UserRoleRequestDto;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -70,7 +69,7 @@ class UserManageServiceTest {
     UserRoleRequestDto userRoleRequestDto = UserRoleRequestDto.builder()
         .userRole(UserRoleEnum.ADMIN).build();
 
-    when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+    when(userRepository.getById(1L)).thenReturn(user);
 
     //when
     var result = userManageService.modifyUserRole(1L, userRoleRequestDto);
