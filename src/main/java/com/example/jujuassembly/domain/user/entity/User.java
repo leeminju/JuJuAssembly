@@ -79,7 +79,7 @@ public class User extends Timestamped {
   private Set<ReviewLike> reviewLikes = new LinkedHashSet<>();
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-  private List<Like> likes = new ArrayList<>();
+  private Set<Like> likes = new LinkedHashSet<>();
 
 
   public User(String loginId, String nickname, String email, String password,
