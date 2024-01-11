@@ -11,16 +11,12 @@ import static org.mockito.Mockito.when;
 
 import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
-import com.example.jujuassembly.domain.like.repository.LikeRepository;
-import com.example.jujuassembly.domain.like.service.LikeService;
 import com.example.jujuassembly.domain.product.dto.ProductRequestDto;
 import com.example.jujuassembly.domain.product.dto.ProductResponseDto;
 import com.example.jujuassembly.domain.product.entity.Product;
 import com.example.jujuassembly.domain.product.repository.ProductRepository;
-import com.example.jujuassembly.domain.product.service.ProductService;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
-import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.global.s3.S3Manager;
 import java.util.ArrayList;
 import java.util.List;
@@ -132,8 +128,8 @@ public class ProductServiceTest {
     String imageUrl = "https://test.com/image.jpg";
     when(s3Manager.upload(eq(image), eq("products"), eq(productId))).thenReturn(imageUrl);
 
-    ProductResponseDto responseDto = productService.createProduct(categoryId, requestDto, image,
-        user);
+    ProductResponseDto responseDto = productService.createProduct(categoryId, requestDto, image
+    );
 
     // then
     assertNotNull(responseDto);
@@ -294,7 +290,7 @@ public class ProductServiceTest {
 
     // ProductService의 updateProduct 호출
     ProductResponseDto updatedProduct = productService.updateProduct(categoryId, productId,
-        testUpdateDto, image, user);
+        testUpdateDto, image);
 
     // then
     assertNotNull(updatedProduct);
@@ -319,7 +315,7 @@ public class ProductServiceTest {
     when(productRepository.findById(productId)).thenReturn(Optional.of(product));
 
     // when
-    productService.deleteProduct(productId, user);
+    productService.deleteProduct(productId);
 
     // then
     // 상품이 삭제되었는지 확인
