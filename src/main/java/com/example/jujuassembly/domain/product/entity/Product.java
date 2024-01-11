@@ -63,7 +63,7 @@ public class Product extends Timestamped {
   @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<Review> reviews = new LinkedHashSet<>();
   @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-  private List<Like> likes = new ArrayList<>();
+  private Set<Like> likes = new LinkedHashSet<>();
 
   public Product(ProductRequestDto requestDto, Category category) {
     this.name = requestDto.getName();
