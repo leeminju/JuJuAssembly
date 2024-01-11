@@ -19,9 +19,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -79,7 +77,7 @@ public class User extends Timestamped {
   private Set<ReviewLike> reviewLikes = new LinkedHashSet<>();
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-  private List<Like> likes = new ArrayList<>();
+  private Set<Like> likes = new LinkedHashSet<>();
 
 
   public User(String loginId, String nickname, String email, String password,
