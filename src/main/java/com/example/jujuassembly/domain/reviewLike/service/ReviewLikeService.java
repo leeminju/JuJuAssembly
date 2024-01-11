@@ -5,6 +5,7 @@ import com.example.jujuassembly.domain.product.entity.Product;
 import com.example.jujuassembly.domain.product.repository.ProductRepository;
 import com.example.jujuassembly.domain.review.entity.Review;
 import com.example.jujuassembly.domain.review.repository.ReviewRepository;
+import com.example.jujuassembly.domain.reviewLike.dto.ReviewLikeResponseDto;
 import com.example.jujuassembly.domain.reviewLike.entity.ReviewLike;
 import com.example.jujuassembly.domain.reviewLike.entity.ReviewLikeStatusEnum;
 import com.example.jujuassembly.domain.reviewLike.repository.ReviewLikeRepository;
@@ -29,7 +30,9 @@ public class ReviewLikeService {
   private final ReviewLikeRepository reviewLikeRepository;
 
   @Transactional
-  public boolean likeReview(Long categoryId, Long productId, Long reviewId, User user) {
+  public Optional<ReviewLikeResponseDto> likeReview(Long categoryId, Long productId, Long reviewId,
+      User user) {
+    ReviewLikeResponseDto responseDto = null;
     validateCategory(categoryId);
     Product product = validateProduct(productId);
     validateProductCategory(product, categoryId);
@@ -41,21 +44,25 @@ public class ReviewLikeService {
     if (reviewLike.isPresent()) {
       if (reviewLike.get().getStatus().equals(ReviewLikeStatusEnum.LIKE)) {
         reviewLikeRepository.delete(reviewLike.get());//이미 추천을 눌렀다면 추천 해제
-        return false;
+        return Optional.empty();
       } else {
         reviewLike.get().like();//비추천 -> 추천으로 변경
+        responseDto = new ReviewLikeResponseDto(reviewLike.get());
       }
     } else {
       ReviewLike newReviewLike = new ReviewLike(review, user);
       newReviewLike.like();
-      reviewLikeRepository.save(newReviewLike);
+      ReviewLike savedReviewLike = reviewLikeRepository.save(newReviewLike);
+      responseDto = new ReviewLikeResponseDto(savedReviewLike);
     }
 
-    return true;
+    return Optional.of(responseDto);
   }
 
   @Transactional
-  public boolean dislikeReview(Long categoryId, Long productId, Long reviewId, User user) {
+  public Optional<ReviewLikeResponseDto> dislikeReview(Long categoryId, Long productId,
+      Long reviewId, User user) {
+    ReviewLikeResponseDto responseDto = null;
     validateCategory(categoryId);
     Product product = validateProduct(productId);
     validateProductCategory(product, categoryId);
@@ -67,17 +74,19 @@ public class ReviewLikeService {
     if (reviewLike.isPresent()) {
       if (reviewLike.get().getStatus().equals(ReviewLikeStatusEnum.DISLIKE)) {
         reviewLikeRepository.delete(reviewLike.get());//이미 비추천을 눌렀다면 추천 해제
-        return false;
+        return Optional.empty();
       } else {
         reviewLike.get().dislike();//추천 -> 비추천으로 변경
+        responseDto = new ReviewLikeResponseDto(reviewLike.get());
       }
     } else {
       ReviewLike newReviewLike = new ReviewLike(review, user);
       newReviewLike.dislike();
-      reviewLikeRepository.save(newReviewLike);
+      ReviewLike savedReviewLike= reviewLikeRepository.save(newReviewLike);
+      responseDto = new ReviewLikeResponseDto(savedReviewLike);
     }
 
-    return true;
+    return Optional.of(responseDto);
   }
 
   //카테고리 존재 검증
