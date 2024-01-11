@@ -134,7 +134,7 @@ public class UserService {
     }
 
     // 중복 로그인 확인
-    jwtUtil.checkLoggedIn(loginId, response);
+    jwtUtil.checkIsLoggedIn(loginId, response);
 
     // access token 및 refresh token
     String accessToken = jwtUtil.createAccessToken(loginId);

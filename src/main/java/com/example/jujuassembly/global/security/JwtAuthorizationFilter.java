@@ -39,7 +39,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
       String accessTokenValue = accessToken.substring(7);
       // accessToken이 만료되었는지 확인
       if (jwtUtil.shouldAccessTokenBeRefreshed(accessToken.substring(7))) {
-        String refreshTokenValue = jwtUtil.getRefreshtoken(accessToken).substring(7);
+        String refreshTokenValue = jwtUtil.getRefreshtokenByAccessToken(accessToken).substring(7);
         // refreshtoken이 유효한지 확인
         if (jwtUtil.validateToken(refreshTokenValue)) {
           // accessToken 재발급
