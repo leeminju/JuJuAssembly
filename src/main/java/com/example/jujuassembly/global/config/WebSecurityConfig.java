@@ -1,6 +1,5 @@
 package com.example.jujuassembly.global.config;
 
-
 import com.example.jujuassembly.global.jwt.JwtUtil;
 import com.example.jujuassembly.global.security.CustomAuthenticationEntryPoint;
 import com.example.jujuassembly.global.security.JwtAuthorizationFilter;
@@ -10,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -56,6 +56,11 @@ public class WebSecurityConfig {
         authorizeHttpRequests
             .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
             .permitAll() // resources 접근 허용 설정
+            .requestMatchers("/").permitAll()
+            .requestMatchers("/login").permitAll()
+            .requestMatchers("/signup").permitAll()
+            .requestMatchers("/admin").permitAll()
+            .requestMatchers(HttpMethod.GET, "/v1/users/**").permitAll()
             .requestMatchers("/v1/auth/**").permitAll()
             .anyRequest().authenticated() // 그 외 모든 요청 인증처리
     );

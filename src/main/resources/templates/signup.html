@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link rel="stylesheet" type="text/css" href="/css/style.css">
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"
+          integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
+          crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+  <meta charset="UTF-8">
+  <title>주주총회　회원가입</title>
+</head>
+<body>
+<div id="signup-form">
+  <div id="login-title">주주총회 회원가입</div>
+  <br>
+
+
+  <div>
+    <div class="login-id-label">Login Id</div>
+    <input type="text" name="loginId" id="loginId" class="login-input-box">
+
+    <div class="login-id-label">Nickname</div>
+    <input type="text" name="nickname" id="nickname" class="login-input-box">
+
+    <div class="login-id-label">Password</div>
+    <input type="password" name="password" id="password" class="login-input-box">
+
+    <div class="login-id-label">Password Check</div>
+    <input type="password" name="passwordCheck" id="passwordCheck" class="login-input-box">
+
+
+    <div class="form-floating" style="margin-top: 20px">
+      <label for="firstPreferredCategoryId">1순위 선호 주종</label>
+      <select class="form-select" id="firstPreferredCategoryId"
+              aria-label="Floating label select example">
+        <option selected>주종을 선택해 주세요</option>
+        <option value=1>소주</option>
+        <option value=2>맥주</option>
+        <option value=3>와인</option>
+        <option value=4>양주</option>
+      </select>
+    </div>
+
+    <div class="form-floating" style="margin-top: 20px">
+      <label for="firstPreferredCategoryId">2순위 선호 주종</label>
+      <select class="form-select" id="secondPreferredCategoryId"
+              aria-label="Floating label select example">
+        <option selected>주종을 선택해 주세요</option>
+        <option value=1>소주</option>
+        <option value=2>맥주</option>
+        <option value=3>와인</option>
+        <option value=4>양주</option>
+      </select>
+    </div>
+
+    <div class="login-id-label">Email</div>
+
+    <input type="email" name="email" id="email" class="login-input-box">
+
+    <div style="margin-top: 20px"><span>이미 가입 하셨어요??
+    <button style="border: transparent;text-decoration: underline;
+               background-color: transparent;
+               color : red; text-decoration-color: red" onclick="location.href='/login'">
+      로그인
+    </button>
+    </span></div>
+
+    <button id="email-send" onclick="sendEmail()">이메일 인증</button>
+    <div style="display: none" id="signUpArea">
+      <div class="login-id-label">인증 번호</div>
+      <input type="password" name="" id="verificationCode" class="login-input-box">
+
+      <button id="signup-submit" onclick="signUp()">회원 가입</button>
+    </div>
+  </div>
+  <div id="login-failed" style="display:none" class="alert alert-danger" role="alert"></div>
+</div>
+</body>
+<script>
+  function sendEmail() {
+    let loginId = $('#loginId').val();
+    let nickname = $('#nickname').val();
+    let password = $('#password').val();
+    let passwordCheck = $('#passwordCheck').val();
+    let firstPreferredCategoryId = $('#firstPreferredCategoryId').val();
+    let secondPreferredCategoryId = $('#secondPreferredCategoryId').val();
+    let email = $('#email').val();
+
+    let data = {
+      "loginId": loginId,
+      "nickname": nickname,
+      "password": password,
+      "passwordCheck": passwordCheck,
+      "firstPreferredCategoryId": firstPreferredCategoryId,
+      "secondPreferredCategoryId": secondPreferredCategoryId,
+      "email": email
+    }
+    $.ajax({
+      type: "POST",
+      url: `/v1/auth/signup`,
+      contentType: "application/json",
+      data: JSON.stringify(data),
+      success: function (response) {
+        alert(response['msg']);
+        $('#signUpArea').show();
+      },
+      error(error, status, request) {
+        if (error['responseJSON']['data']) {
+          alert(JSON.stringify(error['responseJSON']['data']));
+        } else {
+          alert(error['responseJSON']['msg']);
+        }
+      }
+    });
+  }
+
+  function signUp() {
+    let verificationCode = $('#verificationCode').val();
+
+    $.ajax({
+      type: "GET",
+      url: `/v1/auth/signup`,
+      contentType: "application/json",
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("verificationCode", verificationCode);
+      },
+      success: function (response) {
+        alert(response['msg']);
+        window.location.href = '/login';
+      },
+      error(error, status, request) {
+        if (error['responseJSON']['data']) {
+          alert(error['responseJSON']['data']);
+        } else {
+          alert(error['responseJSON']['msg']);
+        }
+      }
+    });
+
+  }
+
+</script>
+</html>

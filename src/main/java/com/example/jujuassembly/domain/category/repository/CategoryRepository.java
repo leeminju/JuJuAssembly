@@ -9,7 +9,7 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
   default Category getById(Long id) {
     return findById(id).orElseThrow(
-        () -> new ApiException("해당 카테고리 상품이 아닙니다.", HttpStatus.NOT_FOUND)
+        () -> new ApiException("해당 카테고리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
     );
   }
 }

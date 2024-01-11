@@ -26,7 +26,6 @@ public class ReviewLikeService {
   private final CategoryRepository categoryRepository;
   private final ProductRepository productRepository;
   private final ReviewRepository reviewRepository;
-  private final UserRepository userRepository;
   private final ReviewLikeRepository reviewLikeRepository;
 
   @Transactional
