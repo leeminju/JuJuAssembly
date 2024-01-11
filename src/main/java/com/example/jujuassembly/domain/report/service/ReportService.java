@@ -42,7 +42,7 @@ public class ReportService {
 
     if (image != null && !image.isEmpty()) {
       if (!image.getContentType().startsWith("image")) {
-        throw new ApiException("이미지 파일 형식이 아닙니다.",HttpStatus.BAD_REQUEST);
+        throw new ApiException("이미지 파일 형식이 아닙니다.", HttpStatus.BAD_REQUEST);
       }
       String imageUrl = s3Manager.upload(image, "reports", report.getId());
       report.updateImage(imageUrl);
@@ -55,10 +55,7 @@ public class ReportService {
 
   public List<ReportResponseDto> getReports(Long userId, User user) {
 
-    if (!user.getId().equals(userId)) {
-      throw new ApiException("제보자가 아닙니다.",HttpStatus.FORBIDDEN);
-    }
-    reportRepository.existsReportByUserId(user.getId())
+    reportRepository.findByUserId(user.getId())
         .orElseThrow(() -> new ApiException("해당하는 제보가 없습니다.", HttpStatus.NOT_FOUND));
     List<Report> reportList = reportRepository.findAllByUserId(user.getId());
     return reportList.stream().map(ReportResponseDto::new).toList();
@@ -70,14 +67,10 @@ public class ReportService {
       ReportRequestDto requestDto, User user)
       throws IOException {
 
-    Category category = categoryRepository.findById(categoryId)
+    categoryRepository.findById(categoryId)
         .orElseThrow(() -> new ApiException("해당하는 카테고리가 없습니다.", HttpStatus.NOT_FOUND));
     Report report = reportRepository.findById(reportId)
         .orElseThrow(() -> new ApiException("해당하는 상품 제보가 없습니다.", HttpStatus.NOT_FOUND));
-
-    if (!report.getUser().getId().equals(user.getId())) {
-      throw new ApiException("권한이 없습니다.", HttpStatus.UNAUTHORIZED);
-    }
 
     report.updateName(requestDto.getName());
 
@@ -85,7 +78,7 @@ public class ReportService {
 
     if (image != null && !image.isEmpty()) {
       if (!image.getContentType().startsWith("image")) {
-        throw new ApiException("이미지 파일 형식이 아닙니다.",HttpStatus.BAD_REQUEST);
+        throw new ApiException("이미지 파일 형식이 아닙니다.", HttpStatus.BAD_REQUEST);
       }
       String imageUrl = s3Manager.upload(image, "reports", report.getId());
       report.updateImage(imageUrl);
@@ -98,7 +91,7 @@ public class ReportService {
   public ReportResponseDto patchReportStatus(Long categoryId, Long reportId,
       ReportStatusRequestDto requestDto, User user) {
 
-    Category category = categoryRepository.findById(categoryId)
+    categoryRepository.findById(categoryId)
         .orElseThrow(() -> new ApiException("해당하는 카테고리가 없습니다.", HttpStatus.NOT_FOUND));
     Report report = reportRepository.findById(reportId)
         .orElseThrow(() -> new ApiException("해당하는 상품 제보가 없습니다.", HttpStatus.NOT_FOUND));
@@ -111,14 +104,12 @@ public class ReportService {
   @Transactional
   public void deleteReport(Long categoryId, Long reportId, User user) {
 
-    Category category = categoryRepository.findById(categoryId)
+    categoryRepository.findById(categoryId)
         .orElseThrow(() -> new ApiException("해당하는 카테고리가 없습니다.", HttpStatus.NOT_FOUND));
     Report report = reportRepository.findById(reportId)
         .orElseThrow(() -> new ApiException("해당하는 상품 제보가 없습니다.", HttpStatus.NOT_FOUND));
-    if (!report.getUser().getId().equals(user.getId())) {
-      throw new ApiException("권한이 없습니다.", HttpStatus.UNAUTHORIZED);
 
-    } reportRepository.delete(report);
+    reportRepository.delete(report);
 
     s3Manager.deleteAllImageFiles(reportId.toString(), "reports");
   }
