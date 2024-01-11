@@ -10,6 +10,5 @@ public interface ReportRepository extends JpaRepository<Report,Long> {
 
   List<Report> findAllByUserId(Long userId);
 
-
-  Optional<Report> existsReportByUserId(Long userId);
+  Optional<Report> findByUserId(Long userId);
 }
