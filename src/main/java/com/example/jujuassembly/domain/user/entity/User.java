@@ -78,8 +78,8 @@ public class User extends Timestamped {
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<ReviewLike> reviewLikes = new LinkedHashSet<>();
 
-  @OneToMany (mappedBy = "user", cascade = CascadeType.ALL)
-  private List<Like> likes = new ArrayList<>();
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+  private Set<Like> likes = new LinkedHashSet<>();
 
 
   public User(String loginId, String nickname, String email, String password,
@@ -105,11 +105,12 @@ public class User extends Timestamped {
   public void setIsArchived(boolean b) {
     this.isArchived = b;
   }
-  public void changeRole(UserRoleEnum userRoleEnum){
+
+  public void changeRole(UserRoleEnum userRoleEnum) {
     this.role = userRoleEnum;
   }
 
-  public void updateUserImage(String url){
+  public void updateUserImage(String url) {
     this.image = url;
   }
 
