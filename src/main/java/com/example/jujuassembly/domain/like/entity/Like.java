@@ -26,16 +26,17 @@ public class Like {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private Long id; //좋아요의 아이디
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
-  private User user;
+  private User user; //좋아요 할 사용자
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "product_id")
-  private Product product;
+  private Product product; //좋아요 할 상품
 
+  //좋아요 생성자
   public Like(Product product, User user) {
     this.id = id;
     this.product = product;

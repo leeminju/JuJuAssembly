@@ -38,7 +38,13 @@ public class UserController {
 
   private final UserService userService;
 
-  // 회원가입, 이메일 발송
+  /**
+   * 회원가입, 이메일 발송
+   *
+   * @param signupRequestDto 회원가입 정보를 담은 DTO
+   * @param response         HttpServletResponse로 받은 객체
+   * @return 회원가입 성공여부를 담은 ApiResponse
+   */
   @PostMapping("/auth/signup")
   public ResponseEntity<ApiResponse> siginup(
       @Valid @RequestBody SignupRequestDto signupRequestDto, HttpServletResponse response) {
@@ -47,7 +53,15 @@ public class UserController {
     return ResponseEntity.ok(new ApiResponse<>("인증 번호를 입력해주세요.", HttpStatus.OK.value()));
   }
 
-  // 인증번호 받는 API -> 회원가입 완료 후 DB에 user 정보 저장
+
+  /**
+   * 회원가입 인증번호 받는 API -> 회원가입 완료 후 DB에 user 정보 저장
+   *
+   * @param verificationCode 전송된 인증번호
+   * @param loginId          로그인 ID 쿠키 값
+   * @param response         HttpServletResponse 객체
+   * @return 회원가입 성공여부를 담은 ApiResponse
+   */
   @GetMapping("/auth/signup")
   public ResponseEntity<ApiResponse> verificateCode(
       @RequestHeader("verificationCode") String verificationCode,
@@ -59,7 +73,13 @@ public class UserController {
         .body(new ApiResponse("회원가입 성공", HttpStatus.OK.value(), userResponseDto));
   }
 
-  // 로그인
+  /**
+   * 로그인 API
+   *
+   * @param requestDto 로그인 정보를 담은 DTO
+   * @param response   HttpServletResponse 객체
+   * @return 로그인 성공 여부를 담은 ApiResponse
+   */
   @PostMapping("/auth/login")
   public ResponseEntity<ApiResponse> login(@RequestBody LoginRequestDto requestDto,
       HttpServletResponse response) {
@@ -68,14 +88,25 @@ public class UserController {
         .body(new ApiResponse("로그인 성공", HttpStatus.OK.value(), userResponseDto));
   }
 
-  // 로그아웃
+  /**
+   * 로그아웃 API
+   *
+   * @param request HttpServletRequest 객체
+   * @return 로그아웃 성공 여부를 담은 ApiResponse
+   */
   @PostMapping("/users/logout")
   public ResponseEntity<ApiResponse> logout(HttpServletRequest request) {
     userService.logout(request);
     return ResponseEntity.ok().body(new ApiResponse("로그아웃 성공", HttpStatus.OK.value()));
   }
 
-  //프로필 조회 (연우)
+  /**
+   * 프로필 조회 API
+   *
+   * @param userId      조회할 유저의 ID
+   * @param userDetails 인증된 사용자의 UserDetailsImpl
+   * @return 프로필조회 성공 여부를 담은 ApiResponse
+   */
   @GetMapping("/users/{userId}")
   public ResponseEntity<ApiResponse> viewProfile(@PathVariable Long userId,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -84,7 +115,14 @@ public class UserController {
         .body(new ApiResponse("프로필 조회", HttpStatus.OK.value(), responseDto));
   }
 
-  //프로실 수정
+  /**
+   * 프로필 수정 API
+   *
+   * @param userId           수정할 유저의 ID
+   * @param modifyRequestDto 수정할 정보를 담은 DTO
+   * @param userDetails      인증된 사용자의 UserDetailsImpl 객체
+   * @return 프로필수정 성공 여부를 담은 ApiResponse
+   */
   @PatchMapping("/users/{userId}")
   public ResponseEntity<ApiResponse> updatePofile(@PathVariable Long userId,
       @RequestBody UserModifyRequestDto modifyRequestDto,
@@ -95,7 +133,14 @@ public class UserController {
         .body(new ApiResponse("프로필 수정 완료", HttpStatus.OK.value(), responseDto));
   }
 
-  //이미지 추가
+  /**
+   * 이미지 추가 API
+   *
+   * @param userId 수정할 유저의 ID
+   * @param image  추가할 이미지 파일
+   * @return 이미지 추가 여부를 반환하는 ApiResponse
+   * @throws Exception 이미지 업로드 시 발생할 수 있는 예외
+   */
   @PostMapping("/users/{userId}")
   public ResponseEntity<ApiResponse> addImage(@PathVariable Long userId,
       @RequestParam("image") MultipartFile image) throws Exception {
@@ -104,6 +149,14 @@ public class UserController {
         .body(new ApiResponse("사진 추가 성공", HttpStatus.OK.value(), responseDto));
   }
 
+  /**
+   * 회원 탈퇴 API
+   *
+   * @param userId      탈퇴할 유저의 ID
+   * @param password    사용자 비밀번호
+   * @param userDetails 인증된 사용자의 UserDetailsImpl 객체
+   * @return 탈퇴 여부 ApiResponse
+   */
   @DeleteMapping("/users/{userId}")
   public ResponseEntity<ApiResponse> deleteAccount(@PathVariable Long userId,
       @RequestHeader("Password") String password,
