@@ -40,9 +40,8 @@ public class ProductController {
   @PostMapping("/categories/{categoryId}/products")
   public ResponseEntity<ApiResponse> createProduct(@PathVariable Long categoryId,
       @RequestParam(value = "image", required = false) MultipartFile image,
-      @RequestPart("data") @Valid ProductRequestDto requestDto,
-      @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
-    productService.createProduct(categoryId, requestDto, image, userDetails.getUser());
+      @RequestPart("data") @Valid ProductRequestDto requestDto) throws Exception {
+    productService.createProduct(categoryId, requestDto, image);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(new ApiResponse<>("상품 등록에 성공하였습니다.", HttpStatus.CREATED.value()));
   }
@@ -93,18 +92,16 @@ public class ProductController {
   public ResponseEntity<ApiResponse> updateProduct(@PathVariable Long categoryId,
       @PathVariable Long productId,
       @RequestParam(value = "image", required = false) MultipartFile image,
-      @RequestPart("data") @Valid ProductRequestDto requestDto,
-      @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
-    productService.updateProduct(categoryId, productId, requestDto, image, userDetails.getUser());
+      @RequestPart("data") @Valid ProductRequestDto requestDto) throws IOException {
+    productService.updateProduct(categoryId, productId, requestDto, image);
     return ResponseEntity.ok().body(new ApiResponse<>("상품 수정에 성공하였습니다.", HttpStatus.OK.value()));
   }
 
   // 상품 삭제
   @Secured(Authority.ADMIN)
   @DeleteMapping("/categories/{categoryId}/products/{productId}")
-  public ResponseEntity<ApiResponse> deleteProduct(@PathVariable Long productId,
-      @AuthenticationPrincipal UserDetailsImpl userDetails) {
-    productService.deleteProduct(productId, userDetails.getUser());
+  public ResponseEntity<ApiResponse> deleteProduct(@PathVariable Long productId) {
+    productService.deleteProduct(productId);
     return ResponseEntity.ok().body(new ApiResponse<>("상품 삭제에 성공하였습니다.", HttpStatus.OK.value()));
   }
 
