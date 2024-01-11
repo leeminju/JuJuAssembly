@@ -30,19 +30,19 @@ public class ReviewLike extends Timestamped {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private Long id;//리뷰 추천 아이디
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
-  private User user;
+  private User user;//리뷰를 추천한 유저 정보
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "review_id")
-  private Review review;
+  private Review review;//추천할 리뷰 정보
 
   @Column(nullable = false, name = "status")
   @Enumerated(value = EnumType.STRING)
-  private ReviewLikeStatusEnum status;
+  private ReviewLikeStatusEnum status;//추천/비추천 상태
 
   public ReviewLike(Review review, User user) {
     this.review = review;
