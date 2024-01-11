@@ -34,7 +34,7 @@ public class CategoryService {
 
     if (image != null && !image.isEmpty()) {
       if (!image.getContentType().startsWith("image")) {
-        throw new ApiException("이미지 파일 형식이 아닙니다.",HttpStatus.BAD_REQUEST);
+        throw new ApiException("이미지 파일 형식이 아닙니다.", HttpStatus.BAD_REQUEST);
       }
       String imageUrl = s3Manager.upload(image, "categories", category.getId());
       category.updateImage(imageUrl);
@@ -47,14 +47,15 @@ public class CategoryService {
   @Transactional
   public CategoryResponseDto updateCategory(CategoryRequestDto requestDto, Long categoryId,
       MultipartFile image) throws IOException {
-    Category category = categoryRepository.findById(categoryId).orElseThrow(()->new ApiException("해당 카테고리가 존재하지 않습니다.",HttpStatus.BAD_REQUEST));
+    Category category = categoryRepository.findById(categoryId)
+        .orElseThrow(() -> new ApiException("해당 카테고리가 존재하지 않습니다.", HttpStatus.BAD_REQUEST));
     category.update(requestDto);
 
     s3Manager.deleteAllImageFiles(categoryId.toString(), "categories");
 
     if (image != null && !image.isEmpty()) {
       if (!image.getContentType().startsWith("image")) {
-        throw new ApiException("이미지 파일 형식이 아닙니다.",HttpStatus.BAD_REQUEST);
+        throw new ApiException("이미지 파일 형식이 아닙니다.", HttpStatus.BAD_REQUEST);
       }
       String imageUrl = s3Manager.upload(image, "categories", category.getId());
       category.updateImage(imageUrl);
@@ -65,8 +66,8 @@ public class CategoryService {
 
   @Transactional
   public void deleteCategory(Long categoryId) {
-    Category category = categoryRepository.findById(categoryId).orElseThrow(()->new ApiException("해당 카테고리가 존재하지 않습니다.",
-        HttpStatus.BAD_REQUEST));
+    Category category = categoryRepository.findById(categoryId)
+        .orElseThrow(() -> new ApiException("해당 카테고리가 존재하지 않습니다.", HttpStatus.BAD_REQUEST));
     categoryRepository.delete(category);
     s3Manager.deleteAllImageFiles(categoryId.toString(), "categories");
   }
