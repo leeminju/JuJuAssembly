@@ -32,17 +32,20 @@ public class CategoryController {
 
   /**
    * 카테고리 목록 조회
+   *
    * @return 카테고리 목록과 함께 성공 응답 반환
    */
   @GetMapping
   public ResponseEntity<ApiResponse> getCategories() {
     List<CategoryResponseDto> categoryList = categoryService.getCategories();
-    return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("카테고리 목록 조회 성공", HttpStatus.OK.value(), categoryList));
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(new ApiResponse("카테고리 목록 조회 성공", HttpStatus.OK.value(), categoryList));
   }
 
   /**
    * 카테고리 생성
-   * @param image 카테고리 이미지 파일
+   *
+   * @param image      카테고리 이미지 파일
    * @param requestDto 카테고리 요청 DTO
    * @return 생성된 카테고리와 함께 성공 응답 반환
    * @throws IOException
@@ -53,12 +56,14 @@ public class CategoryController {
       @RequestParam MultipartFile image,
       @RequestPart("data") CategoryRequestDto requestDto) throws IOException {
     CategoryResponseDto categoryResponseDto = categoryService.createCategory(requestDto, image);
-    return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("카테고리 생성 성공", HttpStatus.CREATED.value(), categoryResponseDto));
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(new ApiResponse("카테고리 생성 성공", HttpStatus.CREATED.value(), categoryResponseDto));
   }
 
   /**
    * 카테고리 수정
-   * @param image 카테고리 이미지 파일
+   *
+   * @param image      카테고리 이미지 파일
    * @param requestDto 카테고리 요청 DTO
    * @param categoryId 수정할 카테고리 ID
    * @return 수정된 카테고리와 함께 성공 응답 반환
@@ -70,12 +75,15 @@ public class CategoryController {
       @RequestParam MultipartFile image,
       @RequestPart("data") CategoryRequestDto requestDto,
       @PathVariable Long categoryId) throws IOException {
-    CategoryResponseDto categoryResponseDto = categoryService.updateCategory(requestDto, categoryId, image);
-    return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("카테고리 수정 성공", HttpStatus.OK.value(), categoryResponseDto));
+    CategoryResponseDto categoryResponseDto = categoryService.updateCategory(requestDto, categoryId,
+        image);
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(new ApiResponse("카테고리 수정 성공", HttpStatus.OK.value(), categoryResponseDto));
   }
 
   /**
    * 카테고리 삭제
+   *
    * @param categoryId 삭제할 카테고리 ID
    * @return 성공 응답 반환
    */
@@ -83,6 +91,7 @@ public class CategoryController {
   @DeleteMapping("/{categoryId}")
   public ResponseEntity<ApiResponse> deleteCategory(@PathVariable Long categoryId) {
     categoryService.deleteCategory(categoryId);
-    return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("카테고리 삭제 성공", HttpStatus.OK.value()));
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(new ApiResponse("카테고리 삭제 성공", HttpStatus.OK.value()));
   }
 }
