@@ -3,7 +3,6 @@ package com.example.jujuassembly.domain.category.controller;
 import com.example.jujuassembly.domain.category.dto.CategoryRequestDto;
 import com.example.jujuassembly.domain.category.dto.CategoryResponseDto;
 import com.example.jujuassembly.domain.category.service.CategoryService;
-import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum.Authority;
 import com.example.jujuassembly.global.response.ApiResponse;
 import java.io.IOException;
@@ -44,7 +43,7 @@ public class CategoryController {
   public ResponseEntity<ApiResponse> createCategory(
       @RequestParam(value = "image", required = false) MultipartFile image,
       @RequestPart("data")CategoryRequestDto requestDto) throws IOException {
-      CategoryResponseDto categoryResponseDto = categoryService.createCategory(requestDto, image);
+    CategoryResponseDto categoryResponseDto = categoryService.createCategory(requestDto, image);
     return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("카테고리 생성 성공",HttpStatus.CREATED.value(),categoryResponseDto));
   }
 
@@ -54,7 +53,7 @@ public class CategoryController {
   public ResponseEntity<ApiResponse> updateCategory(@RequestParam(value = "image", required = false) MultipartFile image,
       @RequestPart("data")CategoryRequestDto requestDto,@PathVariable Long categoryId)
       throws IOException {
-      CategoryResponseDto categoryResponseDto = categoryService.updateCategory(requestDto,categoryId,image);
+    CategoryResponseDto categoryResponseDto = categoryService.updateCategory(requestDto,categoryId,image);
     return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("카테고리 수정 성공",HttpStatus.OK.value(),categoryResponseDto));
   }
 
@@ -62,8 +61,8 @@ public class CategoryController {
   @Secured(Authority.ADMIN)
   @DeleteMapping("/{categoryId}")
   public ResponseEntity<ApiResponse> deleteCategory(@PathVariable Long categoryId
-      ) {
-      categoryService.deleteCategory(categoryId);
+  ) {
+    categoryService.deleteCategory(categoryId);
     return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("카테고리 삭제 성공",HttpStatus.OK.value()));
   }
 
