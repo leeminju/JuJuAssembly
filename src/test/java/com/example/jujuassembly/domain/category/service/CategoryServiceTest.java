@@ -1,17 +1,12 @@
 package com.example.jujuassembly.domain.category.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-
 
 import com.example.jujuassembly.domain.category.CategoryTest;
 import com.example.jujuassembly.domain.category.dto.CategoryRequestDto;
@@ -22,7 +17,6 @@ import com.example.jujuassembly.global.s3.S3Manager;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -113,7 +107,7 @@ class CategoryServiceTest implements CategoryTest {
 
     Category existingCategory = new Category(requestDto1);
     existingCategory.builder().image("https://exapmple.com/image.jpg").build();
-    when(categoryRepository.findById(TEST_CATEGORY_ID)).thenReturn(Optional.of(existingCategory));
+    when(categoryRepository.getById(TEST_CATEGORY_ID)).thenReturn(existingCategory);
 
 
     //when
@@ -122,8 +116,8 @@ class CategoryServiceTest implements CategoryTest {
     CategoryResponseDto result = categoryService.updateCategory(categoryRequestDto, TEST_CATEGORY_ID, image);
 
     // Then
-    // CategoryRepository.findById() 메소드가 호출되었는지 확인
-    verify(categoryRepository, times(1)).findById(TEST_CATEGORY_ID);
+    // CategoryRepository.getById() 메소드가 호출되었는지 확인
+    verify(categoryRepository, times(1)).getById(TEST_CATEGORY_ID);
 
     // S3Manager.deleteAllImageFiles() 메소드가 호출되었는지 확인
     verify(s3Manager, times(1)).deleteAllImageFiles(TEST_CATEGORY_ID.toString(), "categories");
@@ -137,8 +131,6 @@ class CategoryServiceTest implements CategoryTest {
     // 이미지 업데이트 여부 확인 (이 부분은 이미지 업데이트 로직에 따라 달라질 수 있음)
     assertEquals(existingCategory.getImage(), result.getImage());
 
-
-
   }
 
   @Test
@@ -147,14 +139,14 @@ class CategoryServiceTest implements CategoryTest {
     Long categoryId = 1L;
     CategoryRequestDto categoryRequestDto =CategoryRequestDto.builder().name("ExistingCategory").build();
     Category existingCategory = new Category(categoryRequestDto);
-    when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(existingCategory));
+    when(categoryRepository.getById(categoryId)).thenReturn(existingCategory);
 
     // When
     categoryService.deleteCategory(categoryId);
 
     // Then
-    // CategoryRepository.findById() 메소드가 호출되었는지 확인
-    verify(categoryRepository, times(1)).findById(categoryId);
+    // CategoryRepository.getById() 메소드가 호출되었는지 확인
+    verify(categoryRepository, times(1)).getById(categoryId);
 
     // CategoryRepository.delete() 메소드가 호출되었는지 확인
     verify(categoryRepository, times(1)).delete(existingCategory);

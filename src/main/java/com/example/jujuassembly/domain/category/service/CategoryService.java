@@ -47,8 +47,7 @@ public class CategoryService {
   @Transactional
   public CategoryResponseDto updateCategory(CategoryRequestDto requestDto, Long categoryId,
       MultipartFile image) throws IOException {
-    Category category = categoryRepository.findById(categoryId)
-        .orElseThrow(() -> new ApiException("해당 카테고리가 존재하지 않습니다.", HttpStatus.BAD_REQUEST));
+    Category category = categoryRepository.getById(categoryId);
     category.updateName(requestDto);
 
     s3Manager.deleteAllImageFiles(categoryId.toString(), "categories");
@@ -66,9 +65,7 @@ public class CategoryService {
 
   @Transactional
   public void deleteCategory(Long categoryId) {
-    Category category = categoryRepository.findById(categoryId)
-        .orElseThrow(() -> new ApiException("해당 카테고리가 존재하지 않습니다.",
-            HttpStatus.BAD_REQUEST));
+    Category category = categoryRepository.getById(categoryId);
     categoryRepository.delete(category);
     s3Manager.deleteAllImageFiles(categoryId.toString(), "categories");
   }
