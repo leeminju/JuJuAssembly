@@ -1,4 +1,4 @@
-package com.example.jujuassembly.domain.product;
+package com.example.jujuassembly.domain.product.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -11,16 +11,12 @@ import static org.mockito.Mockito.when;
 
 import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
-import com.example.jujuassembly.domain.like.repository.LikeRepository;
-import com.example.jujuassembly.domain.like.service.LikeService;
 import com.example.jujuassembly.domain.product.dto.ProductRequestDto;
 import com.example.jujuassembly.domain.product.dto.ProductResponseDto;
 import com.example.jujuassembly.domain.product.entity.Product;
 import com.example.jujuassembly.domain.product.repository.ProductRepository;
-import com.example.jujuassembly.domain.product.service.ProductService;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
-import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.global.s3.S3Manager;
 import java.util.ArrayList;
 import java.util.List;
@@ -117,7 +113,7 @@ public class ProductServiceTest {
     productId = 100L;
 
     // when
-    when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
+    when(categoryRepository.getById(categoryId)).thenReturn(category);
     when(productRepository.save(any(Product.class))).thenAnswer(invocation -> {
       Product savedProduct = invocation.getArgument(0);
       ReflectionTestUtils.setField(savedProduct, "id", productId); // Reflection을 사용하여 ID 설정
@@ -132,8 +128,8 @@ public class ProductServiceTest {
     String imageUrl = "https://test.com/image.jpg";
     when(s3Manager.upload(eq(image), eq("products"), eq(productId))).thenReturn(imageUrl);
 
-    ProductResponseDto responseDto = productService.createProduct(categoryId, requestDto, image,
-        user);
+    ProductResponseDto responseDto = productService.createProduct(categoryId, requestDto, image
+    );
 
     // then
     assertNotNull(responseDto);
@@ -191,7 +187,7 @@ public class ProductServiceTest {
     // ...
 
     // Repository 모의 설정
-    when(productRepository.findById(productId)).thenReturn(Optional.of(mockProduct));
+    when(productRepository.getById(productId)).thenReturn(mockProduct);
     when(categoryRepository.existsById(categoryId)).thenReturn(true);
 
     // when
@@ -284,7 +280,7 @@ public class ProductServiceTest {
     when(mockProduct.getImage()).thenReturn(imageUrl);
 
     // Repository 모의 설정
-    when(productRepository.findById(productId)).thenReturn(Optional.of(mockProduct));
+    when(productRepository.getById(productId)).thenReturn(mockProduct);
     when(categoryRepository.existsById(categoryId)).thenReturn(true);
 
     // MultipartFile 객체 초기화 및 모의 설정
@@ -294,7 +290,7 @@ public class ProductServiceTest {
 
     // ProductService의 updateProduct 호출
     ProductResponseDto updatedProduct = productService.updateProduct(categoryId, productId,
-        testUpdateDto, image, user);
+        testUpdateDto, image);
 
     // then
     assertNotNull(updatedProduct);
@@ -316,10 +312,10 @@ public class ProductServiceTest {
     productId = 100L;
 
     Product product = new Product(requestDto, category);
-    when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+    when(productRepository.getById(productId)).thenReturn(product);
 
     // when
-    productService.deleteProduct(productId, user);
+    productService.deleteProduct(productId);
 
     // then
     // 상품이 삭제되었는지 확인

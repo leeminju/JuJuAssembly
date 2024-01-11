@@ -38,51 +38,52 @@ public class User extends Timestamped {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private Long id; //user Id
 
-  @Column(name = "login_id")
-  private String loginId;
+  @Column(name = "login_id", nullable = false)
+  private String loginId; //user의 로그인아이디
 
-  @Column(name = "nickname")
-  private String nickname;
+  @Column(name = "nickname", nullable = false)
+  private String nickname; //user의 닉네임
 
-  @Column(name = "email")
-  private String email;
+  @Column(name = "email", nullable = false)
+  private String email; //user의 이메일
 
-  @Column(name = "password")
-  private String password;
+  @Column(name = "password", nullable = false)
+  private String password; // user의 비밀번호
 
   @Column(name = "is_archived")
-  private Boolean isArchived;
+  private Boolean isArchived; //user의 상태
 
   @Column(nullable = false, name = "role")
   @Enumerated(value = EnumType.STRING)
-  private UserRoleEnum role;
+  private UserRoleEnum role; //user 역할
 
   @Column(name = "image")
-  private String image;
+  private String image; //유저의 프로필 사진
 
   @Column(name = "kakaoId")
   private Long kakaoId;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "first_preferred_category_id")
-  private Category firstPreferredCategory;
+  private Category firstPreferredCategory; //가장 선호하는 술종
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "second_preferred_category_id")
-  private Category secondPreferredCategory;
+  private Category secondPreferredCategory; //두번째 선호하는 술종
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<Review> reviews = new LinkedHashSet<>();
+  private Set<Review> reviews = new LinkedHashSet<>(); //상품 리뷰 리스트
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<ReviewLike> reviewLikes = new LinkedHashSet<>();
+  private Set<ReviewLike> reviewLikes = new LinkedHashSet<>(); //리뷰 좋아요 리스트
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-  private Set<Like> likes = new LinkedHashSet<>();
+  private Set<Like> likes = new LinkedHashSet<>(); //좋아요 한 상품 리스트
 
 
+  //유저 생성자
   public User(String loginId, String nickname, String email, String password,
       Category firstPreferredCategory, Category secondPreferredCategory) {
     this.loginId = loginId;
@@ -108,6 +109,7 @@ public class User extends Timestamped {
     this.image = url;
   }
 
+  //유저 정보 수정
   public void updateUser(UserModifyRequestDto modifyRequestDto) {
     this.nickname = modifyRequestDto.getNickname();
     this.email = modifyRequestDto.getEmail();
@@ -116,14 +118,17 @@ public class User extends Timestamped {
     this.secondPreferredCategory = modifyRequestDto.getSecondPreferredCategoryId();
   }
 
+  //유저 상태 설정
   public void setIsArchived(boolean b) {
     this.isArchived = b;
   }
 
+  //유저 권한 수정
   public void changeRole(UserRoleEnum userRoleEnum) {
     this.role = userRoleEnum;
   }
 
+  //유저 프로필 이미지 설정
   public void updateUserImage(String url) {
     this.image = url;
   }

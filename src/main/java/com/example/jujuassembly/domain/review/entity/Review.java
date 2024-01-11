@@ -35,27 +35,27 @@ public class Review extends Timestamped {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private Long id;// 리뷰 ID
+
+  @Column(nullable = false)
+  private String description; //리뷰 내용
+
+  @Column(nullable = false)
+  private Double star;// 별점
 
   @Column
-  private String description;
+  private String munchies;//먹거리 정보
 
-  @Column
-  private Double star;
-
-  @Column
-  private String munchies;
-
-  @Column(name = "is_verified")
-  private Boolean isVerified;
+  @Column(name = "is_verified", nullable = false)
+  private Boolean isVerified;// 리뷰 인증 여부
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "product_id")
-  private Product product;
+  @JoinColumn(name = "product_id", nullable = false)
+  private Product product;// 해당 리뷰가 속한 제품
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id")
-  private User user;
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;// 해당 리뷰를 작성한 사용자
 
   @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<ReviewImage> reviewImages = new LinkedHashSet<>();
@@ -63,6 +63,7 @@ public class Review extends Timestamped {
   @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<ReviewLike> reviewLikes = new LinkedHashSet<>();
 
+  // Review 객체를 생성하는 생성자
   public Review(ReviewRequestDto requestDto, Product product, User user) {
     this.description = requestDto.getDescription();
     this.munchies = requestDto.getMunchies();
@@ -72,6 +73,7 @@ public class Review extends Timestamped {
     this.user = user;
   }
 
+  // Review 객체를 업데이트하는 메서드
   public void update(ReviewRequestDto requestDto) {
     this.description = requestDto.getDescription();
     this.munchies = requestDto.getMunchies();
@@ -79,6 +81,7 @@ public class Review extends Timestamped {
     this.isVerified = false;//수정 했다면 인증을 다시 받아야함.
   }
 
+  // 리뷰를 인증 처리하는 메서드
   public void verify() {
     this.isVerified = true;
   }

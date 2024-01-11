@@ -6,7 +6,6 @@ import com.example.jujuassembly.domain.product.dto.ProductRequestDto;
 import com.example.jujuassembly.domain.product.dto.ProductResponseDto;
 import com.example.jujuassembly.domain.product.entity.Product;
 import com.example.jujuassembly.domain.product.repository.ProductRepository;
-import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.s3.S3Manager;
 import java.io.IOException;
@@ -32,9 +31,8 @@ public class ProductService {
   // 이미지 업로드 + 상품 등록
   @Transactional
   public ProductResponseDto createProduct(Long categoryId, ProductRequestDto requestDto,
-      MultipartFile image, User user) throws Exception {
-    Category category = categoryRepository.findById(categoryId).orElseThrow(()
-        -> new ApiException("해당 카테고리가 존재하지 않습니다.", HttpStatus.NOT_FOUND));
+      MultipartFile image) throws Exception {
+    Category category = categoryRepository.getById(categoryId);
 
     Product product = new Product(requestDto, category);
     product = productRepository.save(product);
@@ -76,8 +74,7 @@ public class ProductService {
   // 상품 상세 조회
   @Transactional(readOnly = true)
   public ProductResponseDto getProduct(Long productId, Long categoryId) {
-    Product product = productRepository.findById(productId).orElseThrow(()
-        -> new ApiException("상품이 존재하지 않습니다.", HttpStatus.NOT_FOUND));
+    Product product = productRepository.getById(productId);
 
     if (!categoryRepository.existsById(categoryId)) {
       throw new ApiException("해당 카테고리가 존재하지 않습니다.", HttpStatus.NOT_FOUND);
@@ -102,9 +99,8 @@ public class ProductService {
   // 상품 수정
   @Transactional
   public ProductResponseDto updateProduct(Long categoryId, Long productId,
-      ProductRequestDto requestDto, MultipartFile image, User user) throws IOException {
-    Product product = productRepository.findById(productId).orElseThrow(()
-        -> new ApiException("상품이 존재하지 않습니다.", HttpStatus.NOT_FOUND));
+      ProductRequestDto requestDto, MultipartFile image) throws IOException {
+    Product product = productRepository.getById(productId);
 
     if (!categoryRepository.existsById(categoryId)) {
       throw new ApiException("해당 카테고리가 존재하지 않습니다.", HttpStatus.NOT_FOUND);
@@ -125,9 +121,8 @@ public class ProductService {
   }
 
   // 상품 삭제
-  public void deleteProduct(Long productId, User user) {
-    Product product = productRepository.findById(productId).orElseThrow(()
-        -> new ApiException("상품이 존재하지 않습니다.", HttpStatus.NOT_FOUND));
+  public void deleteProduct(Long productId) {
+    Product product = productRepository.getById(productId);
 
     //기존의 파일 모두 삭제
     s3Manager.deleteAllImageFiles(productId.toString(), "products");

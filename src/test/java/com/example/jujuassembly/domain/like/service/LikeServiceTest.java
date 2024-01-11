@@ -20,7 +20,6 @@ import com.example.jujuassembly.domain.user.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -60,7 +59,7 @@ class LikeServiceTest {
 
     when(mockProduct.getCategory()).thenReturn(mockCategory);
     when(mockCategory.getId()).thenReturn(categoryId);
-    when(productRepository.findById(productId)).thenReturn(Optional.of(mockProduct));
+    when(productRepository.getById(productId)).thenReturn(mockProduct);
     when(mockUser.getId()).thenReturn(userId);
     when(likeRepository.findAllByUserId(userId)).thenReturn(Collections.emptyList());
 
@@ -90,7 +89,7 @@ class LikeServiceTest {
     Like like2 = Like.builder().id(2L).user(user).product(product).build();
     likeList.add(like2);
 
-    when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(user));
+    when(userRepository.getById(userId)).thenReturn(user);
     when(likeRepository.findAllByUserId(userId)).thenReturn(likeList);
 
     // when

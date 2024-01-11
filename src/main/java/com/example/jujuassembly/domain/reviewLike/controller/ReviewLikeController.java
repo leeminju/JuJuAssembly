@@ -21,7 +21,15 @@ public class ReviewLikeController {
 
   private final ReviewLikeService reviewLikeService;
 
-  //리뷰 추천 하기
+  /**
+   * 리뷰 추천하기
+   *
+   * @param categoryId  카테고리 ID
+   * @param productId   제품 ID
+   * @param reviewId    리뷰 ID
+   * @param userDetails 인증된 사용자 정보
+   * @return ApiResponse 객체
+   */
   @PostMapping("/categories/{categoryId}/products/{productId}/reviews/{reviewId}/like")
   public ResponseEntity<ApiResponse> likeReview(@PathVariable Long categoryId,
       @PathVariable Long productId, @PathVariable Long reviewId,
@@ -31,23 +39,30 @@ public class ReviewLikeController {
         userDetails.getUser());
     if (response.isPresent()) {
       return ResponseEntity.ok()
-          .body(new ApiResponse("리뷰를 추천했습니다.", HttpStatus.OK.value(),response.get()));
+          .body(new ApiResponse("리뷰를 추천했습니다.", HttpStatus.OK.value(), response.get()));
     } else {
       return ResponseEntity.ok()
           .body(new ApiResponse("리뷰를 추천 취소했습니다.", HttpStatus.OK.value()));
     }
   }
 
-  //리뷰 비추천 하기
+  /**
+   * 리뷰 추천하기
+   *
+   * @param categoryId  카테고리 ID
+   * @param productId   제품 ID
+   * @param reviewId    리뷰 ID
+   * @param userDetails 인증된 사용자 정보
+   * @return ApiResponse 객체
+   */
   @PostMapping("/categories/{categoryId}/products/{productId}/reviews/{reviewId}/dislike")
   public ResponseEntity<ApiResponse> dislikeReview(@PathVariable Long categoryId,
       @PathVariable Long productId, @PathVariable Long reviewId,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
-    Optional<ReviewLikeResponseDto> response= reviewLikeService.dislikeReview(categoryId, productId, reviewId,
-        userDetails.getUser());
+    Optional<ReviewLikeResponseDto> response = reviewLikeService.dislikeReview(categoryId, productId, reviewId, userDetails.getUser());
     if (response.isPresent()) {
       return ResponseEntity.ok()
-          .body(new ApiResponse("리뷰를 비추천했습니다.", HttpStatus.OK.value(),response.get()));
+          .body(new ApiResponse("리뷰를 비추천했습니다.", HttpStatus.OK.value(), response.get()));
     } else {
       return ResponseEntity.ok()
           .body(new ApiResponse("리뷰를 비추천 취소했습니다.", HttpStatus.OK.value()));
