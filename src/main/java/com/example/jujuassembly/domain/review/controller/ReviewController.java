@@ -49,7 +49,7 @@ public class ReviewController {
   @PostMapping("/categories/{categoryId}/products/{productId}/reviews")
   public ResponseEntity<ApiResponse<ReviewResponseDto>> createProductsReview(
       @PathVariable Long categoryId, @PathVariable Long productId,
-      @RequestParam(required = false) MultipartFile[] images,
+      @RequestParam MultipartFile[] images,
       @Valid @RequestPart(name = "data") ReviewRequestDto requestDto,
       @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
 
@@ -96,7 +96,7 @@ public class ReviewController {
   @PatchMapping("/categories/{categoryId}/products/{productId}/reviews/{reviewId}")
   public ResponseEntity<ApiResponse<ReviewResponseDto>> updateProductsReview(
       @PathVariable Long categoryId, @PathVariable Long productId, @PathVariable Long reviewId,
-      @RequestParam(name = "images", required = false) MultipartFile[] images,
+      @RequestParam MultipartFile[] images,
       @Valid @RequestPart(name = "data") ReviewRequestDto requestDto,
       @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
 
