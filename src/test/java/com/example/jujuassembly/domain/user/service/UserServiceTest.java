@@ -1,19 +1,6 @@
 package com.example.jujuassembly.domain.user.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import com.example.jujuassembly.domain.user.dto.LoginRequestDto;
-import com.example.jujuassembly.domain.user.dto.UserResponseDto;
-import com.example.jujuassembly.domain.user.entity.User;
-import com.example.jujuassembly.domain.user.repository.UserRepository;
-import com.example.jujuassembly.global.UserTestUtil;
-import com.example.jujuassembly.global.jwt.JwtUtil;
-import jakarta.servlet.http.HttpServletResponse;
-import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -23,13 +10,22 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
 import com.example.jujuassembly.domain.emailAuth.repository.EmailAuthRepository;
 import com.example.jujuassembly.domain.emailAuth.service.EmailAuthService;
+import com.example.jujuassembly.domain.user.dto.LoginRequestDto;
 import com.example.jujuassembly.domain.user.dto.UserDetailResponseDto;
 import com.example.jujuassembly.domain.user.dto.UserModifyRequestDto;
+import com.example.jujuassembly.domain.user.dto.UserResponseDto;
+import com.example.jujuassembly.domain.user.entity.User;
+import com.example.jujuassembly.domain.user.repository.UserRepository;
+import com.example.jujuassembly.global.UserTestUtil;
+import com.example.jujuassembly.global.jwt.JwtUtil;
 import com.example.jujuassembly.global.s3.S3Manager;
+import jakarta.servlet.http.HttpServletResponse;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -94,7 +90,7 @@ public class UserServiceTest implements UserTestUtil {
     User user = User.builder().id(userId).loginId("user").nickname("user").email("email").build();
 
     UserRepository userRepository = mock(UserRepository.class);
-    when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(user));
+    when(userRepository.getById(userId)).thenReturn(user);
 
     UserService userService = new UserService(
         userRepository, mock(PasswordEncoder.class), mock(EmailAuthService.class),
@@ -124,7 +120,7 @@ public class UserServiceTest implements UserTestUtil {
         .email("modifiedEmail").build();
 
     UserRepository userRepository = mock(UserRepository.class);
-    when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(user));
+    when(userRepository.getById(userId)).thenReturn(user);
 
     UserService userService = new UserService(
         userRepository, mock(PasswordEncoder.class), mock(EmailAuthService.class),
@@ -157,7 +153,7 @@ public class UserServiceTest implements UserTestUtil {
 
     String mockImageUrl = "https://example.com/image.jpg";
 
-    when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(user));
+    when(userRepository.getById(userId)).thenReturn(user);
     doNothing().when(s3Manager).deleteAllImageFiles(anyString(), anyString());
     when(s3Manager.upload(any(), eq("users"), eq(user.getId()))).thenReturn(mockImageUrl);
 

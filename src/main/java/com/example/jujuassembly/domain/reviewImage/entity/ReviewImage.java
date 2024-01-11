@@ -18,15 +18,16 @@ public class ReviewImage {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private Long id;// 리뷰 이미지 ID
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "review_id")
-  private Review review;
+  @JoinColumn(name = "review_id", nullable = false)
+  private Review review;// 이미지가 저장된 리뷰 정보
 
   @Column(name = "image_url")
-  private String imageUrl;
+  private String imageUrl;// 이미지 주소
 
+  //ReviewImage 생성자입니다.
   public ReviewImage(Review review, String imageUrl) {
     this.review = review;
     this.imageUrl = imageUrl;

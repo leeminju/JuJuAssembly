@@ -113,7 +113,7 @@ public class ProductServiceTest {
     productId = 100L;
 
     // when
-    when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
+    when(categoryRepository.getById(categoryId)).thenReturn(category);
     when(productRepository.save(any(Product.class))).thenAnswer(invocation -> {
       Product savedProduct = invocation.getArgument(0);
       ReflectionTestUtils.setField(savedProduct, "id", productId); // Reflection을 사용하여 ID 설정
@@ -187,7 +187,7 @@ public class ProductServiceTest {
     // ...
 
     // Repository 모의 설정
-    when(productRepository.findById(productId)).thenReturn(Optional.of(mockProduct));
+    when(productRepository.getById(productId)).thenReturn(mockProduct);
     when(categoryRepository.existsById(categoryId)).thenReturn(true);
 
     // when
@@ -280,7 +280,7 @@ public class ProductServiceTest {
     when(mockProduct.getImage()).thenReturn(imageUrl);
 
     // Repository 모의 설정
-    when(productRepository.findById(productId)).thenReturn(Optional.of(mockProduct));
+    when(productRepository.getById(productId)).thenReturn(mockProduct);
     when(categoryRepository.existsById(categoryId)).thenReturn(true);
 
     // MultipartFile 객체 초기화 및 모의 설정
@@ -312,7 +312,7 @@ public class ProductServiceTest {
     productId = 100L;
 
     Product product = new Product(requestDto, category);
-    when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+    when(productRepository.getById(productId)).thenReturn(product);
 
     // when
     productService.deleteProduct(productId);

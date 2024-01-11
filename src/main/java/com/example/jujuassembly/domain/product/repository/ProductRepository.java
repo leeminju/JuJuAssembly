@@ -1,15 +1,23 @@
 package com.example.jujuassembly.domain.product.repository;
 
 import com.example.jujuassembly.domain.product.entity.Product;
+import com.example.jujuassembly.global.exception.ApiException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
+
+  default Product getById(Long id) {
+    return findById(id).orElseThrow(
+        () -> new ApiException("해당 상품을 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
+    );
+  }
 
   // 카테고리 ID를 기준으로 상품 조회.
   Page<Product> findByCategoryId(Long categoryId, Pageable pageable);
