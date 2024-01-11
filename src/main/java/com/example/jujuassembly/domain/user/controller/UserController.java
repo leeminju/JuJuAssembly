@@ -143,7 +143,7 @@ public class UserController {
    */
   @PostMapping("/users/{userId}")
   public ResponseEntity<ApiResponse> addImage(@PathVariable Long userId,
-      @RequestParam("image") MultipartFile image) throws Exception {
+      @RequestParam MultipartFile image) throws Exception {
     UserDetailResponseDto responseDto = userService.uploadImage(userId, image);
     return ResponseEntity.ok()
         .body(new ApiResponse("사진 추가 성공", HttpStatus.OK.value(), responseDto));
