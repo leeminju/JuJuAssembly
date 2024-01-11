@@ -34,10 +34,22 @@ public class ReviewController {
 
   private final ReviewService reviewService;
 
+
+  /**
+   * 리뷰 작성 API
+   *
+   * @param categoryId  작성할 상품의 카테고리 ID
+   * @param productId   작성할 상품의 ID
+   * @param images      리뷰에 첨부되는 이미지 파일들 (선택적)
+   * @param requestDto  리뷰 정보를 담고 있는 객체
+   * @param userDetails 현재 인증된 사용자의 상세 정보를 담고 있는 객체
+   * @return 생성된 리뷰 정보와 함께 상태 코드 201(CREATED)로 응답
+   * @throws Exception 예외 처리
+   */
   @PostMapping("/categories/{categoryId}/products/{productId}/reviews")
   public ResponseEntity<ApiResponse<ReviewResponseDto>> createProductsReview(
       @PathVariable Long categoryId, @PathVariable Long productId,
-      @RequestParam(name = "images", required = false) MultipartFile[] images,
+      @RequestParam MultipartFile[] images,
       @Valid @RequestPart(name = "data") ReviewRequestDto requestDto,
       @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
 
@@ -48,6 +60,15 @@ public class ReviewController {
         .body(new ApiResponse("리뷰가 등록되었습니다.", HttpStatus.CREATED.value(), responseDto));
   }
 
+  /**
+   * 상품 리뷰 목록 조회 API
+   *
+   * @param categoryId  조회할 상품이 속한 카테고리의 식별자
+   * @param productId   조회할 상품의 식별자
+   * @param userDetails 현재 인증된 사용자의 상세 정보를 담고 있는 객체
+   * @param pageable    페이지네이션 정보 (기본값: 페이지 크기 10, 생성일 기준 내림차순 정렬)
+   * @return 상태 코드 200(OK)와 함께 상품의 리뷰 목록을 응답
+   */
   @GetMapping("/categories/{categoryId}/products/{productId}/reviews")
   public ResponseEntity<ApiResponse<Page<ReviewResponseDto>>> getProductsReview(
       @PathVariable Long categoryId, @PathVariable Long productId,
@@ -59,10 +80,23 @@ public class ReviewController {
         .body(new ApiResponse(productId + "번 상품 내 리뷰 목록 입니다.", HttpStatus.OK.value(), reviews));
   }
 
+  /**
+   * 상품 리뷰 수정 API
+   *
+   * @param categoryId  수정할 상품이 속한 카테고리의 식별자
+   * @param productId   수정할 상품의 식별자
+   * @param reviewId    수정할 리뷰의 식별자
+   * @param images      변경된 리뷰 이미지 파일 배열 (선택적)
+   * @param requestDto  변경할 리뷰 정보를 담고 있는 객체
+   * @param userDetails 현재 인증된 사용자의 상세 정보를 담고 있는 객체
+   * @return 상태 코드 200(OK)와 함께 수정된 리뷰 정보를 응답
+   * @throws Exception 예외 발생 시 처리
+   */
+
   @PatchMapping("/categories/{categoryId}/products/{productId}/reviews/{reviewId}")
   public ResponseEntity<ApiResponse<ReviewResponseDto>> updateProductsReview(
       @PathVariable Long categoryId, @PathVariable Long productId, @PathVariable Long reviewId,
-      @RequestParam(name = "images", required = false) MultipartFile[] images,
+      @RequestParam MultipartFile[] images,
       @Valid @RequestPart(name = "data") ReviewRequestDto requestDto,
       @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
 
@@ -73,6 +107,15 @@ public class ReviewController {
         .body(new ApiResponse<>("리뷰가 수정되었습니다.", HttpStatus.OK.value(), responseDto));
   }
 
+  /**
+   * 상품 리뷰 삭제 API
+   *
+   * @param categoryId  카테고리 ID
+   * @param productId   상품 ID
+   * @param reviewId    리뷰 ID
+   * @param userDetails 사용자 세부정보
+   * @return ApiResponse 객체를 ResponseEntity로 감싼 형태
+   */
   @DeleteMapping("/categories/{categoryId}/products/{productId}/reviews/{reviewId}")
   public ResponseEntity<ApiResponse<ReviewResponseDto>> deleteProductsReview(
       @PathVariable Long categoryId, @PathVariable Long productId, @PathVariable Long reviewId,
@@ -84,6 +127,13 @@ public class ReviewController {
         .body(new ApiResponse<>(reviewId + "번 리뷰가 삭제되었습니다.", HttpStatus.OK.value()));
   }
 
+  /**
+   * 특정 사용자의 리뷰 목록을 가져오는 API
+   *
+   * @param userId   사용자 ID
+   * @param pageable 페이지 정보 (기본값: 1페이지, 10개씩, 생성일 기준 내림차순 정렬)
+   * @return ApiResponse 객체를 ResponseEntity로 감싼 형태
+   */
   @GetMapping("/users/{userId}/reviews")
   public ResponseEntity<ApiResponse<Page<ReviewResponseDto>>> getMyReviews(
       @PathVariable Long userId,

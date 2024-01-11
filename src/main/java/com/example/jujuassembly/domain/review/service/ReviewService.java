@@ -13,7 +13,6 @@ import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.global.exception.ApiException;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -38,8 +37,8 @@ public class ReviewService {
       throw new ApiException("사진은 4장 까지만 업로드 가능합니다.", HttpStatus.BAD_REQUEST);
     }
 
-    validateCategory(categoryId);
-    Product product = validateProduct(productId);
+    isExistCategory(categoryId);
+    Product product = findProductByIdOrElseThrow(productId);
     validateProductCategory(product, categoryId);
 
     Review review = new Review(requestDto, product, user);
@@ -52,8 +51,8 @@ public class ReviewService {
 
   public Page<ReviewResponseDto> getProductsReview(Long categoryId, Long productId, User user,
       Pageable pageable) {
-    validateCategory(categoryId);
-    Product product = validateProduct(productId);
+    isExistCategory(categoryId);
+    Product product = findProductByIdOrElseThrow(productId);
     validateProductCategory(product, categoryId);
 
     Page<Review> reviews = reviewRepository.findAllByProduct(product, pageable);
@@ -67,8 +66,8 @@ public class ReviewService {
     if (images.length > 4) {
       throw new ApiException("사진은 4장 까지만 업로드 가능합니다.", HttpStatus.BAD_REQUEST);
     }
-    validateCategory(categoryId);
-    Product product = validateProduct(productId);
+    isExistCategory(categoryId);
+    Product product = findProductByIdOrElseThrow(productId);
     validateProductCategory(product, categoryId);
     Review review = validateReview(reviewId);
     validateProductReview(review, productId);
@@ -85,8 +84,8 @@ public class ReviewService {
   }
 
   public void deleteProductsReview(Long categoryId, Long productId, Long reviewId, User user) {
-    validateCategory(categoryId);
-    Product product = validateProduct(productId);
+    isExistCategory(categoryId);
+    Product product = findProductByIdOrElseThrow(productId);
     validateProductCategory(product, categoryId);
     Review review = validateReview(reviewId);
     validateProductReview(review, productId);
@@ -107,8 +106,8 @@ public class ReviewService {
 
   @Transactional
   public ReviewResponseDto verifyReview(Long categoryId, Long productId, Long reviewId) {
-    validateCategory(categoryId);
-    Product product = validateProduct(productId);
+    isExistCategory(categoryId);
+    Product product = findProductByIdOrElseThrow(productId);
     validateProductCategory(product, categoryId);
     Review review = validateReview(reviewId);
     validateProductReview(review, productId);
@@ -122,14 +121,14 @@ public class ReviewService {
   }
 
   //카테고리 존재 검증
-  private void validateCategory(Long categoryId) {
+  private void isExistCategory(Long categoryId) {
     categoryRepository.findById(categoryId).orElseThrow(
         () -> new ApiException("해당 카테고리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
     );
   }
 
   //상품 존재 검증
-  private Product validateProduct(Long productId) {
+  private Product findProductByIdOrElseThrow(Long productId) {
     Product product = productRepository.findById(productId).orElseThrow(
         () -> new ApiException("해당 주류를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
     );

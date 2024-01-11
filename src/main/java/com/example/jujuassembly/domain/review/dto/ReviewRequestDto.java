@@ -20,8 +20,8 @@ public class ReviewRequestDto {
 
   @NotBlank(message = "리뷰 설명을 입력해주세요!")
   private String description;
-  @JsonInclude(value = Include.ALWAYS)
 
+  @JsonInclude(value = Include.ALWAYS)
   @Digits(integer = 1, fraction = 1,message = "소수점 1자리 이하로 입력해주세요.")
   @DecimalMin(value = "1.0",message = "1.0 ~ 5.0 범위의 값을 입력해주세요.")
   @DecimalMax(value = "5.0",message = "1.0 ~ 5.0 범위의 값을 입력해주세요.")
