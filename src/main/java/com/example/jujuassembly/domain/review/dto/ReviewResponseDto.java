@@ -7,11 +7,17 @@ import com.example.jujuassembly.domain.reviewLike.entity.ReviewLikeStatusEnum;
 import com.example.jujuassembly.domain.user.dto.UserResponseDto;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Getter
-@Slf4j
+@Builder
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ReviewResponseDto {
 
   private Long id;
@@ -32,7 +38,6 @@ public class ReviewResponseDto {
     this.description = savedReview.getDescription();
 
     for (ReviewImage reviewImage : savedReview.getReviewImages()) {
-      log.info(reviewImage.getImageUrl());
       this.images.add(reviewImage.getImageUrl());
     }
     this.star = savedReview.getStar();

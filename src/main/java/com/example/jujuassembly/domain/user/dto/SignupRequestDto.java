@@ -1,18 +1,19 @@
 package com.example.jujuassembly.domain.user.dto;
 
-import com.example.jujuassembly.domain.user.entity.User;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class SingupRequestDto {
+public class SignupRequestDto {
 
   @NotBlank(message = "ID를 입력하세요.")
   @Pattern(regexp = "^[a-zA-Z0-9]{6,}$", message = "ID는 영어 + 숫자 6자 이상")

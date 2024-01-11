@@ -55,6 +55,7 @@ public class ReportService {
 
   public List<ReportResponseDto> getReports(Long userId, User user) {
 
+
     reportRepository.findByUserId(user.getId())
         .orElseThrow(() -> new ApiException("해당하는 제보가 없습니다.", HttpStatus.NOT_FOUND));
     List<Report> reportList = reportRepository.findAllByUserId(user.getId());

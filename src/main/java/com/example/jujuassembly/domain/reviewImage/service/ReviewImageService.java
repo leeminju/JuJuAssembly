@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-@Slf4j(topic = "리뷰 사진 업로드 서비스")
 @Service
 @RequiredArgsConstructor
 public class ReviewImageService {

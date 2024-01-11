@@ -1,13 +1,16 @@
 package com.example.jujuassembly.domain.category.dto;
 
 import com.example.jujuassembly.domain.category.entity.Category;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
+@Builder
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CategoryResponseDto {
 
 
