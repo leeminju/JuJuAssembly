@@ -1,4 +1,4 @@
-package com.example.jujuassembly.domain.product;
+package com.example.jujuassembly.domain.product.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
