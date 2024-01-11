@@ -23,16 +23,12 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
 import com.example.jujuassembly.domain.emailAuth.repository.EmailAuthRepository;
 import com.example.jujuassembly.domain.emailAuth.service.EmailAuthService;
 import com.example.jujuassembly.domain.user.dto.UserDetailResponseDto;
 import com.example.jujuassembly.domain.user.dto.UserModifyRequestDto;
-import com.example.jujuassembly.domain.user.entity.User;
-import com.example.jujuassembly.domain.user.repository.UserRepository;
-import com.example.jujuassembly.global.jwt.JwtUtil;
 import com.example.jujuassembly.global.s3.S3Manager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,7 +36,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest implements UserTestUtil {
@@ -53,6 +51,9 @@ public class UserServiceTest implements UserTestUtil {
   JwtUtil jwtUtil;
   @Mock
   PasswordEncoder passwordEncoder;
+
+  @Mock
+  S3Manager s3Manager;
 
   @DisplayName("로그인 테스트")
   @Test
@@ -84,21 +85,6 @@ public class UserServiceTest implements UserTestUtil {
     // setHeader 메서드가 JwtUtil.AUTHORIZATION_HEADER와 "mockedAccessToken"이라는 매개변수로 호출되었는지를 검증
     verify(mockResponse).setHeader(eq(JwtUtil.AUTHORIZATION_HEADER), eq("mockedAccessToken"));
   }
-
-
-}
-
-@ExtendWith(MockitoExtension.class)
-class UserServiceTest {
-
-  @Mock
-  S3Manager s3Manager;
-
-  @Mock
-  UserRepository userRepository;
-
-  @InjectMocks
-  UserService userService;
 
   @Test
   @DisplayName("프로필 조회 테스트")
