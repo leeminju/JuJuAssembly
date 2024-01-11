@@ -26,7 +26,11 @@ public class UserManageController {
 
   private final UserManageService userManageService;
 
-  //전체 유저 조회
+  /**
+   * 전체 사용자 조회 API
+   *
+   * @return 전체 사용자 목록을 포함한 ApiResponse
+   */
   @GetMapping("/users")
   public ResponseEntity<ApiResponse<List<UserResponseDto>>> viewAllUsers() {
     List<UserResponseDto> allUserResponseDtoList = userManageService.viewAllUsers();
@@ -34,7 +38,13 @@ public class UserManageController {
         new ApiResponse<>("전체 사용자 조회", HttpStatus.OK.value(), allUserResponseDtoList));
   }
 
-  //회원 권한 수정
+  /**
+   * 회원 권한 수정 API
+   *
+   * @param userId             권한을 수정할 사용자의 ID
+   * @param userRolerequestDto 수정할 권한 정보를 담은 DTO
+   * @return 수정된 사용자 권한 정보를 포함한 ApiResponse
+   */
   @PatchMapping("/users/{userId}/role")
   public ResponseEntity<ApiResponse<UserRoleResponseDto>> modifyUserRole(
       @PathVariable Long userId,
