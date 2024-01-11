@@ -1,6 +1,6 @@
 package com.example.jujuassembly.domain.notification.controller;
 
-import com.example.jujuassembly.domain.notification.dto.NotificationsResponse;
+import com.example.jujuassembly.domain.notification.dto.NotificationsResponseDto;
 import com.example.jujuassembly.domain.notification.service.NotificationService;
 import com.example.jujuassembly.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,8 @@ public class NotificationController {
    * @title 로그인 한 유저의 모든 알림 조회
    */
   @GetMapping("/notifications")
-  public ResponseEntity<NotificationsResponse> notifications(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+  public ResponseEntity<NotificationsResponseDto> notifications(
+      @AuthenticationPrincipal UserDetailsImpl userDetails) {
     return ResponseEntity.ok().body(notificationService.findAllById(userDetails.getUser()));
   }
 

@@ -100,7 +100,7 @@ public class ReviewLikeService {
     } else {
       ReviewLike newReviewLike = new ReviewLike(review, user);
       newReviewLike.dislike();
-      ReviewLike savedReviewLike= reviewLikeRepository.save(newReviewLike);
+      ReviewLike savedReviewLike = reviewLikeRepository.save(newReviewLike);
       responseDto = new ReviewLikeResponseDto(savedReviewLike);
     }
 

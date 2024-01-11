@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class NotificationResponse {
+public class NotificationResponseDto {
+
   /**
    * 알림 id
    */
@@ -35,7 +36,8 @@ public class NotificationResponse {
   private boolean read;
 
   @Builder
-  public NotificationResponse(Long id, String content, String url, LocalDateTime createdAt, boolean read) {
+  public NotificationResponseDto(Long id, String content, String url, LocalDateTime createdAt,
+      boolean read) {
     this.id = id;
     this.content = content;
     this.url = url;
@@ -43,8 +45,8 @@ public class NotificationResponse {
     this.read = read;
   }
 
-  public static NotificationResponse from(Notification notification) {
-    return NotificationResponse.builder()
+  public static NotificationResponseDto from(Notification notification) {
+    return NotificationResponseDto.builder()
         .id(notification.getId())
         .content(notification.getContent())
         .url(notification.getUrl())

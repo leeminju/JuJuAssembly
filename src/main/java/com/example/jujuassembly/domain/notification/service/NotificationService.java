@@ -1,7 +1,7 @@
 package com.example.jujuassembly.domain.notification.service;
 
-import com.example.jujuassembly.domain.notification.dto.NotificationResponse;
-import com.example.jujuassembly.domain.notification.dto.NotificationsResponse;
+import com.example.jujuassembly.domain.notification.dto.NotificationResponseDto;
+import com.example.jujuassembly.domain.notification.dto.NotificationsResponseDto;
 import com.example.jujuassembly.domain.notification.entity.Notification;
 import com.example.jujuassembly.domain.notification.repository.EmitterRepository;
 import com.example.jujuassembly.domain.notification.repository.NotificationRepository;
@@ -22,6 +22,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
+
   private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
   private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
 
@@ -72,7 +73,7 @@ public class NotificationService {
     sseEmitters.forEach(
         (key, emitter) -> {
           emitterRepository.saveEventCache(key, notification);
-          sendToClient(emitter, key, NotificationResponse.from(notification));
+          sendToClient(emitter, key, NotificationResponseDto.from(notification));
         }
     );
   }
@@ -88,17 +89,17 @@ public class NotificationService {
   }
 
 
-
   @Transactional
-  public NotificationsResponse findAllById(User user) {
-    List<NotificationResponse> responses = notificationRepository.findAllByUserId(user.getId()).stream()
-        .map(NotificationResponse::from)
+  public NotificationsResponseDto findAllById(User user) {
+    List<NotificationResponseDto> responses = notificationRepository.findAllByUserId(user.getId())
+        .stream()
+        .map(NotificationResponseDto::from)
         .collect(Collectors.toList());
     long unreadCount = responses.stream()
         .filter(notification -> !notification.isRead())
         .count();
 
-    return NotificationsResponse.of(responses, unreadCount);
+    return NotificationsResponseDto.of(responses, unreadCount);
   }
 
   @Transactional
