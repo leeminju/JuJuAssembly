@@ -133,22 +133,32 @@ public class UserService {
       throw new ApiException("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST);
     }
 
+    // 중복 로그인 확인
+    jwtUtil.checkIsLoggedIn(loginId, response);
+
     // access token 및 refresh token
     String accessToken = jwtUtil.createAccessToken(loginId);
     response.setHeader(JwtUtil.AUTHORIZATION_HEADER, accessToken);
+    jwtUtil.saveAccessTokenByLoginId(loginId, accessToken);
 
     String refreshToken = jwtUtil.createRefreshToken(loginId);
-    jwtUtil.saveRefreshToken(accessToken.substring(7), refreshToken.substring(7));
+    jwtUtil.saveRefreshTokenByAccessToken(accessToken, refreshToken);
 
     return new UserResponseDto(user);
   }
 
-  public void logout(HttpServletRequest request) {
-    String loginId = jwtUtil.getLoginIdFromHeader(request);
-    String accessTokenValue = jwtUtil.resolveToken(request);
+  public void logout(HttpServletRequest request, HttpServletResponse response) {
+    String accessToken = request.getHeader(JwtUtil.AUTHORIZATION_HEADER);
+    if (!jwtUtil.validateToken(accessToken.substring(7))) {
+      String responseHeaderAccessToken = response.getHeader(JwtUtil.AUTHORIZATION_HEADER);
+      jwtUtil.removeRefreshToken(responseHeaderAccessToken);
+      jwtUtil.removeAccessToken(responseHeaderAccessToken);
+    } else {
+      jwtUtil.removeRefreshToken(accessToken);
+      jwtUtil.removeAccessToken(accessToken);
+    }
 
-    jwtUtil.removeRefreshToken(accessTokenValue);
-    jwtUtil.removeAccessToken(loginId);
+    response.setHeader(JwtUtil.AUTHORIZATION_HEADER, "logged-out");
   }
 
 

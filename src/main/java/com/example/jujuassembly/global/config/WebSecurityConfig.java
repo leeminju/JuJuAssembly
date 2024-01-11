@@ -66,7 +66,6 @@ public class WebSecurityConfig {
         .exceptionHandling(
             handler -> handler.authenticationEntryPoint(customAuthenticationEntryPoint));
 
-
     return http.build();
   }
 }
