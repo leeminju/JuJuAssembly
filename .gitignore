@@ -190,3 +190,8 @@ gradle-app.setting
 ### qodana ###
 qodana.yaml
 jacoco/
+
+### properties ### 
+application.properties
+applicaiton-dev.properties
+application-test.properties
