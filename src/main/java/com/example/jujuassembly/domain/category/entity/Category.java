@@ -23,19 +23,23 @@ public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id; // 카테고리 ID
+
+    @Column(nullable = false)
+    private String name; //카테고리 이름
 
     @Column
-    private String name;
+    private String image; //카테고리 이미지 주소
 
-    private String image;
-
+    //CategoryRequestDto를 매개변수로 받아서 Category를 생성하는 생성자.
     public Category(CategoryRequestDto requestDto){
         this.name = requestDto.getName();
     }
-    public void update(CategoryRequestDto requestDto){
+    //Category 이름을 업데이트(변경) 메서드
+    public void updateName(CategoryRequestDto requestDto){
         this.name = requestDto.getName();
     }
+    //Category 사진을 업데이트(변경) 메서드
     public void updateImage(String image){
         this.image = image;
     }
