@@ -56,16 +56,6 @@ jobs:
           touch ./application-dev.properties # application-dev.properties 생성
           echo "${{ secrets.APP_DEV_PROPERTIES }}" > ./application-dev.properties
         shell: bash
-      
-      - name: make application-test.properties
-        if: |
-          contains(github.ref, 'dev') || contains(github.ref, 'main')
-        run: |
-          cd ./src/main/resources # resources 폴더로 이동
-          touch ./application-test.properties # application-test.properties 생성
-          echo "${{ secrets.APP_TEST_PROPERTIES }}" > ./application-test.properties
-        shell: bash
-        
         
       - name: Grant execute permission to gradlew
         run: chmod +x ./gradlew
