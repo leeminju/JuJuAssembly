@@ -78,7 +78,7 @@ public class User extends Timestamped {
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<ReviewLike> reviewLikes = new LinkedHashSet<>();
 
-  @OneToMany (mappedBy = "user", cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
   private List<Like> likes = new ArrayList<>();
 
 
@@ -105,11 +105,12 @@ public class User extends Timestamped {
   public void setIsArchived(boolean b) {
     this.isArchived = b;
   }
-  public void changeRole(UserRoleEnum userRoleEnum){
+
+  public void changeRole(UserRoleEnum userRoleEnum) {
     this.role = userRoleEnum;
   }
 
-  public void updateUserImage(String url){
+  public void updateUserImage(String url) {
     this.image = url;
   }
 
