@@ -1,7 +1,6 @@
 package com.example.jujuassembly.domain.user.dto;
 
 import com.example.jujuassembly.domain.category.entity.Category;
-import com.example.jujuassembly.domain.user.entity.User;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

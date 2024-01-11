@@ -39,7 +39,8 @@ public class UserManageController {
   public ResponseEntity<ApiResponse<UserRoleResponseDto>> modifyUserRole(
       @PathVariable Long userId,
       @RequestBody UserRoleRequestDto userRolerequestDto) {
-    UserRoleResponseDto userRoleResponseDto = userManageService.modifyUserRole(userId, userRolerequestDto);
+    UserRoleResponseDto userRoleResponseDto = userManageService.modifyUserRole(userId,
+        userRolerequestDto);
     return ResponseEntity.ok().body(
         new ApiResponse<>("사용자 권한 수정 완료", HttpStatus.OK.value(), userRoleResponseDto));
   }
