@@ -6,9 +6,11 @@ import com.example.jujuassembly.domain.user.dto.SignupRequestDto;
 import com.example.jujuassembly.domain.user.dto.UserDetailResponseDto;
 import com.example.jujuassembly.domain.user.dto.UserModifyRequestDto;
 import com.example.jujuassembly.domain.user.dto.UserResponseDto;
+import com.example.jujuassembly.domain.user.kakao.KakaoService;
 import com.example.jujuassembly.domain.user.service.UserService;
 import com.example.jujuassembly.global.response.ApiResponse;
 import com.example.jujuassembly.global.security.UserDetailsImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -37,6 +39,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController {
 
   private final UserService userService;
+  private final KakaoService kakaoService;
 
   // 회원가입, 이메일 발송
   @PostMapping("/auth/signup")
@@ -111,6 +114,17 @@ public class UserController {
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
     userService.deleteAccount(userId, password, userDetails);
     return ResponseEntity.ok().body(new ApiResponse("회원 탈퇴 성공", HttpStatus.OK.value()));
+  }
+
+  // https://kauth.kakao.com/oauth/authorize?response_type=code&client_id= ${REST_API_KEY} &redirect_uri= ${REDIRECT_URI}
+  // https://kauth.kakao.com/oauth/authorize?client_id=384eb140b7adc777306aa35e86b7fa7f&redirect_uri=http://localhost:8080/v1/auth/kakao/callback&response_type=code
+  // 카카오 로그인 요청 url
+  @GetMapping("/auth/kakao/callback")
+  public ResponseEntity<ApiResponse> kakaoLogin(@RequestParam String code,
+      HttpServletResponse response) throws JsonProcessingException {
+    UserResponseDto userResponseDto = kakaoService.kakaoLogin(code, response);
+    return ResponseEntity.ok()
+        .body(new ApiResponse("카카오 로그인 성공", HttpStatus.OK.value(), userResponseDto));
   }
 
 
