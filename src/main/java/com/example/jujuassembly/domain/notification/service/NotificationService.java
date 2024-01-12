@@ -115,4 +115,9 @@ public class NotificationService {
         .orElseThrow(() -> new ApiException("존재하지 않는 알림입니다.", HttpStatus.NOT_FOUND));
     notification.read();
   }
+
+  public void deleteNotificationByReviewAndUser(Review review, User user) {
+    // NotificationRepository의 메서드를 호출하여 알림을 삭제
+    notificationRepository.deleteByReviewAndUser(review, user);
+  }
 }

@@ -49,6 +49,7 @@ public class ReviewLikeService {
     if (reviewLike.isPresent()) {
       if (reviewLike.get().getStatus().equals(ReviewLikeStatusEnum.LIKE)) {
         reviewLikeRepository.delete(reviewLike.get());//이미 추천을 눌렀다면 추천 해제
+        notificationService.deleteNotificationByReviewAndUser(review, user); // 알림 삭제
         return Optional.empty();
       } else {
         reviewLike.get().like();//비추천 -> 추천으로 변경
@@ -73,7 +74,7 @@ public class ReviewLikeService {
 
   private void sendNotificationToReviewAuthor(Review review, User liker) {
     User reviewAuthor = review.getUser();
-    String content = liker.getNickname() + "님이 귀하의 리뷰에 좋아요를 눌렀습니다.";
+    String content = liker.getNickname() + "님이" + reviewAuthor + "님의 리뷰에 좋아요를 눌렀습니다.";
     notificationService.send(reviewAuthor, review, content);
   }
 
