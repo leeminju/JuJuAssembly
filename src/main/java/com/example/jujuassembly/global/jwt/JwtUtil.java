@@ -144,7 +144,7 @@ public class JwtUtil {
 
   // logout시 refresh token 만료시키기
   public void removeRefreshToken(String accessToken) {
-    if (redisTemplate.opsForValue().get(accessToken).isEmpty()) {
+    if (!redisTemplate.hasKey(accessToken)) {
       throw new ApiException("RefreshToken이 유효하지 않습니다.", HttpStatus.BAD_REQUEST);
     }
     redisTemplate.delete(accessToken);
@@ -154,7 +154,7 @@ public class JwtUtil {
   public void removeAccessToken(String accessToken) {
     Claims claims = getUserInfoFromToken(accessToken.substring(7));
     String loginId = claims.getSubject();
-    if (redisTemplate.opsForValue().get(loginId).isEmpty()) {
+    if (!redisTemplate.hasKey(loginId)) {
       throw new ApiException("AccessToken이 유효하지 않습니다.", HttpStatus.BAD_REQUEST);
     }
     redisTemplate.delete(loginId);
@@ -166,18 +166,17 @@ public class JwtUtil {
     Claims info = getUserInfoFromToken(refreshTokenValue);
     String loginId = info.getSubject();
 
-    Long expireationTime = info.getExpiration().getTime();
-    Long currentTime = System.currentTimeMillis();
+    Long expirationTime = info.getExpiration().getTime();
 
     // 새로 만든 AccessToken을 redis에 저장
     redisTemplate.opsForValue()
         .set(loginId, newAccessToken,
-            expireationTime - currentTime, TimeUnit.MILLISECONDS);
+            expirationTime, TimeUnit.MILLISECONDS);
 
     // 새로 만든 AccessToken을 key로 refreshToken을 다시 DB에 저장
     redisTemplate.opsForValue().set(newAccessToken,
         BEARER_PREFIX + refreshTokenValue,
-        expireationTime - currentTime, TimeUnit.MILLISECONDS);
+        expirationTime, TimeUnit.MILLISECONDS);
 
     // 만료된 token으로 저장되어있는 refreshToken은 삭제
     redisTemplate.delete(accessToken);
@@ -190,5 +189,12 @@ public class JwtUtil {
     }
   }
 
+  public boolean checkIsLoggedOut(String accessToken) {
+    return !redisTemplate.hasKey(accessToken);
+  }
 
+  public String createExpiredToken(String accessToken) {
+    String loginId = getUserInfoFromToken(accessToken.substring(7)).getSubject();
+    return createToken(loginId,0);
+  }
 }
