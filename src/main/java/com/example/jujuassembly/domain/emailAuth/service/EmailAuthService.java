@@ -72,9 +72,16 @@ public class EmailAuthService {
     return emailAuth;
   }
 
-  public void endEmailAuth(EmailAuth emailAuth, HttpServletResponse response) {
+  public void concludeEmailAuthentication(EmailAuth emailAuth, HttpServletResponse response) {
+    // 인증 정보 삭제
     redisTemplate.delete(emailAuth.getLoginId());
+    // 데이터베이스에서 인증 정보 제거
     emailAuthRepository.delete(emailAuth);
+    // 클라이언트 측 쿠키 삭제
+    removeLoginIdCookie(response);
+  }
+
+  private void removeLoginIdCookie(HttpServletResponse response) {
     Cookie cookie = new Cookie(LOGIN_ID_AUTHORIZATION_HEADER, null);
     cookie.setMaxAge(0);
     cookie.setPath("/");

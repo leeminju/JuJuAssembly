@@ -110,7 +110,7 @@ public class UserService {
     userRepository.save(user);
 
     //인증 완료되면 임시 데이터 삭제
-    emailAuthService.endEmailAuth(emailAuth, response);
+    emailAuthService.concludeEmailAuthentication(emailAuth, response);
 
     return new UserResponseDto(user);
   }
