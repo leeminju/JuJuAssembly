@@ -6,14 +6,11 @@ import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.mail.EmailService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
-import java.time.LocalDateTime;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -53,33 +50,6 @@ public class EmailAuthService {
             firstPreferredCategoryId, secondPreferredCategoryId, sentCode));
   }
 
-  private String sendVerificationCode(String email) {
-    String generatedCode = generateRandomCode();
-
-    // 이메일로 인증 번호 발송
-    emailService.sendEmail(email, "회원가입을 위한 인증 번호 메일입니다.", "인증번호: " + generatedCode);
-    return generatedCode;
-  }
-
-  private Cookie getCookieByLoginId(String loginId) {
-    Cookie cookie = new Cookie(LOGIN_ID_AUTHORIZATION_HEADER, loginId);
-    cookie.setPath("/");
-    cookie.setMaxAge(5 * 60);
-    return cookie;
-  }
-
-  private void setCookie(Cookie cookie, HttpServletResponse response) {
-    response.addCookie(cookie);
-  }
-
-  private String generateRandomCode() {
-    // 랜덤한 6자리 숫자 생성
-    Random random = new Random();
-    int code = 100000 + random.nextInt(900000);
-    return String.valueOf(code);
-  }
-
-
   /**
    * 사용자가 인증번호 입력시 사용되는 메서드
    **/
@@ -111,15 +81,30 @@ public class EmailAuthService {
     response.addCookie(cookie);
   }
 
-  /**
-   * 스케쥴러
-   **/
-  // 이메일인증 5분 지났는데도 완료되지않은 데이터 삭제
-  @Transactional
-  @Scheduled(fixedRate = 5 * 60 * 1000) // 5분에 한번 작동
-  public void cleanupEmailAuth() {
-    LocalDateTime fiveMinAgo = LocalDateTime.now().minusMinutes(5);
-    emailAuthRepository.deleteByCreatedAtBefore(fiveMinAgo);
+  private String sendVerificationCode(String email) {
+    String generatedCode = generateRandomCode();
+
+    // 이메일로 인증 번호 발송
+    emailService.sendEmail(email, "회원가입을 위한 인증 번호 메일입니다.", "인증번호: " + generatedCode);
+    return generatedCode;
+  }
+
+  private Cookie getCookieByLoginId(String loginId) {
+    Cookie cookie = new Cookie(LOGIN_ID_AUTHORIZATION_HEADER, loginId);
+    cookie.setPath("/");
+    cookie.setMaxAge(5 * 60);
+    return cookie;
+  }
+
+  private void setCookie(Cookie cookie, HttpServletResponse response) {
+    response.addCookie(cookie);
+  }
+
+  private String generateRandomCode() {
+    // 랜덤한 6자리 숫자 생성
+    Random random = new Random();
+    int code = 100000 + random.nextInt(900000);
+    return String.valueOf(code);
   }
 
 }
