@@ -27,6 +27,7 @@ public class EmailAuthService {
   private final PasswordEncoder passwordEncoder;
 
   public static final String LOGIN_ID_AUTHORIZATION_HEADER = "LoginIdAuth";
+  public static final String VERIFICATION_CODE_HEADER = "VerificationCode";
 
 
   /**

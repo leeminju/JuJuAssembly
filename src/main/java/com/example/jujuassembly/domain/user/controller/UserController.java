@@ -1,6 +1,5 @@
 package com.example.jujuassembly.domain.user.controller;
 
-import com.example.jujuassembly.domain.emailAuth.service.EmailAuthService;
 import com.example.jujuassembly.domain.user.dto.LoginRequestDto;
 import com.example.jujuassembly.domain.user.dto.SignupRequestDto;
 import com.example.jujuassembly.domain.user.dto.UserDetailResponseDto;
@@ -19,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -50,28 +48,25 @@ public class UserController {
    */
   @PostMapping("/auth/signup")
   public ResponseEntity<ApiResponse> siginup(
-      @Valid @RequestBody SignupRequestDto signupRequestDto, HttpServletResponse response) {
-
+      @Valid @RequestBody SignupRequestDto signupRequestDto,
+      HttpServletResponse response) {
     userService.signup(signupRequestDto, response);
     return ResponseEntity.ok(new ApiResponse<>("인증 번호를 입력해주세요.", HttpStatus.OK.value()));
   }
 
-
   /**
    * 회원가입 인증번호 받는 API -> 회원가입 완료 후 DB에 user 정보 저장
    *
-   * @param verificationCode 전송된 인증번호
-   * @param loginId          로그인 ID 쿠키 값
+   * @param request          HttpServletRequest 객체
    * @param response         HttpServletResponse 객체
    * @return 회원가입 성공여부를 담은 ApiResponse
    */
+
   @GetMapping("/auth/signup")
   public ResponseEntity<ApiResponse> verificateCode(
-      @RequestHeader("verificationCode") String verificationCode,
-      @CookieValue(EmailAuthService.LOGIN_ID_AUTHORIZATION_HEADER) String loginId,
+      HttpServletRequest request,
       HttpServletResponse response) {
-    UserResponseDto userResponseDto = userService.verificateCode(verificationCode, loginId,
-        response);
+    UserResponseDto userResponseDto = userService.verificateCode(request, response);
     return ResponseEntity.ok()
         .body(new ApiResponse("회원가입 성공", HttpStatus.OK.value(), userResponseDto));
   }
@@ -84,7 +79,8 @@ public class UserController {
    * @return 로그인 성공 여부를 담은 ApiResponse
    */
   @PostMapping("/auth/login")
-  public ResponseEntity<ApiResponse> login(@RequestBody LoginRequestDto requestDto,
+  public ResponseEntity<ApiResponse> login(
+      @RequestBody LoginRequestDto requestDto,
       HttpServletResponse response) {
     UserResponseDto userResponseDto = userService.login(requestDto, response);
     return ResponseEntity.ok()
@@ -98,7 +94,8 @@ public class UserController {
    * @return 로그아웃 성공 여부를 담은 ApiResponse
    */
   @PostMapping("/users/logout")
-  public ResponseEntity<ApiResponse> logout(HttpServletRequest request,
+  public ResponseEntity<ApiResponse> logout(
+      HttpServletRequest request,
       HttpServletResponse response) {
     userService.logout(request, response);
     return ResponseEntity.ok().body(new ApiResponse("로그아웃 성공", HttpStatus.OK.value()));
@@ -112,7 +109,8 @@ public class UserController {
    * @return 프로필조회 성공 여부를 담은 ApiResponse
    */
   @GetMapping("/users/{userId}")
-  public ResponseEntity<ApiResponse> viewProfile(@PathVariable Long userId,
+  public ResponseEntity<ApiResponse> viewProfile(
+      @PathVariable Long userId,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
     UserDetailResponseDto responseDto = userService.viewProfile(userId, userDetails.getUser());
     return ResponseEntity.ok()
@@ -128,7 +126,8 @@ public class UserController {
    * @return 프로필수정 성공 여부를 담은 ApiResponse
    */
   @PatchMapping("/users/{userId}")
-  public ResponseEntity<ApiResponse> updatePofile(@PathVariable Long userId,
+  public ResponseEntity<ApiResponse> updatePofile(
+      @PathVariable Long userId,
       @RequestBody UserModifyRequestDto modifyRequestDto,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
     UserDetailResponseDto responseDto = userService.modifyProfile(userId, userDetails.getUser(),
@@ -146,7 +145,8 @@ public class UserController {
    * @throws Exception 이미지 업로드 시 발생할 수 있는 예외
    */
   @PostMapping("/users/{userId}")
-  public ResponseEntity<ApiResponse> addImage(@PathVariable Long userId,
+  public ResponseEntity<ApiResponse> addImage(
+      @PathVariable Long userId,
       @RequestParam MultipartFile image) throws Exception {
     UserDetailResponseDto responseDto = userService.uploadImage(userId, image);
     return ResponseEntity.ok()
@@ -162,7 +162,8 @@ public class UserController {
    * @return 탈퇴 여부 ApiResponse
    */
   @DeleteMapping("/users/{userId}")
-  public ResponseEntity<ApiResponse> deleteAccount(@PathVariable Long userId,
+  public ResponseEntity<ApiResponse> deleteAccount(
+      @PathVariable Long userId,
       @RequestHeader("Password") String password,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
     userService.deleteAccount(userId, password, userDetails);
@@ -173,7 +174,8 @@ public class UserController {
   // https://kauth.kakao.com/oauth/authorize?client_id=384eb140b7adc777306aa35e86b7fa7f&redirect_uri=http://localhost:8080/v1/auth/kakao/callback&response_type=code
   // 카카오 로그인 요청 url
   @GetMapping("/auth/kakao/callback")
-  public ResponseEntity<ApiResponse> kakaoLogin(@RequestParam String code,
+  public ResponseEntity<ApiResponse> kakaoLogin(
+      @RequestParam String code,
       HttpServletResponse response) throws JsonProcessingException {
     UserResponseDto userResponseDto = kakaoService.kakaoLogin(code, response);
     return ResponseEntity.ok()
