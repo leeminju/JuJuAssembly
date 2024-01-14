@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -64,17 +63,17 @@ public class UserServiceTest implements UserTestUtil {
   @Mock
   private ValueOperations valueOperations;
 
-  @DisplayName("회원가입 테스트")
+  @DisplayName("회원가입 이메일 전송 테스트")
   @Test
   void signup() {
     // given
     EmailService emailServiceMock = mock(EmailService.class);
     RedisTemplate<String, String> redisTemplateMock = mock(RedisTemplate.class);
-
     EmailAuthService emailAuthServiceSpy = spy(
         new EmailAuthService(emailServiceMock, emailAuthRepository, redisTemplateMock,
             passwordEncoder));
-    userService = new UserService(userRepository, passwordEncoder, emailAuthServiceSpy, categoryRepository, emailAuthRepository, jwtUtil, s3Manager);
+    userService = new UserService(userRepository, passwordEncoder, emailAuthServiceSpy,
+        categoryRepository, emailAuthRepository, jwtUtil, s3Manager);
 
     SignupRequestDto signupRequestDto = SignupRequestDto.builder()
         .loginId(TEST_USER_LOGINID)
@@ -96,8 +95,6 @@ public class UserServiceTest implements UserTestUtil {
     when(emailAuthRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
     when(categoryRepository.getById(anyLong())).thenReturn(TEST_CATEGORY);
-
-//    doNothing().when(redisTemplateMock.opsForValue()).set(TEST_USER_LOGINID, "sent-code", anyLong(), any(TimeUnit.class));
 
     when(redisTemplateMock.opsForValue()).thenReturn(valueOperations);
     doNothing().when(valueOperations).set(anyString(), anyString(), anyLong(), any(TimeUnit.class));
