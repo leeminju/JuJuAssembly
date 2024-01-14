@@ -55,9 +55,12 @@ public class EmailAuthService {
    **/
   public EmailAuth checkVerifyVerificationCode(String loginId, String verificationCode) {
     // 가장 최근에 만들어진 인증 데이터 조회 (5분 이내 인증에 실패했을 경우 중복 생성 될 수 있음)
-    var emailAuth = emailAuthRepository.findTopByLoginIdOrderByCreatedAtDesc(loginId)
-        .orElseThrow(()
-            -> new IllegalArgumentException("인증 가능한 loginId가 아닙니다."));
+    var emailAuthOptional = emailAuthRepository.findTopByLoginIdOrderByCreatedAtDesc(loginId);
+
+    if (emailAuthOptional.isEmpty()) {
+      throw new IllegalArgumentException("인증 가능한 loginId가 아닙니다.");
+    }
+    EmailAuth emailAuth = emailAuthOptional.get();
 
     // 5분이 지났는지 검증
     if (!redisTemplate.hasKey(loginId)) {
