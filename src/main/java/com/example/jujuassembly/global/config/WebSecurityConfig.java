@@ -63,15 +63,17 @@ public class WebSecurityConfig {
             .requestMatchers("/admin").permitAll()
             .requestMatchers(HttpMethod.GET, "/v1/users/**").permitAll()
             .requestMatchers("/v1/auth/**").permitAll()
+            .requestMatchers("/v1/categories/**").permitAll() //이후 수정
+            .requestMatchers("/view/**").permitAll() //이후 수정
             .anyRequest().authenticated() // 그 외 모든 요청 인증처리
     );
 
-    // 필터 관리
+ /*   // 필터 관리
     http.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
         .exceptionHandling(handler -> handler.accessDeniedHandler(customAccessDeniedHandler))
         .exceptionHandling(
             handler -> handler.authenticationEntryPoint(customAuthenticationEntryPoint));
-
+*/
     return http.build();
   }
 }

@@ -4,19 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>상품 등록 페이지</title>
+
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"
+          integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
+          crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+
 </head>
 <body>
 <h1>상품 등록</h1>
 <form id="productForm" enctype="multipart/form-data">
 
+    <input type="hidden" id="categoryId" name="categoryId" value="1"> <!--타임리프 문법으로 변경-->
+
   <p>
-    <label for="categoryId">카테고리 ID:</label>
-    <input type="number" id="categoryId" name="categoryId" required>
+    <label for="name">상품:</label>
+    <input type="text" id="name" name="name" required>
   </p>
 
   <p>
-    <label for="productName">상품명:</label>
-    <input type="text" id="productName" name="productName" required>
+    <label for="description">상품 설명:</label>
+    <input type="text" id="description" name="description" required>
   </p>
 
   <p>
@@ -25,15 +33,31 @@
   </p>
 
   <p>
+    <label for="area">지역:</label>
+    <input type="text" id="area" name="area" required>
+  </p>
+
+  <p>
+    <label for="company">제조 회사:</label>
+    <input type="text" id="company" name="company" required>
+  </p>
+
+  <p>
+    <label for="alcoholDegree">도수:</label>
+    <input type="text" id="alcoholDegree" name="alcoholDegree" required>
+  </p>
+
+  <p>
     <label for="image">이미지 업로드:</label>
     <input type="file" id="image" name="image" accept="image/*" required>
   </p>
 
   <p>
-    <button type="submit">등록</button>
+<!--    onclick="submitForm()"-->
+    <button type="submit" >등록</button>
   </p>
 </form>
 
-<script src="../static/js/script.js"></script>
+<script src="/js/script.js"></script>
 </body>
 </html>

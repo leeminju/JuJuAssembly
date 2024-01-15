@@ -25,12 +25,6 @@ public class PageController {
   public String adminPage() {
     return "admin";
   }
-/*
-  @GetMapping("/")
-  public String home(){
-    return "product";
-  }
-*/
 
 
 }

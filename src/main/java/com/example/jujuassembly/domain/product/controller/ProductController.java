@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,10 +43,10 @@ public class ProductController {
    * @return 상품 등록 성공 여부를 반환하는 ApiResponse
    * @throws Exception 이미지 업로드 시 발생할 수 있는 예외
    */
-  @Secured(Authority.ADMIN)
+ // @Secured(Authority.ADMIN)
   @PostMapping("/categories/{categoryId}/products")
   public ResponseEntity<ApiResponse> createProduct(@PathVariable Long categoryId,
-      @RequestParam MultipartFile image,
+      @RequestPart ("image")MultipartFile image,
       @RequestPart("data") @Valid ProductRequestDto requestDto) throws Exception {
     productService.createProduct(categoryId, requestDto, image);
     return ResponseEntity.status(HttpStatus.CREATED)
