@@ -117,6 +117,14 @@ public class UserController {
         .body(new ApiResponse("프로필 조회", HttpStatus.OK.value(), responseDto));
   }
 
+  @GetMapping("/users/myprofile")
+  public ResponseEntity<ApiResponse> viewMyProfile(
+      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    UserDetailResponseDto responseDto = userService.viewMyProfile(userDetails.getUser());
+    return ResponseEntity.ok()
+        .body(new ApiResponse("내 프로필 조회", HttpStatus.OK.value(), responseDto));
+  }
+
   /**
    * 프로필 수정 API
    *

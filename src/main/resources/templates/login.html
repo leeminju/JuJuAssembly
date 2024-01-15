@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link rel="stylesheet" type="text/css" href="/css/style.css">
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"
+          integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
+          crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+  <meta charset="UTF-8">
+  <title>주주　총회　로그인</title>
+</head>
+<body>
+<div id="login-form">
+  <div id="login-title">주주총회 로그인</div>
+  <br>
+  <div>
+    <div class="login-id-label">Login Id</div>
+    <input type="text" name="loginId" id="loginId" class="login-input-box">
+
+    <div class="login-id-label">Password</div>
+    <input type="password" name="password" id="password" class="login-input-box">
+    <div style="margin-top: 20px"><span>회원이 아니세요??
+    <button style="border: transparent;text-decoration: underline;
+               background-color: transparent;
+               color : red; text-decoration-color: red" onclick="location.href='/signup'">
+      회원 가입
+    </button>
+    </span></div>
+    <button id="login-id-submit" onclick="onLogin()">로그인</button>
+  </div>
+  <div id="login-failed" style="display:none" class="alert alert-danger" role="alert"></div>
+</div>
+</body>
+<script>
+  const host = 'http://' + window.location.host;
+
+  $(document).ready(function () {
+    // 토큰 삭제
+    Cookies.remove('Authorization', {path: '/'});
+  });
+
+  function onLogin() {
+    let loginId = $('#loginId').val();
+    let password = $('#password').val();
+
+    $.ajax({
+      type: "POST",
+      url: `/v1/auth/login`,
+      contentType: "application/json",
+      data: JSON.stringify({"loginId": loginId, "password": password}),
+      error(error) {
+        if (error['responseJSON']['data']) {
+          alert(JSON.stringify(error['responseJSON']['data']));
+        } else {
+          alert(error['responseJSON']['msg']);
+        }
+      }
+    })
+    .done(function (res, status, xhr) {
+      alert(res['msg']);
+      const token = xhr.getResponseHeader('Authorization');
+
+      Cookies.set('Authorization', token, {path: '/'})
+
+      $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+        jqXHR.setRequestHeader('Authorization', token);
+      });
+
+      //로그인한 회원 정보
+      $.ajax({
+        type: 'GET',
+        url: `/v1/users/myprofile`,
+        contentType: 'application/json',
+        success: function (response) {
+          if (response['data']['role'] === "USER") {
+            window.location.href = host;
+          } else {
+            window.location.href = '/admin';
+          }
+
+        },
+        error(error, status, request) {
+          if (error['responseJSON']['data']) {
+            alert(error['responseJSON']['data']);
+          } else {
+            alert(error['responseJSON']['msg']);
+          }
+        }
+      });
+    });
+  }
+</script>
+</html>
