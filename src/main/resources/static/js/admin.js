@@ -12,10 +12,7 @@ function authorizationCheck() {
       jqXHR.setRequestHeader('Authorization', auth);
     });
   } else {
-    $('#sign-in-btn').show();
-    $('#sign-up-btn').show();
-    $('#mypage').hide();
-    $('#logout-btn').hide();
+    window.location.href = '/';
     return;
   }
 
@@ -24,10 +21,9 @@ function authorizationCheck() {
     type: 'GET',
     url: `/v1/users/myprofile`,
     success: function (response) {
-      if (response['data']['role'] === "ADMIN") {
-        window.location.href = '/admin';
+      if (response['data']['role'] === "USER") {
+        window.location.href = '/';
       }
-      
       $('#sign-in-btn').hide();
       $('#sign-up-btn').hide();
       $('#mypage').show();

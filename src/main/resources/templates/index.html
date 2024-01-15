@@ -17,7 +17,38 @@
 </head>
 <body>
 
-  메인 페이지
+<div class="container">
+  <header
+      class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+    <div class="col-md-3 mb-2 mb-md-0">
+      <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
+        주주 총회
+      </a>
+    </div>
+
+    <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+      <li><a href="#" class="nav-link px-2 link-secondary">주주 총회 소개</a></li>
+      <li><a href="#" class="nav-link px-2">내가 찜한 주류</a></li>
+      <li><a href="#" class="nav-link px-2">내가 쓴 리뷰</a></li>
+      <li><a href="#" class="nav-link px-2">고객 센터</a></li>
+    </ul>
+
+    <div class="col-md-3 text-end">
+      <button id="sign-in-btn" class="btn btn-info" onclick="location.href='/login'">
+        Sign in
+      </button>
+      <button id="sign-up-btn" class="btn btn-outline-info" onclick="location.href='/signup'">
+        Sign up
+      </button>
+      <button class="btn btn-info" id="mypage">
+        <span id="header_nickname"></span>님의 마이 페이지
+      </button>
+      <button class="btn btn-outline-info" id="logout-btn" onclick="logout()">
+        Logout
+      </button>
+    </div>
+  </header>
+</div>
 
 </body>
 </html>
