@@ -75,9 +75,8 @@ public class ReviewLikeService {
     User reviewAuthor = review.getUser();
 
     // 리뷰 작성자와 '좋아요'를 누른 사용자가 같지 않을 때만 알림을 보냄
-    if (!reviewAuthor.equals(liker)) {
-      String content =
-          liker.getNickname() + "님이 " + reviewAuthor.getNickname() + "님의 리뷰에 좋아요를 눌렀습니다.";
+    if (!reviewAuthor.getId().equals(liker.getId())) {
+      String content = liker.getNickname() + "님이 " + reviewAuthor.getNickname() + "님의 리뷰에 좋아요를 눌렀습니다.";
       notificationService.send(reviewAuthor, review, content);
     }
   }
