@@ -9,11 +9,9 @@ import com.example.jujuassembly.domain.review.dto.ReviewResponseDto;
 import com.example.jujuassembly.domain.review.entity.Review;
 import com.example.jujuassembly.domain.review.repository.ReviewRepository;
 import com.example.jujuassembly.domain.reviewImage.service.ReviewImageService;
-import com.example.jujuassembly.domain.reviewLike.entity.ReviewLike;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.global.exception.ApiException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -95,8 +93,6 @@ public class ReviewService {
 
     // 해당 리뷰에 대한 모든 알림 삭제
     notificationService.deleteNotificationsByReview(review);
-
-
 
     //기존의 파일 모두 삭제
     reviewRepository.delete(review);
