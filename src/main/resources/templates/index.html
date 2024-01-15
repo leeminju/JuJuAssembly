@@ -16,33 +16,8 @@
   <script src="/js/basic.js"></script>
 </head>
 <body>
-<header class="p-3 text-bg-white">
-    <div th:replace="~{/fragments/header.html}"></div>
-</header>
 
-<div class="card text-center" id="card-box">
-  <div class="card-header">
-    <ul class="nav nav-tabs card-header-tabs">
-      <li class="nav-item">
-        <a class="nav-link active" aria-current="true" href="#total" onclick="click_total()"
-           id="total_tab">전체</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#mypost" onclick="click_mytab()" id="my_tap">My Post</a>
-      </li>
-    </ul>
-  </div>
-
-  <div class="card-body" id="total_body">
-    <div class="row row-cols-1 row-cols-md-4 g-4" id="total_cards">
-    </div>
-  </div>
-
-  <div class="card-body" id="mypost_body">
-    <div class="row row-cols-1 row-cols-md-4 g-4" id="my_cards">
-    </div>
-  </div>
-</div>
+  메인 페이지
 
 </body>
 </html>
