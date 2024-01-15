@@ -155,12 +155,13 @@ public class UserService {
 
 
   public UserDetailResponseDto viewProfile(Long userId, User user) {
-    //본인 확인
-    if (!user.getId().equals(userId)) {
-      throw new ApiException("본인만 조회할 수 있습니다.", HttpStatus.UNAUTHORIZED);
-    }
-
     User loginUser = userRepository.getById(userId);
+    return new UserDetailResponseDto(user);
+  }
+
+
+  public UserDetailResponseDto viewMyProfile(User user) {
+    User loginUser = userRepository.getById(user.getId());
     return new UserDetailResponseDto(user);
   }
 
@@ -169,7 +170,7 @@ public class UserService {
   public UserDetailResponseDto modifyProfile(Long userId, User user,
       UserModifyRequestDto modifyRequestDto) {
     if (!user.getId().equals(userId)) {
-      throw new ApiException("본인만 조회할 수 있습니다.", HttpStatus.UNAUTHORIZED);
+      throw new ApiException("본인만 변경할 수 있습니다.", HttpStatus.UNAUTHORIZED);
     }
 
     User loginUser = userRepository.getById(userId);
@@ -205,4 +206,5 @@ public class UserService {
 
     user.setIsArchived(true);
   }
+
 }

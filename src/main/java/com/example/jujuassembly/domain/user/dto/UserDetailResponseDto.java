@@ -1,6 +1,7 @@
 package com.example.jujuassembly.domain.user.dto;
 
 import com.example.jujuassembly.domain.user.entity.User;
+import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,6 +21,7 @@ public class UserDetailResponseDto {
   private Long secondPreferredCategoryId;
   private String email;
   private String image;
+  private UserRoleEnum role;
 
   public UserDetailResponseDto(User user) {
     this.loginId = user.getLoginId();
@@ -29,5 +31,6 @@ public class UserDetailResponseDto {
     this.secondPreferredCategoryId = user.getId();
     this.email = user.getEmail();
     this.image = user.getImage();
+    this.role = user.getRole();
   }
 }
