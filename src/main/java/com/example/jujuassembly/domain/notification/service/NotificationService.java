@@ -57,7 +57,7 @@ public class NotificationService {
 
 
   // SseEmitter 객체 사용하여 클라이언트에게 이벤트 전송하는 메서드
-  private void sendToClient(SseEmitter emitter, String id, Object data) {
+  public void sendToClient(SseEmitter emitter, String id, Object data) {
     try {
       emitter.send(SseEmitter.event().id(id).name("sse").data(data));
     } catch (IOException exception) {
@@ -86,7 +86,7 @@ public class NotificationService {
   }
 
   // 알림 생성
-  private Notification createNotification(User user, Review review, String content) {
+  public Notification createNotification(User user, Review review, String content) {
     // 상품 ID와 카테고리 ID 가져오기
     Long productId = review.getProduct().getId();
     Long categoryId = review.getProduct().getCategory().getId();
@@ -126,7 +126,6 @@ public class NotificationService {
   @Transactional
   // 특정 사용자가 특정 리뷰에 대해 수행한 행동에 대한 삭제
   public void deleteNotificationByReviewAndUser(Review review, User user) {
-    // NotificationRepository의 메서드를 호출하여 알림을 삭제
     notificationRepository.deleteByReviewAndUser(review, user);
   }
 
