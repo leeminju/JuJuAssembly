@@ -11,8 +11,6 @@ run-name: Running
 on:
   push:
     branches: [ dev ]
-  pull_request:
-    branches: [ dev ]
 
 env:
   AWS_REGION: ap-northeast-2
