@@ -91,10 +91,9 @@ public class UserService {
         firstPreferredCategoryId, secondPreferredCategoryId, response);
   }
 
-  public UserResponseDto verificateCode(HttpServletRequest request,
-      HttpServletResponse response) {
+  public UserResponseDto verificateCode(HttpServletRequest request, HttpServletResponse response,
+      String loginId) {
     String verificationCode = request.getHeader(EmailAuthService.VERIFICATION_CODE_HEADER);
-    String loginId = request.getHeader(EmailAuthService.LOGIN_ID_AUTHORIZATION_HEADER);
     EmailAuth emailAuth = emailAuthService.checkVerifyVerificationCode(loginId, verificationCode);
     String nickname = emailAuth.getNickname();
     String email = emailAuth.getEmail();

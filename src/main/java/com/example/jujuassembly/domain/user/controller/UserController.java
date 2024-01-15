@@ -1,5 +1,6 @@
 package com.example.jujuassembly.domain.user.controller;
 
+import com.example.jujuassembly.domain.emailAuth.service.EmailAuthService;
 import com.example.jujuassembly.domain.user.dto.LoginRequestDto;
 import com.example.jujuassembly.domain.user.dto.SignupRequestDto;
 import com.example.jujuassembly.domain.user.dto.UserDetailResponseDto;
@@ -18,13 +19,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -57,16 +58,17 @@ public class UserController {
   /**
    * 회원가입 인증번호 받는 API -> 회원가입 완료 후 DB에 user 정보 저장
    *
-   * @param request          HttpServletRequest 객체
-   * @param response         HttpServletResponse 객체
+   * @param request  HttpServletRequest 객체
+   * @param response HttpServletResponse 객체
    * @return 회원가입 성공여부를 담은 ApiResponse
    */
 
   @GetMapping("/auth/signup")
   public ResponseEntity<ApiResponse> verificateCode(
       HttpServletRequest request,
-      HttpServletResponse response) {
-    UserResponseDto userResponseDto = userService.verificateCode(request, response);
+      HttpServletResponse response,
+      @CookieValue(EmailAuthService.LOGIN_ID_AUTHORIZATION_HEADER) String loginId) {
+    UserResponseDto userResponseDto = userService.verificateCode(request, response, loginId);
     return ResponseEntity.ok()
         .body(new ApiResponse("회원가입 성공", HttpStatus.OK.value(), userResponseDto));
   }
@@ -165,15 +167,15 @@ public class UserController {
    * 회원 탈퇴 API
    *
    * @param userId      탈퇴할 유저의 ID
-   * @param password    사용자 비밀번호
-   * @param userDetails 인증된 사용자의 UserDetailsImpl 객체
+   * @param request     HttpServletRequest 객체
    * @return 탈퇴 여부 ApiResponse
    */
   @DeleteMapping("/users/{userId}")
   public ResponseEntity<ApiResponse> deleteAccount(
       @PathVariable Long userId,
-      @RequestHeader("Password") String password,
+      HttpServletRequest request,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    String password = request.getHeader("Password");
     userService.deleteAccount(userId, password, userDetails);
     return ResponseEntity.ok().body(new ApiResponse("회원 탈퇴 성공", HttpStatus.OK.value()));
   }
