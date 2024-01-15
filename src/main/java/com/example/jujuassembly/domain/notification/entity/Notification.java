@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
 public class Notification extends Timestamped {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)  // 고유한 ID 값을 자동으로 생성
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;  // 알림의 고유 식별자
 
   private String content;  // 알림 내용

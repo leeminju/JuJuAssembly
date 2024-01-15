@@ -92,9 +92,11 @@ public class NotificationService {
     Long categoryId = review.getProduct().getCategory().getId();
 
     // 해당 리뷰가 있는 상품 페이지로 이동하는 URL
-    String url = "/v1/categories/" + categoryId + "/products/" + productId + "#review-" + review.getId();
+    String url =
+        "/v1/categories/" + categoryId + "/products/" + productId + "#review-" + review.getId();
 
-    NotificationRequestDto requestDto = new NotificationRequestDto(user, review, content, url, false);
+    NotificationRequestDto requestDto = new NotificationRequestDto(user, review, content, url,
+        false);
     return new Notification(requestDto);
   }
 
@@ -131,7 +133,6 @@ public class NotificationService {
   @Transactional
   // 리뷰 삭제 시 해당 리뷰 관련 모든 알림 삭제
   public void deleteNotificationsByReview(Review review) {
-    // 해당 리뷰와 관련된 모든 알림을 삭제
     notificationRepository.deleteByReview(review);
   }
 }
