@@ -5,8 +5,10 @@ import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
+@Component
 public class EmailAuthCleanupScheduler {
 
   private final EmailAuthRepository emailAuthRepository;
