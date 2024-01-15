@@ -1,70 +1,72 @@
-const host = 'http://' + window.location.host;
-
 $(document).ready(function () {
-  authorizationCheck();
+  getUsers();
 })
 
-function authorizationCheck() {
-  const auth = getToken();
-
-  if (auth !== undefined && auth !== '') {
-    $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
-      jqXHR.setRequestHeader('Authorization', auth);
-    });
-  } else {
-    window.location.href = '/';
-    return;
-  }
-
-  //로그인한 회원 정보
+function getUsers() {
   $.ajax({
-    type: 'GET',
-    url: `/v1/users/myprofile`,
-    success: function (response) {
-      if (response['data']['role'] === "USER") {
-        window.location.href = '/';
-      }
-      $('#sign-in-btn').hide();
-      $('#sign-up-btn').hide();
-      $('#mypage').show();
-      $('#logout-btn').show();
-      $('#header_nickname').text(response['data']['nickname']);
-    },
-    error(error, status, request) {
-      if (error['responseJSON']['data']) {
-        alert(error['responseJSON']['data']);
-      } else {
-        alert(error['responseJSON']['msg']);
-      }
-    }
-  });
-}
-
-function getToken() {
-  let auth = Cookies.get('Authorization');
-
-  if (auth === undefined) {
-    return '';
-  }
-
-  return auth;
-}
-
-function logout() {
-
-  $.ajax({
-    type: 'POST'
-    , url: `/v1/users/logout`
+    type: 'GET'
+    , url: `/v1/users`
     , success: function (response) {
-      alert(response['msg']);
-      CookieRemove();
-      window.location.reload();
+      let users = response['data'];
+      for (var i = 0; i < users.length; i++) {
+        let user = users[i];
+        let userId = user['id'];
+        let image = user['image'];
+        let loginId = user['loginId']
+        let nickname = user['nickname']
+        let email = user['email']
+        let role = user['role'];
+        let firstPreferredCategoryId = user['firstPreferredCategoryId'];
+        let secondPreferredCategoryId = user['secondPreferredCategoryId'];
+
+        if (!image) {
+          image = "/images/default_user_image.png"
+        }
+
+        let html = `<div class="d-flex text-body-secondary pt-3">
+        <img style="margin: 7px; width: 40px;height: 40px;object-fit: contain;" src=${image}>
+    <p class="pb-3 mb-0 small lh-sm border-bottom"  style="display: flex;flex-direction: row;justify-content: center;">
+      <div style="width: 70%">
+      <strong class="d-block text-gray-dark">${loginId}(${nickname})</strong>
+      email : ${email}<br>
+      role : ${role}
+      </div>
+      <div style="width: 22%">
+      <button class="btn btn-light" onclick="location.href='/userReview?userId=${userId}'">리뷰 목록</button>
+      <button class="btn btn-light">정보 수정</button>
+   
+  <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    권한 변경
+  </button>
+  <ul class="dropdown-menu">
+    <li onclick="changeRole(${userId}, 'ADMIN')"><a class="dropdown-item" href="#">ADMIN</a></li>
+    <li onclick="changeRole(${userId}, 'USER')"><a class="dropdown-item" href="#">USER</a></li>
+    <li onclick="changeRole(${userId}, 'BANNED')"><a class="dropdown-item" href="#">BANNED</a></li>
+  </ul>
+</div>
+  
+    </p>
+  </div>`;
+
+        $('#userList').append(html);
+      }
     }, error(error, status, request) {
       console.log(error);
     }
   });
 }
 
-function CookieRemove() {
-  Cookies.remove('Authorization', {path: '/'});
+function changeRole(userId, role) {
+  $.ajax({
+    type: 'PATCH'
+    , url: `/v1/users/${userId}/role`
+    , contentType: "application/json"
+    , data: JSON.stringify({"userRole": role})
+    , success: function (response) {
+      alert(response['msg']);
+      window.location.reload();
+    }, error(error, status, request) {
+      console.log(error);
+    }
+  });
 }

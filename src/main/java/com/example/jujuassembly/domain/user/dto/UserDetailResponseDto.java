@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserDetailResponseDto {
-
+  private Long id;
   private String loginId;
   private String nickname;
   private String password;
@@ -24,6 +24,7 @@ public class UserDetailResponseDto {
   private UserRoleEnum role;
 
   public UserDetailResponseDto(User user) {
+    this.id = user.getId();
     this.loginId = user.getLoginId();
     this.nickname = user.getNickname();
     this.password = user.getPassword();
