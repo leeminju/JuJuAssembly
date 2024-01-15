@@ -87,9 +87,14 @@ public class NotificationService {
 
   // 알림 생성
   private Notification createNotification(User user, Review review, String content) {
-    String url = "/reviews/" + review.getId();
-    NotificationRequestDto requestDto = new NotificationRequestDto(user, review, content, url,
-        false);
+    // 상품 ID와 카테고리 ID 가져오기
+    Long productId = review.getProduct().getId();
+    Long categoryId = review.getProduct().getCategory().getId();
+
+    // 해당 리뷰가 있는 상품 페이지로 이동하는 URL
+    String url = "/v1/categories/" + categoryId + "/products/" + productId + "#review-" + review.getId();
+
+    NotificationRequestDto requestDto = new NotificationRequestDto(user, review, content, url, false);
     return new Notification(requestDto);
   }
 
