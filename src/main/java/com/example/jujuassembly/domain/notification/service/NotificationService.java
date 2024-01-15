@@ -116,8 +116,17 @@ public class NotificationService {
     notification.read();
   }
 
+  @Transactional
+  // 특정 사용자가 특정 리뷰에 대해 수행한 행동에 대한 삭제
   public void deleteNotificationByReviewAndUser(Review review, User user) {
     // NotificationRepository의 메서드를 호출하여 알림을 삭제
     notificationRepository.deleteByReviewAndUser(review, user);
+  }
+
+  @Transactional
+  // 리뷰 삭제 시 해당 리뷰 관련 모든 알림 삭제
+  public void deleteNotificationsByReview(Review review) {
+    // 해당 리뷰와 관련된 모든 알림을 삭제
+    notificationRepository.deleteByReview(review);
   }
 }

@@ -12,4 +12,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
   // 리뷰와 사용자에 해당하는 알림을 삭제하는 메서드
   void deleteByReviewAndUser(Review review, User user);
+
+  // 해당 리뷰 관련 알림 모두 삭제
+  void deleteByReview(Review review);
 }
