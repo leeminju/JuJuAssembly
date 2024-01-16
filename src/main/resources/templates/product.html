@@ -57,9 +57,6 @@
 <h1>상품 등록</h1>
 <form id="productForm" enctype="multipart/form-data">
 
-  <!--  <input type="hidden" id="categoryId" name="categoryId" value="1"> &lt;!&ndash;타임리프 문법으로 변경&ndash;&gt;-->
-
-
   <div class="form-floating" style="margin-top: 20px">
     <div class="categoryLabel">
       <label for="categoryId">카테고리 </label>
@@ -109,12 +106,19 @@
   </p>
 
 </form>
+<p>
+  <button onclick="createProduct()">등록</button>
+</p>
 
- <p>
-    <button onclick="createProduct()">등록</button>
- </p>
 
+<div class="category">
 
+  <ul id="category_menu" class="nav nav-pills">
+  </ul>
+  <div id="product_container">
+  </div>
+
+</div>
 
 
 <script>
@@ -138,7 +142,43 @@
           let category = categories[i];
           let id = category['id'];
           let name = category['name'];
+          let image = category['image'];
           let html = `<option value=${id}>${name}</option>`
+          let menu_html = `<li class="nav-item"><a href="#" class="nav-link">
+                            <img src=${image} style=" object-fit:cover; width:150px; height:200px;">
+                            <div style="color: black;">
+                              ${name}
+                            </div>
+                            </a></li>`
+          let product_html =
+              `<div className="col">
+                <div className="card shadow-sm">
+                  <svg className="bd-placeholder-img card-img-top" width="100%" height="225"
+                       xmlns="http://www.w3.org/2000/svg" role="img"
+                       aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice"
+                       focusable="false"><title>Placeholder</title>
+                    <rect width="100%" height="100%" fill="#55595c"></rect>
+                    <text x="50%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text>
+                  </svg>
+                  <div className="card-body">
+                    <p className="card-text">This is a wider card with supporting text below as a
+                      natural lead-in to additional content. This content is a little bit
+                      longer.</p>
+                    <div className="d-flex justify-content-between align-items-center">
+                      <div className="btn-group">
+                        <button type="button" className="btn btn-sm btn-outline-secondary">View
+                        </button>
+                        <button type="button" className="btn btn-sm btn-outline-secondary">Edit
+                        </button>
+                      </div>
+                      <small className="text-body-secondary">9 mins</small>
+                    </div>
+                  </div>
+                </div>
+              </div>`
+
+          $('#category_menu').append(menu_html);
+          $('#product_container').append(product_html);
           $('#categoryId').append(html);
         }
       },
@@ -149,8 +189,7 @@
 
   }
 
-
-  function createProduct(){
+  function createProduct() {
     const name = $('#name').val();
     const description = $('#description').val();
     const price = $('#price').val();
@@ -158,7 +197,6 @@
     const company = $('#company').val();
     const alcoholDegree = $('#alcoholDegree').val();
     const categoryId = $('#categoryId').val();
-
 
     const data = {
       name: name,
@@ -173,8 +211,7 @@
     formData.append('image', imageFile);
     formData.append("data", new Blob([JSON.stringify(data)], {type: "application/json"}));
 
-
- //Ajax 요청 (jQuery 사용)
+    //Ajax 요청 (jQuery 사용)
     $.ajax({
       url: '/v1/categories/' + categoryId + '/products',
       method: 'POST',
@@ -196,7 +233,6 @@
       }
     });
   }
-
 
 
 </script>
