@@ -63,6 +63,7 @@ public class WebSecurityConfig {
             .requestMatchers("/signup").permitAll()
             .requestMatchers("/admin/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/v1/users/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/v1/categories/**").permitAll()
             .requestMatchers("/v1/auth/**").permitAll()
             .anyRequest().authenticated() // 그 외 모든 요청 인증처리
     );

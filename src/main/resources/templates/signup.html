@@ -39,10 +39,7 @@
       <select class="form-select" id="firstPreferredCategoryId"
               aria-label="Floating label select example">
         <option selected>주종을 선택해 주세요</option>
-        <option value=1>소주</option>
-        <option value=2>맥주</option>
-        <option value=3>와인</option>
-        <option value=4>양주</option>
+
       </select>
     </div>
 
@@ -51,10 +48,6 @@
       <select class="form-select" id="secondPreferredCategoryId"
               aria-label="Floating label select example">
         <option selected>주종을 선택해 주세요</option>
-        <option value=1>소주</option>
-        <option value=2>맥주</option>
-        <option value=3>와인</option>
-        <option value=4>양주</option>
       </select>
     </div>
 
@@ -83,7 +76,7 @@
 </body>
 <script>
   $(document).ready(function () {
-    // 토큰 삭제
+    getCategory();
     const auth = getToken();
 
     if (auth !== undefined && auth !== '') {
@@ -95,6 +88,30 @@
       return;
     }
   });
+
+  function getCategory() {
+    $.ajax({
+      type: "GET",
+      url: `/v1/categories`,
+      success: function (response) {
+        let categories = response['data'];
+        console.log(categories);
+        for (let i = 0; i < categories.length; i++) {
+          let category = categories[i];
+          let id = category['id'];
+          let name = category['name'];
+          let html = `<option value=${id}>${name}</option>`
+          console.log(id+"  "+name);
+          $('#firstPreferredCategoryId').append(html);
+          $('#secondPreferredCategoryId').append(html);
+        }
+      },
+      error(error, status, request) {
+
+      }
+    });
+
+  }
 
   function getToken() {
     let auth = Cookies.get('Authorization');
