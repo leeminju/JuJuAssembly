@@ -16,7 +16,6 @@ public class UserDetailResponseDto {
   private Long id;
   private String loginId;
   private String nickname;
-  private String password;
   private Long firstPreferredCategoryId;
   private Long secondPreferredCategoryId;
   private String email;
@@ -27,7 +26,6 @@ public class UserDetailResponseDto {
     this.id = user.getId();
     this.loginId = user.getLoginId();
     this.nickname = user.getNickname();
-    this.password = user.getPassword();
     this.firstPreferredCategoryId = user.getId();
     this.secondPreferredCategoryId = user.getId();
     this.email = user.getEmail();
