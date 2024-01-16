@@ -13,7 +13,10 @@
           crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
   <link rel="stylesheet" href="/css/style.css">
-  <script src="/js/basic.js"></script>
+  <script src="/js/common.js"></script>
+  <script>
+
+  </script>
 </head>
 <body>
 
@@ -26,11 +29,19 @@
       </a>
     </div>
 
-    <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+    <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0" id="main_menu">
       <li><a href="#" class="nav-link px-2 link-secondary">주주 총회 소개</a></li>
       <li><a href="#" class="nav-link px-2">내가 찜한 주류</a></li>
       <li><a href="#" class="nav-link px-2">내가 쓴 리뷰</a></li>
       <li><a href="#" class="nav-link px-2">고객 센터</a></li>
+    </ul>
+
+    <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0" id="admin_menu">
+      <li><a href="/admin" class="nav-link px-2">회원 관리</a></li>
+      <li><a href="/admin/category" class="nav-link px-2">카테 고리 관리</a></li>
+      <li><a href="/admin/product" class="nav-link px-2">상품 관리</a></li>
+      <li><a href="/admin/report" class="nav-link px-2">제보 관리</a></li>
+      <li><a href="/admin/chat" class="nav-link px-2">고객 센터</a></li>
     </ul>
 
     <div class="col-md-3 text-end">
@@ -51,4 +62,3 @@
 </div>
 
 </body>
-</html>

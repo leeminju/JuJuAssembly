@@ -1,5 +1,3 @@
-const host = 'http://' + window.location.host;
-
 $(document).ready(function () {
   authorizationCheck();
 })
@@ -12,11 +10,7 @@ function authorizationCheck() {
       jqXHR.setRequestHeader('Authorization', auth);
     });
   } else {
-    $('#sign-in-btn').show();
-    $('#sign-up-btn').show();
-    $('#mypage').hide();
-    $('#logout-btn').hide();
-    logout();
+    window.location.href = "/login";//로그인 페이지
     return;
   }
 
@@ -26,9 +20,13 @@ function authorizationCheck() {
     url: `/v1/users/myprofile`,
     success: function (response) {
       if (response['data']['role'] === "ADMIN") {
-        window.location.href = '/admin';
+        $('#main_menu').hide();
+        $('#admin_menu').show();
+      } else {
+        $('#main_menu').show();
+        $('#admin_menu').hide();
       }
-      
+
       $('#sign-in-btn').hide();
       $('#sign-up-btn').hide();
       $('#mypage').show();
@@ -73,3 +71,4 @@ function logout() {
 function CookieRemove() {
   Cookies.remove('Authorization', {path: '/'});
 }
+

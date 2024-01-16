@@ -57,10 +57,11 @@ public class WebSecurityConfig {
             .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
             .permitAll() // resources 접근 허용 설정
             .requestMatchers("/").permitAll()
-            .requestMatchers("/index").permitAll()
+            .requestMatchers("/mypage").permitAll()
+            .requestMatchers("/userReview").permitAll()
             .requestMatchers("/login").permitAll()
             .requestMatchers("/signup").permitAll()
-            .requestMatchers("/admin").permitAll()
+            .requestMatchers("/admin/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/v1/users/**").permitAll()
             .requestMatchers("/v1/auth/**").permitAll()
             .anyRequest().authenticated() // 그 외 모든 요청 인증처리

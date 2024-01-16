@@ -1,5 +1,6 @@
 package com.example.jujuassembly.domain.userManagement.controller;
 
+import com.example.jujuassembly.domain.user.dto.UserDetailResponseDto;
 import com.example.jujuassembly.domain.user.dto.UserResponseDto;
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum.Authority;
 import com.example.jujuassembly.domain.userManagement.dto.UserRoleRequestDto;
@@ -32,8 +33,8 @@ public class UserManageController {
    * @return 전체 사용자 목록을 포함한 ApiResponse
    */
   @GetMapping("/users")
-  public ResponseEntity<ApiResponse<List<UserResponseDto>>> viewAllUsers() {
-    List<UserResponseDto> allUserResponseDtoList = userManageService.viewAllUsers();
+  public ResponseEntity<ApiResponse<List<UserDetailResponseDto>>> viewAllUsers() {
+    List<UserDetailResponseDto> allUserResponseDtoList = userManageService.viewAllUsers();
     return ResponseEntity.ok().body(
         new ApiResponse<>("전체 사용자 조회", HttpStatus.OK.value(), allUserResponseDtoList));
   }

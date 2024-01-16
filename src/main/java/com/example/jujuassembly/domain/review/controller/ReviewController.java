@@ -137,7 +137,7 @@ public class ReviewController {
   @GetMapping("/users/{userId}/reviews")
   public ResponseEntity<ApiResponse<Page<ReviewResponseDto>>> getMyReviews(
       @PathVariable Long userId,
-      @PageableDefault(page = 1, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+      Pageable pageable
   ) {
     Page<ReviewResponseDto> reviews = reviewService.getMyReviews(userId, pageable);
     return ResponseEntity.ok()
