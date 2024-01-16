@@ -39,7 +39,7 @@ public class UserService {
   private final JwtUtil jwtUtil;
   private final S3Manager s3Manager;
 
-  public void signup(SignupRequestDto signupRequestDto, HttpServletResponse response) {
+  public String signup(SignupRequestDto signupRequestDto) {
 
     String loginId = signupRequestDto.getLoginId();
     String nickname = signupRequestDto.getNickname();
@@ -87,8 +87,18 @@ public class UserService {
       throw new ApiException("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST);
     }
 
-    emailAuthService.checkAndSendVerificationCode(loginId, nickname, email, password,
-        firstPreferredCategoryId, secondPreferredCategoryId, response);
+    // 인증번호 메일 보내기
+    String sentCode = emailAuthService.sendVerificationCode(email);
+
+    // redis에 저장하여 5분 내로 인증하도록 설정
+    emailAuthService.setSentCodeByLoginIdAtRedis(loginId, sentCode);
+
+    // 재입력 방지를 위해 DB에 입력된 데이터를 임시 저장
+    emailAuthRepository.save(
+        new EmailAuth(loginId, nickname, email, passwordEncoder.encode(password),
+            firstPreferredCategoryId, secondPreferredCategoryId, sentCode));
+
+    return loginId;
   }
 
   public UserResponseDto verificateCode(HttpServletRequest request, HttpServletResponse response,

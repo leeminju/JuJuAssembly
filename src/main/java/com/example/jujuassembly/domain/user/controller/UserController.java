@@ -11,6 +11,7 @@ import com.example.jujuassembly.domain.user.service.UserService;
 import com.example.jujuassembly.global.response.ApiResponse;
 import com.example.jujuassembly.global.security.UserDetailsImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -39,6 +40,7 @@ public class UserController {
 
   private final UserService userService;
   private final KakaoService kakaoService;
+  private final EmailAuthService emailAuthService;
 
   /**
    * 회원가입, 이메일 발송
@@ -51,7 +53,13 @@ public class UserController {
   public ResponseEntity<ApiResponse> siginup(
       @Valid @RequestBody SignupRequestDto signupRequestDto,
       HttpServletResponse response) {
-    userService.signup(signupRequestDto, response);
+
+    String loginId = userService.signup(signupRequestDto);
+
+    // 쿠키에 인증할 loginId을 넣어보냄
+    Cookie cookie = emailAuthService.getCookieByLoginId(loginId);
+    response.addCookie(cookie);
+
     return ResponseEntity.ok(new ApiResponse<>("인증 번호를 입력해주세요.", HttpStatus.OK.value()));
   }
 
@@ -172,8 +180,8 @@ public class UserController {
   /**
    * 회원 탈퇴 API
    *
-   * @param userId      탈퇴할 유저의 ID
-   * @param request     HttpServletRequest 객체
+   * @param userId  탈퇴할 유저의 ID
+   * @param request HttpServletRequest 객체
    * @return 탈퇴 여부 ApiResponse
    */
   @DeleteMapping("/users/{userId}")
