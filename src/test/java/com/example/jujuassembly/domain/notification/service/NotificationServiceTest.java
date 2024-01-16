@@ -325,8 +325,13 @@ public class NotificationServiceTest {
     String content = "Test Notification Content";
 
     // 알림 생성을 위한 NotificationRequestDto 생성
-    NotificationRequestDto requestDto = new NotificationRequestDto(user, review, content, "URL",
-        true);
+    NotificationRequestDto requestDto = NotificationRequestDto.builder()
+        .user(user)
+        .review(review)
+        .content(content)
+        .url("URL")
+        .isRead(true)
+        .build();
 
     // NotificationRequestDto를 사용하여 알림 생성
     Notification notification1 = new Notification(requestDto);
