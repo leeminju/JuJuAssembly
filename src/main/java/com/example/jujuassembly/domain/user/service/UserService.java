@@ -138,6 +138,11 @@ public class UserService {
     // 중복 로그인 확인
     jwtUtil.checkIsLoggedIn(loginId, response);
 
+    // 회원탈퇴여부 확인
+    if (user.getIsArchived()) {
+      throw new ApiException("이미 회원탈퇴한 유저입니다.", HttpStatus.BAD_REQUEST);
+    }
+
     // access token 및 refresh token
     String accessToken = jwtUtil.createAccessToken(loginId);
     response.setHeader(JwtUtil.AUTHORIZATION_HEADER, accessToken);
