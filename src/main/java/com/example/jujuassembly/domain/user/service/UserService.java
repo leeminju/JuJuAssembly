@@ -149,8 +149,7 @@ public class UserService {
     return new UserResponseDto(user);
   }
 
-  public void logout(HttpServletRequest request, HttpServletResponse response) {
-    String accessToken = request.getHeader(JwtUtil.AUTHORIZATION_HEADER);
+  public void logout(String accessToken, HttpServletResponse response) {
     if (!jwtUtil.validateToken(accessToken.substring(7))) {
       String responseHeaderAccessToken = response.getHeader(JwtUtil.AUTHORIZATION_HEADER);
       jwtUtil.removeRefreshToken(responseHeaderAccessToken);
@@ -159,8 +158,6 @@ public class UserService {
       jwtUtil.removeRefreshToken(accessToken);
       jwtUtil.removeAccessToken(accessToken);
     }
-
-    response.setHeader(JwtUtil.AUTHORIZATION_HEADER, "logged-out");
   }
 
 

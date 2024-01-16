@@ -8,6 +8,7 @@ import com.example.jujuassembly.domain.user.dto.UserModifyRequestDto;
 import com.example.jujuassembly.domain.user.dto.UserResponseDto;
 import com.example.jujuassembly.domain.user.kakao.KakaoService;
 import com.example.jujuassembly.domain.user.service.UserService;
+import com.example.jujuassembly.global.jwt.JwtUtil;
 import com.example.jujuassembly.global.response.ApiResponse;
 import com.example.jujuassembly.global.security.UserDetailsImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -112,7 +113,12 @@ public class UserController {
   public ResponseEntity<ApiResponse> logout(
       HttpServletRequest request,
       HttpServletResponse response) {
-    userService.logout(request, response);
+
+    String accessToken = request.getHeader(JwtUtil.AUTHORIZATION_HEADER);
+
+    userService.logout(accessToken, response);
+    response.setHeader(JwtUtil.AUTHORIZATION_HEADER, "logged-out");
+
     return ResponseEntity.ok().body(new ApiResponse("로그아웃 성공", HttpStatus.OK.value()));
   }
 
