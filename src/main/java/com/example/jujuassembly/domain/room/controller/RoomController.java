@@ -25,7 +25,12 @@ public class RoomController {
   private final ChatService chatService;
   private final SimpMessagingTemplate simpMessagingTemplate;
 
-  //변경해줘야 할 사항 POst매핑을 메세지매핑으로 ->@pathvariable에서 Destinationvariable로
+  /**
+   * 채팅 메시지 발행 및 저장
+   *
+   * @param roomId         채팅방 ID
+   * @param chatRequestDto 채팅 요청 DTO
+   */
   @MessageMapping("/rooms/{roomId}")
   public void publish(@DestinationVariable Long roomId,
       @RequestBody @Valid ChatRequestDto chatRequestDto) {
@@ -33,12 +38,18 @@ public class RoomController {
     simpMessagingTemplate.convertAndSend("/subscribe/rooms/" + roomId, chatRequestDto.getMessage());
   }
 
-  @GetMapping("/rooms")//ModelAttribute
+  /**
+   * 채팅방 생성 또는 조회
+   *
+   * @param roomRequestDto 채팅방 생성 요청 DTO
+   * @return 생성 또는 조회된 채팅방 ID와 함께 성공 응답 반환
+   */
+  @GetMapping("/rooms") // ModelAttribute
   public ResponseEntity<ApiResponse> createOrGet(
       @RequestBody @Valid RoomRequestDto roomRequestDto) {
     RoomIdResponseDto roomIdResponseDto = roomService.getOrCreate(roomRequestDto);
     return ResponseEntity.status(HttpStatus.OK)
-        .body(new ApiResponse("채팅방 생성or조회 완료", HttpStatus.OK.value(),
+        .body(new ApiResponse("채팅방 생성 or 조회 완료", HttpStatus.OK.value(),
             roomIdResponseDto));
   }
 }

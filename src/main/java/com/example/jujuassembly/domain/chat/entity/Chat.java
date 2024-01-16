@@ -30,23 +30,23 @@ public class Chat extends Timestamped {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private Long id;//chat 아이디
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(nullable = false)
-  private Room room;
+  private Room room;//채팅방
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(nullable = false)
-  private User sender;
+  private User sender;//chat을 보낸 사람
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(nullable = false)
-  private User receiver;
+  private User receiver;//chat을 받는 사람
 
   @Lob
   @Column(nullable = false)
-  private String content;
+  private String content;//채팅 내용
 
   public Chat(Room room, User sender, User receiver, String content) {
     this.room = room;

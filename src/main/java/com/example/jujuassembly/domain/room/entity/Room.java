@@ -32,19 +32,19 @@ public class Room extends Timestamped {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private Long id; //채팅방 id
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(nullable = false)
-  private User admin;
+  private User admin; //채팅방은 관리자와 유저가 대화한다고 가정하고 관리자
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(nullable = false)
-  private User user;
+  private User user;//대화할때 관리자가 아닌 유저
 
   @OneToMany(mappedBy = "room", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
   @OrderBy("createdAt desc")
-  private List<Chat> chats = new ArrayList<>();
+  private List<Chat> chats = new ArrayList<>();//채팅방 안의 채팅리스트
 
 
   public Room(User admin, User user) {
@@ -57,11 +57,11 @@ public class Room extends Timestamped {
       return admin;
     }
     return user;
-  }
+  }//채팅하는 상대방 가져오는 메서드
 
   public Chat getLatestChat() {
     return chats.get(0);
   }
-
+//chats의 0번째 인덱스 가져가는 메서드
 
 }

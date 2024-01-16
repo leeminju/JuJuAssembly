@@ -19,7 +19,12 @@ public class ChatController {
 
   private final ChatService chatService;
 
-  //유저의 최근 채팅 기록
+  /**
+   * 유저의 최근 채팅 기록 조회
+   *
+   * @param userId 사용자 ID
+   * @return 최근 채팅 기록과 함께 성공 응답 반환
+   */
   @GetMapping("/messages/{userId}")
   public ResponseEntity<ApiResponse<List<LatestChatResponseDto>>> findAllLatestChats(
       @PathVariable Long userId) {
@@ -29,12 +34,17 @@ public class ChatController {
             latestChatResponseDtoList));
   }
 
-  //채팅방의 채팅기록 가져오기
+  /**
+   * 채팅방의 채팅 기록 조회
+   *
+   * @param roomId 채팅방 ID
+   * @return 채팅방의 모든 채팅 기록과 함께 성공 응답 반환
+   */
   @GetMapping("/messages")
   public ResponseEntity<ApiResponse<List<ChatResponseDto>>> findAllChats(
       @RequestParam("roomId") Long roomId) {
     List<ChatResponseDto> chatResponseDtoList = chatService.findAllChats(roomId);
     return ResponseEntity.status(HttpStatus.OK)
-        .body(new ApiResponse("채팅방의 채팅기록 조회성공", HttpStatus.OK.value(), chatResponseDtoList));
+        .body(new ApiResponse("채팅방의 채팅 기록 조회 성공", HttpStatus.OK.value(), chatResponseDtoList));
   }
 }
