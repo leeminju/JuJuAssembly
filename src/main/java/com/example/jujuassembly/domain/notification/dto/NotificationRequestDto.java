@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class NotificationRequestDto {
 
@@ -19,6 +19,4 @@ public class NotificationRequestDto {
   private String content;
   private String url;
   private boolean isRead;
-
-
 }

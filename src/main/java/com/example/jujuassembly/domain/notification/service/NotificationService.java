@@ -95,8 +95,14 @@ public class NotificationService {
     String url =
         "/v1/categories/" + categoryId + "/products/" + productId + "#review-" + review.getId();
 
-    NotificationRequestDto requestDto = new NotificationRequestDto(user, review, content, url,
-        false);
+    NotificationRequestDto requestDto = NotificationRequestDto.builder()
+        .user(user)
+        .review(review)
+        .content(content)
+        .url(url)
+        .isRead(false)
+        .build();
+
     return new Notification(requestDto);
   }
 
