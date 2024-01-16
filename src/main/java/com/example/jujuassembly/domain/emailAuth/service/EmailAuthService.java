@@ -6,14 +6,11 @@ import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.mail.EmailService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
-import java.time.LocalDateTime;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +24,7 @@ public class EmailAuthService {
   private final PasswordEncoder passwordEncoder;
 
   public static final String LOGIN_ID_AUTHORIZATION_HEADER = "LoginIdAuth";
+  public static final String VERIFICATION_CODE_HEADER = "VerificationCode";
 
 
   /**
@@ -50,6 +48,47 @@ public class EmailAuthService {
     emailAuthRepository.save(
         new EmailAuth(loginId, nickname, email, passwordEncoder.encode(password),
             firstPreferredCategoryId, secondPreferredCategoryId, sentCode));
+  }
+
+  /**
+   * 사용자가 인증번호 입력시 사용되는 메서드
+   **/
+  public EmailAuth checkVerifyVerificationCode(String loginId, String verificationCode) {
+    // 가장 최근에 만들어진 인증 데이터 조회 (5분 이내 인증에 실패했을 경우 중복 생성 될 수 있음)
+    var emailAuthOptional = emailAuthRepository.findTopByLoginIdOrderByCreatedAtDesc(loginId);
+
+    if (emailAuthOptional.isEmpty()) {
+      throw new IllegalArgumentException("인증 가능한 loginId가 아닙니다.");
+    }
+    EmailAuth emailAuth = emailAuthOptional.get();
+
+    // 5분이 지났는지 검증
+    if (!redisTemplate.hasKey(loginId)) {
+      throw new ApiException("5분 초과, 다시 인증하세요", HttpStatus.REQUEST_TIMEOUT);
+    }
+
+    // 인증번호 일치하는지 확인
+    if (!emailAuth.getSentCode().equals(verificationCode)) {
+      throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
+    }
+
+    return emailAuth;
+  }
+
+  public void concludeEmailAuthentication(EmailAuth emailAuth, HttpServletResponse response) {
+    // 인증 정보 삭제
+    redisTemplate.delete(emailAuth.getLoginId());
+    // 데이터베이스에서 인증 정보 제거
+    emailAuthRepository.delete(emailAuth);
+    // 클라이언트 측 쿠키 삭제
+    removeLoginIdCookie(response);
+  }
+
+  private void removeLoginIdCookie(HttpServletResponse response) {
+    Cookie cookie = new Cookie(LOGIN_ID_AUTHORIZATION_HEADER, null);
+    cookie.setMaxAge(0);
+    cookie.setPath("/");
+    response.addCookie(cookie);
   }
 
   private String sendVerificationCode(String email) {
@@ -76,49 +115,6 @@ public class EmailAuthService {
     Random random = new Random();
     int code = 100000 + random.nextInt(900000);
     return String.valueOf(code);
-  }
-
-
-  /**
-   * 사용자가 인증번호 입력시 사용되는 메서드
-   **/
-  public EmailAuth checkVerifyVerificationCode(String loginId, String verificationCode) {
-    // 가장 최근에 만들어진 인증 데이터 조회 (5분 이내 인증에 실패했을 경우 중복 생성 될 수 있음)
-    var emailAuth = emailAuthRepository.findTopByLoginIdOrderByCreatedAtDesc(loginId)
-        .orElseThrow(()
-            -> new IllegalArgumentException("인증 가능한 loginId가 아닙니다."));
-
-    // 5분이 지났는지 검증
-    if (!redisTemplate.hasKey(loginId)) {
-      throw new ApiException("5분 초과, 다시 인증하세요", HttpStatus.REQUEST_TIMEOUT);
-    }
-
-    // 인증번호 일치하는지 확인
-    if (!emailAuth.getSentCode().equals(verificationCode)) {
-      throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
-    }
-
-    return emailAuth;
-  }
-
-  public void endEmailAuth(EmailAuth emailAuth, HttpServletResponse response) {
-    redisTemplate.delete(emailAuth.getLoginId());
-    emailAuthRepository.delete(emailAuth);
-    Cookie cookie = new Cookie(LOGIN_ID_AUTHORIZATION_HEADER, null);
-    cookie.setMaxAge(0);
-    cookie.setPath("/");
-    response.addCookie(cookie);
-  }
-
-  /**
-   * 스케쥴러
-   **/
-  // 이메일인증 5분 지났는데도 완료되지않은 데이터 삭제
-  @Transactional
-  @Scheduled(fixedRate = 5 * 60 * 1000) // 5분에 한번 작동
-  public void cleanupEmailAuth() {
-    LocalDateTime fiveMinAgo = LocalDateTime.now().minusMinutes(5);
-    emailAuthRepository.deleteByCreatedAtBefore(fiveMinAgo);
   }
 
 }

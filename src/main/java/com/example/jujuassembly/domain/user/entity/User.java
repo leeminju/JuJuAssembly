@@ -59,8 +59,11 @@ public class User extends Timestamped {
   @Enumerated(value = EnumType.STRING)
   private UserRoleEnum role; //user 역할
 
-  @Column
+  @Column(name = "image")
   private String image; //유저의 프로필 사진
+
+  @Column(name = "kakaoId")
+  private Long kakaoId;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "first_preferred_category_id")
@@ -93,6 +96,19 @@ public class User extends Timestamped {
     this.secondPreferredCategory = secondPreferredCategory;
   }
 
+  public User(String loginId, String nickname, String email, String password, Long kakaoId, String url) {
+    this.loginId = loginId;
+    this.nickname = nickname;
+    this.email = email;
+    this.password = password;
+    this.isArchived = false;
+    this.role = UserRoleEnum.USER;
+    this.firstPreferredCategory = null;
+    this.secondPreferredCategory = null;
+    this.kakaoId = kakaoId;
+    this.image = url;
+  }
+
   //유저 정보 수정
   public void updateUser(UserModifyRequestDto modifyRequestDto) {
     this.nickname = modifyRequestDto.getNickname();
@@ -117,5 +133,9 @@ public class User extends Timestamped {
     this.image = url;
   }
 
+  public User kakaoIdUpdate(Long kakaoId) {
+    this.kakaoId = kakaoId;
+    return this;
+  }
 
 }
