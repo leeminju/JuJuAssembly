@@ -119,6 +119,12 @@ public class UserController {
         .body(new ApiResponse("프로필 조회", HttpStatus.OK.value(), responseDto));
   }
 
+  /**
+   * 내 프로필 조회 API
+   *
+   * @param userDetails 인증된 사용자의 UserDetailsImpl
+   * @return 프로필조회 성공 여부를 담은 ApiResponse
+   */
   @GetMapping("/users/myprofile")
   public ResponseEntity<ApiResponse> viewMyProfile(
       @AuthenticationPrincipal UserDetailsImpl userDetails) {

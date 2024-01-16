@@ -11,6 +11,16 @@ public class PageController {
     return "index";
   }
 
+  @GetMapping("/mypage")
+  public String myPage() {
+    return "mypage";
+  }
+
+  @GetMapping("/userReview")
+  public String userReviewPage() {
+    return "userReview";
+  }
+
   @GetMapping("/login")
   public String loginPage() {
     return "login";
@@ -24,5 +34,25 @@ public class PageController {
   @GetMapping("/admin")
   public String adminPage() {
     return "admin";
+  }
+
+  @GetMapping("/admin/category")
+  public String categoryPage() {
+    return "category";
+  }
+
+  @GetMapping("/admin/chat")
+  public String chatPage() {
+    return "chat";
+  }
+
+  @GetMapping("/admin/product")
+  public String productPage() {
+    return "product";
+  }
+
+  @GetMapping("/admin/report")
+  public String reportPage() {
+    return "report";
   }
 }
