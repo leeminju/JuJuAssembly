@@ -29,7 +29,9 @@ import com.example.jujuassembly.global.EmailAuthUtil;
 import com.example.jujuassembly.global.jwt.JwtUtil;
 import com.example.jujuassembly.global.mail.EmailService;
 import com.example.jujuassembly.global.s3.S3Manager;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletResponse;
+import java.security.Key;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.DisplayName;
@@ -42,6 +44,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
@@ -203,6 +206,24 @@ public class UserServiceTest implements EmailAuthUtil {
 
     // setHeader 메서드가 JwtUtil.AUTHORIZATION_HEADER와 "mockedAccessToken"이라는 매개변수로 호출되었는지를 검증
     verify(mockResponse).setHeader(eq(JwtUtil.AUTHORIZATION_HEADER), eq("mockedAccessToken"));
+  }
+
+  @Test
+  @DisplayName("로그아웃 테스트")
+  void logoutTest() {
+    // given
+    jwtUtil = spy(new JwtUtil(redisTemplate));
+
+    String testLawKey = "주주총회로그아웃테스트를위한키값";
+    byte[] bytes = testLawKey.getBytes();
+    Key testKey = Keys.hmacShaKeyFor(bytes);
+
+    ReflectionTestUtils.setField(jwtUtil, JwtUtil.class, "key", testKey, Key.class);
+    String accessToken = jwtUtil.createAccessToken(TEST_USER_LOGINID);
+    HttpServletResponse response = mock(HttpServletResponse.class);
+
+    // when-then
+    assertEquals(true, jwtUtil.validateToken(accessToken.substring(7)));
   }
 
   @Test
