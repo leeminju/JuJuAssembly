@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
+import com.example.jujuassembly.domain.notification.service.NotificationService;
 import com.example.jujuassembly.domain.product.entity.Product;
 import com.example.jujuassembly.domain.product.repository.ProductRepository;
 import com.example.jujuassembly.domain.review.entity.Review;
@@ -43,6 +44,8 @@ class ReviewLikeServiceTest {
   UserRepository userRepository;
   @Mock
   ReviewLikeRepository reviewLikeRepository;
+  @Mock
+  NotificationService notificationService;
 
   @InjectMocks
   ReviewLikeService reviewLikeService;

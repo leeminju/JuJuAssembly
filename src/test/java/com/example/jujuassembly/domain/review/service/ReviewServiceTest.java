@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
+import com.example.jujuassembly.domain.notification.service.NotificationService;
 import com.example.jujuassembly.domain.product.entity.Product;
 import com.example.jujuassembly.domain.product.repository.ProductRepository;
 import com.example.jujuassembly.domain.review.dto.ReviewRequestDto;
@@ -55,6 +56,8 @@ class ReviewServiceTest {
   UserRepository userRepository;
   @Mock
   ReviewImageService reviewImageService;
+  @Mock
+  NotificationService notificationService;
 
   @InjectMocks
   ReviewService reviewService;
@@ -171,6 +174,7 @@ class ReviewServiceTest {
 
     //then
     verify(reviewRepository).delete(any(Review.class));
+    verify(notificationService).deleteNotificationsByReview(review);
   }
 
   @Test

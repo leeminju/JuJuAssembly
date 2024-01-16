@@ -39,16 +39,16 @@ import org.springframework.web.multipart.MultipartFile;
 public class ProductServiceTest {
 
   @Mock
-  private CategoryRepository categoryRepository;
+  CategoryRepository categoryRepository;
 
   @Mock
-  private ProductRepository productRepository;
+  ProductRepository productRepository;
 
   @Mock
-  private S3Manager s3Manager;
+  S3Manager s3Manager;
 
   @Mock
-  private Pageable pageable;
+  Pageable pageable;
 
 
   @InjectMocks
