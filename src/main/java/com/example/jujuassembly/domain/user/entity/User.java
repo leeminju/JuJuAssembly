@@ -137,5 +137,9 @@ public class User extends Timestamped {
     this.kakaoId = kakaoId;
     return this;
   }
+  public boolean hasSameId(Long id) {
+    return this.id.equals(id);
+  }
+
 
 }
