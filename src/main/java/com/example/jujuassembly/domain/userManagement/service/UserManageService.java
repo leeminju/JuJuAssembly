@@ -1,5 +1,6 @@
 package com.example.jujuassembly.domain.userManagement.service;
 
+import com.example.jujuassembly.domain.user.dto.UserDetailResponseDto;
 import com.example.jujuassembly.domain.user.dto.UserResponseDto;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
@@ -20,13 +21,13 @@ public class UserManageService {
 
 
   //전체 유저 조회
-  public List<UserResponseDto> viewAllUsers() {
+  public List<UserDetailResponseDto> viewAllUsers() {
 
     List<User> allUserList = userRepository.findAll();
-    List<UserResponseDto> allUserResponseDto = new ArrayList<>();
+    List<UserDetailResponseDto> allUserResponseDto = new ArrayList<>();
 
     allUserList.forEach(user -> {
-      var userDto = new UserResponseDto(user);
+      var userDto = new UserDetailResponseDto(user);
       allUserResponseDto.add(userDto);
     });
     return allUserResponseDto;

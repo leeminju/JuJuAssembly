@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 
 import com.example.jujuassembly.domain.category.entity.Category;
+import com.example.jujuassembly.domain.user.dto.UserDetailResponseDto;
 import com.example.jujuassembly.domain.user.dto.UserResponseDto;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
@@ -49,7 +50,7 @@ class UserManageServiceTest {
 
     when(userRepository.findAll()).thenReturn(mockUsers);
 
-    List<UserResponseDto> result = userManageService.viewAllUsers();
+    List<UserDetailResponseDto> result = userManageService.viewAllUsers();
 
     // then
     // assert that the size is equal
