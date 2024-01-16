@@ -76,7 +76,12 @@ public class UserController {
       HttpServletRequest request,
       HttpServletResponse response,
       @CookieValue(EmailAuthService.LOGIN_ID_AUTHORIZATION_HEADER) String loginId) {
-    UserResponseDto userResponseDto = userService.verificateCode(request, response, loginId);
+
+    String verificationCode = request.getHeader(EmailAuthService.VERIFICATION_CODE_HEADER);
+
+    UserResponseDto userResponseDto = userService.verificateCode(verificationCode, loginId);
+    emailAuthService.removeCookie(response);
+
     return ResponseEntity.ok()
         .body(new ApiResponse("회원가입 성공", HttpStatus.OK.value(), userResponseDto));
   }

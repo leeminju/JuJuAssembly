@@ -101,9 +101,8 @@ public class UserService {
     return loginId;
   }
 
-  public UserResponseDto verificateCode(HttpServletRequest request, HttpServletResponse response,
-      String loginId) {
-    String verificationCode = request.getHeader(EmailAuthService.VERIFICATION_CODE_HEADER);
+  public UserResponseDto verificateCode(String verificationCode, String loginId) {
+
     EmailAuth emailAuth = emailAuthService.checkVerifyVerificationCode(loginId, verificationCode);
     String nickname = emailAuth.getNickname();
     String email = emailAuth.getEmail();
@@ -119,7 +118,7 @@ public class UserService {
     userRepository.save(user);
 
     //인증 완료되면 임시 데이터 삭제
-    emailAuthService.concludeEmailAuthentication(emailAuth, response);
+    emailAuthService.concludeEmailAuthentication(emailAuth);
 
     return new UserResponseDto(user);
   }
