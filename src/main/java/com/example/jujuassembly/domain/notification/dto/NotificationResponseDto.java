@@ -29,14 +29,5 @@ public class NotificationResponseDto {
     this.read = notification.isRead();
   }
 
-//  public static NotificationResponseDto from(Notification notification) {
-//    return NotificationResponseDto.builder()
-//        .id(notification.getId())
-//        .content(notification.getContent())
-//        .url(notification.getUrl())
-//        .createdAt(notification.getCreatedAt())
-//        .read(notification.isRead())
-//        .build();
-//  }
 
 }
