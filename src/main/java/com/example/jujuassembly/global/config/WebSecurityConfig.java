@@ -64,6 +64,7 @@ public class WebSecurityConfig {
             .requestMatchers("/admin/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/v1/users/**").permitAll()
             .requestMatchers("/v1/auth/**").permitAll()
+            .requestMatchers("/ws-connection").permitAll()
             .anyRequest().authenticated() // 그 외 모든 요청 인증처리
     );
 
