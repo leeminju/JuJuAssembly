@@ -15,8 +15,9 @@
           integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
           crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
-  <link rel="stylesheet" href="/css/style.css">
   <script src="/js/admin_start.js"></script>
+  <link rel="stylesheet" href="../static/css/style.css">
+
 </head>
 <body>
 
@@ -56,7 +57,21 @@
 <h1>상품 등록</h1>
 <form id="productForm" enctype="multipart/form-data">
 
-  <input type="hidden" id="categoryId" name="categoryId" value="1"> <!--타임리프 문법으로 변경-->
+  <!--  <input type="hidden" id="categoryId" name="categoryId" value="1"> &lt;!&ndash;타임리프 문법으로 변경&ndash;&gt;-->
+
+
+  <div class="form-floating" style="margin-top: 20px">
+    <div class="categoryLabel">
+      <label for="categoryId">카테고리 </label>
+    </div>
+    <div class="categorySelect">
+      <select class="form-select" id="categoryId"
+              aria-label="Floating label select example" style="width: 200px;">
+        <option selected>카테고리를 선택해주세요</option>
+      </select>
+    </div>
+  </div>
+
 
   <p>
     <label for="name">상품:</label>
@@ -93,12 +108,97 @@
     <input type="file" id="image" name="image" accept="image/*" required>
   </p>
 
-  <p>
-    <!--    onclick="submitForm()"-->
-    <button type="submit" >등록</button>
-  </p>
 </form>
 
-<script src="/js/product.js"></script>
+ <p>
+    <button onclick="createProduct()">등록</button>
+ </p>
+
+
+
+
+<script>
+  var imageFile = null;
+  $(document).ready(function () {
+    getCategory();
+
+    $("#image").on("change", function (event) {
+      imageFile = event.target.files[0];
+    });
+  });
+
+  function getCategory() {
+    $.ajax({
+      type: "GET",
+      url: `/v1/categories`,
+      success: function (response) {
+        let categories = response['data'];
+        console.log(categories);
+        for (let i = 0; i < categories.length; i++) {
+          let category = categories[i];
+          let id = category['id'];
+          let name = category['name'];
+          let html = `<option value=${id}>${name}</option>`
+          $('#categoryId').append(html);
+        }
+      },
+      error(error, status, request) {
+
+      }
+    });
+
+  }
+
+
+  function createProduct(){
+    const name = $('#name').val();
+    const description = $('#description').val();
+    const price = $('#price').val();
+    const area = $('#area').val();
+    const company = $('#company').val();
+    const alcoholDegree = $('#alcoholDegree').val();
+    const categoryId = $('#categoryId').val();
+
+
+    const data = {
+      name: name,
+      description: description,
+      price: price,
+      area: area,
+      company: company,
+      alcoholDegree: alcoholDegree
+    }
+
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    formData.append("data", new Blob([JSON.stringify(data)], {type: "application/json"}));
+
+
+ //Ajax 요청 (jQuery 사용)
+    $.ajax({
+      url: '/v1/categories/' + categoryId + '/products',
+      method: 'POST',
+      data: formData,
+      enctype: "multipart/form-data",
+
+      contentType: false,
+      processData: false,
+      success: function (response) {
+        alert(response['msg']);
+        window.location.reload();
+      },
+      error: function (error) {
+        if (error['responseJSON']['data']) {
+          alert(JSON.stringify(error['responseJSON']['data']))
+        } else {
+          alert(error['responseJSON']['msg']);
+        }
+      }
+    });
+  }
+
+
+
+</script>
 </body>
 </html>
