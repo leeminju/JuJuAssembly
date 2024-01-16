@@ -94,11 +94,11 @@ public class UserService {
     emailAuthService.setSentCodeByLoginIdAtRedis(loginId, sentCode);
 
     // 재입력 방지를 위해 DB에 입력된 데이터를 임시 저장
-    emailAuthRepository.save(
+    EmailAuth emailAuth = emailAuthRepository.save(
         new EmailAuth(loginId, nickname, email, passwordEncoder.encode(password),
             firstPreferredCategoryId, secondPreferredCategoryId, sentCode));
 
-    return loginId;
+    return emailAuth.getLoginId();
   }
 
   public UserResponseDto verificateCode(String verificationCode, String loginId) {
