@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -31,12 +30,12 @@ import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.global.exception.ApiException;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,7 +45,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter.DataWithMediaType;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEventBuilder;
@@ -54,27 +52,21 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEvent
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-@AutoConfigureMockMvc // MockMvc를 사용하기 위한 설정
 public class NotificationServiceTest {
 
   @Mock
-  SseEmitter emitter;
+  SseEmitter emitter1;
+  @Mock
+  SseEmitter emitter2;
   @Mock
   EmitterRepository emitterRepository;
   @Mock
   NotificationRepository notificationRepository;
-
   @Mock
   User user;
   @InjectMocks
   NotificationService notificationService;
 
-//  @BeforeEach
-//  public void setUp() {
-//    // Mockito 어노테이션을 사용한 모의 객체 초기화
-//    MockitoAnnotations.openMocks(this);
-//
-//  }
 
   @Test
   @DisplayName("사용자가 SSE를 통해 알림을 실시간으로 받을 수 있게 설정하는 메서드의 테스트")
@@ -160,7 +152,8 @@ public class NotificationServiceTest {
     Object data = "Test data";
 
     // Act
-    NotificationService notificationService = new NotificationService(emitterRepository, notificationRepository);
+    NotificationService notificationService = new NotificationService(emitterRepository,
+        notificationRepository);
     notificationService.sendToClient(emitter, id, data);
 
     // Assert
@@ -168,108 +161,104 @@ public class NotificationServiceTest {
     verify(emitterRepository, never()).deleteById(anyString());
   }
 
-//  @Test
-//  @DisplayName("SseEmitter를 통해 클라이언트에게 예외 발생시키고 예외 처리하는 테스트")
-//  public void testSendToClientWithException() throws IOException {
-//    // Arrange
-//    SseEmitter emitter = mock(SseEmitter.class);
-//    String id = "1";
-//    Object data = "Test data";
-//
-//    // Mock 객체의 동작 설정: emitter.send() 메서드가 예외를 던지도록 설정
-//    doThrow(new IOException("Test exception")).when(emitter).send(any(SseEmitter.SseEventBuilder.class));
-//
-//    // EmitterRepository 목 객체 생성
-//    EmitterRepository emitterRepository = mock(EmitterRepository.class);
-//
-//    // NotificationService 객체 생성 및 EmitterRepository 주입
-//    NotificationService notificationService = new NotificationService(emitterRepository, notificationRepository);
-//
-//    // Act & Assert: ApiException이 발생하는지 확인
-//    ApiException exception = assertThrows(ApiException.class, () -> {
-//      notificationService.sendToClient(emitter, id, data);
-//    });
-//
-//    // ApiException이 발생한 경우에만 메시지 검증 수행
-//    if (exception != null) {
-//      // ApiException의 메시지 검증
-//      String expectedErrorMessage = "SSE 연결에 오류가 발생하였습니다.";
-//      String actualErrorMessage = exception.getMessage();
-//      assertNotNull(actualErrorMessage);
-//      assertTrue(actualErrorMessage.contains(expectedErrorMessage));
-//    }
-//
-//    // ApiException이 발생하면 아래 코드가 실행되지 않을 것입니다.
-//    // emitterRepository.deleteById()가 호출되었는지 검증
-//    verify(emitterRepository, times(1)).deleteById(eq(id));
-//  }
+  @Test
+  @DisplayName("SseEmitter를 통해 클라이언트에게 예외 발생시키고 예외 처리하는 테스트")
+  public void testSendToClientWithException() throws IOException {
+    // Arrange
+    SseEmitter emitter = mock(SseEmitter.class);
+    String id = "1";
+    Object data = "Test data";
+
+    // Mock 객체의 동작 설정: emitter.send() 메서드가 예외를 던지도록 설정
+    doThrow(new IOException("Test exception")).when(emitter)
+        .send(any(SseEmitter.SseEventBuilder.class));
+
+    // EmitterRepository 목 객체 생성
+    EmitterRepository emitterRepository = mock(EmitterRepository.class);
+
+    // NotificationService 객체 생성 및 EmitterRepository 주입
+    NotificationService notificationService = new NotificationService(emitterRepository,
+        notificationRepository);
+
+    // Act & Assert: ApiException이 발생하는지 확인
+    ApiException exception = assertThrows(ApiException.class, () -> {
+      notificationService.sendToClient(emitter, id, data);
+    });
+
+    // ApiException이 발생한 경우에만 메시지 검증 수행
+    if (exception != null) {
+      // ApiException의 메시지 검증
+      String expectedErrorMessage = "SSE 연결에 오류가 발생하였습니다.";
+      String actualErrorMessage = exception.getMsg();
+      assertNotNull(actualErrorMessage);
+      assertTrue(actualErrorMessage.contains(expectedErrorMessage));
+    }
+
+    // ApiException이 발생하면 아래 코드가 실행되지 않을 것입니다.
+    // emitterRepository.deleteById()가 호출되었는지 검증
+    verify(emitterRepository, times(1)).deleteById(eq(id));
+  }
 
 
+  @Test
+  @DisplayName("사용자에게 새 알림을 생성하고 저장한 후, 해당 사용자의 모든 SSE 연결에 이 알림을 전송하는 테스트")
+  void send() throws IOException {
+    // User 객체 생성
+    User user = User.builder()
+        .id(1L)
+        .build();
 
-//@Test
-//@DisplayName("사용자에게 새 알림을 생성하고 저장한 후, 해당 사용자의 모든 SSE 연결에 이 알림을 전송하는 테스트")
-//void send() {
-//  // User 객체 생성
-//  User user = User.builder()
-//      .id(1L)
-//      .build();
-//
-//  // Category 객체 생성
-//  Category category = Category.builder()
-//      .id(10L)
-//      .name("TestCategory")
-//      .build();
-//
-//  // Product 객체 생성
-//  Product product = Product.builder()
-//      .id(100L)
-//      .category(category) // Category 객체 연결
-//      .name("TestProduct")
-//      .build();
-//
-//  // Review 객체 생성
-//  Review review = Review.builder()
-//      .id(1000L)
-//      .product(product) // Product 객체 연결
-//      .build();
-//
-//  String content = "New notification content";
-//
-//  Notification notification = Notification.builder()
-//      .user(user)
-//      .review(review)
-//      .content(content)
-//      .build();
-//
-//  // notificationRepository.save() 메서드의 동작 설정
-//  when(notificationRepository.save(any(Notification.class))).thenReturn(notification);
-//
-//  // emitterRepository.findAllStartWithById() 메서드의 동작 설정
-//  Map<String, SseEmitter> sseEmittersForUser1 = new HashMap<>();
-//  SseEmitter emitter1 = new SseEmitter();
-//  SseEmitter emitter2 = new SseEmitter();
-//  sseEmittersForUser1.put("1", emitter1);
-//  sseEmittersForUser1.put("2", emitter2);
-//
-//  when(emitterRepository.findAllStartWithById(eq("1"))).thenReturn(sseEmittersForUser1);
-//  when(emitterRepository.findAllStartWithById(eq("2"))).thenReturn(Collections.emptyMap());
-//
-//  // 테스트할 메서드 호출
-//  notificationService.send(user, review, content);
-//
-//  // notificationRepository.save() 메서드가 호출되었는지 검증
-//  verify(notificationRepository, times(1)).save(any(Notification.class));
-//
-//  // emitterRepository.saveEventCache() 메서드가 각 SSE 연결에 대해 호출되었는지 검증
-//  verify(emitterRepository, times(1)).saveEventCache(eq("1"), eq(notification));
-//  verify(emitterRepository, times(1)).saveEventCache(eq("2"), eq(notification));
-//
-//  // sendToClient() 메서드가 각 SSE 연결에 대해 호출되었는지 검증
-//  verify(notificationService, times(1)).sendToClient(eq(emitter1), eq("1"), any(NotificationResponseDto.class));
-//  verify(notificationService, times(1)).sendToClient(eq(emitter2), eq("2"), any(NotificationResponseDto.class));
-//}
+    // Category 객체 생성
+    Category category = Category.builder()
+        .id(10L)
+        .name("TestCategory")
+        .build();
 
+    // Product 객체 생성
+    Product product = Product.builder()
+        .id(100L)
+        .category(category) // Category 객체 연결
+        .name("TestProduct")
+        .build();
 
+    // Review 객체 생성
+    Review review = Review.builder()
+        .id(1000L)
+        .product(product) // Product 객체 연결
+        .build();
+
+    String content = "New notification content";
+
+    Notification notification = Notification.builder()
+        .user(user)
+        .review(review)
+        .content(content)
+        .build();
+
+    // notificationRepository.save() 메서드의 동작 설정
+    when(notificationRepository.save(any(Notification.class))).thenReturn(notification);
+
+    // emitterRepository.findAllStartWithById() 메서드의 동작 설정
+    Map<String, SseEmitter> sseEmittersForUser1 = new HashMap<>();
+    sseEmittersForUser1.put("1", emitter1);
+    sseEmittersForUser1.put("2", emitter2);
+
+    when(emitterRepository.findAllStartWithById(eq("1"))).thenReturn(sseEmittersForUser1);
+    when(emitterRepository.findAllStartWithById(eq("2"))).thenReturn(Collections.emptyMap());
+
+    // 테스트할 메서드 호출
+    notificationService.send(user, review, content);
+
+    // notificationRepository.save() 메서드가 호출되었는지 검증
+    verify(notificationRepository, times(1)).save(any(Notification.class));
+
+    // emitterRepository의 메서드 호출 검증
+    verify(emitterRepository, times(1)).findAllStartWithById(anyString());
+    verify(emitterRepository, times(2)).saveEventCache(anyString(), any(Notification.class));
+
+    verify(emitter1, times(1)).send(any(SseEmitter.SseEventBuilder.class));
+    verify(emitter2, times(1)).send(any(SseEmitter.SseEventBuilder.class));
+  }
 
 
   @Test
@@ -311,64 +300,66 @@ public class NotificationServiceTest {
     // isRead 필드 검증 (기본값은 false 여야 함)
     assertFalse(notification.isRead());
   }
-//
-@Test
-@DisplayName("모든 알림 조회 테스트")
-void findAllByIdTest() {
-  // 가상 데이터 생성
-  User user = User.builder()
-      .id(1L)
-      .build();
 
-  Category category = Category.builder()
-      .id(10L)
-      .build();
+  @Test
+  @DisplayName("모든 알림 조회 테스트")
+  void findAllByIdTest() {
+    // 가상 데이터 생성
+    User user = User.builder()
+        .id(1L)
+        .build();
 
-  Product product = Product.builder()
-      .id(100L)
-      .category(category)
-      .build();
+    Category category = Category.builder()
+        .id(10L)
+        .build();
 
-  Review review = Review.builder()
-      .id(1000L)
-      .product(product)
-      .build();
-  String content = "Test Notification Content";
+    Product product = Product.builder()
+        .id(100L)
+        .category(category)
+        .build();
 
-  // 알림 생성을 위한 NotificationRequestDto 생성
-  NotificationRequestDto requestDto = new NotificationRequestDto(user, review, content, "URL", true);
+    Review review = Review.builder()
+        .id(1000L)
+        .product(product)
+        .build();
+    String content = "Test Notification Content";
 
-  // NotificationRequestDto를 사용하여 알림 생성
-  Notification notification1 = new Notification(requestDto);
-  Notification notification2 = new Notification(requestDto);
-  Notification notification3 = new Notification(requestDto);
+    // 알림 생성을 위한 NotificationRequestDto 생성
+    NotificationRequestDto requestDto = new NotificationRequestDto(user, review, content, "URL",
+        true);
 
-  // Mock 객체 설정: NotificationRepository의 findAllByUserId 메서드 호출 시 알림 목록 반환
-  List<Notification> notifications = Arrays.asList(notification1, notification2, notification3);
-  when(notificationRepository.findAllByUserId(user.getId())).thenReturn(notifications);
+    // NotificationRequestDto를 사용하여 알림 생성
+    Notification notification1 = new Notification(requestDto);
+    Notification notification2 = new Notification(requestDto);
+    Notification notification3 = new Notification(requestDto);
 
-  // 테스트 대상 메서드 호출
-  NotificationsResponseDto responseDto = notificationService.findAllById(user);
+    // Mock 객체 설정: NotificationRepository의 findAllByUserId 메서드 호출 시 알림 목록 반환
+    List<Notification> notifications = Arrays.asList(notification1, notification2, notification3);
+    when(notificationRepository.findAllByUserId(user.getId())).thenReturn(notifications);
 
-  // 결과 검증
-  assertEquals(notifications.size(), responseDto.getNotificationResponses().size()); // 알림 목록 크기가 일치해야 함
-  assertEquals(0, responseDto.getUnreadCount()); // 읽지 않은 알림 수는 0이어야 함
+    // 테스트 대상 메서드 호출
+    NotificationsResponseDto responseDto = notificationService.findAllById(user);
 
-  // UserRepository의 findAllByUserId 메서드가 1번 호출되었는지 검증
-  verify(notificationRepository, times(1)).findAllByUserId(user.getId());
+    // 결과 검증
+    assertEquals(notifications.size(),
+        responseDto.getNotificationResponses().size()); // 알림 목록 크기가 일치해야 함
+    assertEquals(0, responseDto.getUnreadCount()); // 읽지 않은 알림 수는 0이어야 함
 
-  // Mock 객체를 통해 반환한 알림 목록과 ResponseDto의 알림 목록을 비교하여 확인
-  List<NotificationResponseDto> responseNotifications = responseDto.getNotificationResponses();
-  assertEquals(notifications.size(), responseNotifications.size());
+    // UserRepository의 findAllByUserId 메서드가 1번 호출되었는지 검증
+    verify(notificationRepository, times(1)).findAllByUserId(user.getId());
 
-  for (int i = 0; i < notifications.size(); i++) {
-    Notification notification = notifications.get(i);
-    NotificationResponseDto responseNotification = responseNotifications.get(i);
+    // Mock 객체를 통해 반환한 알림 목록과 ResponseDto의 알림 목록을 비교하여 확인
+    List<NotificationResponseDto> responseNotifications = responseDto.getNotificationResponses();
+    assertEquals(notifications.size(), responseNotifications.size());
 
-    //  알림 내용(content)이 일치하는 지 확인
-    assertEquals(notification.getContent(), responseNotification.getContent());
+    for (int i = 0; i < notifications.size(); i++) {
+      Notification notification = notifications.get(i);
+      NotificationResponseDto responseNotification = responseNotifications.get(i);
+
+      //  알림 내용(content)이 일치하는 지 확인
+      assertEquals(notification.getContent(), responseNotification.getContent());
+    }
   }
-}
 
   @Test
   @DisplayName("지정된 ID의 알림을 찾아 '읽음' 상태로 변경 테스트")
