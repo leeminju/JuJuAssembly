@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -15,6 +16,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
+import com.example.jujuassembly.domain.emailAuth.entity.EmailAuth;
 import com.example.jujuassembly.domain.emailAuth.repository.EmailAuthRepository;
 import com.example.jujuassembly.domain.emailAuth.service.EmailAuthService;
 import com.example.jujuassembly.domain.user.dto.LoginRequestDto;
@@ -28,6 +30,7 @@ import com.example.jujuassembly.global.EmailAuthUtil;
 import com.example.jujuassembly.global.jwt.JwtUtil;
 import com.example.jujuassembly.global.mail.EmailService;
 import com.example.jujuassembly.global.s3.S3Manager;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -100,15 +103,18 @@ public class UserServiceTest implements EmailAuthUtil {
 
     when(categoryRepository.getById(anyLong())).thenReturn(TEST_CATEGORY);
 
+    doNothing().when(emailService).sendEmail(anyString(), anyString(), anyString());
+
     when(redisTemplate.opsForValue()).thenReturn(valueOperations);
     doNothing().when(valueOperations).set(anyString(), anyString(), anyLong(), any(TimeUnit.class));
 
-    userService.signup(signupRequestDto, mock(HttpServletResponse.class));
+    when(emailAuthRepository.save(any(EmailAuth.class))).thenReturn(TEST_EMAILAUTH);
+
+    //signup 메서드 실행
+    String result = userService.signup(signupRequestDto);
 
     // then
-    verify(emailAuthService, times(1))
-        .checkAndSendVerificationCode(anyString(), anyString(), anyString(), anyString(), anyLong(),
-            anyLong(), any(HttpServletResponse.class));
+    assertEquals(TEST_USER_LOGINID, result);
   }
 
 //  @DisplayName("인증번호로 회원가입 테스트")
