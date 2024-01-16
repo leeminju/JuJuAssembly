@@ -199,9 +199,18 @@ public class UserController {
   public ResponseEntity<ApiResponse> deleteAccount(
       @PathVariable Long userId,
       HttpServletRequest request,
+      HttpServletResponse response,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+    // 회원탈퇴
     String password = request.getHeader("Password");
     userService.deleteAccount(userId, password, userDetails);
+
+    // 로그아웃
+    String accessToken = request.getHeader(JwtUtil.AUTHORIZATION_HEADER);
+    userService.logout(accessToken, response);
+    response.setHeader(JwtUtil.AUTHORIZATION_HEADER, "account-deleted");
+
     return ResponseEntity.ok().body(new ApiResponse("회원 탈퇴 성공", HttpStatus.OK.value()));
   }
 
