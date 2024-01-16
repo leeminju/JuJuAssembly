@@ -52,24 +52,24 @@ public class UserService {
     Long secondPreferredCategoryId = signupRequestDto.getSecondPreferredCategoryId();
 
     // id, nickname, email 중복 검증
-    if (!userRepository.findByLoginId(loginId).isEmpty()) {
+    if (userRepository.findByLoginId(loginId).isPresent()) {
       throw new ApiException("중복된 loginId 입니다.", HttpStatus.BAD_REQUEST);
     }
-    if (!userRepository.findByNickname(nickname).isEmpty()) {
+    if (userRepository.findByNickname(nickname).isPresent()) {
       throw new ApiException("중복된 nickname 입니다.", HttpStatus.BAD_REQUEST);
     }
-    if (!userRepository.findByEmail(email).isEmpty()) {
+    if (userRepository.findByEmail(email).isPresent()) {
       throw new ApiException("중복된 email 입니다.", HttpStatus.BAD_REQUEST);
     }
 
     // 회원가입을 하고있는(인증번호 확인중인 상태) id, nickname, email 중복 검증
-    if (!emailAuthRepository.findByLoginId(loginId).isEmpty()) {
+    if (emailAuthRepository.findByLoginId(loginId).isPresent()) {
       throw new ApiException("현재 회원가입 중인 loginId 입니다.", HttpStatus.BAD_REQUEST);
     }
-    if (!emailAuthRepository.findByNickname(nickname).isEmpty()) {
+    if (emailAuthRepository.findByNickname(nickname).isPresent()) {
       throw new ApiException("현재 회원가입 중인 nickname 입니다.", HttpStatus.BAD_REQUEST);
     }
-    if (!emailAuthRepository.findByEmail(email).isEmpty()) {
+    if (emailAuthRepository.findByEmail(email).isPresent()) {
       throw new ApiException("현재 회원가입중인 email 입니다.", HttpStatus.BAD_REQUEST);
     }
 
@@ -91,8 +91,9 @@ public class UserService {
         firstPreferredCategoryId, secondPreferredCategoryId, response);
   }
 
-  public UserResponseDto verificateCode(String verificationCode, String loginId,
-      HttpServletResponse response) {
+  public UserResponseDto verificateCode(HttpServletRequest request, HttpServletResponse response,
+      String loginId) {
+    String verificationCode = request.getHeader(EmailAuthService.VERIFICATION_CODE_HEADER);
     EmailAuth emailAuth = emailAuthService.checkVerifyVerificationCode(loginId, verificationCode);
     String nickname = emailAuth.getNickname();
     String email = emailAuth.getEmail();
@@ -108,7 +109,7 @@ public class UserService {
     userRepository.save(user);
 
     //인증 완료되면 임시 데이터 삭제
-    emailAuthService.endEmailAuth(emailAuth, response);
+    emailAuthService.concludeEmailAuthentication(emailAuth, response);
 
     return new UserResponseDto(user);
   }
