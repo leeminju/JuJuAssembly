@@ -64,7 +64,7 @@ function changeRole(userId, role) {
     , data: JSON.stringify({"userRole": role})
     , success: function (response) {
       alert(response['msg']);
-      window.location.reload();
+      //window.location.reload();
     }, error(error, status, request) {
       console.log(error);
     }
