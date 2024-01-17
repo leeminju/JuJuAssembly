@@ -95,7 +95,7 @@ public class ReportController {
   /**
    * 특정 카테고리별 제보 상품 리스트를 조회합니다.(관리자)
    *
-   * @param userId   사용자 ID
+   * @param categoryId   카테고리 ID
    * @param pageable 페이지네이션 정보 (기본값: 페이지 크기 10, 생성일 기준 내림차순 정렬)
    * @return ResponseEntity<ApiResponse> 객체
    */
