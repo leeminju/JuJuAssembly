@@ -18,6 +18,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -42,6 +43,7 @@ public class UserController {
   private final UserService userService;
   private final KakaoService kakaoService;
   private final EmailAuthService emailAuthService;
+  private final JwtUtil jwtUtil;
 
   /**
    * 회원가입, 이메일 발송
@@ -221,9 +223,18 @@ public class UserController {
   public ResponseEntity<ApiResponse> kakaoLogin(
       @RequestParam String code,
       HttpServletResponse response) throws JsonProcessingException {
-    UserResponseDto userResponseDto = kakaoService.kakaoLogin(code, response);
-    return ResponseEntity.ok()
-        .body(new ApiResponse("카카오 로그인 성공", HttpStatus.OK.value(), userResponseDto));
+
+    String accessToken = kakaoService.kakaoLogin(code, response);
+
+    Cookie cookie = jwtUtil.addJwtToCookie(accessToken);
+    response.addCookie(cookie);
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.add(JwtUtil.AUTHORIZATION_HEADER, accessToken);
+
+    return ResponseEntity.status(HttpStatus.FOUND)
+        .header(HttpHeaders.LOCATION, "/")
+        .body(new ApiResponse("카카오 로그인 성공 및 리다이렉트", HttpStatus.FOUND.value()));
   }
 
 

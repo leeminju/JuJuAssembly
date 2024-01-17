@@ -32,6 +32,10 @@
     </button>
     </span></div>
     <button id="login-id-submit" onclick="onLogin()">로그인</button>
+    <button id="login-kakao-btn"
+            onclick="location.href='https://kauth.kakao.com/oauth/authorize?client_id=384eb140b7adc777306aa35e86b7fa7f&redirect_uri=http://localhost:8080/v1/auth/kakao/callback&response_type=code'">
+    카카오로 로그인하기
+    </button>
   </div>
   <div id="login-failed" style="display:none" class="alert alert-danger" role="alert"></div>
 </div>
