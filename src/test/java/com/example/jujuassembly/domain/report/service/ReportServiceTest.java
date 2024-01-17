@@ -2,6 +2,7 @@ package com.example.jujuassembly.domain.report.service;
 
 import static com.example.jujuassembly.domain.report.entity.StatusEnum.ADOPTED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -93,9 +94,36 @@ class ReportServiceTest {
     assertEquals(expectReport.getImage(), resultReport.getImage());
     assertEquals(expectReport.getStatus(), resultReport.getStatus());
   }
+  @Test
+  @DisplayName("전체 제보 상품 조회 테스트")
+  void getAllReportsTest() {
+    // 가짜 데이터 생성
+    Long userId = 1L;
+    CategoryRequestDto requestDto = CategoryRequestDto.builder().name("카테고리").build();
+    Category category = new Category(requestDto);
+    category.builder().image("imageurl").id(1L).build();
+    User user = User.builder().id(1L).nickname("이름").email("이메일").build();
+    Report report = Report.builder().id(1L).name("제보이름").user(user).category(category).build();
+    // 가짜 페이지네이션 데이터 생성
+    Pageable pageable = PageRequest.of(0, 10);
+    List<Report> fakeReports = Arrays.asList(report);
+    Page<Report> fakePage = new PageImpl<>(fakeReports, pageable, fakeReports.size());
+
+    // Mockito를 사용하여 findAll 메서드 호출시 가짜 데이터 반환하도록 설정
+    when(reportRepository.findAll(pageable)).thenReturn(fakePage);
+
+    // 테스트 실행
+    Page<ReportResponseDto> result = reportService.getAllReports(pageable);
+
+    // 결과 검증
+    assertNotNull(result);
+    assertEquals(fakeReports.size(), result.getContent().size());
+    // 여기에서 필요한 추가적인 검증을 수행할 수 있습니다.
+    assertEquals(fakeReports.get(0).getName(),result.getContent().get(0).getName());
+  }
 
   @Test
-  @DisplayName("제보 상품 조회 테스트")
+  @DisplayName("유저별 제보 상품 조회 테스트")
   void getReportsTest() {
     // Mock 데이터 생성
     Long userId = 1L;
@@ -114,7 +142,7 @@ class ReportServiceTest {
 //    when(reportRepository.findByUserId(userId)).thenReturn(Optional.of(report2));
 
     // 테스트할 메서드 호출
-    Page<ReportResponseDto> result = reportService.getReports(userId, pageable);
+    Page<ReportResponseDto> result = reportService.getUserReports(userId, pageable);
 
     // 예상 결과와 실제 결과 비교
 
@@ -133,6 +161,36 @@ class ReportServiceTest {
 
     // reportRepository.findAllByUserId() 메서드가 1번 호출되었는지 검증
     verify(reportRepository, times(1)).findAllByUserId(userId, pageable);
+  }
+
+  @Test
+  @DisplayName("카테고리별 제보 상품 조회 테스트")
+  void getReportsByCateogyIdTest() {
+    // 가짜 데이터 생성
+    Long categoryId = 1L;
+    Category category = Category.builder().id(categoryId).image("imageurl").id(1L).build();
+    User user = User.builder().id(1L).nickname("이름").email("이메일").build();
+    Report report = Report.builder().id(1L).name("제보이름").user(user).category(category).build();
+
+
+    // 가짜 페이지네이션 데이터 생성
+    Pageable pageable = PageRequest.of(0, 10);
+
+    // 가짜 카테고리별 제보 상품 데이터 생성
+    List<Report> fakeReports = Arrays.asList(report);
+    Page<Report> fakePage = new PageImpl<>(fakeReports, pageable, fakeReports.size());
+
+    // Mockito를 사용하여 findAllByCategoryId 메서드 호출시 가짜 데이터 반환하도록 설정
+    when(reportRepository.findAllByCategoryId(categoryId, pageable)).thenReturn(fakePage);
+
+    // 테스트 실행
+    Page<ReportResponseDto> result = reportService.getReportsByCategoryId(categoryId, pageable);
+
+    // 결과 검증
+    assertNotNull(result);
+    assertEquals(fakeReports.size(), result.getContent().size());
+    // 여기에서 필요한 추가적인 검증을 수행할 수 있습니다.
+    assertEquals(fakeReports.get(0).getName(),result.getContent().get(0).getName());
   }
 
   @Test
