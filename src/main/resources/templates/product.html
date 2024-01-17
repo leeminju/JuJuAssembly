@@ -112,11 +112,13 @@
 
 
 <div class="category">
-
   <ul id="category_menu" class="nav nav-pills">
   </ul>
+
   <div id="product_container">
   </div>
+
+</div>
 
 </div>
 
@@ -130,59 +132,6 @@
       imageFile = event.target.files[0];
     });
   });
-
-  function getCategory() {
-    $.ajax({
-      type: "GET",
-      url: `/v1/categories`,
-      success: function (response) {
-        let categories = response['data'];
-        console.log(categories);
-        for (let i = 0; i < categories.length; i++) {
-          let category = categories[i];
-          let id = category['id'];
-          let name = category['name'];
-          let image = category['image'];
-          let html = `<option value=${id}>${name}</option>`
-          let menu_html =  `<li class="nav-item" >
-                    <a href="#" class="nav-link">
-                        <img src="${image}" style="object-fit: cover; width: 150px; height: 200px;">
-                        <div style="color: black;">
-                            ${name}
-                        </div>
-                    </a>
-                </li>`;
-
-/*
-          let product_html =
-              `<div className="col">
-                  <div className="card shadow-sm">
-                  <img src="${image}" style=" object-fit:cover; width:150px; height:200px;">
-                              <div style="color: black;">
-                      <text x="50%" y="50%" fill="#eceeef" dy=".3em">${product}</text>
-                    <div className="card-body">
-                    <div className="d-flex justify-content-between align-items-center">
-                        <div className="btn-group">
-                          <button type="button" className="btn btn-sm btn-outline-secondary">View
-                          </button>
-                          <button type="button" className="btn btn-sm btn-outline-secondary">Edit
-                          </button>
-                        </div>
-                  </div>
-                </div>
-              </div>`*/
-
-          $('#category_menu').append(menu_html);
-       /*   $('#product_container').append(product_html);*/
-          $('#categoryId').append(html);
-        }
-      },
-      error(error, status, request) {
-
-      }
-    });
-
-  }
 
   function createProduct() {
     const name = $('#name').val();
@@ -228,6 +177,76 @@
       }
     });
   }
+
+  function getCategory() {
+    $.ajax({
+      type: "GET",
+      url: `/v1/categories`,
+      success: function (response) {
+        let categories = response['data'];
+        console.log(categories);
+
+        for (let i = 0; i < categories.length; i++) {
+          let category = categories[i];
+          let id = category['id'];
+          let name = category['name'];
+          let image = category['image'];
+
+          let html = `<option value=${id}> ${name} </option>`
+
+          let menu_html = `<li onclick="location.href='/admin/categories/${id}/products'"  >
+                    <a href="#" class="nav-link">
+                        <img src="${image}" style="object-fit: cover; width: 150px; height: 200px;">
+                        <div style="color: black;">
+                            ${name}
+                        </div>
+                    </a>
+                </li>`;
+
+          $('#category_menu').append(menu_html);
+          //$('#product_container').append(product_html);
+          $('#categoryId').append(html);
+        }
+      },
+      error(error, status, request) {
+
+      }
+    });
+
+  }
+
+  /*  function showProductByCategory() {
+      $.ajax({
+        type: "GET",
+        url: `/v1/categories/1/products`,
+        success: function (response) {
+          let products = response['data'];
+          console.log(products);
+          for (let i = 0; i < products.length; i++) {
+            let product = products[i];
+            let name = product['name'];
+            let image = product['image'];
+            let description = product['description'];
+
+            let html = `<option value=${name}> ${name} </option>`
+            let product_html = `<li class="nav-item" >
+                      <a href="#" class="nav-link">
+                          <img src="${image}" style="object-fit: cover; width: 150px; height: 200px;">
+                          <div style="color: black;">
+                              ${name}
+                              ${description}
+                          </div>
+                      </a>
+                  </li>`;
+
+            $('#product_container').append(product_html);
+            $('#categoryId').append(html);
+          }
+        },
+        error(error, status, request) {
+        }
+      });
+    }*/
 
 
 </script>
