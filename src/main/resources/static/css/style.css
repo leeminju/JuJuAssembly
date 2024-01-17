@@ -1,3 +1,4 @@
+
 #card-box {
     width: 80%;
     margin: 20px auto 0px auto;
@@ -55,13 +56,22 @@ body {
     object-fit: cover;
     border: none;
     background-color: transparent !important;
-    background-image: url("/images/empty.png");
+    background-image: url("/static/images/default_user_image.png");
     transition-duration: 0.3ms;
     transition: transform 0.3s ease-in-out;
 }
 
 .form-outline {
     padding: 10px;
+}
+
+form {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.form-floating {
+    margin-top: 20px;
 }
 
 #commentarea {
@@ -81,6 +91,11 @@ body {
 .input_comment {
     width: 100%;
 }
+.categoryLabel, .categorySelect {
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
 
 .footer {
     width: 50px;
@@ -375,6 +390,10 @@ body {
     /*the container must be positioned relative:*/
     position: relative;
     display: inline-block;
+}
+
+.container {
+    max-width: 1200px;
 }
 
 .alert-danger {

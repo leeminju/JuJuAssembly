@@ -1,6 +1,7 @@
 package com.example.jujuassembly.domain.review.service;
 
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
+import com.example.jujuassembly.domain.notification.service.NotificationService;
 import com.example.jujuassembly.domain.product.entity.Product;
 import com.example.jujuassembly.domain.product.repository.ProductRepository;
 import com.example.jujuassembly.domain.review.dto.ReviewRequestDto;
@@ -28,6 +29,7 @@ public class ReviewService {
   private final ReviewRepository reviewRepository;
   private final UserRepository userRepository;
   private final ReviewImageService reviewImageService;
+  private final NotificationService notificationService;
 
   @Transactional
   public ReviewResponseDto createProductsReview(Long categoryId, Long productId,
@@ -88,6 +90,9 @@ public class ReviewService {
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
     Review review = reviewRepository.getById(reviewId);
     checkReviewProductAndProductIdEquality(review, productId);
+
+    // 해당 리뷰에 대한 모든 알림 삭제
+    notificationService.deleteNotificationsByReview(review);
 
     //기존의 파일 모두 삭제
     reviewRepository.delete(review);
