@@ -25,19 +25,20 @@ public class AuthorizationAspect {
   private final ReportRepository reportRepository;
   private final UserRepository userRepository;
 
-  @Pointcut("execution(public * com.example.jujuassembly.domain.review.controller.ReviewController.updateProductsReview(..)) && args(reviewId, .., userDetails)")
+  @Pointcut("execution(public * com.example.jujuassembly.domain.review.controller.ReviewController.updateProductsReview(..)) "
+      + "&& args(reviewId, userDetails)")
   public void updateProductsReviewPointcut(Long reviewId, UserDetailsImpl userDetails) {
   }
 
-  @Pointcut("execution(public * com.example.jujuassembly.domain.review.controller.ReviewController.deleteProductsReview(..)) && args(reviewId, .., userDetails)")
+  @Pointcut("execution(public * com.example.jujuassembly.domain.review.controller.ReviewController.deleteProductsReview(..)) && args(reviewId, userDetails)")
   public void deleteProductsReviewPointcut(Long reviewId, UserDetailsImpl userDetails) {
   }
 
-  @Pointcut("execution(public * com.example.jujuassembly.domain.report.controller.ReportController.patchReport(..)) && args(reportId, .., userDetails)")
+  @Pointcut("execution(public * com.example.jujuassembly.domain.report.controller.ReportController.patchReport(..)) && args(reportId, userDetails)")
   public void patchReportPointcut(Long reportId, UserDetailsImpl userDetails) {
   }
 
-  @Pointcut("execution(public * com.example.jujuassembly.domain.report.controller.ReportController.deleteReport(..)) && args(reportId, .., userDetails)")
+  @Pointcut("execution(public * com.example.jujuassembly.domain.report.controller.ReportController.deleteReport(..)) && args(reportId, userDetails)")
   public void deleteReportPointcut(Long reportId, UserDetailsImpl userDetails) {
   }
 
@@ -46,9 +47,8 @@ public class AuthorizationAspect {
   }
 
 
-  @Before("updateProductsReviewPointcut(reviewId, userDetails) || deleteProductsReviewPointcut(reviewId, userDetails)")
-  public void checkReviewAccessibility(Long reviewId,
-      UserDetailsImpl userDetails) {
+  @Before("updateProductsReviewPointcut(reviewId,userDetails) || deleteProductsReviewPointcut(reviewId, userDetails)")
+  public void checkReviewAccessibility(Long reviewId, UserDetailsImpl userDetails) {
 
     User user = userDetails.getUser();
     Review review = reviewRepository.getById(reviewId);
