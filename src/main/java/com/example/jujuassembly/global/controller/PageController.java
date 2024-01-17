@@ -55,4 +55,10 @@ public class PageController {
   public String reportPage() {
     return "report";
   }
+
+  //카테고리 별 상품 보기
+  @GetMapping("/admin/categories/{categoryId}/products")
+  public String productByCategory() {
+    return "productByCategory";
+  }
 }

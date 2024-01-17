@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>주주총회</title>
+  <link rel="shortcut icon" href="#">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+        crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+          crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"
+          integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
+          crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+  <script src="/js/admin_start.js"></script>
+  <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.4/pagination.min.js"></script>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.4/pagination.css"/>
+  <link rel="stylesheet" href="/css/style.css">
+
+</head>
+<body>
+
+<div class="container">
+  <header
+      class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+    <div class="col-md-3 mb-2 mb-md-0">
+      <a href="/admin" class="d-inline-flex link-body-emphasis text-decoration-none">
+        주주 총회
+      </a>
+    </div>
+
+    <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+      <li><a href="/admin" class="nav-link px-2 ">회원 관리</a></li>
+      <li><a href="/admin/category" class="nav-link px-2 ">카테 고리 관리</a></li>
+      <li><a href="/admin/product" class="nav-link px-2 link-secondary">상품 관리</a></li>
+      <li><a href="/admin/report" class="nav-link px-2">제보 관리</a></li>
+      <li><a href="/admin/chat" class="nav-link px-2 ">고객 센터</a></li>
+    </ul>
+
+    <div class="col-md-3 text-end">
+      <button id="sign-in-btn" class="btn btn-info" onclick="location.href='/login'">
+        Sign in
+      </button>
+      <button id="sign-up-btn" class="btn btn-outline-info" onclick="location.href='/signup'">
+        Sign up
+      </button>
+      <button class="btn btn-info" id="mypage">
+        <span id="header_nickname" onclick="location.href='/mypage'"></span>님의 마이 페이지
+      </button>
+      <button class="btn btn-outline-info" id="logout-btn" onclick="logout()">
+        Logout
+      </button>
+    </div>
+  </header>
+</div>
+
+
+<div style="display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px">
+  <div class="pagination">
+    정렬:
+    <select id="sorting" onchange="getProductByCategory()" style="margin-right: 10px">
+      <option value="createdAt">작성일</option>
+      <option value="modifiedAt">수정일</option>
+    </select>
+    <input type="radio" name="isAsc" value="asc" onchange="getProductByCategory()"/> 오름차순
+    <input type="radio" name="isAsc" value="desc" onchange="getProductByCategory()" checked/> 내림차순
+  </div>
+  <div id="pagination" class="pagination" style="margin-top:10px"></div>
+</div>
+
+<div id="product_container" style="width: 80%;margin: auto;"
+     class="row row-cols-1 row-cols-md-4 g-4">
+</div>
+
+
+<script>
+  var imageFile = null;
+  var categoryId = -1;
+  $(document).ready(function () {
+
+    var currentUrl = window.location.href;
+    let temp = currentUrl.split("/");
+   categoryId = Number(temp[5]);
+    getProductByCategory();
+
+    $("#image").on("change", function (event) {
+      imageFile = event.target.files[0];
+    });
+  });
+
+  function getProductByCategory() {
+    var sorting = $("#sorting option:selected").val();
+    var isAsc = $(':radio[name="isAsc"]:checked').val();
+
+    let dataSource = `/v1/categories/` + categoryId + `/products?sort=${sorting},${isAsc}`;
+
+    $('#product_container').empty();
+    $('#pagination').pagination({
+      dataSource,
+      locator: 'data.content',
+      alias: {
+        pageNumber: 'page',
+        pageSize: 'size'
+      },
+      totalNumberLocator: (response) => {
+        return response.data.totalElements;//전체 갯수
+      },
+      pageSize: 10,
+      showPrevious: true,
+      showNext: true,
+      ajax: {
+        error(error, status, request) {
+          console.log(error);
+        }
+      },
+      callback: function (response, pagination) {
+        $('#product_container').empty();
+        let products = response;
+        for (let i = 0; i < products.length; i++) {
+          let product = products[i];
+          let name = product['name'];
+          let image = product['image'];
+          let description = product['description'];
+
+          let product_html = `<div>
+                          <a href="#" class="nav-link">
+                              <img src="${image}" style="object-fit: cover; width: 150px; height: 200px;">
+                              <div style="color: black;">
+                                  ${name}
+                                  <br>
+                                  ${description}
+                              </div>
+                          </a>
+                   </div>`;
+
+          $('#product_container').append(product_html);
+        }
+
+      }
+
+    });
+  }
+
+  // function getProductByCategory(categoryId) {
+  //
+  //   $.ajax({
+  //     type: "GET",
+  //     url: `/v1/categories/` + categoryId + `/products`,
+  //     success: function (response) {
+  //       let products = response['data'];
+  //       console.log(products);
+  //       for (let i = 0; i < products.length; i++) {
+  //         let product = products[i];
+  //         let name = product['name'];
+  //         let image = product['image'];
+  //         let description = product['description'];
+  //
+  //         let html = `<option value=${name}> ${name} </option>`
+  //         let product_html = `<li class="nav-item" >
+  //                   <a href="#" class="nav-link">
+  //                       <img src="${image}" style="object-fit: cover; width: 150px; height: 200px;">
+  //                       <div style="color: black;">
+  //                           ${name}
+  //                           ${description}
+  //                       </div>
+  //                   </a>
+  //               </li>`;
+  //
+  //         $('#product_container').append(product_html);
+  //
+  //       }
+  //     },
+  //     error(error, status, request) {
+  //
+  //     }
+  //   });
+
+
+</script>
+</body>
+</html>
