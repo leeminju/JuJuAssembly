@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,46 +20,18 @@ public class EmailAuthService {
   private final EmailService emailService;
   private final EmailAuthRepository emailAuthRepository;
   private final RedisTemplate<String, String> redisTemplate;
-  private final PasswordEncoder passwordEncoder;
 
   public static final String LOGIN_ID_AUTHORIZATION_HEADER = "LoginIdAuth";
   public static final String VERIFICATION_CODE_HEADER = "VerificationCode";
 
 
   /**
-   * 사용자가 회원가입을 위해 인증번호 받을 때 사용되는 메서드
-   **/
-  public void checkAndSendVerificationCode(String loginId, String nickname, String email,
-      String password, Long firstPreferredCategoryId, Long secondPreferredCategoryId,
-      HttpServletResponse response) {
-
-    // 인증번호 메일 보내기
-    String sentCode = sendVerificationCode(email);
-
-    // redis에 저장하여 5분 내로 인증하도록 설정
-    redisTemplate.opsForValue().set(loginId, sentCode, 5 * 60 * 1000, TimeUnit.MILLISECONDS);
-
-    // 쿠키에 인증할 loginId을 넣어보냄
-    Cookie cookie = getCookieByLoginId(loginId);
-    setCookie(cookie, response);
-
-    // 재입력 방지를 위해 DB에 입력된 데이터를 임시 저장
-    emailAuthRepository.save(
-        new EmailAuth(loginId, nickname, email, passwordEncoder.encode(password),
-            firstPreferredCategoryId, secondPreferredCategoryId, sentCode));
-  }
-
-  /**
    * 사용자가 인증번호 입력시 사용되는 메서드
    **/
   public EmailAuth checkVerifyVerificationCode(String loginId, String verificationCode) {
     // 가장 최근에 만들어진 인증 데이터 조회 (5분 이내 인증에 실패했을 경우 중복 생성 될 수 있음)
-    var emailAuthOptional = emailAuthRepository.findTopByLoginIdOrderByCreatedAtDesc(loginId);
-
-    if (emailAuthOptional.isEmpty()) {
-      throw new IllegalArgumentException("인증 가능한 loginId가 아닙니다.");
-    }
-    EmailAuth emailAuth = emailAuthOptional.get();
+    EmailAuth emailAuth = emailAuthRepository.findTopByLoginIdOrderByCreatedAtDesc(loginId)
+        .orElseThrow(() -> new ApiException("인증 가능한 loginId가 아닙니다.", HttpStatus.BAD_REQUEST));
 
     // 5분이 지났는지 검증
     if (!redisTemplate.hasKey(loginId)) {
@@ -75,23 +46,18 @@ public class EmailAuthService {
     return emailAuth;
   }
 
-  public void concludeEmailAuthentication(EmailAuth emailAuth, HttpServletResponse response) {
+  public void concludeEmailAuthentication(EmailAuth emailAuth) {
     // 인증 정보 삭제
     redisTemplate.delete(emailAuth.getLoginId());
     // 데이터베이스에서 인증 정보 제거
     emailAuthRepository.delete(emailAuth);
-    // 클라이언트 측 쿠키 삭제
-    removeLoginIdCookie(response);
   }
 
-  private void removeLoginIdCookie(HttpServletResponse response) {
-    Cookie cookie = new Cookie(LOGIN_ID_AUTHORIZATION_HEADER, null);
-    cookie.setMaxAge(0);
-    cookie.setPath("/");
-    response.addCookie(cookie);
+  public void setSentCodeByLoginIdAtRedis(String loginId, String sentCode) {
+    redisTemplate.opsForValue().set(loginId, sentCode, 5 * 60 * 1000, TimeUnit.MILLISECONDS);
   }
 
-  private String sendVerificationCode(String email) {
+  public String sendVerificationCode(String email) {
     String generatedCode = generateRandomCode();
 
     // 이메일로 인증 번호 발송
@@ -99,14 +65,17 @@ public class EmailAuthService {
     return generatedCode;
   }
 
-  private Cookie getCookieByLoginId(String loginId) {
+  public Cookie getCookieByLoginId(String loginId) {
     Cookie cookie = new Cookie(LOGIN_ID_AUTHORIZATION_HEADER, loginId);
     cookie.setPath("/");
     cookie.setMaxAge(5 * 60);
     return cookie;
   }
 
-  private void setCookie(Cookie cookie, HttpServletResponse response) {
+  public void removeCookie(HttpServletResponse response) {
+    Cookie cookie = new Cookie(LOGIN_ID_AUTHORIZATION_HEADER, null);
+    cookie.setMaxAge(0);
+    cookie.setPath("/");
     response.addCookie(cookie);
   }
 
@@ -116,6 +85,7 @@ public class EmailAuthService {
     int code = 100000 + random.nextInt(900000);
     return String.valueOf(code);
   }
+
 
 }
 

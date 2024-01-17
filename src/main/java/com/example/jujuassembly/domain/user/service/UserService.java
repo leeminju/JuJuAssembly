@@ -39,7 +39,7 @@ public class UserService {
   private final JwtUtil jwtUtil;
   private final S3Manager s3Manager;
 
-  public void signup(SignupRequestDto signupRequestDto, HttpServletResponse response) {
+  public String signup(SignupRequestDto signupRequestDto) {
 
     String loginId = signupRequestDto.getLoginId();
     String nickname = signupRequestDto.getNickname();
@@ -87,13 +87,22 @@ public class UserService {
       throw new ApiException("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST);
     }
 
-    emailAuthService.checkAndSendVerificationCode(loginId, nickname, email, password,
-        firstPreferredCategoryId, secondPreferredCategoryId, response);
+    // 인증번호 메일 보내기
+    String sentCode = emailAuthService.sendVerificationCode(email);
+
+    // redis에 저장하여 5분 내로 인증하도록 설정
+    emailAuthService.setSentCodeByLoginIdAtRedis(loginId, sentCode);
+
+    // 재입력 방지를 위해 DB에 입력된 데이터를 임시 저장
+    EmailAuth emailAuth = emailAuthRepository.save(
+        new EmailAuth(loginId, nickname, email, passwordEncoder.encode(password),
+            firstPreferredCategoryId, secondPreferredCategoryId, sentCode));
+
+    return emailAuth.getLoginId();
   }
 
-  public UserResponseDto verificateCode(HttpServletRequest request, HttpServletResponse response,
-      String loginId) {
-    String verificationCode = request.getHeader(EmailAuthService.VERIFICATION_CODE_HEADER);
+  public UserResponseDto verificateCode(String verificationCode, String loginId) {
+
     EmailAuth emailAuth = emailAuthService.checkVerifyVerificationCode(loginId, verificationCode);
     String nickname = emailAuth.getNickname();
     String email = emailAuth.getEmail();
@@ -109,7 +118,7 @@ public class UserService {
     userRepository.save(user);
 
     //인증 완료되면 임시 데이터 삭제
-    emailAuthService.concludeEmailAuthentication(emailAuth, response);
+    emailAuthService.concludeEmailAuthentication(emailAuth);
 
     return new UserResponseDto(user);
   }
@@ -129,6 +138,11 @@ public class UserService {
     // 중복 로그인 확인
     jwtUtil.checkIsLoggedIn(loginId, response);
 
+    // 회원탈퇴여부 확인
+    if (user.getIsArchived()) {
+      throw new ApiException("이미 회원탈퇴한 유저입니다.", HttpStatus.BAD_REQUEST);
+    }
+
     // access token 및 refresh token
     String accessToken = jwtUtil.createAccessToken(loginId);
     response.setHeader(JwtUtil.AUTHORIZATION_HEADER, accessToken);
@@ -140,8 +154,7 @@ public class UserService {
     return new UserResponseDto(user);
   }
 
-  public void logout(HttpServletRequest request, HttpServletResponse response) {
-    String accessToken = request.getHeader(JwtUtil.AUTHORIZATION_HEADER);
+  public void logout(String accessToken, HttpServletResponse response) {
     if (!jwtUtil.validateToken(accessToken.substring(7))) {
       String responseHeaderAccessToken = response.getHeader(JwtUtil.AUTHORIZATION_HEADER);
       jwtUtil.removeRefreshToken(responseHeaderAccessToken);
@@ -150,8 +163,6 @@ public class UserService {
       jwtUtil.removeRefreshToken(accessToken);
       jwtUtil.removeAccessToken(accessToken);
     }
-
-    response.setHeader(JwtUtil.AUTHORIZATION_HEADER, "logged-out");
   }
 
 

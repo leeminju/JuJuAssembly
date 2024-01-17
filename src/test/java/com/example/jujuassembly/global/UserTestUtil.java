@@ -12,6 +12,7 @@ public interface UserTestUtil extends CategoryTestUtil {
   String TEST_USER_NICKNAME = "nickname";
   String TEST_USER_EMAIL = "email";
   String TEST_USER_PASSWORD = "password";
+  String TEST_USER_IMAGE = "http://image.com/test.jpg";
 
   Category TEST_USER_FIRSTPREFERRED_CATEGORY = TEST_CATEGORY;
   Category TEST_USER_SECONDPREFERRED_CATEGORY = TEST_ANOTHER_CATEGORY;
