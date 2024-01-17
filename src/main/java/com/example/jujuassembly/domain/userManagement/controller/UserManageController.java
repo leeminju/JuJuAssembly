@@ -1,8 +1,10 @@
 package com.example.jujuassembly.domain.userManagement.controller;
 
+import com.example.jujuassembly.domain.user.dto.UserDetailResponseDto;
 import com.example.jujuassembly.domain.user.dto.UserResponseDto;
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum.Authority;
 import com.example.jujuassembly.domain.userManagement.dto.UserRoleRequestDto;
+import com.example.jujuassembly.domain.userManagement.dto.UserRoleResponseDto;
 import com.example.jujuassembly.domain.userManagement.service.UserManageService;
 import com.example.jujuassembly.global.response.ApiResponse;
 import java.util.List;
@@ -25,22 +27,33 @@ public class UserManageController {
 
   private final UserManageService userManageService;
 
-  //전체 유저 조회
+  /**
+   * 전체 사용자 조회 API
+   *
+   * @return 전체 사용자 목록을 포함한 ApiResponse
+   */
   @GetMapping("/users")
-  public ResponseEntity<ApiResponse<List<UserResponseDto>>> viewAllUsers() {
-    List<UserResponseDto> allUserResponseDtoList = userManageService.viewAllUsers();
+  public ResponseEntity<ApiResponse<List<UserDetailResponseDto>>> viewAllUsers() {
+    List<UserDetailResponseDto> allUserResponseDtoList = userManageService.viewAllUsers();
     return ResponseEntity.ok().body(
         new ApiResponse<>("전체 사용자 조회", HttpStatus.OK.value(), allUserResponseDtoList));
   }
 
-  //회원 권한 수정
+  /**
+   * 회원 권한 수정 API
+   *
+   * @param userId             권한을 수정할 사용자의 ID
+   * @param userRolerequestDto 수정할 권한 정보를 담은 DTO
+   * @return 수정된 사용자 권한 정보를 포함한 ApiResponse
+   */
   @PatchMapping("/users/{userId}/role")
-  public ResponseEntity<ApiResponse<UserResponseDto>> modifyUserRole(
+  public ResponseEntity<ApiResponse<UserRoleResponseDto>> modifyUserRole(
       @PathVariable Long userId,
       @RequestBody UserRoleRequestDto userRolerequestDto) {
-    UserResponseDto userResponseDto = userManageService.modifyUserRole(userId, userRolerequestDto);
+    UserRoleResponseDto userRoleResponseDto = userManageService.modifyUserRole(userId,
+        userRolerequestDto);
     return ResponseEntity.ok().body(
-        new ApiResponse<>("사용자 권한 수정 완료", HttpStatus.OK.value(), userResponseDto));
+        new ApiResponse<>("사용자 권한 수정 완료", HttpStatus.OK.value(), userRoleResponseDto));
   }
 
 

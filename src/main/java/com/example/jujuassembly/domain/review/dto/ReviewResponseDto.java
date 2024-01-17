@@ -23,18 +23,22 @@ public class ReviewResponseDto {
   private Long id;
   private UserResponseDto user;
   private String productName;
+  private Long productId;
+  private String productImage;
   private List<String> images = new ArrayList<>();
   private String description;
   private Double star;
   private String munchies;
   private Boolean isVerified;
-  private Integer likeCount=0;
-  private Integer dislikeCount=0;
+  private Integer likeCount = 0;
+  private Integer dislikeCount = 0;
 
   public ReviewResponseDto(Review savedReview) {
     this.id = savedReview.getId();
     this.user = new UserResponseDto(savedReview.getUser());
     this.productName = savedReview.getProduct().getName();
+    this.productId = savedReview.getProduct().getId();
+    this.productImage = savedReview.getProduct().getImage();
     this.description = savedReview.getDescription();
 
     for (ReviewImage reviewImage : savedReview.getReviewImages()) {

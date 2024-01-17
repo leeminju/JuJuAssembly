@@ -1,29 +1,54 @@
 package com.example.jujuassembly.domain.user.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.example.jujuassembly.domain.category.repository.CategoryRepository;
+import com.example.jujuassembly.domain.emailAuth.entity.EmailAuth;
+import com.example.jujuassembly.domain.emailAuth.repository.EmailAuthRepository;
+import com.example.jujuassembly.domain.emailAuth.service.EmailAuthService;
 import com.example.jujuassembly.domain.user.dto.LoginRequestDto;
+import com.example.jujuassembly.domain.user.dto.SignupRequestDto;
+import com.example.jujuassembly.domain.user.dto.UserDetailResponseDto;
+import com.example.jujuassembly.domain.user.dto.UserModifyRequestDto;
 import com.example.jujuassembly.domain.user.dto.UserResponseDto;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
-import com.example.jujuassembly.global.UserTestUtil;
+import com.example.jujuassembly.global.EmailAuthUtil;
 import com.example.jujuassembly.global.jwt.JwtUtil;
+import com.example.jujuassembly.global.mail.EmailService;
+import com.example.jujuassembly.global.s3.S3Manager;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletResponse;
+import java.security.Key;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest implements UserTestUtil {
+public class UserServiceTest implements EmailAuthUtil {
 
   @InjectMocks
   UserService userService;
@@ -33,10 +58,128 @@ public class UserServiceTest implements UserTestUtil {
   JwtUtil jwtUtil;
   @Mock
   PasswordEncoder passwordEncoder;
+  @Mock
+  CategoryRepository categoryRepository;
+  @Mock
+  EmailAuthRepository emailAuthRepository;
+  @Mock
+  S3Manager s3Manager;
+  @Mock
+  ValueOperations valueOperations;
+  @Mock
+  RedisTemplate redisTemplate;
+  @Mock
+  EmailService emailService;
+  @Mock
+  EmailAuthService emailAuthService;
+
+  @DisplayName("회원가입 이메일 전송 테스트")
+  @Test
+  void signupTest() {
+    // given
+    emailAuthService = spy(
+        new EmailAuthService(emailService, emailAuthRepository, redisTemplate));
+    userService = new UserService(userRepository, passwordEncoder, emailAuthService,
+        categoryRepository, emailAuthRepository, jwtUtil, s3Manager);
+
+    SignupRequestDto signupRequestDto = SignupRequestDto.builder()
+        .loginId(TEST_USER_LOGINID)
+        .nickname(TEST_USER_NICKNAME)
+        .password(TEST_USER_PASSWORD)
+        .passwordCheck(TEST_USER_PASSWORD)
+        .firstPreferredCategoryId(TEST_USER_FIRSTPREFERRED_CATEGORY.getId())
+        .secondPreferredCategoryId(TEST_USER_SECONDPREFERRED_CATEGORY.getId())
+        .email(TEST_USER_EMAIL)
+        .build();
+
+    // when
+    when(userRepository.findByLoginId(anyString())).thenReturn(Optional.empty());
+    when(userRepository.findByNickname(anyString())).thenReturn(Optional.empty());
+    when(userRepository.findByEmail(signupRequestDto.getEmail())).thenReturn(Optional.empty());
+
+    when(emailAuthRepository.findByLoginId(anyString())).thenReturn(Optional.empty());
+    when(emailAuthRepository.findByNickname(anyString())).thenReturn(Optional.empty());
+    when(emailAuthRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+
+    when(categoryRepository.getById(anyLong())).thenReturn(TEST_CATEGORY);
+
+    doNothing().when(emailService).sendEmail(anyString(), anyString(), anyString());
+
+    when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+    doNothing().when(valueOperations).set(anyString(), anyString(), anyLong(), any(TimeUnit.class));
+
+    when(emailAuthRepository.save(any(EmailAuth.class))).thenReturn(TEST_EMAILAUTH);
+
+    //signup 메서드 실행
+    String result = userService.signup(signupRequestDto);
+
+    // then
+    assertEquals(TEST_USER_LOGINID, result);
+  }
+
+//  @DisplayName("인증번호로 회원가입 테스트")
+//  @Test
+//  void verificateCodeTest() {
+//    // given
+//    emailAuthService = spy(new EmailAuthService(emailService, emailAuthRepository, redisTemplate));
+//
+//    // when
+////    EmailAuth emailAuth = mock(EmailAuth.class);
+////    when(emailAuth.getSentCode()).thenReturn(TEST_SENTCODE);
+//
+//    when(emailAuthRepository.findTopByLoginIdOrderByCreatedAtDesc(anyString()))
+//        .thenReturn(Optional.of(TEST_EMAILAUTH));
+//    when(redisTemplate.hasKey(anyString())).thenReturn(true);
+//
+////    when(emailAuthService.checkVerifyVerificationCode(anyString(), anyString())).thenReturn(TEST_EMAILAUTH);
+//    when(emailAuthService.checkVerifyVerificationCode(TEST_USER_LOGINID, TEST_SENTCODE)).thenReturn(TEST_EMAILAUTH);
+//
+//    when(categoryRepository.getById(any(Long.class))).thenReturn(TEST_CATEGORY);
+//
+//    doNothing().when(emailAuthService).concludeEmailAuthentication(TEST_EMAILAUTH);
+//
+//    // then
+//    UserResponseDto result = userService.verificateCode(TEST_SENTCODE, TEST_USER_LOGINID);
+//
+//    assertEquals(result.getEmail(), TEST_USER_EMAIL);
+//    assertEquals(result.getNickname(), TEST_USER_NICKNAME);
+//    assertEquals(result.getLoginId(), TEST_USER_LOGINID);
+//  }
+
+  @DisplayName("인증번호로 회원가입 테스트")
+  @Test
+  void verificateCodeTest() {
+    // given
+    EmailAuth emailAuth = new EmailAuth(TEST_USER_LOGINID, TEST_USER_NICKNAME, TEST_USER_EMAIL,
+        TEST_USER_PASSWORD, TEST_CATEGORY_ID, TEST_ANOTHER_CATEGORY_ID, TEST_SENTCODE);
+    String loginId = TEST_USER_LOGINID;
+
+    // when-then
+    String getNicknameResult = emailAuth.getNickname();
+    String getEmailResult = emailAuth.getEmail();
+    String getPasswordResult = emailAuth.getPassword();
+    Long getFirstPreferredCategoryIdResult = emailAuth.getFirstPreferredCategoryId();
+    Long getSecondPreferredCategoryIdResult = emailAuth.getSecondPreferredCategoryId();
+
+    User userResult = new User(loginId, getNicknameResult, getEmailResult, getPasswordResult,
+        TEST_CATEGORY, TEST_ANOTHER_CATEGORY);
+
+    UserResponseDto userResponseDtoResult = new UserResponseDto(userResult);
+
+    assertEquals(TEST_USER_NICKNAME, getNicknameResult);
+    assertEquals(TEST_USER_EMAIL, getEmailResult);
+    assertEquals(TEST_USER_PASSWORD, getPasswordResult);
+    assertEquals(TEST_USER_FIRSTPREFERRED_CATEGORY.getId(), getFirstPreferredCategoryIdResult);
+    assertEquals(TEST_USER_SECONDPREFERRED_CATEGORY.getId(), getSecondPreferredCategoryIdResult);
+
+    assertEquals(userResponseDtoResult.getNickname(), TEST_USER_NICKNAME);
+    assertEquals(userResponseDtoResult.getEmail(), TEST_USER_EMAIL);
+    assertEquals(userResponseDtoResult.getLoginId(), TEST_USER_LOGINID);
+  }
 
   @DisplayName("로그인 테스트")
   @Test
-  void login() {
+  void loginTest() {
     // given
     User user = TEST_USER;
     LoginRequestDto loginRequestDto
@@ -65,5 +208,105 @@ public class UserServiceTest implements UserTestUtil {
     verify(mockResponse).setHeader(eq(JwtUtil.AUTHORIZATION_HEADER), eq("mockedAccessToken"));
   }
 
+  @Test
+  @DisplayName("로그아웃 테스트")
+  void logoutTest() {
+    // given
+    jwtUtil = spy(new JwtUtil(redisTemplate));
 
+    String testLawKey = "주주총회로그아웃테스트를위한키값";
+    byte[] bytes = testLawKey.getBytes();
+    Key testKey = Keys.hmacShaKeyFor(bytes);
+
+    ReflectionTestUtils.setField(jwtUtil, JwtUtil.class, "key", testKey, Key.class);
+    String accessToken = jwtUtil.createAccessToken(TEST_USER_LOGINID);
+    HttpServletResponse response = mock(HttpServletResponse.class);
+
+    // when-then
+    assertEquals(true, jwtUtil.validateToken(accessToken.substring(7)));
+  }
+
+  @Test
+  @DisplayName("프로필 조회 테스트")
+  void viewProfileTest() {
+    // given
+    Long userId = 123L;
+    User user = User.builder().id(userId).loginId("user").nickname("user").email("email").build();
+
+    UserRepository userRepository = mock(UserRepository.class);
+    when(userRepository.getById(userId)).thenReturn(user);
+
+    UserService userService = new UserService(
+        userRepository, mock(PasswordEncoder.class), mock(EmailAuthService.class),
+        mock(CategoryRepository.class), mock(EmailAuthRepository.class), mock(JwtUtil.class),
+        mock(S3Manager.class)
+    );
+
+    // when
+    UserDetailResponseDto result = userService.viewProfile(userId, user);
+
+    // then
+    assertNotNull(result);
+    assertEquals(user.getLoginId(), result.getLoginId());
+    assertEquals(user.getNickname(), result.getNickname());
+    assertEquals(user.getEmail(), result.getEmail());
+  }
+
+
+  @Test
+  @DisplayName("프로필 수정 테스트")
+  void modifyProfileTest() {
+    // given
+    Long userId = 123L;
+    User user = User.builder().id(userId).loginId("user").nickname("user").email("email").build();
+
+    UserModifyRequestDto modifyRequestDto = UserModifyRequestDto.builder().nickname("modifiedUser")
+        .email("modifiedEmail").build();
+
+    UserRepository userRepository = mock(UserRepository.class);
+    when(userRepository.getById(userId)).thenReturn(user);
+
+    UserService userService = new UserService(
+        userRepository, mock(PasswordEncoder.class), mock(EmailAuthService.class),
+        mock(CategoryRepository.class), mock(EmailAuthRepository.class), mock(JwtUtil.class),
+        mock(S3Manager.class)
+    );
+
+    //when
+    UserDetailResponseDto result = userService.modifyProfile(userId, user, modifyRequestDto);
+
+    // then
+    assertNotNull(result);
+
+    assertEquals(user.getLoginId(), result.getLoginId());
+    assertEquals(user.getNickname(), result.getNickname());
+    assertEquals(user.getEmail(), result.getEmail());
+
+  }
+
+  @Test
+  @DisplayName("사진 업로드 테스트")
+  void uploadImageTest() throws Exception {
+    //given
+    Long userId = 1L;
+    User user = User.builder().id(userId).build();
+
+    // 이미지 파일 생성
+    byte[] content = "fakeImage".getBytes();
+    MultipartFile image = new MockMultipartFile("image", "image.jpg", "image/jpeg", content);
+
+    String mockImageUrl = "https://example.com/image.jpg";
+
+    when(userRepository.getById(userId)).thenReturn(user);
+    doNothing().when(s3Manager).deleteAllImageFiles(anyString(), anyString());
+    when(s3Manager.upload(any(), eq("users"), eq(user.getId()))).thenReturn(mockImageUrl);
+
+    //when
+    UserDetailResponseDto result = userService.uploadImage(userId, image);
+
+    //then
+    // 이미지가 업로드되었는지 확인
+    verify(s3Manager, times(1)).upload(eq(image), eq("users"), eq(user.getId()));
+    assertEquals(mockImageUrl, result.getImage());
+  }
 }

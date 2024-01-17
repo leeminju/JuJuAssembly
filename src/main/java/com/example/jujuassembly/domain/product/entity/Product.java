@@ -1,21 +1,28 @@
 package com.example.jujuassembly.domain.product.entity;
 
 import com.example.jujuassembly.domain.category.entity.Category;
-import com.example.jujuassembly.domain.product.dto.ProductRequestDto;
 import com.example.jujuassembly.domain.like.entity.Like;
+import com.example.jujuassembly.domain.product.dto.ProductRequestDto;
 import com.example.jujuassembly.domain.review.entity.Review;
 import com.example.jujuassembly.global.entity.Timestamped;
-import jakarta.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 @Getter
 @Builder
@@ -25,65 +32,68 @@ import java.util.Set;
 @Table(name = "products")
 public class Product extends Timestamped {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id; // 제품의 고유 식별자
 
-    @Column
-    private String image;
+  @Column(nullable = false)
+  private String image; // 제품 이미지 URL 또는 경로
 
-    @Column
-    private String name;
+  @Column(nullable = false)
+  private String name; // 제품명
 
-    @Column
-    private String description;
+  @Column(nullable = false)
+  private String description; // 제품 설명
 
-    @Column
-    private String area;
+  @Column(nullable = false)
+  private String area; // 제품 출처
 
-    @Column
-    private String company;
+  @Column(nullable = false)
+  private String company; // 제품을 생산한 회사
 
-    @Column
-    private Double alcoholDegree;
+  @Column(nullable = false)
+  private Double alcoholDegree; // 제품의 알코올 도수
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
-    private Category category;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "category_id")
+  private Category category; // 제품이 속한 카테고리
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Review> reviews = new LinkedHashSet<>();
-    @OneToMany (mappedBy = "product", cascade = CascadeType.ALL)
-    private List<Like> likes = new ArrayList<>();
+  @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+  private Set<Review> reviews = new LinkedHashSet<>(); // 제품과 연관된 리뷰 집합
 
-    public Product(ProductRequestDto requestDto, Category category) {
-        this.name = requestDto.getName();
-        this.description = requestDto.getDescription();
-        this.area = requestDto.getArea();
-        this.company = requestDto.getCompany();
-        this.alcoholDegree = requestDto.getAlcoholDegree();
-        this.category = category;
+  @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+  private Set<Like> likes = new LinkedHashSet<>(); // 제품과 연관된 좋아요 집합
 
-    }
+  // ProductRequestDto와 카테고리에서 Product를 생성하는 생성자
+  public Product(ProductRequestDto requestDto, Category category) {
+    this.name = requestDto.getName();
+    this.description = requestDto.getDescription();
+    this.area = requestDto.getArea();
+    this.company = requestDto.getCompany();
+    this.alcoholDegree = requestDto.getAlcoholDegree();
+    this.category = category;
+  }
 
-    public void update(ProductRequestDto requestDto) {
-        this.name = requestDto.getName();
-        this.description = requestDto.getDescription();
-        this.alcoholDegree = requestDto.getAlcoholDegree();
-        this.company = requestDto.getCompany();
-    }
+  // ProductRequestDto에서 제품 정보를 업데이트하는 메서드
+  public void update(ProductRequestDto requestDto) {
+    this.name = requestDto.getName();
+    this.description = requestDto.getDescription();
+    this.alcoholDegree = requestDto.getAlcoholDegree();
+    this.company = requestDto.getCompany();
+  }
 
-    public void setImage(String url) {
-        this.image = url;
-    }
+  // 제품 이미지 URL 설정 메서드
+  public void setImage(String url) {
+    this.image = url;
+  }
 
-    // 리뷰 개수 반환
-    public int getReviewCount() {
-        return reviews.size();
-    }
+  // 리뷰 개수 반환 메서드
+  public int getReviewCount() {
+    return reviews.size();
+  }
 
-    // 찜(좋아요) 횟수 반환
-    public int getLikesCount() {
-        return likes.size();
-    }
+  // 좋아요 개수 반환 메서드
+  public int getLikesCount() {
+    return likes.size();
+  }
 }

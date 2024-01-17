@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>주주총회</title>
+  <link rel="shortcut icon" href="#">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+        crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+          crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"
+          integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
+          crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+  <script src="/js/admin_start.js"></script>
+  <link rel="stylesheet" href="../static/css/style.css">
+
+</head>
+<body>
+
+<div class="container">
+  <header
+      class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+    <div class="col-md-3 mb-2 mb-md-0">
+      <a href="/admin" class="d-inline-flex link-body-emphasis text-decoration-none">
+        주주 총회
+      </a>
+    </div>
+
+    <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+      <li><a href="/admin" class="nav-link px-2 ">회원 관리</a></li>
+      <li><a href="/admin/category" class="nav-link px-2 ">카테 고리 관리</a></li>
+      <li><a href="/admin/product" class="nav-link px-2 link-secondary">상품 관리</a></li>
+      <li><a href="/admin/report" class="nav-link px-2">제보 관리</a></li>
+      <li><a href="/admin/chat" class="nav-link px-2 ">고객 센터</a></li>
+    </ul>
+
+    <div class="col-md-3 text-end">
+      <button id="sign-in-btn" class="btn btn-info" onclick="location.href='/login'">
+        Sign in
+      </button>
+      <button id="sign-up-btn" class="btn btn-outline-info" onclick="location.href='/signup'">
+        Sign up
+      </button>
+      <button class="btn btn-info" id="mypage">
+        <span id="header_nickname" onclick="location.href='/mypage'"></span>님의 마이 페이지
+      </button>
+      <button class="btn btn-outline-info" id="logout-btn" onclick="logout()">
+        Logout
+      </button>
+    </div>
+  </header>
+</div>
+<h1>상품 등록</h1>
+<form id="productForm" enctype="multipart/form-data">
+
+  <div class="form-floating" style="margin-top: 20px">
+    <div class="categoryLabel">
+      <label for="categoryId">카테고리 </label>
+    </div>
+    <div class="categorySelect">
+      <select class="form-select" id="categoryId"
+              aria-label="Floating label select example" style="width: 200px;">
+        <option selected>카테고리를 선택해주세요</option>
+      </select>
+    </div>
+  </div>
+
+
+  <p>
+    <label for="name">상품:</label>
+    <input type="text" id="name" name="name" required>
+  </p>
+
+  <p>
+    <label for="description">상품 설명:</label>
+    <input type="text" id="description" name="description" required>
+  </p>
+
+  <p>
+    <label for="price">가격:</label>
+    <input type="number" id="price" name="price" required>
+  </p>
+
+  <p>
+    <label for="area">지역:</label>
+    <input type="text" id="area" name="area" required>
+  </p>
+
+  <p>
+    <label for="company">제조 회사:</label>
+    <input type="text" id="company" name="company" required>
+  </p>
+
+  <p>
+    <label for="alcoholDegree">도수:</label>
+    <input type="text" id="alcoholDegree" name="alcoholDegree" required>
+  </p>
+
+  <p>
+    <label for="image">이미지 업로드:</label>
+    <input type="file" id="image" name="image" accept="image/*" required>
+  </p>
+
+</form>
+<p>
+  <button onclick="createProduct()">등록</button>
+</p>
+
+<div>
+  <button id="all_products"  style="background-color: darkblue; color: white; float: right; margin-right: 50px"
+          onclick="location.href='/products'">
+    전체 상품 조회
+  </button>
+</div>
+
+
+<div class="category">
+  <ul id="category_menu" class="nav nav-pills" style="margin-top: 80px">
+  </ul>
+
+  <div id="product_container">
+  </div>
+
+</div>
+
+</div>
+
+
+<script>
+  var imageFile = null;
+  $(document).ready(function () {
+    getCategory();
+
+    $("#image").on("change", function (event) {
+      imageFile = event.target.files[0];
+    });
+  });
+
+  function createProduct() {
+    const name = $('#name').val();
+    const description = $('#description').val();
+    const price = $('#price').val();
+    const area = $('#area').val();
+    const company = $('#company').val();
+    const alcoholDegree = $('#alcoholDegree').val();
+    const categoryId = $('#categoryId').val();
+
+    const data = {
+      name: name,
+      description: description,
+      price: price,
+      area: area,
+      company: company,
+      alcoholDegree: alcoholDegree
+    }
+
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    formData.append("data", new Blob([JSON.stringify(data)], {type: "application/json"}));
+
+    //Ajax 요청 (jQuery 사용)
+    $.ajax({
+      url: '/v1/categories/' + categoryId + '/products',
+      method: 'POST',
+      data: formData,
+      enctype: "multipart/form-data",
+
+      contentType: false,
+      processData: false,
+      success: function (response) {
+        alert(response['msg']);
+        window.location.reload();
+      },
+      error: function (error) {
+        if (error['responseJSON']['data']) {
+          alert(JSON.stringify(error['responseJSON']['data']))
+        } else {
+          alert(error['responseJSON']['msg']);
+        }
+      }
+    });
+  }
+
+  function getCategory() {
+    $.ajax({
+      type: "GET",
+      url: `/v1/categories`,
+      success: function (response) {
+        let categories = response['data'];
+        console.log(categories);
+
+        for (let i = 0; i < categories.length; i++) {
+          let category = categories[i];
+          let id = category['id'];
+          let name = category['name'];
+          let image = category['image'];
+
+          let html = `<option value=${id}> ${name} </option>`
+
+          let menu_html = `<li onclick="location.href='/admin/categories/${id}/products'"  >
+                    <a href="#" class="nav-link">
+                        <img src="${image}" style="object-fit: cover; width: 150px; height: 200px;">
+                        <div style="color: black;">
+                            ${name}
+                        </div>
+                    </a>
+                </li>`;
+
+          $('#category_menu').append(menu_html);
+          //$('#product_container').append(product_html);
+          $('#categoryId').append(html);
+        }
+      },
+      error(error, status, request) {
+
+      }
+    });
+
+  }
+
+  /*  function showProductByCategory() {
+      $.ajax({
+        type: "GET",
+        url: `/v1/categories/1/products`,
+        success: function (response) {
+          let products = response['data'];
+          console.log(products);
+          for (let i = 0; i < products.length; i++) {
+            let product = products[i];
+            let name = product['name'];
+            let image = product['image'];
+            let description = product['description'];
+
+            let html = `<option value=${name}> ${name} </option>`
+            let product_html = `<li class="nav-item" >
+                      <a href="#" class="nav-link">
+                          <img src="${image}" style="object-fit: cover; width: 150px; height: 200px;">
+                          <div style="color: black;">
+                              ${name}
+                              ${description}
+                          </div>
+                      </a>
+                  </li>`;
+
+            $('#product_container').append(product_html);
+            $('#categoryId').append(html);
+          }
+        },
+        error(error, status, request) {
+        }
+      });
+    }*/
+
+
+</script>
+</body>
+</html>

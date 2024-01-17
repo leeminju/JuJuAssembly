@@ -189,3 +189,7 @@ gradle-app.setting
 
 ### qodana ###
 qodana.yaml
+jacoco/
+
+src/main/resources/application.properties
+src/main/resources/application-dev.properties

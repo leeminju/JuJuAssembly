@@ -39,7 +39,7 @@ public class UserService {
   private final JwtUtil jwtUtil;
   private final S3Manager s3Manager;
 
-  public void signup(SignupRequestDto signupRequestDto, HttpServletResponse response) {
+  public String signup(SignupRequestDto signupRequestDto) {
 
     String loginId = signupRequestDto.getLoginId();
     String nickname = signupRequestDto.getNickname();
@@ -52,32 +52,30 @@ public class UserService {
     Long secondPreferredCategoryId = signupRequestDto.getSecondPreferredCategoryId();
 
     // id, nickname, email 중복 검증
-    if (!userRepository.findByLoginId(loginId).isEmpty()) {
+    if (userRepository.findByLoginId(loginId).isPresent()) {
       throw new ApiException("중복된 loginId 입니다.", HttpStatus.BAD_REQUEST);
     }
-    if (!userRepository.findByNickname(nickname).isEmpty()) {
+    if (userRepository.findByNickname(nickname).isPresent()) {
       throw new ApiException("중복된 nickname 입니다.", HttpStatus.BAD_REQUEST);
     }
-    if (!userRepository.findByEmail(email).isEmpty()) {
+    if (userRepository.findByEmail(email).isPresent()) {
       throw new ApiException("중복된 email 입니다.", HttpStatus.BAD_REQUEST);
     }
 
     // 회원가입을 하고있는(인증번호 확인중인 상태) id, nickname, email 중복 검증
-    if (!emailAuthRepository.findByLoginId(loginId).isEmpty()) {
+    if (emailAuthRepository.findByLoginId(loginId).isPresent()) {
       throw new ApiException("현재 회원가입 중인 loginId 입니다.", HttpStatus.BAD_REQUEST);
     }
-    if (!emailAuthRepository.findByNickname(nickname).isEmpty()) {
+    if (emailAuthRepository.findByNickname(nickname).isPresent()) {
       throw new ApiException("현재 회원가입 중인 nickname 입니다.", HttpStatus.BAD_REQUEST);
     }
-    if (!emailAuthRepository.findByEmail(email).isEmpty()) {
+    if (emailAuthRepository.findByEmail(email).isPresent()) {
       throw new ApiException("현재 회원가입중인 email 입니다.", HttpStatus.BAD_REQUEST);
     }
 
     // categoryId 검증
-    categoryRepository.findById(firstPreferredCategoryId)
-        .orElseThrow(() -> new ApiException("존재하지 않는 firstPreferredCategoryId 입니다.", HttpStatus.NOT_FOUND));
-    categoryRepository.findById(secondPreferredCategoryId)
-        .orElseThrow(() -> new ApiException("존재하지 않는 secondPreferredCategoryId 입니다.", HttpStatus.NOT_FOUND));
+    categoryRepository.getById(firstPreferredCategoryId);
+    categoryRepository.getById(secondPreferredCategoryId);
 
     // password 확인
     // 1. nickname과 같은 값이 포함됐는지
@@ -89,22 +87,30 @@ public class UserService {
       throw new ApiException("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST);
     }
 
-    emailAuthService.checkAndSendVerificationCode(loginId, nickname, email, password,
-        firstPreferredCategoryId, secondPreferredCategoryId, response);
+    // 인증번호 메일 보내기
+    String sentCode = emailAuthService.sendVerificationCode(email);
+
+    // redis에 저장하여 5분 내로 인증하도록 설정
+    emailAuthService.setSentCodeByLoginIdAtRedis(loginId, sentCode);
+
+    // 재입력 방지를 위해 DB에 입력된 데이터를 임시 저장
+    EmailAuth emailAuth = emailAuthRepository.save(
+        new EmailAuth(loginId, nickname, email, passwordEncoder.encode(password),
+            firstPreferredCategoryId, secondPreferredCategoryId, sentCode));
+
+    return emailAuth.getLoginId();
   }
 
-  public UserResponseDto verificateCode(String verificationCode, String loginId,
-      HttpServletResponse response) {
+  public UserResponseDto verificateCode(String verificationCode, String loginId) {
+
     EmailAuth emailAuth = emailAuthService.checkVerifyVerificationCode(loginId, verificationCode);
     String nickname = emailAuth.getNickname();
     String email = emailAuth.getEmail();
     String password = emailAuth.getPassword();
     Long firstPreferredCategoryId = emailAuth.getFirstPreferredCategoryId();
-    Category firstPreferredCategory = categoryRepository.findById(firstPreferredCategoryId)
-        .orElseThrow(() -> new ApiException("존재하지 않는 firstPreferredCategoryId입니다.", HttpStatus.NOT_FOUND));
+    Category firstPreferredCategory = categoryRepository.getById(firstPreferredCategoryId);
     Long secondPreferredCategoryId = emailAuth.getSecondPreferredCategoryId();
-    Category secondPreferredCategory = categoryRepository.findById(secondPreferredCategoryId)
-        .orElseThrow(() -> new ApiException("존재하지 않는 secondPreferredCategoryId입니다.", HttpStatus.NOT_FOUND));
+    Category secondPreferredCategory = categoryRepository.getById(secondPreferredCategoryId);
 
     User user = new User(loginId, nickname, email, password, firstPreferredCategory,
         secondPreferredCategory);
@@ -112,7 +118,7 @@ public class UserService {
     userRepository.save(user);
 
     //인증 완료되면 임시 데이터 삭제
-    emailAuthService.endEmailAuth(emailAuth, response);
+    emailAuthService.concludeEmailAuthentication(emailAuth);
 
     return new UserResponseDto(user);
   }
@@ -129,55 +135,69 @@ public class UserService {
       throw new ApiException("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST);
     }
 
+    // 중복 로그인 확인
+    jwtUtil.checkIsLoggedIn(loginId, response);
+
+    // 회원탈퇴여부 확인
+    if (user.getIsArchived()) {
+      throw new ApiException("이미 회원탈퇴한 유저입니다.", HttpStatus.BAD_REQUEST);
+    }
+
     // access token 및 refresh token
     String accessToken = jwtUtil.createAccessToken(loginId);
     response.setHeader(JwtUtil.AUTHORIZATION_HEADER, accessToken);
+    jwtUtil.saveAccessTokenByLoginId(loginId, accessToken);
 
     String refreshToken = jwtUtil.createRefreshToken(loginId);
-    jwtUtil.saveRefreshToken(loginId, refreshToken);
+    jwtUtil.saveRefreshTokenByAccessToken(accessToken, refreshToken);
 
     return new UserResponseDto(user);
   }
 
-  public void logout(HttpServletRequest request) {
-    String loginId = jwtUtil.getLoginIdFromHeader(request);
-    String accessTokenValue = jwtUtil.resolveToken(request);
-
-    jwtUtil.removeRefreshToken(accessTokenValue);
-    jwtUtil.removeAccessToken(loginId);
+  public void logout(String accessToken, HttpServletResponse response) {
+    if (!jwtUtil.validateToken(accessToken.substring(7))) {
+      String responseHeaderAccessToken = response.getHeader(JwtUtil.AUTHORIZATION_HEADER);
+      jwtUtil.removeRefreshToken(responseHeaderAccessToken);
+      jwtUtil.removeAccessToken(responseHeaderAccessToken);
+    } else {
+      jwtUtil.removeRefreshToken(accessToken);
+      jwtUtil.removeAccessToken(accessToken);
+    }
   }
 
 
   public UserDetailResponseDto viewProfile(Long userId, User user) {
-    //본인 확인
-    if (!user.getId().equals(userId)){
-      throw new ApiException("본인만 조회할 수 있습니다.", HttpStatus.UNAUTHORIZED);
-    }
+    User loginUser = userRepository.getById(userId);
+    return new UserDetailResponseDto(user);
+  }
 
-    User loginUser = userRepository.findById(userId).orElseThrow(()-> new  ApiException("존재하지 않는 유저입니다.", HttpStatus.NOT_FOUND));
+
+  public UserDetailResponseDto viewMyProfile(User user) {
+    User loginUser = userRepository.getById(user.getId());
     return new UserDetailResponseDto(user);
   }
 
   //프로필 수정
   @Transactional
- public UserDetailResponseDto modifyProfile(Long userId, User user, UserModifyRequestDto modifyRequestDto){
-   if (!user.getId().equals(userId)){
-     throw new ApiException("본인만 조회할 수 있습니다.", HttpStatus.UNAUTHORIZED);
-   }
+  public UserDetailResponseDto modifyProfile(Long userId, User user,
+      UserModifyRequestDto modifyRequestDto) {
+    if (!user.getId().equals(userId)) {
+      throw new ApiException("본인만 변경할 수 있습니다.", HttpStatus.UNAUTHORIZED);
+    }
 
-   User loginUser = userRepository.findById(userId).orElseThrow(()-> new  ApiException("존재하지 않는 유저입니다.", HttpStatus.NOT_FOUND));
-   loginUser.updateUser(modifyRequestDto);
-   userRepository.save(loginUser);
-   return new UserDetailResponseDto(loginUser);
- }
+    User loginUser = userRepository.getById(userId);
+    loginUser.updateUser(modifyRequestDto);
+    userRepository.save(loginUser);
+    return new UserDetailResponseDto(loginUser);
+  }
 
   //프로필 사진 추가
-  public UserDetailResponseDto uploadImage(Long userId,MultipartFile image) throws Exception{
-    User user = userRepository.findById(userId).orElseThrow(()-> new  ApiException("존재하지 않는 유저입니다.", HttpStatus.NOT_FOUND));
+  public UserDetailResponseDto uploadImage(Long userId, MultipartFile image) throws Exception {
+    User user = userRepository.getById(userId);
     s3Manager.deleteAllImageFiles(userId.toString(), "users");
 
-    if (image!=null && !image.isEmpty()){
-      String url = s3Manager.upload(image,"users",userId);
+    if (image != null && !image.isEmpty()) {
+      String url = s3Manager.upload(image, "users", userId);
       user.updateUserImage(url);
       userRepository.save(user);
     }
@@ -187,15 +207,16 @@ public class UserService {
   // 회원 탈퇴
   @Transactional
   public void deleteAccount(Long userId, String password, UserDetailsImpl userDetails) {
-    User user = userRepository.findById(userId).orElseThrow(() -> new ApiException("등록된 유저가 없습니다.", HttpStatus.NOT_FOUND));
+    User user = userRepository.getById(userId);
     if (!userId.equals(userDetails.getUser().getId())) {
       throw new ApiException("해당 사용자만 로그아웃 할 수 있습니다.", HttpStatus.UNAUTHORIZED);
     }
 
-    if (!passwordEncoder.matches(password,user.getPassword())) {
+    if (!passwordEncoder.matches(password, user.getPassword())) {
       throw new ApiException("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST);
     }
 
     user.setIsArchived(true);
   }
+
 }

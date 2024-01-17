@@ -12,9 +12,10 @@ public interface UserTestUtil extends CategoryTestUtil {
   String TEST_USER_NICKNAME = "nickname";
   String TEST_USER_EMAIL = "email";
   String TEST_USER_PASSWORD = "password";
+  String TEST_USER_IMAGE = "http://image.com/test.jpg";
 
-  Category TEST_USER_FIRSTPREFERRED_CATEGORY_ID = TEST_CATEGORY;
-  Category TEST_USER_SECONDPREFERRED_CATEGORY_ID = TEST_ANOTHER_CATEGORY;
+  Category TEST_USER_FIRSTPREFERRED_CATEGORY = TEST_CATEGORY;
+  Category TEST_USER_SECONDPREFERRED_CATEGORY = TEST_ANOTHER_CATEGORY;
 
   User TEST_USER = User.builder()
       .id(TEST_USER_ID)
@@ -24,8 +25,8 @@ public interface UserTestUtil extends CategoryTestUtil {
       .password(TEST_USER_PASSWORD)
       .isArchived(false)
       .role(UserRoleEnum.USER)
-      .firstPreferredCategory(TEST_USER_FIRSTPREFERRED_CATEGORY_ID)
-      .secondPreferredCategory(TEST_USER_SECONDPREFERRED_CATEGORY_ID)
+      .firstPreferredCategory(TEST_USER_FIRSTPREFERRED_CATEGORY)
+      .secondPreferredCategory(TEST_USER_SECONDPREFERRED_CATEGORY)
       .build();
 
   User TEST_ANOTHER_USER = User.builder()
@@ -36,8 +37,8 @@ public interface UserTestUtil extends CategoryTestUtil {
       .password(ANOTHER_PREDIX+TEST_USER_PASSWORD)
       .isArchived(false)
       .role(UserRoleEnum.USER)
-      .firstPreferredCategory(TEST_USER_FIRSTPREFERRED_CATEGORY_ID)
-      .secondPreferredCategory(TEST_USER_SECONDPREFERRED_CATEGORY_ID)
+      .firstPreferredCategory(TEST_USER_FIRSTPREFERRED_CATEGORY)
+      .secondPreferredCategory(TEST_USER_SECONDPREFERRED_CATEGORY)
       .build();
 
 }

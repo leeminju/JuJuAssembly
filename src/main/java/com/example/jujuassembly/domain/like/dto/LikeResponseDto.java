@@ -1,17 +1,11 @@
 package com.example.jujuassembly.domain.like.dto;
 
 import com.example.jujuassembly.domain.like.entity.Like;
-import com.example.jujuassembly.domain.product.entity.Product;
-import com.example.jujuassembly.domain.user.entity.User;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import net.minidev.json.annotate.JsonIgnore;
-import org.hibernate.Hibernate;
 
 
 @Getter

@@ -11,8 +11,9 @@ import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.s3.S3Manager;
 import java.io.IOException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,8 +34,7 @@ public class ReportService {
       ReportRequestDto requestDto, User user)
       throws IOException {
 
-    Category category = categoryRepository.findById(categoryId)
-        .orElseThrow(() -> new ApiException("카테고리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+    Category category = categoryRepository.getById(categoryId);
     Report report = new Report(requestDto);
     report.updateUser(user);
     report.updateCategory(category);
@@ -52,13 +52,22 @@ public class ReportService {
   }
 
   //조회
+  //전체 제보상품 조회
+  public Page<ReportResponseDto> getAllReports(Pageable pageable) {
+    Page<Report> allReports = reportRepository.findAll(pageable);
+    return allReports.map(ReportResponseDto::new);
+  }
 
-  public List<ReportResponseDto> getReports(Long userId, User user) {
+  //유저별 제보상품 조회
+  public Page<ReportResponseDto> getUserReports(Long userId, Pageable pageable) {
+    Page<Report> reports = reportRepository.findAllByUserId(userId, pageable);
+    return reports.map(ReportResponseDto::new);
+  }
 
-    reportRepository.existsReportByUserId(user.getId())
-        .orElseThrow(() -> new ApiException("해당하는 제보가 없습니다.", HttpStatus.NOT_FOUND));
-    List<Report> reportList = reportRepository.findAllByUserId(user.getId());
-    return reportList.stream().map(ReportResponseDto::new).toList();
+  //카테고리별 제보상품 조회
+  public Page<ReportResponseDto> getReportsByCategoryId(Long categoryId, Pageable pageable) {
+    Page<Report> reports = reportRepository.findAllByCategoryId(categoryId, pageable);
+    return reports.map(ReportResponseDto::new);
   }
 
   //수정
@@ -67,10 +76,8 @@ public class ReportService {
       ReportRequestDto requestDto, User user)
       throws IOException {
 
-    categoryRepository.findById(categoryId)
-        .orElseThrow(() -> new ApiException("해당하는 카테고리가 없습니다.", HttpStatus.NOT_FOUND));
-    Report report = reportRepository.findById(reportId)
-        .orElseThrow(() -> new ApiException("해당하는 상품 제보가 없습니다.", HttpStatus.NOT_FOUND));
+    categoryRepository.getById(categoryId);
+    Report report = reportRepository.getById(reportId);
 
     report.updateName(requestDto.getName());
 
@@ -91,10 +98,8 @@ public class ReportService {
   public ReportResponseDto patchReportStatus(Long categoryId, Long reportId,
       ReportStatusRequestDto requestDto, User user) {
 
-    categoryRepository.findById(categoryId)
-        .orElseThrow(() -> new ApiException("해당하는 카테고리가 없습니다.", HttpStatus.NOT_FOUND));
-    Report report = reportRepository.findById(reportId)
-        .orElseThrow(() -> new ApiException("해당하는 상품 제보가 없습니다.", HttpStatus.NOT_FOUND));
+    categoryRepository.getById(categoryId);
+    Report report = reportRepository.getById(reportId);
 
     report.updateStatus(requestDto.getStatus());
     return new ReportResponseDto(report);
@@ -104,10 +109,8 @@ public class ReportService {
   @Transactional
   public void deleteReport(Long categoryId, Long reportId, User user) {
 
-    categoryRepository.findById(categoryId)
-        .orElseThrow(() -> new ApiException("해당하는 카테고리가 없습니다.", HttpStatus.NOT_FOUND));
-    Report report = reportRepository.findById(reportId)
-        .orElseThrow(() -> new ApiException("해당하는 상품 제보가 없습니다.", HttpStatus.NOT_FOUND));
+    categoryRepository.getById(categoryId);
+    Report report = reportRepository.getById(reportId);
 
     reportRepository.delete(report);
 
