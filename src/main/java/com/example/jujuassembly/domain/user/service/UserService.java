@@ -183,10 +183,28 @@ public class UserService {
     if (!user.getId().equals(userId)) {
       throw new ApiException("본인만 변경할 수 있습니다.", HttpStatus.UNAUTHORIZED);
     }
+    if (!passwordEncoder.matches(modifyRequestDto.getCurrentPassword(), user.getPassword())) {
+      throw new ApiException("현재 비밀번호가 일치 하지 않습니다!", HttpStatus.BAD_REQUEST);
+    }
+
+    if (!modifyRequestDto.getPassword().equals(modifyRequestDto.getPasswordCheck())) {
+      throw new ApiException("비밀번호 확인이 일치 하지 않습니다!", HttpStatus.BAD_REQUEST);
+    }
+
+    if (userRepository.findByNickname(modifyRequestDto.getNickname()).isPresent()) {
+      throw new ApiException("중복된 nickname 입니다.", HttpStatus.BAD_REQUEST);
+    }
+    if (userRepository.findByEmail(modifyRequestDto.getEmail()).isPresent()) {
+      throw new ApiException("중복된 email 입니다.", HttpStatus.BAD_REQUEST);
+    }
 
     User loginUser = userRepository.getById(userId);
-    loginUser.updateUser(modifyRequestDto);
-    userRepository.save(loginUser);
+    Category category1 = categoryRepository.getById(modifyRequestDto.getFirstPreferredCategoryId());
+    Category category2 = categoryRepository.getById(
+        modifyRequestDto.getSecondPreferredCategoryId());
+    String encodePassword = passwordEncoder.encode(modifyRequestDto.getPassword());
+    loginUser.updateUser(modifyRequestDto, encodePassword, category1, category2);
+
     return new UserDetailResponseDto(loginUser);
   }
 

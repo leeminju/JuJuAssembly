@@ -43,6 +43,19 @@ public class CategoryController {
   }
 
   /**
+   * 카테고리 정보 조회
+   *
+   * @param categoryId 카테고리 아이디
+   * @return
+   */
+  @GetMapping("/{categoryId}")
+  public ResponseEntity<ApiResponse> getCategoryInfo(@PathVariable Long categoryId) {
+    CategoryResponseDto categoryinfo = categoryService.getCategoryInfo(categoryId);
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(new ApiResponse("카테고리 정보 조회 성공", HttpStatus.OK.value(), categoryinfo));
+  }
+
+  /**
    * 카테고리 생성
    *
    * @param image      카테고리 이미지 파일

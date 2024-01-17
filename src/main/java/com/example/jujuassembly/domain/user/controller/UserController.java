@@ -165,7 +165,7 @@ public class UserController {
   @PatchMapping("/users/{userId}")
   public ResponseEntity<ApiResponse> updatePofile(
       @PathVariable Long userId,
-      @RequestBody UserModifyRequestDto modifyRequestDto,
+      @Valid @RequestBody UserModifyRequestDto modifyRequestDto,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
     UserDetailResponseDto responseDto = userService.modifyProfile(userId, userDetails.getUser(),
         modifyRequestDto);
@@ -187,7 +187,7 @@ public class UserController {
       @RequestParam MultipartFile image) throws Exception {
     UserDetailResponseDto responseDto = userService.uploadImage(userId, image);
     return ResponseEntity.ok()
-        .body(new ApiResponse("사진 추가 성공", HttpStatus.OK.value(), responseDto));
+        .body(new ApiResponse("프로필 사진 변경 성공", HttpStatus.OK.value(), responseDto));
   }
 
   /**

@@ -24,10 +24,10 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
                        AccessDeniedException accessDeniedException)
             throws IOException {
 
-        String responseBody = objectMapper.writeValueAsString(new ApiResponse<>("권한이 없습니다", HttpStatus.UNAUTHORIZED.value()));
+        String responseBody = objectMapper.writeValueAsString(new ApiResponse<>("권한이 없습니다", HttpStatus.FORBIDDEN.value()));
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.setStatus(HttpStatus.FORBIDDEN.value());
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(responseBody);
     }

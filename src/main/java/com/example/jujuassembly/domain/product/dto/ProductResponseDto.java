@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductResponseDto {
 
+  private Long id;
   private String image;
   private String name;
   private String description;
@@ -28,12 +29,13 @@ public class ProductResponseDto {
   private Long categoryId;
   private String categoryName;
 
-  private List<ReviewResponseDto> reviewList;
+
   private int reviewCount; // 리뷰 수
   private double averageRating; // 별점 평균
   private int likesCount; // 찜 횟수 추가
 
   public ProductResponseDto(Product product) {
+    this.id = product.getId();
     this.image = product.getImage();
     this.name = product.getName();
     this.description = product.getDescription();
@@ -47,7 +49,6 @@ public class ProductResponseDto {
       this.categoryName = category.getName();
     }
 
-    this.reviewList = product.getReviews().stream().map(ReviewResponseDto::new).toList();
     this.reviewCount = product.getReviewCount();
     this.averageRating = calculateAverageRating(product.getReviews());
     this.likesCount = product.getLikesCount();

@@ -67,4 +67,9 @@ public class PageController {
   public String viewAllProducts() {
     return "allProducts";
   }
+
+  @GetMapping("/productDetails")
+  public String productDetailsPage() {
+    return "productDetails";
+  }
 }
