@@ -57,7 +57,7 @@ public class NotificationController {
    * @param notificationId 변경할 알림의 ID
    * @return 알림 상태 변경에 대한 ApiResponse 객체
    */
-  @PatchMapping("/notifications/{id}")
+  @PatchMapping("/notifications/{notificationId}")
   public ResponseEntity<ApiResponse> readNotification(@PathVariable Long notificationId) {
     notificationService.readNotification(notificationId);
     return ResponseEntity.ok()

@@ -13,6 +13,7 @@
           crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
   <script src="/js/basic.js"></script>
+  <script src="/js/notification.js"></script>
   <link rel="stylesheet" href="../static/css/style.css">
 </head>
 <body>
@@ -46,6 +47,26 @@
       <button class="btn btn-outline-info" id="logout-btn" onclick="logout()">
         Logout
       </button>
+    </div>
+
+    <!-- 알림 구독 버튼 -->
+    <div id="subscribe-section">
+      <button id="subscribe-btn">알림 구독하기</button>
+    </div>
+
+    <!-- 알림 버튼 -->
+    <button id="notification-btn">알림 보기</button>
+
+    <!-- 알림 모달 -->
+    <div id="notification-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2>알림</h2>
+        <div id="unread-count"></div> <!-- 읽지 않은 알림 갯수 표시 -->
+        <ul id="notification-list">
+          <!-- 알림 목록이 여기에 표시 -->
+        </ul>
+      </div>
     </div>
   </header>
 </div>
