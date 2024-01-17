@@ -26,8 +26,8 @@ public class UserDetailResponseDto {
     this.id = user.getId();
     this.loginId = user.getLoginId();
     this.nickname = user.getNickname();
-    this.firstPreferredCategoryId = user.getId();
-    this.secondPreferredCategoryId = user.getId();
+    this.firstPreferredCategoryId = user.getFirstPreferredCategory().getId();
+    this.secondPreferredCategoryId = user.getSecondPreferredCategory().getId();
     this.email = user.getEmail();
     this.image = user.getImage();
     this.role = user.getRole();

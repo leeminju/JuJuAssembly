@@ -26,6 +26,11 @@ public class CategoryService {
     return categoryList.stream().map(CategoryResponseDto::new).toList();
   }
 
+  public CategoryResponseDto getCategoryInfo(Long categoryId) {
+    Category category = categoryRepository.getById(categoryId);
+    return new CategoryResponseDto(category);
+  }
+
   @Transactional
   public CategoryResponseDto createCategory(CategoryRequestDto requestDto, MultipartFile image)
       throws IOException {
@@ -69,4 +74,6 @@ public class CategoryService {
     categoryRepository.delete(category);
     s3Manager.deleteAllImageFiles(categoryId.toString(), "categories");
   }
+
+
 }

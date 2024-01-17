@@ -59,6 +59,7 @@ public class WebSecurityConfig {
             .requestMatchers("/").permitAll()
             .requestMatchers("/mypage").permitAll()
             .requestMatchers("/userReview").permitAll()
+            .requestMatchers("/productDetails").permitAll()
             .requestMatchers("/login").permitAll()
             .requestMatchers("/signup").permitAll()
             .requestMatchers("/products").permitAll()

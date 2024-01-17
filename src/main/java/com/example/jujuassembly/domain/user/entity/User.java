@@ -110,12 +110,13 @@ public class User extends Timestamped {
   }
 
   //유저 정보 수정
-  public void updateUser(UserModifyRequestDto modifyRequestDto) {
+  public void updateUser(UserModifyRequestDto modifyRequestDto, String encodePassword, Category category1,
+      Category category2) {
     this.nickname = modifyRequestDto.getNickname();
     this.email = modifyRequestDto.getEmail();
-    this.password = modifyRequestDto.getPassword();
-    this.firstPreferredCategory = modifyRequestDto.getFirstPreferredCategoryId();
-    this.secondPreferredCategory = modifyRequestDto.getSecondPreferredCategoryId();
+    this.password = encodePassword;
+    this.firstPreferredCategory = category1;
+    this.secondPreferredCategory = category2;
   }
 
   //유저 상태 설정
