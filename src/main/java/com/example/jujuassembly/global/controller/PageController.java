@@ -61,4 +61,10 @@ public class PageController {
   public String productByCategory() {
     return "productByCategory";
   }
+
+  //전체 상품보기
+  @GetMapping("/products")
+  public String viewAllProducts() {
+    return "allProducts";
+  }
 }

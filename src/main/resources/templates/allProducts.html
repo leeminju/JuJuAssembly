@@ -67,43 +67,39 @@
     padding: 10px">
   <div class="pagination">
     정렬:
-    <select id="sorting" onchange="getProductByCategory()" style="margin-right: 10px">
+    <select id="sorting" onchange="getAllProducts()" style="margin-right: 10px">
       <option value="createdAt">작성일</option>
       <option value="modifiedAt">수정일</option>
     </select>
-    <input type="radio" name="isAsc" value="asc" onchange="getProductByCategory()"/> 오름차순
-    <input type="radio" name="isAsc" value="desc" onchange="getProductByCategory()" checked/> 내림차순
+    <input type="radio" name="isAsc" value="asc" onchange="getAllProducts()"/> 오름차순
+    <input type="radio" name="isAsc" value="desc" onchange="getAllProducts()" checked/> 내림차순
   </div>
   <div id="pagination" class="pagination" style="margin-top:10px"></div>
 </div>
 
-<div id="product_container" style="width: 80%;margin: auto;"
+<div id="all_product_container" style="width: 80%;margin: auto;"
      class="row row-cols-1 row-cols-md-4 g-4">
 </div>
 
 
 <script>
-  var imageFile = null;
-  var categoryId = -1;
+ // var imageFile = null;
+  //var categoryId = -1;
   $(document).ready(function () {
-
-    var currentUrl = window.location.href;
-    let temp = currentUrl.split("/");
-   categoryId = Number(temp[5]);
-    getProductByCategory();
+    getAllProducts();
 
     $("#image").on("change", function (event) {
       imageFile = event.target.files[0];
     });
   });
 
-  function getProductByCategory() {
+  function getAllProducts() {
     var sorting = $("#sorting option:selected").val();
     var isAsc = $(':radio[name="isAsc"]:checked').val();
 
-    let dataSource = `/v1/categories/` + categoryId + `/products?sort=${sorting},${isAsc}`;
+    let dataSource = `/v1/products?sort=${sorting},${isAsc}`;
 
-    $('#product_container').empty();
+    $('#all_product_container').empty();
     $('#pagination').pagination({
       dataSource,
       locator: 'data.content',
@@ -114,7 +110,7 @@
       totalNumberLocator: (response) => {
         return response.data.totalElements;//전체 갯수
       },
-      pageSize: 10,
+      pageSize: 80,
       showPrevious: true,
       showNext: true,
       ajax: {
@@ -123,7 +119,7 @@
         }
       },
       callback: function (response, pagination) {
-        $('#product_container').empty();
+        $('#all_product_container').empty();
         let products = response;
         for (let i = 0; i < products.length; i++) {
           let product = products[i];
@@ -142,14 +138,13 @@
                           </a>
                    </div>`;
 
-          $('#product_container').append(product_html);
+          $('#all_product_container').append(product_html);
         }
 
       }
 
     });
   }
-
 
 
 </script>
