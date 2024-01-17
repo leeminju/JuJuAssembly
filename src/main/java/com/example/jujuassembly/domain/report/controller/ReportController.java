@@ -9,7 +9,6 @@ import com.example.jujuassembly.global.response.ApiResponse;
 import com.example.jujuassembly.global.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import java.io.IOException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -63,6 +62,22 @@ public class ReportController {
   }
 
   /**
+   * 모든 제보 상품 리스트를 조회합니다.(관리자)
+   *
+   * @param pageable 페이지네이션 정보 (기본값: 페이지 크기 10, 생성일 기준 내림차순 정렬)
+   * @return ResponseEntity<ApiResponse> 객체
+   */
+
+  @Secured(Authority.ADMIN)
+  @GetMapping("/reports")
+  public ResponseEntity<ApiResponse> getAllReports(
+      @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    Page<ReportResponseDto> allReports = reportService.getAllReports(pageable);
+    return ResponseEntity.status(HttpStatus.OK).body(
+        new ApiResponse<>("상품 제보 전체 조회 완료", HttpStatus.OK.value(), allReports));
+  }
+
+  /**
    * 특정 사용자의 제보 상품 리스트를 조회합니다.(유저,관리자)
    *
    * @param userId   사용자 ID
@@ -70,11 +85,27 @@ public class ReportController {
    * @return ResponseEntity<ApiResponse> 객체
    */
   @GetMapping("/users/{userId}/reports")
-  public ResponseEntity<ApiResponse> getReports(@PathVariable Long userId,
+  public ResponseEntity<ApiResponse> getUserReports(@PathVariable Long userId,
       @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-    Page<ReportResponseDto> reports = reportService.getReports(userId, pageable);
+    Page<ReportResponseDto> reports = reportService.getUserReports(userId, pageable);
     return ResponseEntity.status(HttpStatus.OK).body(
-        new ApiResponse<>("상품 제보 리스트 조회 완료", HttpStatus.OK.value(), reports));
+        new ApiResponse<>("상품 제보 유저별 조회 완료", HttpStatus.OK.value(), reports));
+  }
+
+  /**
+   * 특정 카테고리별 제보 상품 리스트를 조회합니다.(관리자)
+   *
+   * @param categoryId   카테고리 ID
+   * @param pageable 페이지네이션 정보 (기본값: 페이지 크기 10, 생성일 기준 내림차순 정렬)
+   * @return ResponseEntity<ApiResponse> 객체
+   */
+  @Secured(Authority.ADMIN)
+  @GetMapping("/categories/{categoryId}/reports")
+  public ResponseEntity<ApiResponse> getReportsByCategoryId(@PathVariable Long categoryId,
+      @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    Page<ReportResponseDto> reports = reportService.getReportsByCategoryId(categoryId, pageable);
+    return ResponseEntity.status(HttpStatus.OK).body(
+        new ApiResponse<>("상품 제보 카테고리별 조회 완료", HttpStatus.OK.value(), reports));
   }
 
   /**

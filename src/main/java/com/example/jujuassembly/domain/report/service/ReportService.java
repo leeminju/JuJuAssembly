@@ -11,7 +11,6 @@ import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.s3.S3Manager;
 import java.io.IOException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -53,9 +52,21 @@ public class ReportService {
   }
 
   //조회
+  //전체 제보상품 조회
+  public Page<ReportResponseDto> getAllReports(Pageable pageable) {
+    Page<Report> allReports = reportRepository.findAll(pageable);
+    return allReports.map(ReportResponseDto::new);
+  }
 
-  public Page<ReportResponseDto> getReports(Long userId, Pageable pageable) {
-    Page<Report> reports = reportRepository.findAllByUserId(userId,pageable);
+  //유저별 제보상품 조회
+  public Page<ReportResponseDto> getUserReports(Long userId, Pageable pageable) {
+    Page<Report> reports = reportRepository.findAllByUserId(userId, pageable);
+    return reports.map(ReportResponseDto::new);
+  }
+
+  //카테고리별 제보상품 조회
+  public Page<ReportResponseDto> getReportsByCategoryId(Long categoryId, Pageable pageable) {
+    Page<Report> reports = reportRepository.findAllByCategoryId(categoryId, pageable);
     return reports.map(ReportResponseDto::new);
   }
 
