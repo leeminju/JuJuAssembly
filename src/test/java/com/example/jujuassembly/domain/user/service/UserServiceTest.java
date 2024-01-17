@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyChar;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -14,6 +15,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
 import com.example.jujuassembly.domain.emailAuth.entity.EmailAuth;
 import com.example.jujuassembly.domain.emailAuth.repository.EmailAuthRepository;
@@ -202,7 +204,10 @@ public class UserServiceTest implements EmailAuthUtil {
   void viewProfileTest() {
     // given
     Long userId = 123L;
-    User user = User.builder().id(userId).loginId("user").nickname("user").email("email").build();
+    Category category1 = Category.builder().id(1L).name("소주").build();
+    Category category2 = Category.builder().id(2L).name("맥주").build();
+    User user = User.builder().id(userId).loginId("user").nickname("user").email("email")
+        .firstPreferredCategory(category1).secondPreferredCategory(category2).build();
 
     UserRepository userRepository = mock(UserRepository.class);
     when(userRepository.getById(userId)).thenReturn(user);
@@ -229,17 +234,28 @@ public class UserServiceTest implements EmailAuthUtil {
   void modifyProfileTest() {
     // given
     Long userId = 123L;
-    User user = User.builder().id(userId).loginId("user").nickname("user").email("email").build();
+    Category category1 = Category.builder().id(1L).name("소주").build();
+    Category category2 = Category.builder().id(2L).name("맥주").build();
+    User user = User.builder().id(userId).loginId("user").nickname("user")
+        .firstPreferredCategory(category1)
+        .secondPreferredCategory(category2).email("email").build();
 
-    UserModifyRequestDto modifyRequestDto = UserModifyRequestDto.builder().nickname("modifiedUser")
+    UserModifyRequestDto modifyRequestDto = UserModifyRequestDto.builder().currentPassword("1234")
+        .password("password").passwordCheck("password").nickname("modifiedUser")
+        .firstPreferredCategoryId(1L)
+        .secondPreferredCategoryId(2L)
         .email("modifiedEmail").build();
 
     UserRepository userRepository = mock(UserRepository.class);
+    PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
+    CategoryRepository categoryRepository = mock(CategoryRepository.class);
+    when(passwordEncoder.matches(any(), any())).thenReturn(true);
     when(userRepository.getById(userId)).thenReturn(user);
+    when(categoryRepository.getById(any())).thenReturn(category1);
 
     UserService userService = new UserService(
-        userRepository, mock(PasswordEncoder.class), mock(EmailAuthService.class),
-        mock(CategoryRepository.class), mock(EmailAuthRepository.class), mock(JwtUtil.class),
+        userRepository, passwordEncoder, mock(EmailAuthService.class),
+        categoryRepository, mock(EmailAuthRepository.class), mock(JwtUtil.class),
         mock(S3Manager.class)
     );
 
@@ -260,7 +276,9 @@ public class UserServiceTest implements EmailAuthUtil {
   void uploadImageTest() throws Exception {
     //given
     Long userId = 1L;
-    User user = User.builder().id(userId).build();
+    Category category1 = Category.builder().id(1L).name("소주").build();
+    Category category2 = Category.builder().id(2L).name("맥주").build();
+    User user = User.builder().id(userId).firstPreferredCategory(category1).secondPreferredCategory(category2).build();
 
     // 이미지 파일 생성
     byte[] content = "fakeImage".getBytes();
