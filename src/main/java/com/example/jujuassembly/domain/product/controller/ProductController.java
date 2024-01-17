@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -59,9 +60,9 @@ public class ProductController {
    * @return 상품 목록과 상태 정보를 담은 ApiResponse
    */
   @GetMapping("/products")
-  public ResponseEntity<ApiResponse<List<ProductResponseDto>>> getProducts(
+  public ResponseEntity<ApiResponse<Page<ProductResponseDto>>> getProducts(
       @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-    List<ProductResponseDto> page = productService.getProducts(pageable);
+    Page<ProductResponseDto> page = productService.getProducts(pageable);
     return ResponseEntity.ok()
         .body(new ApiResponse<>("상품 전체 조회에 성공하였습니다.", HttpStatus.OK.value(), page));
   }
@@ -74,10 +75,10 @@ public class ProductController {
    * @return 카테고리별 상품 목록과 상태 정보를 담은 ApiResponse
    */
   @GetMapping("/categories/{categoryId}/products")
-  public ResponseEntity<ApiResponse<List<ProductResponseDto>>> getProductsByCategory(
+  public ResponseEntity<ApiResponse<Page<ProductResponseDto>>> getProductsByCategory(
       @PathVariable Long categoryId,
       @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-    List<ProductResponseDto> page = productService.getProductsByCategory(categoryId, pageable);
+    Page<ProductResponseDto> page = productService.getProductsByCategory(categoryId, pageable);
     return ResponseEntity.ok()
         .body(new ApiResponse<>("카테고리별 상품 조회에 성공하였습니다.", HttpStatus.OK.value(), page));
   }
@@ -105,10 +106,10 @@ public class ProductController {
    * @return 검색 결과와 상태 정보를 담은 ApiResponse
    */
   @GetMapping("/products/search")
-  public ResponseEntity<ApiResponse<List<ProductResponseDto>>> getProductsBySearch(
+  public ResponseEntity<ApiResponse<Page<ProductResponseDto>>> getProductsBySearch(
       @RequestParam String keyword,
       @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-    List<ProductResponseDto> responseDtoList = productService.getProductsBySearch(keyword,
+    Page<ProductResponseDto> responseDtoList = productService.getProductsBySearch(keyword,
         pageable);
 
     return ResponseEntity.ok()
