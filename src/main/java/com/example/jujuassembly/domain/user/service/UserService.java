@@ -16,7 +16,6 @@ import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.jwt.JwtUtil;
 import com.example.jujuassembly.global.s3.S3Manager;
 import com.example.jujuassembly.global.security.UserDetailsImpl;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
