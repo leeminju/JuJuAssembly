@@ -11,8 +11,9 @@ import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.s3.S3Manager;
 import java.io.IOException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,13 +52,22 @@ public class ReportService {
   }
 
   //조회
+  //전체 제보상품 조회
+  public Page<ReportResponseDto> getAllReports(Pageable pageable) {
+    Page<Report> allReports = reportRepository.findAll(pageable);
+    return allReports.map(ReportResponseDto::new);
+  }
 
-  public List<ReportResponseDto> getReports(Long userId, User user) {
+  //유저별 제보상품 조회
+  public Page<ReportResponseDto> getUserReports(Long userId, Pageable pageable) {
+    Page<Report> reports = reportRepository.findAllByUserId(userId, pageable);
+    return reports.map(ReportResponseDto::new);
+  }
 
-    reportRepository.findByUserId(user.getId())
-        .orElseThrow(() -> new ApiException("해당하는 제보가 없습니다.", HttpStatus.NOT_FOUND));
-    List<Report> reportList = reportRepository.findAllByUserId(user.getId());
-    return reportList.stream().map(ReportResponseDto::new).toList();
+  //카테고리별 제보상품 조회
+  public Page<ReportResponseDto> getReportsByCategoryId(Long categoryId, Pageable pageable) {
+    Page<Report> reports = reportRepository.findAllByCategoryId(categoryId, pageable);
+    return reports.map(ReportResponseDto::new);
   }
 
   //수정

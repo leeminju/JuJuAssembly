@@ -50,25 +50,21 @@ public class ProductService {
 
   // 상품 전체 조회 + 페이징 정렬(상품 등록순)
   @Transactional(readOnly = true)
-  public List<ProductResponseDto> getProducts(Pageable pageable) {
+  public Page<ProductResponseDto> getProducts(Pageable pageable) {
     Page<Product> products = productRepository.findAll(pageable);
     // "Page" 인터페이스가 제공하는 'map' 메서드 활용
-    return products.getContent().stream()
-        .map(ProductResponseDto::new)
-        .collect(Collectors.toList());
+    return products.map(ProductResponseDto::new);
   }
 
   // 카테고리별 상품 조회 + 페이징 정렬(상품 등록순)
-  public List<ProductResponseDto> getProductsByCategory(Long categoryId, Pageable pageable) {
+  public Page<ProductResponseDto> getProductsByCategory(Long categoryId, Pageable pageable) {
 
     if (!categoryRepository.existsById(categoryId)) {
       throw new ApiException("해당 카테고리가 존재하지 않습니다.", HttpStatus.NOT_FOUND);
     }
 
     Page<Product> products = productRepository.findByCategoryId(categoryId, pageable);
-    return products.getContent().stream()
-        .map(ProductResponseDto::new)
-        .collect(Collectors.toList());
+    return products.map(ProductResponseDto::new);
   }
 
   // 상품 상세 조회
@@ -84,15 +80,13 @@ public class ProductService {
   }
 
   // 상품 검색
-  public List<ProductResponseDto> getProductsBySearch(String keyword, Pageable pageable) {
+  public Page<ProductResponseDto> getProductsBySearch(String keyword, Pageable pageable) {
     if (!StringUtils.hasText(keyword)) {
       throw new ApiException("검색어를 입력해주세요.", HttpStatus.BAD_REQUEST);
     }
 
     Page<Product> products = productRepository.findByKeyword(keyword, pageable);
-    return products.getContent().stream()
-        .map(ProductResponseDto::new)
-        .collect(Collectors.toList());
+    return products.map(ProductResponseDto::new);
   }
 
 

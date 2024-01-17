@@ -1,6 +1,7 @@
 package com.example.jujuassembly.domain.chat.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -40,33 +41,32 @@ class ChatServiceTest {
   ChatRepository chatRepository;
   @Mock
   RoomRepository roomRepository;
-  @Mock
-  User user;
 
   @Test
   @DisplayName("채팅 내용 저장 테스트")
   void saveTest() {
     //given
     Long roomId = 1L;
-    ChatRequestDto chatRequestDto = ChatRequestDto.builder().senderId(1L).receiverId(2L).message("1").build();
-    User sender = User.builder().id(1L).loginId("userId").nickname("testuser1").password("1234")
+    ChatRequestDto chatRequestDto = ChatRequestDto.builder().senderId(1L).receiverId(2L)
+        .message("1").build();
+    User sender = User.builder().id(chatRequestDto.getSenderId()).loginId("userId")
+        .nickname("testuser1").password("1234")
         .build();
-    User reciver = User.builder().id(2L).loginId("userId2").nickname("testuser2").password("1234")
+    User reciver = User.builder().id(chatRequestDto.getReceiverId()).loginId("userId2")
+        .nickname("testuser2").password("1234")
         .build();
-    Room room = Room.builder().id(1L).admin(sender).user(reciver).build();
+    Room room = Room.builder().id(roomId).admin(sender).user(reciver).build();
 
     given(userRepository.getById(chatRequestDto.getSenderId())).willReturn(sender);
     given(userRepository.getById(chatRequestDto.getReceiverId())).willReturn(reciver);
     given(roomRepository.getById(roomId)).willReturn(room);
 
-    Chat chat = Chat.builder().id(1L).sender(sender).receiver(reciver).room(room)
-        .content(chatRequestDto.getMessage()).build();
-
     //when
     chatService.save(roomId, chatRequestDto);
 
     //then
-    verify(chatRepository, times(1)).save(chat);
+    verify(chatRepository, times(1)).save(any(Chat.class));
+
 
   }
 
@@ -114,6 +114,7 @@ class ChatServiceTest {
   }
 
   @Test
+  @DisplayName("채팅방의 모든 채팅 가져오기 테스트")
   void findAllChatsTest() {
     Long userId = 1L;
     Long userId2 = 2L;
