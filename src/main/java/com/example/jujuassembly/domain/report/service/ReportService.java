@@ -13,6 +13,8 @@ import com.example.jujuassembly.global.s3.S3Manager;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,12 +54,9 @@ public class ReportService {
 
   //조회
 
-  public List<ReportResponseDto> getReports(Long userId, User user) {
-
-    reportRepository.findByUserId(user.getId())
-        .orElseThrow(() -> new ApiException("해당하는 제보가 없습니다.", HttpStatus.NOT_FOUND));
-    List<Report> reportList = reportRepository.findAllByUserId(user.getId());
-    return reportList.stream().map(ReportResponseDto::new).toList();
+  public Page<ReportResponseDto> getReports(Long userId, Pageable pageable) {
+    Page<Report> reports = reportRepository.findAllByUserId(userId,pageable);
+    return reports.map(ReportResponseDto::new);
   }
 
   //수정
