@@ -158,11 +158,11 @@ public class ProductServiceTest {
     when(productRepository.findAll(pageable)).thenReturn(productPage);
 
     // 서비스 메소드 호출
-    List<ProductResponseDto> responseDto = productService.getProducts(pageable);
+    Page<ProductResponseDto> responseDto = productService.getProducts(pageable);
 
     // then
     assertNotNull(responseDto);
-    assertEquals(productList.size(), responseDto.size());
+    assertEquals(productList.size(), responseDto.getContent().size());
   }
 
   @Test
@@ -220,12 +220,12 @@ public class ProductServiceTest {
     when(productRepository.findByCategoryId(categoryId, pageable)).thenReturn(productPage);
 
     // when
-    List<ProductResponseDto> responseDtoList = productService.getProductsByCategory(categoryId,
+    Page<ProductResponseDto> responseDtoList = productService.getProductsByCategory(categoryId,
         pageable);
 
     // then
     assertNotNull(responseDtoList);
-    assertEquals(productList.size(), responseDtoList.size());
+    assertEquals(productList.size(), responseDtoList.getContent().size());
   }
 
   @Test
@@ -245,12 +245,12 @@ public class ProductServiceTest {
     when(productRepository.findByKeyword(keyword, pageable)).thenReturn(productPage);
 
     // 서비스 메소드 호출
-    List<ProductResponseDto> responseDtoList = productService.getProductsBySearch(keyword,
+    Page<ProductResponseDto> responseDtoList = productService.getProductsBySearch(keyword,
         pageable);
 
     // then
     assertNotNull(responseDtoList);
-    assertEquals(productList.size(), responseDtoList.size());
+    assertEquals(productList.size(), responseDtoList.getContent().size());
   }
 
 
