@@ -117,35 +117,6 @@ public class UserServiceTest implements EmailAuthUtil {
     assertEquals(TEST_USER_LOGINID, result);
   }
 
-//  @DisplayName("인증번호로 회원가입 테스트")
-//  @Test
-//  void verificateCodeTest() {
-//    // given
-//    emailAuthService = spy(new EmailAuthService(emailService, emailAuthRepository, redisTemplate));
-//
-//    // when
-////    EmailAuth emailAuth = mock(EmailAuth.class);
-////    when(emailAuth.getSentCode()).thenReturn(TEST_SENTCODE);
-//
-//    when(emailAuthRepository.findTopByLoginIdOrderByCreatedAtDesc(anyString()))
-//        .thenReturn(Optional.of(TEST_EMAILAUTH));
-//    when(redisTemplate.hasKey(anyString())).thenReturn(true);
-//
-////    when(emailAuthService.checkVerifyVerificationCode(anyString(), anyString())).thenReturn(TEST_EMAILAUTH);
-//    when(emailAuthService.checkVerifyVerificationCode(TEST_USER_LOGINID, TEST_SENTCODE)).thenReturn(TEST_EMAILAUTH);
-//
-//    when(categoryRepository.getById(any(Long.class))).thenReturn(TEST_CATEGORY);
-//
-//    doNothing().when(emailAuthService).concludeEmailAuthentication(TEST_EMAILAUTH);
-//
-//    // then
-//    UserResponseDto result = userService.verificateCode(TEST_SENTCODE, TEST_USER_LOGINID);
-//
-//    assertEquals(result.getEmail(), TEST_USER_EMAIL);
-//    assertEquals(result.getNickname(), TEST_USER_NICKNAME);
-//    assertEquals(result.getLoginId(), TEST_USER_LOGINID);
-//  }
-
   @DisplayName("인증번호로 회원가입 테스트")
   @Test
   void verificateCodeTest() {
