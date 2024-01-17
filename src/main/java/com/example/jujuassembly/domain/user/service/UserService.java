@@ -216,8 +216,8 @@ public class UserService {
     if (image != null && !image.isEmpty()) {
       String url = s3Manager.upload(image, "users", userId);
       user.updateUserImage(url);
-      userRepository.save(user);
     }
+
     return new UserDetailResponseDto(user);
   }
 
