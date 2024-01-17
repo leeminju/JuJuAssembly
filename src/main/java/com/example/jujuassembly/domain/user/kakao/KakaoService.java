@@ -4,7 +4,6 @@ import com.example.jujuassembly.domain.user.dto.UserResponseDto;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.global.jwt.JwtUtil;
-import com.example.jujuassembly.global.s3.S3Manager;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,7 +31,6 @@ public class KakaoService {
     private final RestTemplate restTemplate;
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
-    private final S3Manager s3Manager;
 
     public UserResponseDto kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
         log.info("kakaoLogin 메서드 입성");
@@ -62,7 +60,7 @@ public class KakaoService {
         return new UserResponseDto(kakaoUser);
     }
 
-    private String getToken(String code) throws JsonProcessingException {
+    public String getToken(String code) throws JsonProcessingException {
         log.info("getToken");
 
         // 요청 URL 만들기
@@ -102,7 +100,7 @@ public class KakaoService {
         return jsonNode.get("access_token").asText();
     }
 
-    private KakaoUserInfoDto getKakaoUserInfo(String accessToken) throws JsonProcessingException {
+    public KakaoUserInfoDto getKakaoUserInfo(String accessToken) throws JsonProcessingException {
         log.info("accessToken: "+accessToken);
 
         // 요청 URL 만들기
@@ -141,7 +139,7 @@ public class KakaoService {
         return new KakaoUserInfoDto(id, nickname, email, imageUrl);
     }
 
-    private User registerKakaoUserIfNeeded(KakaoUserInfoDto kakaoUserInfo) {
+    public User registerKakaoUserIfNeeded(KakaoUserInfoDto kakaoUserInfo) {
         // DB 에 중복된 Kakao Id 가 있는지 확인
         Long kakaoId = kakaoUserInfo.getId();
         User kakaoUser = userRepository.findByKakaoId(kakaoId).orElse(null);
