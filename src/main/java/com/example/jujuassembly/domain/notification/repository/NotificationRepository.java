@@ -9,10 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
   List<Notification> findAllByUserId(Long userId);
-
-  // 리뷰와 사용자에 해당하는 알림을 삭제하는 메서드
-  void deleteByReviewAndUser(Review review, User user);
-
-  // 해당 리뷰 관련 알림 모두 삭제
-  void deleteByReview(Review review);
+  
+  // 해당 type의 관련된 알림 삭제
+  List<Notification> findByEntityTypeAndEntityId(String entityType, Long entityId);
 }

@@ -1,6 +1,8 @@
 package com.example.jujuassembly.domain.reviewLike.service;
 
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
+import com.example.jujuassembly.domain.notification.entity.Notification;
+import com.example.jujuassembly.domain.notification.repository.NotificationRepository;
 import com.example.jujuassembly.domain.notification.service.NotificationService;
 import com.example.jujuassembly.domain.product.entity.Product;
 import com.example.jujuassembly.domain.product.repository.ProductRepository;
@@ -30,6 +32,7 @@ public class ReviewLikeService {
   private final ReviewLikeRepository reviewLikeRepository;
 
   private final NotificationService notificationService;
+  private final NotificationRepository notificationRepository;
 
   @Transactional
   public Optional<ReviewLikeResponseDto> likeReview(Long categoryId, Long productId, Long reviewId,
@@ -48,7 +51,8 @@ public class ReviewLikeService {
     if (reviewLike.isPresent()) {
       if (reviewLike.get().getStatus().equals(ReviewLikeStatusEnum.LIKE)) {
         reviewLikeRepository.delete(reviewLike.get());//이미 추천을 눌렀다면 추천 해제
-        notificationService.deleteNotificationByReviewAndUser(review, user); // 데이터베이스 알림 삭제
+        // 데이터베이스 알림 삭제
+        notificationService.deleteNotificationByEntity("REVIEW", reviewId);
         return Optional.empty();
       } else {
         reviewLike.get().like();//비추천 -> 추천으로 변경
@@ -63,22 +67,15 @@ public class ReviewLikeService {
       isNewLike = true;  // 새로운 '좋아요'로 설정
     }
 
-    // 새로운 '좋아요'가 있을 경우 알림 발송
-    if (isNewLike) {
-      sendNotificationToReviewAuthor(review, user);
+    if (isNewLike && !user.equals(review.getUser())) {
+      // 새로운 '좋아요'가 있고, 리뷰 작성자와 다른 사용자가 '좋아요'를 눌렀을 경우에만 알림 발송
+      Notification notification = notificationService.createNotification(review.getUser(), "REVIEW", reviewId, user);
+      notificationRepository.save(notification);
     }
+
     return Optional.of(responseDto);
   }
 
-  private void sendNotificationToReviewAuthor(Review review, User liker) {
-    User reviewAuthor = review.getUser();
-
-    // 리뷰 작성자와 '좋아요'를 누른 사용자가 같지 않을 때만 알림을 보냄
-    if (reviewAuthor != null && !reviewAuthor.getId().equals(liker.getId())) {
-      String content = liker.getNickname() + "님이 " + reviewAuthor.getNickname() + "님의 리뷰에 좋아요를 눌렀습니다.";
-      notificationService.send(reviewAuthor, review, content);
-    }
-  }
 
   @Transactional
   public Optional<ReviewLikeResponseDto> dislikeReview(Long categoryId, Long productId,

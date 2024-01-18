@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -26,6 +27,7 @@ import com.example.jujuassembly.domain.notification.repository.EmitterRepository
 import com.example.jujuassembly.domain.notification.repository.NotificationRepository;
 import com.example.jujuassembly.domain.product.entity.Product;
 import com.example.jujuassembly.domain.review.entity.Review;
+import com.example.jujuassembly.domain.review.repository.ReviewRepository;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.global.exception.ApiException;
 import java.io.IOException;
@@ -62,6 +64,8 @@ public class NotificationServiceTest {
   EmitterRepository emitterRepository;
   @Mock
   NotificationRepository notificationRepository;
+  @Mock
+  ReviewRepository reviewRepository;
   @Mock
   User user;
   @InjectMocks
@@ -152,8 +156,6 @@ public class NotificationServiceTest {
     Object data = "Test data";
 
     // Act
-    NotificationService notificationService = new NotificationService(emitterRepository,
-        notificationRepository);
     notificationService.sendToClient(emitter, id, data);
 
     // Assert
@@ -170,32 +172,16 @@ public class NotificationServiceTest {
     Object data = "Test data";
 
     // Mock 객체의 동작 설정: emitter.send() 메서드가 예외를 던지도록 설정
-    doThrow(new IOException("Test exception")).when(emitter)
-        .send(any(SseEmitter.SseEventBuilder.class));
+    doThrow(new IOException("Test exception")).when(emitter).send(any(SseEmitter.SseEventBuilder.class));
 
-    // EmitterRepository 목 객체 생성
-    EmitterRepository emitterRepository = mock(EmitterRepository.class);
-
-    // NotificationService 객체 생성 및 EmitterRepository 주입
-    NotificationService notificationService = new NotificationService(emitterRepository,
-        notificationRepository);
-
-    // Act & Assert: ApiException이 발생하는지 확인
+    // Act
     ApiException exception = assertThrows(ApiException.class, () -> {
       notificationService.sendToClient(emitter, id, data);
     });
 
-    // ApiException이 발생한 경우에만 메시지 검증 수행
-    if (exception != null) {
-      // ApiException의 메시지 검증
-      String expectedErrorMessage = "SSE 연결에 오류가 발생하였습니다.";
-      String actualErrorMessage = exception.getMsg();
-      assertNotNull(actualErrorMessage);
-      assertTrue(actualErrorMessage.contains(expectedErrorMessage));
-    }
-
-    // ApiException이 발생하면 아래 코드가 실행되지 않을 것입니다.
-    // emitterRepository.deleteById()가 호출되었는지 검증
+    // Assert
+    String expectedErrorMessage = "SSE 연결에 오류가 발생하였습니다.";
+    assertEquals(expectedErrorMessage, exception.getMsg());
     verify(emitterRepository, times(1)).deleteById(eq(id));
   }
 
@@ -206,98 +192,72 @@ public class NotificationServiceTest {
     // User 객체 생성
     User user = User.builder()
         .id(1L)
+        .nickname("TestUser")
         .build();
 
-    // Category 객체 생성
-    Category category = Category.builder()
-        .id(10L)
-        .name("TestCategory")
-        .build();
+    // 알림 유형, entityId, actionUser 설정
+    String type = "REVIEW_LIKE";
+    Long entityId = 1000L; // 예시 entityId
+    User actionUser = user; // 동일한 User 객체 사용, 실제 사용 시나리오에 따라 변경 가능
 
-    // Product 객체 생성
-    Product product = Product.builder()
-        .id(100L)
-        .category(category) // Category 객체 연결
-        .name("TestProduct")
-        .build();
-
-    // Review 객체 생성
-    Review review = Review.builder()
-        .id(1000L)
-        .product(product) // Product 객체 연결
-        .build();
-
-    String content = "New notification content";
-
+    // Notification 객체 생성
     Notification notification = Notification.builder()
         .user(user)
-        .review(review)
-        .content(content)
+        .content("New notification content")
+        .url("/test/url")
         .build();
 
-    // notificationRepository.save() 메서드의 동작 설정
-    when(notificationRepository.save(any(Notification.class))).thenReturn(notification);
+    // createNotification 메서드의 동작 설정
+    when(notificationService.createNotification(eq(user), eq(type), eq(entityId), eq(actionUser)))
+        .thenReturn(notification);
 
-    // emitterRepository.findAllStartWithById() 메서드의 동작 설정
+    // EmitterRepository 관련 설정
     Map<String, SseEmitter> sseEmittersForUser1 = new HashMap<>();
+    SseEmitter emitter1 = mock(SseEmitter.class);
+    SseEmitter emitter2 = mock(SseEmitter.class);
     sseEmittersForUser1.put("1", emitter1);
     sseEmittersForUser1.put("2", emitter2);
 
-    when(emitterRepository.findAllStartWithById(eq("1"))).thenReturn(sseEmittersForUser1);
-    when(emitterRepository.findAllStartWithById(eq("2"))).thenReturn(Collections.emptyMap());
+    when(emitterRepository.findAllStartWithById(eq(String.valueOf(user.getId()))))
+        .thenReturn(sseEmittersForUser1);
 
     // 테스트할 메서드 호출
-    notificationService.send(user, review, content);
+    notificationService.send(user, type, entityId, actionUser);
 
-    // notificationRepository.save() 메서드가 호출되었는지 검증
+    // 검증
+    verify(notificationService, times(1))
+        .createNotification(eq(user), eq(type), eq(entityId), eq(actionUser));
     verify(notificationRepository, times(1)).save(any(Notification.class));
-
-    // emitterRepository의 메서드 호출 검증
-    verify(emitterRepository, times(1)).findAllStartWithById(anyString());
-    verify(emitterRepository, times(2)).saveEventCache(anyString(), any(Notification.class));
-
+    verify(emitterRepository, times(1)).findAllStartWithById(eq(String.valueOf(user.getId())));
+    verify(emitterRepository, times(2)).saveEventCache(anyString(), eq(notification));
     verify(emitter1, times(1)).send(any(SseEmitter.SseEventBuilder.class));
     verify(emitter2, times(1)).send(any(SseEmitter.SseEventBuilder.class));
   }
+
 
 
   @Test
   @DisplayName("알림 생성 테스트")
   void createNotificationTest() {
     // 가상 데이터 생성
-    User user = User.builder()
-        .id(1L)
-        .build();
+    User user = User.builder().id(1L).nickname("UserNickname").build();
+    User actionUser = User.builder().id(2L).nickname("ActionUserNickname").build();
 
-    Category category = Category.builder()
-        .id(10L)
-        .build();
+    Category category = Category.builder().id(10L).build();
+    Product product = Product.builder().id(100L).category(category).build();
+    Review review = Review.builder().id(1000L).product(product).user(user).build();
 
-    Product product = Product.builder()
-        .id(100L)
-        .category(category)
-        .build();
-
-    Review review = Review.builder()
-        .id(1000L)
-        .product(product)
-        .build();
-    String content = "Test Notification Content";
+    // reviewRepository 및 reportRepository의 모의 동작 설정
+    when(reviewRepository.findById(eq(review.getId()))).thenReturn(Optional.of(review));
 
     // createNotification 메서드 호출
-    Notification notification = notificationService.createNotification(user, review, content);
+    Notification notification = notificationService.createNotification(user, "REVIEW_LIKE", review.getId(), actionUser);
 
-    // 반환된 알림 객체의 필드 검증
+    // 검증
     assertNotNull(notification);
     assertEquals(user, notification.getUser());
-    assertEquals(review, notification.getReview());
-    assertEquals(content, notification.getContent());
-
-    // URL 문자열 검증
-    String expectedUrl = "/v1/categories/10/products/100#review-1000";
-    assertEquals(expectedUrl, notification.getUrl());
-
-    // isRead 필드 검증 (기본값은 false 여야 함)
+    assertEquals("ActionUserNickname님이 UserNickname님의 리뷰에 좋아요를 눌렀습니다.", notification.getContent());
+    assertEquals("/v1/categories/10/products/100#review-1000", notification.getUrl());
     assertFalse(notification.isRead());
   }
 

@@ -14,9 +14,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class NotificationRequestDto {
 
-  private User user;
-  private Review review;
-  private String content;
-  private String url;
-  private boolean isRead;
+  private User user;           // 알림을 받는 사용자
+  private String entityType;   // 알림과 관련된 엔티티 유형
+  private Long entityId;       // 알림과 관련된 엔티티 ID
+  private String content;      // 알림 내용
+  private String url;          // 알림과 관련된 URL
+  private boolean isRead;      // 알림 읽음 여부
+
 }
