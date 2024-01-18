@@ -12,6 +12,7 @@ import com.example.jujuassembly.domain.reviewImage.service.ReviewImageService;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.global.exception.ApiException;
+import com.example.jujuassembly.global.s3.S3Manager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -74,7 +75,7 @@ public class ReviewService {
     checkReviewProductAndProductIdEquality(review, productId);
 
     //기존의 파일 모두 삭제
-    reviewImageService.deleteAllReviewImages(review, "reviews");
+    reviewImageService.deleteAllReviewImages(review, S3Manager.REVIEW_DIRECTORY_NAME);
 
     //새로 업로드
     reviewImageService.uploadReviewImages(review, images);
@@ -96,7 +97,7 @@ public class ReviewService {
 
     //기존의 파일 모두 삭제
     reviewRepository.delete(review);
-    reviewImageService.deleteAllReviewImages(review, "reviews");
+    reviewImageService.deleteAllReviewImages(review, S3Manager.REVIEW_DIRECTORY_NAME);
   }
 
   public Page<ReviewResponseDto> getMyReviews(Long userId, Pageable pageable) {

@@ -40,6 +40,13 @@ public class S3Manager {
 
   private final AmazonS3 s3Client;
 
+  public static final String REVIEW_PREFIX = "reviews/";
+  public static final String REVIEW_DIRECTORY_NAME = "reviews";
+  public static final String CATEGORY_DIRECTORY_NAME = "categories";
+  public static final String USER_DIRECTORY_NAME = "users";
+  public static final String PRODUCT_DIRECTORY_NAME = "products";
+  public static final String REPORT_DIRECTORY_NAME = "reports";
+
   @Transactional(propagation = Propagation.NOT_SUPPORTED)
   public String uploadMultipartFileWithPublicRead(String prefix, MultipartFile multipartFile)
       throws Exception {
@@ -76,8 +83,8 @@ public class S3Manager {
   }
 
   @Transactional(propagation = Propagation.NOT_SUPPORTED)
-  public void deleteImageFile(String fileUrl,String dirName) {
-    amazonS3Client.deleteObject(bucket, extractKey(fileUrl,dirName));
+  public void deleteImageFile(String fileUrl, String dirName) {
+    amazonS3Client.deleteObject(bucket, extractKey(fileUrl, dirName));
   }
 
   @Transactional(propagation = Propagation.NOT_SUPPORTED)
@@ -94,9 +101,9 @@ public class S3Manager {
     }
   }
 
-  private String extractKey(String fileUrl,String dirName) {
+  private String extractKey(String fileUrl, String dirName) {
     // "reviews/"를 포함하여 그 이후의 모든 문자열을 추출하는 정규 표현식
-    String regex = "("+dirName+"/.*)";
+    String regex = "(" + dirName + "/.*)";
 
     Pattern pattern = Pattern.compile(regex);
     Matcher matcher = pattern.matcher(fileUrl);

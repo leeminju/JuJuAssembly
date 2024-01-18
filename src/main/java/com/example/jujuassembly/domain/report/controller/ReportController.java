@@ -95,8 +95,8 @@ public class ReportController {
   /**
    * 특정 카테고리별 제보 상품 리스트를 조회합니다.(관리자)
    *
-   * @param categoryId   카테고리 ID
-   * @param pageable 페이지네이션 정보 (기본값: 페이지 크기 10, 생성일 기준 내림차순 정렬)
+   * @param categoryId 카테고리 ID
+   * @param pageable   페이지네이션 정보 (기본값: 페이지 크기 10, 생성일 기준 내림차순 정렬)
    * @return ResponseEntity<ApiResponse> 객체
    */
   @Secured(Authority.ADMIN)
@@ -123,12 +123,11 @@ public class ReportController {
   public ResponseEntity<ApiResponse> patchReport(@PathVariable Long categoryId,
       @PathVariable Long reportId,
       @RequestParam MultipartFile image,
-      @Valid @RequestPart("data") ReportRequestDto requestDto,
-      @AuthenticationPrincipal UserDetailsImpl userDetails)
+      @Valid @RequestPart("data") ReportRequestDto requestDto)
       throws IOException {
 
     ReportResponseDto reportResponseDto = reportService.patchReport(categoryId, reportId, image,
-        requestDto, userDetails.getUser());
+        requestDto);
 
     return ResponseEntity.status(HttpStatus.OK).body(
         new ApiResponse<>("상품 제보 수정 완료", HttpStatus.OK.value(), reportResponseDto));
@@ -137,20 +136,18 @@ public class ReportController {
   /**
    * 제보 상품의 상태를 수정합니다. (관리자 권한 필요)
    *
-   * @param categoryId  카테고리 ID
-   * @param reportId    제보 상품 ID
-   * @param requestDto  제보 상태 요청 DTO
-   * @param userDetails 인증된 사용자 정보
+   * @param categoryId 카테고리 ID
+   * @param reportId   제보 상품 ID
+   * @param requestDto 제보 상태 요청 DTO
    * @return ResponseEntity<ApiResponse> 객체
    */
   @Secured(Authority.ADMIN)
   @PatchMapping("/categories/{categoryId}/reports/{reportId}/status")
   public ResponseEntity<ApiResponse> patchReportStatus(@PathVariable Long categoryId,
-      @PathVariable Long reportId, @Valid @RequestBody ReportStatusRequestDto requestDto,
-      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+      @PathVariable Long reportId, @Valid @RequestBody ReportStatusRequestDto requestDto) {
 
     ReportResponseDto reportResponseDto = reportService.patchReportStatus(categoryId, reportId,
-        requestDto, userDetails.getUser());
+        requestDto);
 
     return ResponseEntity.status(HttpStatus.OK).body(
         new ApiResponse<>("상품 제보 수정 완료", HttpStatus.OK.value(), reportResponseDto));
@@ -159,16 +156,15 @@ public class ReportController {
   /**
    * 제보 상품을 삭제합니다.(유저,관리자)
    *
-   * @param categoryId  카테고리 ID
-   * @param reportId    제보 상품 ID
-   * @param userDetails 인증된 사용자 정보
+   * @param categoryId 카테고리 ID
+   * @param reportId   제보 상품 ID
    * @return ResponseEntity<ApiResponse> 객체
    */
   @DeleteMapping("/categories/{categoryId}/reports/{reportId}")
   public ResponseEntity<ApiResponse> deleteReport(@PathVariable Long categoryId,
-      @PathVariable Long reportId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+      @PathVariable Long reportId) {
 
-    reportService.deleteReport(categoryId, reportId, userDetails.getUser());
+    reportService.deleteReport(categoryId, reportId);
 
     return ResponseEntity.status(HttpStatus.OK)
         .body(new ApiResponse("제보 상품 삭제 성공", HttpStatus.OK.value()));

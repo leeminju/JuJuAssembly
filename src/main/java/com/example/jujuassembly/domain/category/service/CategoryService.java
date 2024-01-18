@@ -41,7 +41,8 @@ public class CategoryService {
       if (!image.getContentType().startsWith("image")) {
         throw new ApiException("이미지 파일 형식이 아닙니다.", HttpStatus.BAD_REQUEST);
       }
-      String imageUrl = s3Manager.upload(image, "categories", category.getId());
+      String imageUrl = s3Manager.upload(image, S3Manager.CATEGORY_DIRECTORY_NAME,
+          category.getId());
       category.updateImage(imageUrl);
     }
 
@@ -55,13 +56,14 @@ public class CategoryService {
     Category category = categoryRepository.getById(categoryId);
     category.updateName(requestDto);
 
-    s3Manager.deleteAllImageFiles(categoryId.toString(), "categories");
+    s3Manager.deleteAllImageFiles(categoryId.toString(), S3Manager.CATEGORY_DIRECTORY_NAME);
 
     if (image != null && !image.isEmpty()) {
       if (!image.getContentType().startsWith("image")) {
         throw new ApiException("이미지 파일 형식이 아닙니다.", HttpStatus.BAD_REQUEST);
       }
-      String imageUrl = s3Manager.upload(image, "categories", category.getId());
+      String imageUrl = s3Manager.upload(image, S3Manager.CATEGORY_DIRECTORY_NAME,
+          category.getId());
       category.updateImage(imageUrl);
     }
 
@@ -72,7 +74,7 @@ public class CategoryService {
   public void deleteCategory(Long categoryId) {
     Category category = categoryRepository.getById(categoryId);
     categoryRepository.delete(category);
-    s3Manager.deleteAllImageFiles(categoryId.toString(), "categories");
+    s3Manager.deleteAllImageFiles(categoryId.toString(), S3Manager.CATEGORY_DIRECTORY_NAME);
   }
 
 

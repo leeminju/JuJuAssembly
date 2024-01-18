@@ -9,8 +9,6 @@ import com.example.jujuassembly.domain.product.repository.ProductRepository;
 import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.s3.S3Manager;
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,7 +39,7 @@ public class ProductService {
       if (!image.getContentType().startsWith("image")) {
         throw new ApiException("이미지 파일 형식이 아닙니다.", HttpStatus.BAD_REQUEST);
       }
-      String imageUrl = s3Manager.upload(image, "products", product.getId());
+      String imageUrl = s3Manager.upload(image, S3Manager.PRODUCT_DIRECTORY_NAME, product.getId());
       product.setImage(imageUrl);
     }
 
@@ -101,11 +99,11 @@ public class ProductService {
     }
 
     //기존의 파일 모두 삭제
-    s3Manager.deleteAllImageFiles(productId.toString(), "products");
+    s3Manager.deleteAllImageFiles(productId.toString(), S3Manager.PRODUCT_DIRECTORY_NAME);
 
     //새로 업로드
     if (image != null && !image.isEmpty()) {
-      String url = s3Manager.upload(image, "products", productId);
+      String url = s3Manager.upload(image, S3Manager.PRODUCT_DIRECTORY_NAME, productId);
       product.setImage(url);
     }
 
@@ -119,7 +117,7 @@ public class ProductService {
     Product product = productRepository.getById(productId);
 
     //기존의 파일 모두 삭제
-    s3Manager.deleteAllImageFiles(productId.toString(), "products");
+    s3Manager.deleteAllImageFiles(productId.toString(), S3Manager.PRODUCT_DIRECTORY_NAME);
 
     productRepository.delete(product);
   }

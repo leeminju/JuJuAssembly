@@ -31,26 +31,12 @@ public class ReviewImageService {
       }
 
       String imageUrl = s3Manager.uploadMultipartFileWithPublicRead(
-          "reviews/" + review.getId().toString() + "/",
+          S3Manager.REVIEW_PREFIX + review.getId().toString() + "/",
           image
       );
 
       ReviewImage reviewImage = new ReviewImage(review, imageUrl);
       reviewImageRepository.save(reviewImage);
-    }
-  }
-
-  //리뷰 이미지 1개 삭제
-  @Transactional(propagation = Propagation.MANDATORY)
-  public void deleteReviewImage(Review review, String fileUrl) {
-    reviewImageRepository.deleteByReview(review);
-    s3Manager.deleteImageFile(fileUrl, "reviews");
-    for (ReviewImage image : review.getReviewImages()) {
-      if (image.getImageUrl().equals(fileUrl)) {
-        review.getReviewImages().remove(image);
-        reviewImageRepository.delete(image);
-        break;
-      }
     }
   }
 

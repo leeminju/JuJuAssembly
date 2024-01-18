@@ -94,6 +94,7 @@ class ReportServiceTest {
     assertEquals(expectReport.getImage(), resultReport.getImage());
     assertEquals(expectReport.getStatus(), resultReport.getStatus());
   }
+
   @Test
   @DisplayName("전체 제보 상품 조회 테스트")
   void getAllReportsTest() {
@@ -119,7 +120,7 @@ class ReportServiceTest {
     assertNotNull(result);
     assertEquals(fakeReports.size(), result.getContent().size());
     // 여기에서 필요한 추가적인 검증을 수행할 수 있습니다.
-    assertEquals(fakeReports.get(0).getName(),result.getContent().get(0).getName());
+    assertEquals(fakeReports.get(0).getName(), result.getContent().get(0).getName());
   }
 
   @Test
@@ -127,14 +128,14 @@ class ReportServiceTest {
   void getReportsTest() {
     // Mock 데이터 생성
     Long userId = 1L;
-    Pageable pageable = PageRequest.of(0,10);
+    Pageable pageable = PageRequest.of(0, 10);
     CategoryRequestDto requestDto = CategoryRequestDto.builder().name("카테고리").build();
     Category category = new Category(requestDto);
     category.builder().image("imageurl").id(1L).build();
     User user = User.builder().id(1L).nickname("이름").email("이메일").build();
     Report report1 = Report.builder().id(1L).name("제보이름").user(user).category(category).build();
     Report report2 = Report.builder().id(2L).name("제보이름").user(user).category(category).build();
-    List<Report> reportList = Arrays.asList(report1,report2);
+    List<Report> reportList = Arrays.asList(report1, report2);
     Page<Report> mockReport = new PageImpl<>(reportList, pageable, reportList.size());
 
     when(reportRepository.findAllByUserId(userId, pageable)).thenReturn(mockReport);
@@ -172,7 +173,6 @@ class ReportServiceTest {
     User user = User.builder().id(1L).nickname("이름").email("이메일").build();
     Report report = Report.builder().id(1L).name("제보이름").user(user).category(category).build();
 
-
     // 가짜 페이지네이션 데이터 생성
     Pageable pageable = PageRequest.of(0, 10);
 
@@ -190,7 +190,7 @@ class ReportServiceTest {
     assertNotNull(result);
     assertEquals(fakeReports.size(), result.getContent().size());
     // 여기에서 필요한 추가적인 검증을 수행할 수 있습니다.
-    assertEquals(fakeReports.get(0).getName(),result.getContent().get(0).getName());
+    assertEquals(fakeReports.get(0).getName(), result.getContent().get(0).getName());
   }
 
   @Test
@@ -232,7 +232,7 @@ class ReportServiceTest {
     //when
 
     ReportResponseDto resultReport = reportService.patchReport(category.getId(),
-        updatereport.getId(), image, patchrequestdto, user);
+        updatereport.getId(), image, patchrequestdto);
 
     //then
 
@@ -286,7 +286,7 @@ class ReportServiceTest {
     //when
 
     ReportResponseDto resultReport = reportService.patchReportStatus(category.getId(),
-        report.getId(), reportStatusRequestDto, user);
+        report.getId(), reportStatusRequestDto);
 
     //then
 
@@ -332,7 +332,7 @@ class ReportServiceTest {
     when(reportRepository.getById(report.getId())).thenReturn(report);
 
     // When
-    reportService.deleteReport(category.getId(), report.getId(), user);
+    reportService.deleteReport(category.getId(), report.getId());
 
     // Then
     // CategoryRepository.getById() 메소드가 호출되었는지 확인
