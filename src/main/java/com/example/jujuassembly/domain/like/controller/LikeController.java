@@ -41,7 +41,7 @@ public class LikeController {
     likeService.addLike(categoryId, productId, userDetails.getUser());
 
     return ResponseEntity.ok()
-        .body(new ApiResponse<>("좋아요", HttpStatus.OK.value()));
+        .body(new ApiResponse<>("좋아요 성공", HttpStatus.OK.value()));
   }
 
   /**
@@ -77,7 +77,16 @@ public class LikeController {
     List<LikeResponseDto> likeResponseDto = likeService.cancelLike(productId,
         userDetails.getUser());
     return ResponseEntity.ok()
-        .body(new ApiResponse<>("좋아요", HttpStatus.OK.value(), likeResponseDto));
+        .body(new ApiResponse<>("좋아요 취소", HttpStatus.OK.value(), likeResponseDto));
+  }
+
+  @GetMapping("/categories/{categoryId}/products/{productId}/like")
+  private ResponseEntity<ApiResponse<Boolean>> getLike(
+      @PathVariable Long productId,
+      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    Boolean islike = likeService.getLike(productId, userDetails.getUser());
+    return ResponseEntity.ok()
+        .body(new ApiResponse<>("좋아요 존재 확인", HttpStatus.OK.value(),islike));
   }
 
 

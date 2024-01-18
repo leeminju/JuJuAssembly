@@ -80,4 +80,9 @@ public class LikeService {
     });
     return likeResponseDtoList;
   }
+
+  public Boolean getLike(Long productId, User user) {
+    Product product = productRepository.getById(productId);
+    return likeRepository.existsByProductAndUser(product, user);
+  }
 }
