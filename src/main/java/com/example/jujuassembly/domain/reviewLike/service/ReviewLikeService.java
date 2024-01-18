@@ -13,7 +13,6 @@ import com.example.jujuassembly.domain.reviewLike.entity.ReviewLike;
 import com.example.jujuassembly.domain.reviewLike.entity.ReviewLikeStatusEnum;
 import com.example.jujuassembly.domain.reviewLike.repository.ReviewLikeRepository;
 import com.example.jujuassembly.domain.user.entity.User;
-import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.global.exception.ApiException;
 import java.util.Objects;
 import java.util.Optional;
@@ -69,7 +68,8 @@ public class ReviewLikeService {
 
     if (isNewLike && !user.equals(review.getUser())) {
       // 새로운 '좋아요'가 있고, 리뷰 작성자와 다른 사용자가 '좋아요'를 눌렀을 경우에만 알림 발송
-      Notification notification = notificationService.createNotification(review.getUser(), "REVIEW", reviewId, user);
+      Notification notification = notificationService.createNotification(review.getUser(), "REVIEW",
+          reviewId, user);
       notificationRepository.save(notification);
     }
 

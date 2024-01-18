@@ -99,7 +99,8 @@ public class NotificationService {
   }
 
   // 알림 생성
-  public Notification createNotification(User user, String entityType, Long entityId, User actionUser) {
+  public Notification createNotification(User user, String entityType, Long entityId,
+      User actionUser) {
     String url = "";
     String content = "";
 
@@ -111,7 +112,8 @@ public class NotificationService {
         url = "/v1/categories/" + review.getProduct().getCategory().getId()
             + "/products/" + review.getProduct().getId()
             + "#review-" + entityId;
-        content = actionUser.getNickname() + "님이 " + review.getUser().getNickname() + "님의 리뷰에 좋아요를 눌렀습니다.";
+        content = actionUser.getNickname() + "님이 " + review.getUser().getNickname()
+            + "님의 리뷰에 좋아요를 눌렀습니다.";
         break;
 
       case "REPORT":
@@ -164,7 +166,8 @@ public class NotificationService {
 
   // 알림 삭제
   public void deleteNotificationByEntity(String entityType, Long entityId) {
-    List<Notification> notificationsToDelete = notificationRepository.findByEntityTypeAndEntityId(entityType, entityId);
+    List<Notification> notificationsToDelete = notificationRepository.findByEntityTypeAndEntityId(
+        entityType, entityId);
 
     // 해당 항목(예: 리뷰 또는 제보)과 관련된 모든 알림을 삭제
     notificationRepository.deleteAll(notificationsToDelete);

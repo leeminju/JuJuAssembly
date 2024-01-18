@@ -1,6 +1,6 @@
 $(document).ready(function () {
   // 알림 구독 버튼 클릭 이벤트 핸들러 추가
-    initializeSSE();
+  initializeSSE();
 
   // 알림 보기 버튼 클릭 이벤트
   $('#notification-btn').click(function () {
@@ -14,13 +14,13 @@ function initializeSSE() {
   if (!!window.EventSource) {
     var source = new EventSource('/v1/notification/subscribe');
 
-    source.onmessage = function(event) {
+    source.onmessage = function (event) {
       var notification = JSON.parse(event.data);
       displayRealTimeNotification(notification);
       displayNotifications([notification]); // 알림 목록에 추가
     };
 
-    source.onerror = function(error) {
+    source.onerror = function (error) {
       console.error('SSE 연결 오류:', error);
       // 필요에 따라 연결 재시도 로직 추가
     }
@@ -33,7 +33,7 @@ function initializeSSE() {
 function showToast(message) {
   var toast = $('<div class="toast">' + message + '</div>');
   $('body').append(toast);
-  setTimeout(function() {
+  setTimeout(function () {
     toast.remove();
   }, 3000); // 3초 후 토스트 메시지 제거
 }
@@ -42,7 +42,6 @@ function showToast(message) {
 function displayRealTimeNotification(notification) {
   showToast('새 알림: ' + notification.content);
 }
-
 
 // 서버로부터 알림 목록을 조회하는 함수
 function fetchNotifications() {

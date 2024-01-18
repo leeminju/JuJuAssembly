@@ -1,7 +1,6 @@
 package com.example.jujuassembly.domain.notification.entity;
 
 import com.example.jujuassembly.domain.notification.dto.NotificationRequestDto;
-import com.example.jujuassembly.domain.review.entity.Review;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.global.entity.Timestamped;
 import jakarta.persistence.Entity;
