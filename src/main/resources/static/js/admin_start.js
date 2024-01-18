@@ -67,3 +67,20 @@ function logout() {
 function CookieRemove() {
   Cookies.remove('Authorization', {path: '/'});
 }
+
+function reissueToken(xhr) {
+  let token = xhr.getResponseHeader('Authorization');
+
+  if (token) {
+    console.log(token);
+    CookieRemove();
+    Cookies.set('Authorization', token, {path: '/'})
+
+    $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+      jqXHR.setRequestHeader('Authorization', token);
+    });
+
+  }else{
+    return;
+  }
+}

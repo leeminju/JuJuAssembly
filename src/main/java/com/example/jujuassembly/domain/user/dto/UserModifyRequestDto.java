@@ -30,10 +30,8 @@ public class UserModifyRequestDto {
   @NotBlank(message = "비밀번호 확인을 입력하세요.")
   private String passwordCheck;
 
-  @NotBlank(message = "1순위 선호 주종을 선택하세요.")
   private Long firstPreferredCategoryId;
 
-  @NotBlank(message = "2순위 선호 주종을 선택하세요.")
   private Long secondPreferredCategoryId;
 
   @NotBlank(message = "email을 입력하세요.")

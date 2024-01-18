@@ -1,9 +1,6 @@
 $(document).ready(function () {
 // 알림 구독 버튼 클릭 이벤트 핸들러
-  $('#subscribe-btn').click(function () {
-    subscribeToNotifications();
-  });
-
+  subscribeToNotifications();
   // 알림 보기 버튼 클릭 이벤트
   $('#notification-btn').click(function () {
     showModal();

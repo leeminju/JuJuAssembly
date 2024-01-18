@@ -13,8 +13,8 @@
           crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
   <script src="/js/basic.js"></script>
-  <script src="/js/notification.js"></script>
-  <link rel="stylesheet" href="../static/css/style.css">
+<!--  <script src="/js/notification.js"></script>-->
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
 
@@ -28,13 +28,19 @@
     </div>
 
     <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
-      <li><a href="#" class="nav-link px-2 link-secondary">주주 총회 소개</a></li>
+      <li><a href="/" class="nav-link px-2 link-secondary">주주 총회 소개</a></li>
+      <li><a href="#" class="nav-link px-2">주류 목록 보기</a></li>
       <li><a href="#" class="nav-link px-2">내가 찜한 주류</a></li>
       <li><a href="#" class="nav-link px-2">내가 쓴 리뷰</a></li>
       <li><a href="#" class="nav-link px-2">고객 센터</a></li>
     </ul>
 
     <div class="col-md-3 text-end">
+
+      <!-- 알림 버튼 -->
+      <button id="notification-btn">알림 보기</button>
+
+
       <button id="sign-in-btn" class="btn btn-info" onclick="location.href='/login'">
         Sign in
       </button>
@@ -47,15 +53,8 @@
       <button class="btn btn-outline-info" id="logout-btn" onclick="logout()">
         Logout
       </button>
-    </div>
 
-    <!-- 알림 구독 버튼 -->
-    <div id="subscribe-section">
-      <button id="subscribe-btn">알림 구독하기</button>
     </div>
-
-    <!-- 알림 버튼 -->
-    <button id="notification-btn">알림 보기</button>
 
     <!-- 알림 모달 -->
     <div id="notification-modal" class="modal">
@@ -68,6 +67,12 @@
         </ul>
       </div>
     </div>
+
+    <!--    &lt;!&ndash; 알림 구독 버튼 &ndash;&gt;-->
+    <!--    <div id="subscribe-section">-->
+    <!--      <button id="subscribe-btn">알림 구독하기</button>-->
+    <!--    </div>-->
+
   </header>
 </div>
 

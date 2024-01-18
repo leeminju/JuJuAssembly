@@ -36,7 +36,7 @@ public class Product extends Timestamped {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id; // 제품의 고유 식별자
 
-  @Column(nullable = false)
+  @Column
   private String image; // 제품 이미지 URL 또는 경로
 
   @Column(nullable = false)

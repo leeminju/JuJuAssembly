@@ -18,6 +18,36 @@
   <link rel="stylesheet" href="/css/style.css">
   <script src="/js/admin_start.js"></script>
 </head>
+<script>
+  var userId = -1;
+  $(document).ready(function () {
+    $.ajax({
+      type: 'GET',
+      url: `/v1/users/myprofile`,
+      success: function (response) {
+        if (response['data']['role'] === "USER") {
+          window.location.href = '/';
+        }
+        $('#sign-in-btn').hide();
+        $('#sign-up-btn').hide();
+        $('#mypage').show();
+        $('#logout-btn').show();
+        $('#header_nickname').text(response['data']['nickname']);
+
+        userId = response['data']['id'];
+        console.log(userId);
+      },
+      error(error, status, request) {
+        if (error['responseJSON']['data']) {
+          alert(error['responseJSON']['data']);
+        } else {
+          alert(error['responseJSON']['msg']);
+        }
+      }
+    });
+  })
+
+</script>
 <body>
 
 <div class="container">

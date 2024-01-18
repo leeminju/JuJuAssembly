@@ -89,7 +89,7 @@
 
     var currentUrl = window.location.href;
     let temp = currentUrl.split("/");
-   categoryId = Number(temp[5]);
+    categoryId = Number(temp[5]);
     getProductByCategory();
 
     $("#image").on("change", function (event) {
@@ -127,19 +127,23 @@
         let products = response;
         for (let i = 0; i < products.length; i++) {
           let product = products[i];
+          let id = product['id'];
           let name = product['name'];
           let image = product['image'];
           let description = product['description'];
 
-          let product_html = `<div>
-                          <a href="#" class="nav-link">
+          if (!image) {
+            image = "/images/default_product_image.png"
+          }
+
+          let product_html = `<div onclick="window.location.href='/productDetails?productId=${id}&categoryId=${categoryId}'">
                               <img src="${image}" style="object-fit: cover; width: 150px; height: 200px;">
                               <div style="color: black;">
                                   ${name}
                                   <br>
                                   ${description}
                               </div>
-                          </a>
+
                    </div>`;
 
           $('#product_container').append(product_html);
@@ -149,7 +153,6 @@
 
     });
   }
-
 
 
 </script>
