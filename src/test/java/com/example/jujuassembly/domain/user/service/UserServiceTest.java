@@ -171,14 +171,11 @@ public class UserServiceTest implements EmailAuthUtil {
 
     HttpServletResponse mockResponse = mock(HttpServletResponse.class);
 
-    UserResponseDto result = userService.login(loginRequestDto, mockResponse);
+    String result = userService.login(loginRequestDto, mockResponse);
 
     // then
-    UserResponseDto expect = new UserResponseDto(TEST_USER);
-    assertThat(result).isEqualTo(expect);
+    assertThat(result).isEqualTo("mockedAccessToken");
 
-    // setHeader 메서드가 JwtUtil.AUTHORIZATION_HEADER와 "mockedAccessToken"이라는 매개변수로 호출되었는지를 검증
-    verify(mockResponse).setHeader(eq(JwtUtil.AUTHORIZATION_HEADER), eq("mockedAccessToken"));
   }
 
   @Test

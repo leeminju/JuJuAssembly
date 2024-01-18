@@ -104,13 +104,6 @@
     })
     .done(function (res, status, xhr) {
       alert(res['msg']);
-      const token = xhr.getResponseHeader('Authorization');
-
-      Cookies.set('Authorization', token, {path: '/'})
-
-      $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
-        jqXHR.setRequestHeader('Authorization', token);
-      });
 
       //로그인한 회원 정보
       $.ajax({
