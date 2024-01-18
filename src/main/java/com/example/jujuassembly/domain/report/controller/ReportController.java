@@ -143,10 +143,11 @@ public class ReportController {
   @Secured(Authority.ADMIN)
   @PatchMapping("/categories/{categoryId}/reports/{reportId}/status")
   public ResponseEntity<ApiResponse> patchReportStatus(@PathVariable Long categoryId,
-      @PathVariable Long reportId, @Valid @RequestBody ReportStatusRequestDto requestDto) {
+      @PathVariable Long reportId, @Valid @RequestBody ReportStatusRequestDto requestDto,
+      @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
     ReportResponseDto reportResponseDto = reportService.patchReportStatus(categoryId, reportId,
-        requestDto);
+        requestDto, userDetails.getUser());
 
     return ResponseEntity.status(HttpStatus.OK).body(
         new ApiResponse<>("상품 제보 수정 완료", HttpStatus.OK.value(), reportResponseDto));
