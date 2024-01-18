@@ -15,7 +15,7 @@ public class ProductRequestDto {
   @NotBlank(message = "상품명을 입력하세요.")
   private String name;
 
-  @Size(min = 10, max = 200, message = "상품 설명을 입력하세요.")
+  @Size(min = 10, max = 200, message = "상품 설명을 10자 이상 200자 이내로 입력하세요.")
   private String description;
 
   @NotBlank(message = "지역을 입력하세요.")

@@ -73,9 +73,9 @@ public class WebSecurityConfig {
 
     // 필터 관리
     http.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
-        .exceptionHandling(handler -> handler.accessDeniedHandler(customAccessDeniedHandler))
-        .exceptionHandling(
-            handler -> handler.authenticationEntryPoint(customAuthenticationEntryPoint));
+        .exceptionHandling(handler -> handler.accessDeniedHandler(customAccessDeniedHandler));
+//        .exceptionHandling(
+//            handler -> handler.authenticationEntryPoint(customAuthenticationEntryPoint));
 
     return http.build();
   }

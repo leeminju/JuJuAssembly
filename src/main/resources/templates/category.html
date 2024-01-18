@@ -20,7 +20,6 @@
   <script src="/js/category.js"></script>
 </head>
 <body>
-
 <div class="container">
   <header
       class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
@@ -54,6 +53,67 @@
     </div>
   </header>
 </div>
-카테고리
+<!--카테고리 추가-->
+<div class="modal fade" id="createCategory" aria-hidden="true"
+     aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">카테고리 추가</h1>
+        <button onclick="win_reload()" type="button" class="btn-close" data-bs-dismiss="modal"
+                aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" class="form-control" id="create_category_name" placeholder="이름">
+        <input type="file" accept="image/*" id="create_category_image">
+      </div>
+      <div class="modal-footer">
+        <button onclick="win_reload()" type="button" class="btn btn-secondary"
+                data-bs-dismiss="modal">Close
+        </button>
+        <button class="btn btn-light" onclick="createCategory()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--카테고리 수정-->
+<div class="modal fade" id="updateCategory" aria-hidden="true"
+     aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">카테고리 수정</h1>
+        <button onclick="win_reload()" type="button" class="btn-close" data-bs-dismiss="modal"
+                aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" class="form-control" id="update_category_name" placeholder="이름">
+        <input type="file" accept="image/*" id="update_category_image">
+      </div>
+      <div class="modal-footer">
+        <button onclick="win_reload()" type="button" class="btn btn-secondary"
+                data-bs-dismiss="modal">Close
+        </button>
+        <butto id="update_btn" class="btn btn-light" onclick="updateCategory()">update</butto>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin:auto; width:60%" class="my-3 p-3 bg-body rounded shadow-sm">
+  <h6 class="border-bottom pb-2 mb-0">카테고리 목록</h6>
+  <div style="margin: 10px">
+    <button data-bs-toggle="modal"
+            data-bs-target="#createCategory"
+            class="btn btn-light" style="margin-left: 93%">추가
+    </button>
+  </div>
+  <div id="categoryList">
+  </div>
+
+</div>
+
+
 </body>
 </html>
