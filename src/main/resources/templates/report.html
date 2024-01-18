@@ -14,9 +14,17 @@
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"
           integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
           crossorigin="anonymous"></script>
+  <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.4/pagination.min.js"></script>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.4/pagination.css"/>
   <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
   <link rel="stylesheet" href="/css/style.css">
   <script src="/js/admin_start.js"></script>
+  <script>
+
+
+  </script>
 </head>
 <script>
   var userId = -1;
@@ -83,6 +91,230 @@
     </div>
   </header>
 </div>
-제보 관리
+
+<h2 style="display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+padding: 10px">상품 제보 관리</h2>
+<div class="container">
+  <!-- 헤더 부분은 동일하게 유지 -->
+
+  <div style="display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px">
+    <div class="pagination">
+      정렬:
+      <select id="sorting" onchange="getUserReports()" style="margin-right: 10px">
+        <option value="createdAt">작성일</option>
+        <option value="modifiedAt">수정일</option>
+      </select>
+      <input type="radio" name="isAsc" value="asc" onchange="getUserReports()"/> 오름차순
+      <input type="radio" name="isAsc" value="desc" onchange="getUserReports()" checked/> 내림차순
+    </div>
+    <div id="pagination" class="pagination" style="margin-top:10px"></div>
+  </div>
+  <!-- 상품 제보 양식 -->
+  <form id="postReportForm" enctype="multipart/form-data">
+    <div class="mb-3">
+      <label for="productName" class="form-label">상품명</label>
+      <input type="text" class="form-control" id="productName" required>
+    </div>
+
+
+    <div class="form-floating" style="margin-top: 20px">
+      <div class="categoryLabel">
+        <label for="categoryId">카테고리 </label>
+      </div>
+      <div class="categorySelect">
+        <select class="form-select" id="categoryId"
+                aria-label="Floating label select example" style="width: 200px;">
+          <option selected>카테고리를 선택해주세요</option>
+        </select>
+      </div>
+    </div>
+    <!--      <div class="mb-3">-->
+    <!--        <label for="description" class="form-label">상세 설명</label>-->
+    <!--        <textarea class="form-control" id="description" rows="3" required></textarea>-->
+    <!--      </div>-->
+    <div class="mb-3">
+      <label for="image" class="form-label">이미지 업로드</label>
+      <input type="file" class="form-control" id="image" accept="image/*" required>
+    </div>
+
+  </form>
+  <button onclick="createReport()" class="btn btn-primary">상품 제보</button>
+
+  <!-- 상품 제보 리스트 표시 부분 -->
+  <div id="reports" class="row row-cols-1 row-cols-md-3 g-4 mt-3">
+    <!-- 여기에 동적으로 추가될 상품 제보 카드가 나타날 것입니다. -->
+  </div>
+</div>
+</div>
+<script>
+  // 이 부분에 jQuery 및 기타 스크립트 추가
+  // 쿠키 또는 로그인 여부를 확인하는 등의 처리를 진행할 수 있습니다.
+  var userId = -1;
+  var imageFile = null;
+  $(document).ready(function () {
+    $.ajax({
+      type: 'GET',
+      url: `/v1/users/myprofile`,
+      success: function (response) {
+        if (response['data']['role'] === "USER") {
+          window.location.href = '/';
+        }
+        $('#sign-in-btn').hide();
+        $('#sign-up-btn').hide();
+        $('#mypage').show();
+        $('#logout-btn').show();
+        $('#header_nickname').text(response['data']['nickname']);
+        userId = response['data']['id'];
+        getUserReports();
+      },
+
+      error(error, status, request) {
+        if (error['responseJSON']['data']) {
+          alert(error['responseJSON']['data']);
+        } else {
+          alert(error['responseJSON']['msg']);
+        }
+      }
+    });
+
+    getCategory();
+    // // // 초기화면 로드 시 상품 제보 리스트 가져오기
+    $("#image").on("change", function (event) {
+      imageFile = event.target.files[0];
+    });
+  });
+
+  function getCategory() {
+    $.ajax({
+      type: "GET",
+      url: `/v1/categories`,
+      success: function (response) {
+        let categories = response['data'];
+        console.log(categories);
+        for (let i = 0; i < categories.length; i++) {
+          let category = categories[i];
+          let id = category['id'];
+          let name = category['name'];
+          let image = category['image'];
+          let html = `<option value=${id}>${name}</option>`
+          $('#categoryId').append(html);
+        }
+      },
+      error(error, status, request) {
+
+      }
+    });
+
+  }
+
+  function createReport() {
+
+    // 입력된 값 가져오기
+    var productName = $('#productName').val();
+    var categoryId = $('#categoryId').val();
+    // var description = $('#description').val()
+    let data = {'name': productName};
+
+    // FormData를 사용하여 데이터 전송
+    var formData = new FormData();
+    formData.append("data", new Blob([JSON.stringify(data)], {type: "application/json"}));
+    // formData.append('description', description);
+    formData.append('image', imageFile);
+
+    // 여기에서 서버로 Ajax 요청을 보내서 상품 제보 처리를 진행할 수 있습니다.
+    // 성공 시 상품 제보 리스트 업데이트 등을 수행합니다.
+
+    // 예시: 서버로 Ajax 요청 보내기
+    $.ajax({
+      url: '/v1/categories/' + categoryId + '/reports',
+      type: 'POST',
+      data: formData,
+      contentType: false,
+      processData: false,
+      success: function (response) {
+        // 서버에서의 처리 성공 시 동작
+        console.log(response);
+
+        // 상품 제보 리스트 갱신 등의 동작을 수행할 수 있습니다.
+        // ...
+
+        // 예시: 제보 후 상품 제보 리스트 갱신
+        // updateReportList();
+      },
+      error: function (error) {
+        // 서버에서의 처리 실패 시 동작
+        console.error(error);
+      }
+    });
+  }
+
+
+
+  // // 상품 제보 리스트 갱신 함수
+  function getUserReports() {
+    // 서버로부터 상품 제보 리스트를 가져와서 동적으로 화면에 추가하는 코드를 작성합니다.
+    // 서버로의 Ajax 요청 등을 통해 필요한 데이터를 가져올 수 있습니다.
+    // 가져온 데이터를 이용하여 동적으로 카드를 생성하고 #reportList에 추가합니다.
+    var sorting = $("#sorting option:selected").val();
+    var isAsc = $(':radio[name="isAsc"]:checked').val();
+
+    let dataSource = `/v1/users/${userId}/reports?sort=${sorting},${isAsc}`;
+
+    $('#reports').empty();
+    $('#pagination').pagination({
+      dataSource,
+      locator: 'data.content',
+      alias: {
+        pageNumber: 'page',
+        pageSize: 'size'
+      },
+      totalNumberLocator: (response) => {
+        return response.data.totalElements;//전체 갯수
+      },
+      pageSize: 10,
+      showPrevious: true,
+      showNext: true,
+      pageLink: '<li class="paginationjs-page J-paginationjs-page" data-num="{{page}}"><a>{{page}}</a></li>',
+      ajax: {
+        error(error, status, request) {
+          console.log(error);
+        }
+      },
+      callback: function (response, pagination) {
+        $('#reports').empty();
+        console.log(reports);
+        for (let i = 0; i < response.length; i++) {
+          let report = response[i];
+          let name = report['name'];
+          let image = report['image'];
+          let status = report['status'];
+          let html = `
+        <div class="col">
+          <div class="card h-100">
+            <img src="${image}" class="card-img-top" alt="상품 이미지">
+            <div class="card-body">
+              <h5 class="card-title">${name}</h5>
+              <p class="card-text">${status}</p>
+            </div>
+          </div>
+        </div>`;
+          $('#reports').append(html);
+        }
+      },
+      error(error, status, request) {
+
+      }
+    });
+
+  }
+
+</script>
 </body>
 </html>
