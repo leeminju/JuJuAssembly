@@ -102,7 +102,7 @@ public class ReportService {
   //제보상품 상태 변경
   @Transactional
   public ReportResponseDto patchReportStatus(Long categoryId, Long reportId,
-      ReportStatusRequestDto requestDto) {
+      ReportStatusRequestDto requestDto, User user) {
 
     categoryRepository.getById(categoryId);
     Report report = reportRepository.getById(reportId);

@@ -286,7 +286,7 @@ class ReportServiceTest {
     //when
 
     ReportResponseDto resultReport = reportService.patchReportStatus(category.getId(),
-        report.getId(), reportStatusRequestDto);
+        report.getId(), reportStatusRequestDto, user);
 
     //then
 
