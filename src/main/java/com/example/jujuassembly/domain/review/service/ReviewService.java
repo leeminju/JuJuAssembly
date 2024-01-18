@@ -93,7 +93,7 @@ public class ReviewService {
     checkReviewProductAndProductIdEquality(review, productId);
 
     // 해당 리뷰에 대한 모든 알림 삭제
-    notificationService.deleteNotificationsByReview(review);
+    notificationService.deleteNotificationByEntity("REVIEW", reviewId);
 
     //기존의 파일 모두 삭제
     reviewRepository.delete(review);

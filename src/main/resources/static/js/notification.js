@@ -1,6 +1,7 @@
 $(document).ready(function () {
-// 알림 구독 버튼 클릭 이벤트 핸들러
-  subscribeToNotifications();
+  // 알림 구독 버튼 클릭 이벤트 핸들러 추가
+  initializeSSE();
+
   // 알림 보기 버튼 클릭 이벤트
   $('#notification-btn').click(function () {
     showModal();
@@ -8,28 +9,38 @@ $(document).ready(function () {
   });
 });
 
-// 알림 구독 요청을 보내는 함수
-function subscribeToNotifications() {
-  $.ajax({
-    type: 'GET',
-    url: '/v1/notification/subscribe',
-    success: function (response) {
-      // 구독 성공시 처리 로직
-      console.log('구독 성공:', response);
-      alert('알림 구독에 성공했습니다.');
-    },
-    error: function (error) {
-      // 구독 실패시 처리 로직
-      console.error('구독 실패:', error);
-      if (error.responseJSON && error.responseJSON.data) {
-        alert(error.responseJSON.data);
-      } else if (error.responseJSON && error.responseJSON.msg) {
-        alert(error.responseJSON.msg);
-      } else {
-        alert('알림 구독에 실패했습니다.');
-      }
+// SSE 구독을 위한 함수
+function initializeSSE() {
+  if (!!window.EventSource) {
+    var source = new EventSource('/v1/notification/subscribe');
+
+    source.onmessage = function (event) {
+      var notification = JSON.parse(event.data);
+      displayRealTimeNotification(notification);
+      displayNotifications([notification]); // 알림 목록에 추가
+    };
+
+    source.onerror = function (error) {
+      console.error('SSE 연결 오류:', error);
+      // 필요에 따라 연결 재시도 로직 추가
     }
-  });
+  } else {
+    console.log("브라우저가 SSE를 지원하지 않습니다.");
+  }
+}
+
+// 토스트 메시지를 표시하는 함수
+function showToast(message) {
+  var toast = $('<div class="toast">' + message + '</div>');
+  $('body').append(toast);
+  setTimeout(function () {
+    toast.remove();
+  }, 3000); // 3초 후 토스트 메시지 제거
+}
+
+// 실시간으로 수신된 알림을 화면에 표시하는 함수
+function displayRealTimeNotification(notification) {
+  showToast('새 알림: ' + notification.content);
 }
 
 // 서버로부터 알림 목록을 조회하는 함수
