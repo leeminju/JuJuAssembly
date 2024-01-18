@@ -234,7 +234,7 @@ public class UserController {
     response.addCookie(cookie);
 
     return ResponseEntity.status(HttpStatus.FOUND)
-        .header(HttpHeaders.LOCATION, "/")
+        .header(HttpHeaders.LOCATION, "http://ec2-54-180-83-232.ap-northeast-2.compute.amazonaws.com:8080/")
         .body(new ApiResponse("카카오 로그인 성공 및 리다이렉트", HttpStatus.FOUND.value()));
   }
 
