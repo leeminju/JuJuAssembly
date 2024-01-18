@@ -174,7 +174,7 @@ class ReviewServiceTest {
 
     //then
     verify(reviewRepository).delete(any(Review.class));
-    verify(notificationService).deleteNotificationsByReview(review);
+    verify(notificationService).deleteNotificationByEntity("REVIEW", reviewId);
   }
 
   @Test

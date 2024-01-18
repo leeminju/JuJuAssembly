@@ -15,6 +15,7 @@ import com.example.jujuassembly.global.exception.ApiException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,7 @@ public class NotificationService {
   private final NotificationRepository notificationRepository;
   private final ReviewRepository reviewRepository;
   private final ReportRepository reportRepository;
+
 
   // 사용자가 SSE를 통해 알림을 실시간으로 받을 수 있게 설정하는 메서드
   public SseEmitter subscribe(User user, String lastEventId) {
@@ -99,33 +101,42 @@ public class NotificationService {
   }
 
   // 알림 생성
-  public Notification createNotification(User user, String entityType, Long entityId,
-      User actionUser) {
+  public Notification createNotification(User user, String entityType, Long entityId, User actionUser) {
     String url = "";
     String content = "";
 
     switch (entityType) {
       case "REVIEW":
-        // 리뷰와 관련된 로직
-        Review review = reviewRepository.findById(entityId)
-            .orElseThrow(() -> new ApiException("Review not found", HttpStatus.NOT_FOUND));
-        url = "/v1/categories/" + review.getProduct().getCategory().getId()
-            + "/products/" + review.getProduct().getId()
-            + "#review-" + entityId;
-        content = actionUser.getNickname() + "님이 " + review.getUser().getNickname()
-            + "님의 리뷰에 좋아요를 눌렀습니다.";
+        Optional<Review> optionalReview = reviewRepository.findById(entityId);
+        if (optionalReview.isPresent()) {
+          Review review = optionalReview.get();
+          if (actionUser != null && review.getUser() != null) {
+            url = "/v1/categories/" + review.getProduct().getCategory().getId()
+                + "/products/" + review.getProduct().getId()
+                + "#review-" + entityId;
+            content = actionUser.getNickname() + "님이 " + review.getUser().getNickname()
+                + "님의 리뷰에 좋아요를 눌렀습니다.";
+          }
+        }
         break;
 
       case "REPORT":
-        // 제보 상태 변경과 관련된 로직
-        Report report = reportRepository.findById(entityId)
-            .orElseThrow(() -> new ApiException("Report not found", HttpStatus.NOT_FOUND));
-        url = "/report/" + entityId;
-        String statusString = report.getStatus().toString(); // StatusEnum을 String으로 변환
-        content = report.getUser().getNickname() + "님의 제보 상태가 " + statusString + "로 변경되었습니다.";
+        Optional<Report> optionalReport = reportRepository.findById(entityId);
+        if (optionalReport.isPresent()) {
+          Report report = optionalReport.get();
+          if (report.getUser() != null) {
+            url = "/report/" + entityId;
+            String statusString = report.getStatus().toString();
+            content = report.getUser().getNickname() + "님의 제보 상태가 " + statusString + "로 변경되었습니다.";
+          }
+        }
         break;
 
       // 다른 케이스에 대한 처리...
+
+      default:
+        // 유효하지 않은 entityType인 경우
+        return null;
     }
 
     NotificationRequestDto requestDto = NotificationRequestDto.builder()
