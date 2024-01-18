@@ -6,12 +6,16 @@ import com.example.jujuassembly.domain.notification.dto.NotificationsResponseDto
 import com.example.jujuassembly.domain.notification.entity.Notification;
 import com.example.jujuassembly.domain.notification.repository.EmitterRepository;
 import com.example.jujuassembly.domain.notification.repository.NotificationRepository;
+import com.example.jujuassembly.domain.report.entity.Report;
+import com.example.jujuassembly.domain.report.repository.ReportRepository;
 import com.example.jujuassembly.domain.review.entity.Review;
+import com.example.jujuassembly.domain.review.repository.ReviewRepository;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.global.exception.ApiException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,6 +31,9 @@ public class NotificationService {
 
   private final EmitterRepository emitterRepository;
   private final NotificationRepository notificationRepository;
+  private final ReviewRepository reviewRepository;
+  private final ReportRepository reportRepository;
+
 
   // 사용자가 SSE를 통해 알림을 실시간으로 받을 수 있게 설정하는 메서드
   public SseEmitter subscribe(User user, String lastEventId) {
@@ -68,13 +75,21 @@ public class NotificationService {
 
   // 사용자에게 새 알림을 생성하고 저장한 후, 해당 사용자의 모든 SSE 연결에 이 알림을 전송
   @Transactional
-  public void send(User user, Review review, String content) {
-    Notification notification = createNotification(user, review, content);
-    String id = String.valueOf(user.getId());
+  public void send(User user, String type, Long entityId, User actionUser) {
+    // 새로운 createNotification 메서드를 사용하여 알림 생성
+    Notification notification = createNotification(user, type, entityId, actionUser);
+
+    // 알림 저장 및 전송 로직
+    saveAndSendNotification(notification, user.getId());
+  }
+
+  private void saveAndSendNotification(Notification notification, Long userId) {
     // 생성된 알림 데이터베이스 저장
     notificationRepository.save(notification);
+
     // 사용자 ID를 기반으로 모든 SSE 연결 찾음
-    Map<String, SseEmitter> sseEmitters = emitterRepository.findAllStartWithById(id);
+    Map<String, SseEmitter> sseEmitters = emitterRepository.findAllStartWithById(
+        String.valueOf(userId));
 
     // 각 SSE 연결에 대해, 생성된 알림을 캐시에 저장 후 클라이언트에게 전송
     sseEmitters.forEach(
@@ -86,20 +101,50 @@ public class NotificationService {
   }
 
   // 알림 생성
-  public Notification createNotification(User user, Review review, String content) {
-    // 상품 ID와 카테고리 ID 가져오기
-    Long productId = review.getProduct().getId();
-    Long categoryId = review.getProduct().getCategory().getId();
+  public Notification createNotification(User user, String entityType, Long entityId, User actionUser) {
+    String url = "";
+    String content = "";
 
-    // 해당 리뷰가 있는 상품 페이지로 이동하는 URL
-    String url =
-        "/v1/categories/" + categoryId + "/products/" + productId + "#review-" + review.getId();
+    switch (entityType) {
+      case "REVIEW":
+        Optional<Review> optionalReview = reviewRepository.findById(entityId);
+        if (optionalReview.isPresent()) {
+          Review review = optionalReview.get();
+          if (actionUser != null && review.getUser() != null) {
+            url = "/v1/categories/" + review.getProduct().getCategory().getId()
+                + "/products/" + review.getProduct().getId()
+                + "#review-" + entityId;
+            content = actionUser.getNickname() + "님이 " + review.getUser().getNickname()
+                + "님의 리뷰에 좋아요를 눌렀습니다.";
+          }
+        }
+        break;
+
+      case "REPORT":
+        Optional<Report> optionalReport = reportRepository.findById(entityId);
+        if (optionalReport.isPresent()) {
+          Report report = optionalReport.get();
+          if (report.getUser() != null) {
+            url = "/report/" + entityId;
+            String statusString = report.getStatus().toString();
+            content = report.getUser().getNickname() + "님의 제보 상태가 " + statusString + "로 변경되었습니다.";
+          }
+        }
+        break;
+
+      // 다른 케이스에 대한 처리...
+
+      default:
+        // 유효하지 않은 entityType인 경우
+        return null;
+    }
 
     NotificationRequestDto requestDto = NotificationRequestDto.builder()
         .user(user)
-        .review(review)
         .content(content)
         .url(url)
+        .entityType(entityType)
+        .entityId(entityId)
         .isRead(false)
         .build();
 
@@ -129,15 +174,13 @@ public class NotificationService {
     notification.read();
   }
 
-  @Transactional
-  // 특정 사용자가 특정 리뷰에 대해 수행한 행동에 대한 삭제
-  public void deleteNotificationByReviewAndUser(Review review, User user) {
-    notificationRepository.deleteByReviewAndUser(review, user);
-  }
 
-  @Transactional
-  // 리뷰 삭제 시 해당 리뷰 관련 모든 알림 삭제
-  public void deleteNotificationsByReview(Review review) {
-    notificationRepository.deleteByReview(review);
+  // 알림 삭제
+  public void deleteNotificationByEntity(String entityType, Long entityId) {
+    List<Notification> notificationsToDelete = notificationRepository.findByEntityTypeAndEntityId(
+        entityType, entityId);
+
+    // 해당 항목(예: 리뷰 또는 제보)과 관련된 모든 알림을 삭제
+    notificationRepository.deleteAll(notificationsToDelete);
   }
 }
