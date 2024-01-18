@@ -2,6 +2,7 @@ package com.example.jujuassembly.domain.report.service;
 
 import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
+import com.example.jujuassembly.domain.report.dto.ReportPatchRequestDto;
 import com.example.jujuassembly.domain.notification.entity.Notification;
 import com.example.jujuassembly.domain.notification.repository.NotificationRepository;
 import com.example.jujuassembly.domain.notification.service.NotificationService;
@@ -79,13 +80,19 @@ public class ReportService {
   //수정
   @Transactional
   public ReportResponseDto patchReport(Long categoryId, Long reportId, MultipartFile image,
-      ReportRequestDto requestDto)
+      ReportPatchRequestDto requestDto)
       throws IOException {
 
     categoryRepository.getById(categoryId);
     Report report = reportRepository.getById(reportId);
+    if (!report.getCategory().getId().equals(categoryId)) {
+      throw new ApiException("현재카테고리가 아닙니다.", HttpStatus.BAD_REQUEST);
+    }
+
+    Category ModifiedCategory = categoryRepository.getById(requestDto.getModifiedCategoryId());
 
     report.updateName(requestDto.getName());
+    report.updateCategory(ModifiedCategory);
 
     s3Manager.deleteAllImageFiles(reportId.toString(), S3Manager.REPORT_DIRECTORY_NAME);
 

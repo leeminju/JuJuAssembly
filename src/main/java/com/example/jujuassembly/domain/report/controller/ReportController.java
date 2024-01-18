@@ -1,5 +1,6 @@
 package com.example.jujuassembly.domain.report.controller;
 
+import com.example.jujuassembly.domain.report.dto.ReportPatchRequestDto;
 import com.example.jujuassembly.domain.report.dto.ReportRequestDto;
 import com.example.jujuassembly.domain.report.dto.ReportResponseDto;
 import com.example.jujuassembly.domain.report.dto.ReportStatusRequestDto;
@@ -95,8 +96,8 @@ public class ReportController {
   /**
    * 특정 카테고리별 제보 상품 리스트를 조회합니다.(관리자)
    *
-   * @param categoryId   카테고리 ID
-   * @param pageable 페이지네이션 정보 (기본값: 페이지 크기 10, 생성일 기준 내림차순 정렬)
+   * @param categoryId 카테고리 ID
+   * @param pageable   페이지네이션 정보 (기본값: 페이지 크기 10, 생성일 기준 내림차순 정렬)
    * @return ResponseEntity<ApiResponse> 객체
    */
   @Secured(Authority.ADMIN)
@@ -111,18 +112,19 @@ public class ReportController {
   /**
    * 제보 상품을 수정합니다.(유저,관리자)
    *
-   * @param categoryId  카테고리 ID
-   * @param reportId    제보 상품 ID
-   * @param image       이미지 파일
-   * @param requestDto  제보 요청 DTO
+   * @param categoryId 카테고리 ID
+   * @param reportId   제보 상품 ID
+   * @param image      이미지 파일
+   * @param requestDto 제보 요청 DTO
    * @return ResponseEntity<ApiResponse> 객체
    * @throws IOException 이미지 파일 처리 중 발생하는 예외
    */
-  @PatchMapping("/cateogries/{categoryId}/reports/{reportId}")
+  @PatchMapping("/categories/{categoryId}/reports/{reportId}")
   public ResponseEntity<ApiResponse> patchReport(@PathVariable Long categoryId,
       @PathVariable Long reportId,
       @RequestParam MultipartFile image,
-      @Valid @RequestPart("data") ReportRequestDto requestDto)
+      @Valid @RequestPart("data") ReportPatchRequestDto requestDto,
+      @AuthenticationPrincipal UserDetailsImpl userDetails)
       throws IOException {
 
     ReportResponseDto reportResponseDto = reportService.patchReport(categoryId, reportId, image,
@@ -135,9 +137,9 @@ public class ReportController {
   /**
    * 제보 상품의 상태를 수정합니다. (관리자 권한 필요)
    *
-   * @param categoryId  카테고리 ID
-   * @param reportId    제보 상품 ID
-   * @param requestDto  제보 상태 요청 DTO
+   * @param categoryId 카테고리 ID
+   * @param reportId   제보 상품 ID
+   * @param requestDto 제보 상태 요청 DTO
    * @return ResponseEntity<ApiResponse> 객체
    */
   @Secured(Authority.ADMIN)
@@ -156,8 +158,8 @@ public class ReportController {
   /**
    * 제보 상품을 삭제합니다.(유저,관리자)
    *
-   * @param categoryId  카테고리 ID
-   * @param reportId    제보 상품 ID
+   * @param categoryId 카테고리 ID
+   * @param reportId   제보 상품 ID
    * @return ResponseEntity<ApiResponse> 객체
    */
   @DeleteMapping("/categories/{categoryId}/reports/{reportId}")
