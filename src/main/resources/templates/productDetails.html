@@ -50,7 +50,9 @@
         update_imageFile = event.target.files;
       });
 
-      function parseQueryString(url) {
+    })
+
+    function parseQueryString(url) {
         var params = {};
         var queryString = url.split('?')[1];
 
@@ -224,7 +226,7 @@
         <div style="margin-left: 78%">
           <button onclick="updateId('${id}')" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateReview">
           수정</button>
-          <button class="btn btn-primary">삭제 </button>
+          <button onclick="removeReview('${id}')" class="btn btn-primary">삭제 </button>
         </div>
       </div>
   </div>`;
@@ -275,7 +277,6 @@
 
     function updateId(id) {
       $('#update_btn').val(id);
-
     }
 
     function updateReview() {
@@ -285,7 +286,7 @@
       }
 
       let reviewId = $('#update_btn').val();
-    
+
       let description = $('#update_description').val();
       let star = $('#update_star').val();
       let munchies = $('#update_munchies').val();
@@ -316,6 +317,20 @@
           window.location.reload();
         }, error: function (error) {
           alert(error['responseJSON']['msg']);
+        }
+      });
+    }
+
+    function removeReview(id) {
+
+      $.ajax({
+        type: "DELETE",
+        url: `/v1/categories/${categoryId}/products/${productId}/reviews/${id}`,
+        success: function (response) {
+          alert(response['msg']);
+          window.location.reload();
+        }, error: function (error) {
+          alert(error['response']['msg']);
         }
       });
     }
