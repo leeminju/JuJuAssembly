@@ -232,7 +232,7 @@ class ReportServiceTest {
     //when
 
     ReportResponseDto resultReport = reportService.patchReport(category.getId(),
-        updatereport.getId(), image, patchrequestdto, user);
+        updatereport.getId(), image, patchrequestdto);
 
     //then
 
@@ -286,7 +286,7 @@ class ReportServiceTest {
     //when
 
     ReportResponseDto resultReport = reportService.patchReportStatus(category.getId(),
-        report.getId(), reportStatusRequestDto, user);
+        report.getId(), reportStatusRequestDto);
 
     //then
 
@@ -332,7 +332,7 @@ class ReportServiceTest {
     when(reportRepository.getById(report.getId())).thenReturn(report);
 
     // When
-    reportService.deleteReport(category.getId(), report.getId(), user);
+    reportService.deleteReport(category.getId(), report.getId());
 
     // Then
     // CategoryRepository.getById() 메소드가 호출되었는지 확인

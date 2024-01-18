@@ -50,7 +50,7 @@ public class ReportService {
       if (!image.getContentType().startsWith("image")) {
         throw new ApiException("이미지 파일 형식이 아닙니다.", HttpStatus.BAD_REQUEST);
       }
-      String imageUrl = s3Manager.upload(image, "reports", report.getId());
+      String imageUrl = s3Manager.upload(image, S3Manager.REPORT_DIRECTORY_NAME, report.getId());
       report.updateImage(imageUrl);
     }
 
@@ -79,7 +79,7 @@ public class ReportService {
   //수정
   @Transactional
   public ReportResponseDto patchReport(Long categoryId, Long reportId, MultipartFile image,
-      ReportRequestDto requestDto, User user)
+      ReportRequestDto requestDto)
       throws IOException {
 
     categoryRepository.getById(categoryId);
@@ -87,13 +87,13 @@ public class ReportService {
 
     report.updateName(requestDto.getName());
 
-    s3Manager.deleteAllImageFiles(reportId.toString(), "reports");
+    s3Manager.deleteAllImageFiles(reportId.toString(), S3Manager.REPORT_DIRECTORY_NAME);
 
     if (image != null && !image.isEmpty()) {
       if (!image.getContentType().startsWith("image")) {
         throw new ApiException("이미지 파일 형식이 아닙니다.", HttpStatus.BAD_REQUEST);
       }
-      String imageUrl = s3Manager.upload(image, "reports", report.getId());
+      String imageUrl = s3Manager.upload(image, S3Manager.REPORT_DIRECTORY_NAME, report.getId());
       report.updateImage(imageUrl);
     }
     return new ReportResponseDto(report);
@@ -102,7 +102,7 @@ public class ReportService {
   //제보상품 상태 변경
   @Transactional
   public ReportResponseDto patchReportStatus(Long categoryId, Long reportId,
-      ReportStatusRequestDto requestDto, User user) {
+      ReportStatusRequestDto requestDto) {
 
     categoryRepository.getById(categoryId);
     Report report = reportRepository.getById(reportId);
@@ -122,14 +122,14 @@ public class ReportService {
 
   //삭제
   @Transactional
-  public void deleteReport(Long categoryId, Long reportId, User user) {
+  public void deleteReport(Long categoryId, Long reportId) {
 
     categoryRepository.getById(categoryId);
     Report report = reportRepository.getById(reportId);
 
     reportRepository.delete(report);
 
-    s3Manager.deleteAllImageFiles(reportId.toString(), "reports");
+    s3Manager.deleteAllImageFiles(reportId.toString(), S3Manager.REPORT_DIRECTORY_NAME);
   }
 
 

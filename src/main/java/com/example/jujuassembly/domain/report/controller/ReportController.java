@@ -115,7 +115,6 @@ public class ReportController {
    * @param reportId    제보 상품 ID
    * @param image       이미지 파일
    * @param requestDto  제보 요청 DTO
-   * @param userDetails 인증된 사용자 정보
    * @return ResponseEntity<ApiResponse> 객체
    * @throws IOException 이미지 파일 처리 중 발생하는 예외
    */
@@ -123,12 +122,11 @@ public class ReportController {
   public ResponseEntity<ApiResponse> patchReport(@PathVariable Long categoryId,
       @PathVariable Long reportId,
       @RequestParam MultipartFile image,
-      @Valid @RequestPart("data") ReportRequestDto requestDto,
-      @AuthenticationPrincipal UserDetailsImpl userDetails)
+      @Valid @RequestPart("data") ReportRequestDto requestDto)
       throws IOException {
 
     ReportResponseDto reportResponseDto = reportService.patchReport(categoryId, reportId, image,
-        requestDto, userDetails.getUser());
+        requestDto);
 
     return ResponseEntity.status(HttpStatus.OK).body(
         new ApiResponse<>("상품 제보 수정 완료", HttpStatus.OK.value(), reportResponseDto));
@@ -140,17 +138,15 @@ public class ReportController {
    * @param categoryId  카테고리 ID
    * @param reportId    제보 상품 ID
    * @param requestDto  제보 상태 요청 DTO
-   * @param userDetails 인증된 사용자 정보
    * @return ResponseEntity<ApiResponse> 객체
    */
   @Secured(Authority.ADMIN)
   @PatchMapping("/categories/{categoryId}/reports/{reportId}/status")
   public ResponseEntity<ApiResponse> patchReportStatus(@PathVariable Long categoryId,
-      @PathVariable Long reportId, @Valid @RequestBody ReportStatusRequestDto requestDto,
-      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+      @PathVariable Long reportId, @Valid @RequestBody ReportStatusRequestDto requestDto) {
 
     ReportResponseDto reportResponseDto = reportService.patchReportStatus(categoryId, reportId,
-        requestDto, userDetails.getUser());
+        requestDto);
 
     return ResponseEntity.status(HttpStatus.OK).body(
         new ApiResponse<>("상품 제보 수정 완료", HttpStatus.OK.value(), reportResponseDto));
@@ -161,14 +157,13 @@ public class ReportController {
    *
    * @param categoryId  카테고리 ID
    * @param reportId    제보 상품 ID
-   * @param userDetails 인증된 사용자 정보
    * @return ResponseEntity<ApiResponse> 객체
    */
   @DeleteMapping("/categories/{categoryId}/reports/{reportId}")
   public ResponseEntity<ApiResponse> deleteReport(@PathVariable Long categoryId,
-      @PathVariable Long reportId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+      @PathVariable Long reportId) {
 
-    reportService.deleteReport(categoryId, reportId, userDetails.getUser());
+    reportService.deleteReport(categoryId, reportId);
 
     return ResponseEntity.status(HttpStatus.OK)
         .body(new ApiResponse("제보 상품 삭제 성공", HttpStatus.OK.value()));
