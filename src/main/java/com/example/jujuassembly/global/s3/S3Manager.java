@@ -40,6 +40,14 @@ public class S3Manager {
 
   private final AmazonS3 s3Client;
 
+  public static final String REVIEW_PREFIX = "reviews/";
+  public static final String REVIEW_DIRECTORY_NAME = "reviews";
+  public static final String CATEGORY_DIRECTORY_NAME = "categories";
+  public static final String USER_DIRECTORY_NAME = "users";
+  public static final String PRODUCT_DIRECTORY_NAME = "products";
+  public static final String REPORT_DIRECTORY_NAME = "reports";
+
+
   @Transactional(propagation = Propagation.NOT_SUPPORTED)
   public String uploadMultipartFileWithPublicRead(String prefix, MultipartFile multipartFile)
       throws Exception {

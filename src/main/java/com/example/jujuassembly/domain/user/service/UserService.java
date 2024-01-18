@@ -211,10 +211,10 @@ public class UserService {
   @Transactional
   public UserDetailResponseDto uploadImage(Long userId, MultipartFile image) throws Exception {
     User user = userRepository.getById(userId);
-    s3Manager.deleteAllImageFiles(userId.toString(), "users");
+    s3Manager.deleteAllImageFiles(userId.toString(), S3Manager.USER_DIRECTORY_NAME);
 
     if (image != null && !image.isEmpty()) {
-      String url = s3Manager.upload(image, "users", userId);
+      String url = s3Manager.upload(image, S3Manager.USER_DIRECTORY_NAME, userId);
       user.updateUserImage(url);
     }
 

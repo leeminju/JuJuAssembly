@@ -31,7 +31,7 @@ public class ReviewImageService {
       }
 
       String imageUrl = s3Manager.uploadMultipartFileWithPublicRead(
-          "reviews/" + review.getId().toString() + "/",
+          S3Manager.REVIEW_PREFIX + review.getId().toString() + "/",
           image
       );
 
@@ -44,7 +44,7 @@ public class ReviewImageService {
   @Transactional(propagation = Propagation.MANDATORY)
   public void deleteReviewImage(Review review, String fileUrl) {
     reviewImageRepository.deleteByReview(review);
-    s3Manager.deleteImageFile(fileUrl, "reviews");
+    s3Manager.deleteImageFile(fileUrl, S3Manager.REVIEW_DIRECTORY_NAME);
     for (ReviewImage image : review.getReviewImages()) {
       if (image.getImageUrl().equals(fileUrl)) {
         review.getReviewImages().remove(image);
