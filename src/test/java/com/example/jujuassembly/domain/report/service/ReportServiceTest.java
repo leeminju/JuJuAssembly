@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import com.example.jujuassembly.domain.category.dto.CategoryRequestDto;
 import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
+import com.example.jujuassembly.domain.report.dto.ReportPatchRequestDto;
 import com.example.jujuassembly.domain.report.dto.ReportRequestDto;
 import com.example.jujuassembly.domain.report.dto.ReportResponseDto;
 import com.example.jujuassembly.domain.report.dto.ReportStatusRequestDto;
@@ -199,14 +200,14 @@ class ReportServiceTest {
 //given
     //기존에 존재할 제보상품 만들기.
     //카테고리초기화
-    ReportRequestDto requestDto = ReportRequestDto.builder().name("제보상품이름").build();
+    ReportRequestDto requestDto1 = ReportRequestDto.builder().name("제보상품이름").build();
     Category category = new Category(CategoryRequestDto.builder().name("카테고리1").build());
     ReflectionTestUtils.setField(category, Category.class, "id", 1L, Long.class);
     //유저초기화
     User user = new User("loginId", "nickname", "email", "password", category, category);
     ReflectionTestUtils.setField(user, User.class, "id", 1L, Long.class);
     //리포트 초기화
-    Report report = new Report(requestDto);
+    Report report = new Report(requestDto1);
     ReflectionTestUtils.setField(report, Report.class, "id", 1L, Long.class);
     //리포트에 user,category추가
     report.updateUser(user);
@@ -219,8 +220,8 @@ class ReportServiceTest {
 
     //수정할 report 생성
     //리포트 초기화
-    ReportRequestDto patchrequestdto = ReportRequestDto.builder().name("수정할 상품이름").build();
-    Report updatereport = new Report(patchrequestdto);
+    ReportPatchRequestDto requestDto = ReportPatchRequestDto.builder().modifiedCategoryId(1L).name("수정할 상품이름").build();
+    Report updatereport = new Report(requestDto1);
     ReflectionTestUtils.setField(updatereport, Report.class, "id", 1L, Long.class);
 
     MultipartFile image = mock(MultipartFile.class);
@@ -232,7 +233,7 @@ class ReportServiceTest {
     //when
 
     ReportResponseDto resultReport = reportService.patchReport(category.getId(),
-        updatereport.getId(), image, patchrequestdto);
+        updatereport.getId(), image, requestDto);
 
     //then
 
