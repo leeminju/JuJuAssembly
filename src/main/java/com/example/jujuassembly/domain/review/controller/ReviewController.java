@@ -65,17 +65,14 @@ public class ReviewController {
    *
    * @param categoryId  조회할 상품이 속한 카테고리의 식별자
    * @param productId   조회할 상품의 식별자
-   * @param userDetails 현재 인증된 사용자의 상세 정보를 담고 있는 객체
    * @param pageable    페이지네이션 정보 (기본값: 페이지 크기 10, 생성일 기준 내림차순 정렬)
    * @return 상태 코드 200(OK)와 함께 상품의 리뷰 목록을 응답
    */
   @GetMapping("/categories/{categoryId}/products/{productId}/reviews")
   public ResponseEntity<ApiResponse<Page<ReviewResponseDto>>> getProductsReview(
       @PathVariable Long categoryId, @PathVariable Long productId,
-      @AuthenticationPrincipal UserDetailsImpl userDetails,
       @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-    Page<ReviewResponseDto> reviews = reviewService.getProductsReview(categoryId, productId,
-        userDetails.getUser(), pageable);
+    Page<ReviewResponseDto> reviews = reviewService.getProductsReview(categoryId, productId, pageable);
     return ResponseEntity.ok()
         .body(new ApiResponse(productId + "번 상품 내 리뷰 목록 입니다.", HttpStatus.OK.value(), reviews));
   }
@@ -88,7 +85,6 @@ public class ReviewController {
    * @param reviewId    수정할 리뷰의 식별자
    * @param images      변경된 리뷰 이미지 파일 배열 (선택적)
    * @param requestDto  변경할 리뷰 정보를 담고 있는 객체
-   * @param userDetails 현재 인증된 사용자의 상세 정보를 담고 있는 객체
    * @return 상태 코드 200(OK)와 함께 수정된 리뷰 정보를 응답
    * @throws Exception 예외 발생 시 처리
    */
@@ -97,11 +93,10 @@ public class ReviewController {
   public ResponseEntity<ApiResponse<ReviewResponseDto>> updateProductsReview(
       @PathVariable Long categoryId, @PathVariable Long productId, @PathVariable Long reviewId,
       @RequestParam MultipartFile[] images,
-      @Valid @RequestPart(name = "data") ReviewRequestDto requestDto,
-      @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
+      @Valid @RequestPart(name = "data") ReviewRequestDto requestDto) throws Exception {
 
     ReviewResponseDto responseDto = reviewService.updateProductsReview(categoryId, productId,
-        reviewId, images, requestDto, userDetails.getUser());
+        reviewId, images, requestDto);
 
     return ResponseEntity.ok()
         .body(new ApiResponse<>("리뷰가 수정되었습니다.", HttpStatus.OK.value(), responseDto));
@@ -113,15 +108,13 @@ public class ReviewController {
    * @param categoryId  카테고리 ID
    * @param productId   상품 ID
    * @param reviewId    리뷰 ID
-   * @param userDetails 사용자 세부정보
    * @return ApiResponse 객체를 ResponseEntity로 감싼 형태
    */
   @DeleteMapping("/categories/{categoryId}/products/{productId}/reviews/{reviewId}")
   public ResponseEntity<ApiResponse<ReviewResponseDto>> deleteProductsReview(
-      @PathVariable Long categoryId, @PathVariable Long productId, @PathVariable Long reviewId,
-      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+      @PathVariable Long categoryId, @PathVariable Long productId, @PathVariable Long reviewId) {
 
-    reviewService.deleteProductsReview(categoryId, productId, reviewId, userDetails.getUser());
+    reviewService.deleteProductsReview(categoryId, productId, reviewId);
 
     return ResponseEntity.ok()
         .body(new ApiResponse<>(reviewId + "번 리뷰가 삭제되었습니다.", HttpStatus.OK.value()));

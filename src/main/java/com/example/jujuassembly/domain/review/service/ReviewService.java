@@ -50,7 +50,7 @@ public class ReviewService {
     return new ReviewResponseDto(savedReview);
   }
 
-  public Page<ReviewResponseDto> getProductsReview(Long categoryId, Long productId, User user,
+  public Page<ReviewResponseDto> getProductsReview(Long categoryId, Long productId,
       Pageable pageable) {
     categoryRepository.getById(categoryId);
     Product product = productRepository.getById(productId);
@@ -63,7 +63,7 @@ public class ReviewService {
 
   @Transactional
   public ReviewResponseDto updateProductsReview(Long categoryId, Long productId, Long reviewId,
-      MultipartFile[] images, ReviewRequestDto requestDto, User user) throws Exception {
+      MultipartFile[] images, ReviewRequestDto requestDto) throws Exception {
     if (images.length > 4) {
       throw new ApiException("사진은 4장 까지만 업로드 가능합니다.", HttpStatus.BAD_REQUEST);
     }
@@ -84,7 +84,7 @@ public class ReviewService {
     return new ReviewResponseDto(review);
   }
 
-  public void deleteProductsReview(Long categoryId, Long productId, Long reviewId, User user) {
+  public void deleteProductsReview(Long categoryId, Long productId, Long reviewId) {
     categoryRepository.getById(categoryId);
     Product product = productRepository.getById(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
