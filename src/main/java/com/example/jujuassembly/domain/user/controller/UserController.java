@@ -100,9 +100,13 @@ public class UserController {
   public ResponseEntity<ApiResponse> login(
       @RequestBody LoginRequestDto requestDto,
       HttpServletResponse response) {
-    UserResponseDto userResponseDto = userService.login(requestDto, response);
+    String accessToken = userService.login(requestDto, response);
+
+    Cookie cookie = jwtUtil.addJwtToCookie(accessToken);
+    response.addCookie(cookie);
+
     return ResponseEntity.ok()
-        .body(new ApiResponse("로그인 성공", HttpStatus.OK.value(), userResponseDto));
+        .body(new ApiResponse("로그인 성공", HttpStatus.OK.value()));
   }
 
   /**
@@ -228,9 +232,6 @@ public class UserController {
 
     Cookie cookie = jwtUtil.addJwtToCookie(accessToken);
     response.addCookie(cookie);
-
-    HttpHeaders headers = new HttpHeaders();
-    headers.add(JwtUtil.AUTHORIZATION_HEADER, accessToken);
 
     return ResponseEntity.status(HttpStatus.FOUND)
         .header(HttpHeaders.LOCATION, "/")
