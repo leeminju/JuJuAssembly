@@ -209,6 +209,7 @@ public class UserService {
   }
 
   //프로필 사진 추가
+  @Transactional
   public UserDetailResponseDto uploadImage(Long userId, MultipartFile image) throws Exception {
     User user = userRepository.getById(userId);
     s3Manager.deleteAllImageFiles(userId.toString(), "users");
