@@ -8,6 +8,7 @@ import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.example.jujuassembly.global.exception.ApiException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,7 +72,7 @@ public class S3Manager {
   // MultipartFile을 전달받아 File로 전환한 후 S3에 업로드
   public String upload(MultipartFile multipartFile, String dirName, Long id) throws IOException {
     File uploadFile = convert(multipartFile)
-        .orElseThrow(() -> new IllegalArgumentException("MultipartFile -> File 전환 실패"));
+        .orElseThrow(() -> new ApiException("MultipartFile -> File 전환 실패", HttpStatus.NOT_ACCEPTABLE));
     return upload(uploadFile, dirName, id.toString());
   }
 
@@ -113,7 +115,7 @@ public class S3Manager {
     if (matcher.find()) {
       return matcher.group(1);
     }
-    throw new IllegalArgumentException("잘못된 파일 Url 입니다.");
+    throw new ApiException("잘못된 파일 Url 입니다.", HttpStatus.BAD_REQUEST);
   }
 
   private String putS3(File uploadFile, String fileName) {

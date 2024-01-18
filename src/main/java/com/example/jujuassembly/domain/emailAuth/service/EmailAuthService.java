@@ -40,7 +40,7 @@ public class EmailAuthService {
 
     // 인증번호 일치하는지 확인
     if (!emailAuth.getSentCode().equals(verificationCode)) {
-      throw new IllegalArgumentException("인증번호가 일치하지 않습니다.");
+      throw new ApiException("인증번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST);
     }
 
     return emailAuth;
