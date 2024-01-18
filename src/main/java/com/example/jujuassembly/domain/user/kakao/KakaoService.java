@@ -78,7 +78,7 @@ public class KakaoService {
     MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
     body.add("grant_type", "authorization_code");
     body.add("client_id", "384eb140b7adc777306aa35e86b7fa7f");
-    body.add("redirect_uri", "http://ec2-13-125-216-237.ap-northeast-2.compute.amazonaws.com:8080/v1/auth/kakao/callback");
+    body.add("redirect_uri", "http://ec2-54-180-83-232.ap-northeast-2.compute.amazonaws.com:8080/v1/auth/kakao/callback");
     body.add("code", code);
 
     RequestEntity<MultiValueMap<String, String>> requestEntity = RequestEntity   // '이런 형태로 request해라' 라고 나와있음
