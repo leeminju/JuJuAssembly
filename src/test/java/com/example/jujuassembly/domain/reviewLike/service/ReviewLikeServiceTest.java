@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
+import com.example.jujuassembly.domain.notification.repository.NotificationRepository;
 import com.example.jujuassembly.domain.notification.service.NotificationService;
 import com.example.jujuassembly.domain.product.entity.Product;
 import com.example.jujuassembly.domain.product.repository.ProductRepository;
@@ -27,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -45,8 +47,9 @@ class ReviewLikeServiceTest {
   @Mock
   ReviewLikeRepository reviewLikeRepository;
   @Mock
+  NotificationRepository notificationRepository;
+  @Mock
   NotificationService notificationService;
-
   @InjectMocks
   ReviewLikeService reviewLikeService;
 
@@ -69,6 +72,7 @@ class ReviewLikeServiceTest {
     category = Category.builder().id(categoryId).build();
     product = Product.builder().id(productId).category(category).build();
     review = Review.builder().id(reviewId).product(product).build();
+
 
     when(productRepository.getById(productId)).thenReturn(product);
     when(categoryRepository.getById(categoryId)).thenReturn(category);

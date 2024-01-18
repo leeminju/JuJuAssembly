@@ -1,7 +1,6 @@
 package com.example.jujuassembly.domain.notification.entity;
 
 import com.example.jujuassembly.domain.notification.dto.NotificationRequestDto;
-import com.example.jujuassembly.domain.review.entity.Review;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.global.entity.Timestamped;
 import jakarta.persistence.Entity;
@@ -40,17 +39,17 @@ public class Notification extends Timestamped {
   @JoinColumn(name = "user_id")
   private User user;  // 알림을 받는 사용자
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "review_id")
-  private Review review;  // 알림과 연관된 리뷰
+  private String entityType; // 알림과 관련된 엔티티의 유형
+  private Long entityId;     // 알림과 관련된 엔티티의 ID
 
   // 알림 객체 생성 메서드
   public Notification(NotificationRequestDto requestDto) {
     this.user = requestDto.getUser();
-    this.review = requestDto.getReview();
     this.content = requestDto.getContent();
     this.url = requestDto.getUrl();
     this.isRead = requestDto.isRead();
+    this.entityType = requestDto.getEntityType();
+    this.entityId = requestDto.getEntityId();
   }
 
   // 알림 상태를 "읽음"으로 변경

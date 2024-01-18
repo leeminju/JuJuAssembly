@@ -24,9 +24,11 @@
   <link rel="stylesheet" href="/css/style.css">
   <script src="/js/common.js"></script>
   <script>
+
     var productId = -1;
     var categoryId = -1;
     var create_imageFile = null;
+    var update_imageFile = null;
 
     $(document).ready(function () {
 
@@ -44,28 +46,26 @@
       $("#create_review_image").on("change", function (event) {
         create_imageFile = event.target.files;
       });
+      $("#update_review_image").on("change", function (event) {
+        update_imageFile = event.target.files;
+      });
 
-      // $("#update_reivew_image").on("change", function (event) {
-      //   update_imageFile = event.target.files[0];
-      // });
+      function parseQueryString(url) {
+        var params = {};
+        var queryString = url.split('?')[1];
 
-    })
+        if (queryString) {
+          queryString.split('&').forEach(function (pair) {
+            var keyValue = pair.split('=');
+            var key = decodeURIComponent(keyValue[0]);
+            var value = decodeURIComponent(keyValue[1]);
+            params[key] = value;
+          });
+        }
 
-    function parseQueryString(url) {
-      var params = {};
-      var queryString = url.split('?')[1];
-
-      if (queryString) {
-        queryString.split('&').forEach(function (pair) {
-          var keyValue = pair.split('=');
-          var key = decodeURIComponent(keyValue[0]);
-          var value = decodeURIComponent(keyValue[1]);
-          params[key] = value;
-        });
+        return params;
       }
-
-      return params;
-    }
+    })
 
     function getProductDetails() {
       $.ajax({
@@ -222,7 +222,8 @@
 </button>
        </div>
         <div style="margin-left: 78%">
-          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateReview">수정</button>
+          <button onclick="updateId('${id}')" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateReview">
+          수정</button>
           <button class="btn btn-primary">삭제 </button>
         </div>
       </div>
@@ -271,6 +272,54 @@
 
       return text;
     }
+
+    function updateId(id) {
+      $('#update_btn').val(id);
+
+    }
+
+    function updateReview() {
+      if (!update_imageFile) {
+        alert("이미지를 선택해주세요");
+        return;
+      }
+
+      let reviewId = $('#update_btn').val();
+    
+      let description = $('#update_description').val();
+      let star = $('#update_star').val();
+      let munchies = $('#update_munchies').val();
+      let data = {
+        "description": description,
+        "star": star,
+        "munchies": munchies
+      }
+
+      const formData = new FormData();
+      formData.append("data",
+          new Blob([JSON.stringify(data)], {type: "application/json"}));
+
+      // 배열의 각 파일을 순회하면서 FormData에 따로 추가합니다.
+      for (let i = 0; i < update_imageFile.length; i++) {
+        formData.append('images', update_imageFile[i]);
+      }
+
+      $.ajax({
+        type: "PATCH",
+        url: `/v1/categories/${categoryId}/products/${productId}/reviews/${reviewId}`,
+        data: formData,
+        enctype: "multipart/form-data",
+        contentType: false,
+        processData: false,
+        success: function (response) {
+          alert(response['msg']);
+          window.location.reload();
+        }, error: function (error) {
+          alert(error['responseJSON']['msg']);
+        }
+      });
+    }
+
   </script>
 </head>
 <body>
@@ -294,6 +343,31 @@
                 data-bs-dismiss="modal">Close
         </button>
         <button class="btn btn-light" onclick="createReview()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="updateReview" aria-hidden="true"
+     aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">리뷰 수정</h1>
+        <button onclick="win_reload()" type="button" class="btn-close" data-bs-dismiss="modal"
+                aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" class="form-control" id="update_description" placeholder="설명">
+        <input type="number" class="form-control" id="update_star" placeholder="별점 1점 ~ 5점 사이">
+        <input type="text" class="form-control" id="update_munchies" placeholder="추천 안주">
+        <input type="file" accept="image/*" id="update_review_image" multiple>
+      </div>
+      <div class="modal-footer">
+        <button onclick="win_reload()" type="button" class="btn btn-secondary"
+                data-bs-dismiss="modal">Close
+        </button>
+        <button class="btn btn-light" onclick="updateReview()" id="update_btn">Update</button>
       </div>
     </div>
   </div>
