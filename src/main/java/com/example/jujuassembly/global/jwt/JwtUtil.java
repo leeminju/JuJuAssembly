@@ -215,6 +215,7 @@ public class JwtUtil {
           .replaceAll("\\+", "%20"); // 공백 제거
 
       Cookie cookie = new Cookie(AUTHORIZATION_HEADER, spaceRemovedToken);
+      cookie.setMaxAge((int) ACCESS_TOKEN_TIME);
       cookie.setPath("/");
 
       return cookie;
