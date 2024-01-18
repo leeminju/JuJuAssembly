@@ -150,7 +150,7 @@ class ReviewServiceTest {
     given(reviewRepository.getById(reviewId)).willReturn(review);
     //when
     ReviewResponseDto responseDto = reviewService.updateProductsReview(categoryId, productId,
-        reviewId, images, requestDto, user);
+        reviewId, images, requestDto);
 
     //then
     assertEquals(requestDto.getDescription(), responseDto.getDescription());
@@ -170,7 +170,7 @@ class ReviewServiceTest {
     given(productRepository.getById(categoryId)).willReturn(product);
     given(reviewRepository.getById(reviewId)).willReturn(review);
     //when
-    reviewService.deleteProductsReview(categoryId, productId, reviewId, user);
+    reviewService.deleteProductsReview(categoryId, productId, reviewId);
 
     //then
     verify(reviewRepository).delete(any(Review.class));
@@ -197,7 +197,7 @@ class ReviewServiceTest {
     when(reviewRepository.findAllByProduct(product, pageable)).thenReturn(mockReviews);
 
     //when
-    Page<ReviewResponseDto> reviews = reviewService.getProductsReview(categoryId, productId, user,
+    Page<ReviewResponseDto> reviews = reviewService.getProductsReview(categoryId, productId,
         pageable);
 
     //then
