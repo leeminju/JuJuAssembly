@@ -122,7 +122,7 @@ public class UserService {
     return new UserResponseDto(user);
   }
 
-  public UserResponseDto login(LoginRequestDto requestDto, HttpServletResponse response) {
+  public String login(LoginRequestDto requestDto, HttpServletResponse response) {
     String loginId = requestDto.getLoginId();
     // 아이디 확인
     User user = userRepository.findByLoginId(loginId).orElse(null);
@@ -144,13 +144,12 @@ public class UserService {
 
     // access token 및 refresh token
     String accessToken = jwtUtil.createAccessToken(loginId);
-    response.setHeader(JwtUtil.AUTHORIZATION_HEADER, accessToken);
     jwtUtil.saveAccessTokenByLoginId(loginId, accessToken);
 
     String refreshToken = jwtUtil.createRefreshToken(loginId);
     jwtUtil.saveRefreshTokenByAccessToken(accessToken, refreshToken);
 
-    return new UserResponseDto(user);
+    return accessToken;
   }
 
   public void logout(String accessToken, HttpServletResponse response) {
