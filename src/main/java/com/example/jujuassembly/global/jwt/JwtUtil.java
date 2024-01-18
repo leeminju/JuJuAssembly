@@ -13,6 +13,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.Key;
 import java.util.Base64;
@@ -24,7 +25,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 @Slf4j
 @Component
@@ -58,9 +58,17 @@ public class JwtUtil {
   }
 
   public String getTokenFromRequest(HttpServletRequest request) {
-    String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-    if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
-      return bearerToken;
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+      for (Cookie cookie : cookies) {
+        if (cookie.getName().equals(AUTHORIZATION_HEADER)) {
+          try {
+            return URLDecoder.decode(cookie.getValue(), "UTF-8");
+          } catch (Exception e) {
+            return null;
+          }
+        }
+      }
     }
     return null;
   }

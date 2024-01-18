@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -51,7 +52,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         if (jwtUtil.validateToken(refreshTokenValue)) {
           // accessToken 재발급
           String newAccessToken = jwtUtil.createAccessTokenByRefreshToken(refreshTokenValue);
-          response.setHeader(JwtUtil.AUTHORIZATION_HEADER, newAccessToken);
+          Cookie cookie = jwtUtil.addJwtToCookie(newAccessToken);
+          response.addCookie(cookie);
 
           // DB 토큰도 새로고침
           jwtUtil.regenerateToken(newAccessToken, accessToken, refreshTokenValue);
