@@ -1,11 +1,11 @@
 $(document).ready(function () {
   // 알림 구독 버튼 클릭 이벤트 핸들러 추가
   initializeSSE();
+  fetchNotifications();
 
   // 알림 보기 버튼 클릭 이벤트
   $('#notification-btn').click(function () {
     //showModal();
-    fetchNotifications();
   });
 });
 
@@ -107,8 +107,17 @@ function markAsRead(notificationId) {
 
 // 읽지 않은 알림의 개수를 표시하는 함수
 function displayUnreadCount(unreadCount) {
-  var unreadCountElement = $('#unread-count');
-  unreadCountElement.text('읽지 않은 알림: ' + unreadCount);
+  var unreadCountBadge = $('#notification-count-badge'); // 알림 버튼 옆의 배지
+  var modalUnreadCountElement = $('#unread-count'); // 모달 창 내의 텍스트 요소
+
+  if(unreadCount > 0) {
+    unreadCountBadge.text(unreadCount); // 버튼 옆의 배지에 숫자만 표시
+    modalUnreadCountElement.text("읽지 않은 알림: " + unreadCount); // 모달 창 내의 텍스트를 '읽지 않은 알림: 숫자'로 업데이트
+    unreadCountBadge.show(); // 숨겨져 있었다면 배지를 보이게 처리
+  } else {
+    unreadCountBadge.hide(); // 알림이 0개일 때는 배지를 숨김
+    modalUnreadCountElement.text("읽지 않은 알림이 없습니다."); // 모달 창 내 텍스트를 '읽지 않은 알림이 없습니다.'로 업데이트
+  }
 }
 
 // // 알림 모달 창을 표시하는 함수
