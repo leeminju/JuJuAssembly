@@ -1,20 +1,24 @@
-$(document).ready(function () {
-  // 알림 구독 버튼 클릭 이벤트 핸들러 추가
-  initializeSSE();
-  fetchNotifications();
+var source;
 
-  // 알림 보기 버튼 클릭 이벤트
-  $('#notification-btn').click(function () {
-    //showModal();
-  });
+$(document).ready(function () {
+
+  // 로그인 상태를 확인하는 로직 (예시: 쿠키에서 토큰 확인)
+  var isLoggedIn = getToken();
+
+  // 로그인 상태일 경우에만 SSE 구독과 알림 조회를 실행
+  if (isLoggedIn) {
+    initializeSSE();
+    fetchNotifications();
+  }
 });
 
 // SSE 구독을 위한 함수
 function initializeSSE() {
   if (!!window.EventSource) {
-    var source = new EventSource('/v1/notification/subscribe');
+    source = new EventSource('/v1/notification/subscribe');
 
     source.onmessage = function (event) {
+      console.log('Received SSE:', event.data);
       var notification = JSON.parse(event.data);
       displayRealTimeNotification(notification);
       displayNotifications([notification]); // 알림 목록에 추가
