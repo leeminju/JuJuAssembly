@@ -20,38 +20,9 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.4/pagination.css"/>
   <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
   <link rel="stylesheet" href="/css/style.css">
-
+  <script src="/js/basic.js"></script>
+  <script src="/js/notification.js"></script>
 </head>
-<script>
-  var userId = -1;
-  $(document).ready(function () {
-    $.ajax({
-      type: 'GET',
-      url: `/v1/users/myprofile`,
-      success: function (response) {
-        if (response['data']['role'] === "USER") {
-          window.location.href = '/';
-        }
-        $('#sign-in-btn').hide();
-        $('#sign-up-btn').hide();
-        $('#mypage').show();
-        $('#logout-btn').show();
-        $('#header_nickname').text(response['data']['nickname']);
-
-        userId = response['data']['id'];
-        console.log(userId);
-      },
-      error(error, status, request) {
-        if (error['responseJSON']['data']) {
-          alert(error['responseJSON']['data']);
-        } else {
-          alert(error['responseJSON']['msg']);
-        }
-      }
-    });
-  })
-
-</script>
 <script>
   // 이 부분에 jQuery 및 기타 스크립트 추가
   // 쿠키 또는 로그인 여부를 확인하는 등의 처리를 진행할 수 있습니다.
@@ -62,14 +33,6 @@
       type: 'GET',
       url: `/v1/users/myprofile`,
       success: function (response) {
-        if (response['data']['role'] === "USER") {
-          window.location.href = '/';
-        }
-        $('#sign-in-btn').hide();
-        $('#sign-up-btn').hide();
-        $('#mypage').show();
-        $('#logout-btn').show();
-        $('#header_nickname').text(response['data']['nickname']);
         userId = response['data']['id'];
         getUserReports();
       },
