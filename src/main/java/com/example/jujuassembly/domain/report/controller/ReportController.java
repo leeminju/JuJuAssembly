@@ -152,7 +152,7 @@ public class ReportController {
         requestDto, userDetails.getUser());
 
     return ResponseEntity.status(HttpStatus.OK).body(
-        new ApiResponse<>("상품 제보 수정 완료", HttpStatus.OK.value(), reportResponseDto));
+        new ApiResponse<>("상품 제보 상태 변경 완료", HttpStatus.OK.value(), reportResponseDto));
   }
 
   /**
