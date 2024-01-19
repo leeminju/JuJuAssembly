@@ -228,7 +228,7 @@ public class UserController {
       @RequestParam String code,
       HttpServletResponse response) throws JsonProcessingException {
 
-    String accessToken = kakaoService.kakaoLogin(code, response);
+    String accessToken = kakaoService.kakaoLogin(code);
 
     Cookie cookie = jwtUtil.addJwtToCookie(accessToken);
     response.addCookie(cookie);

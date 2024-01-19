@@ -1,5 +1,7 @@
 package com.example.jujuassembly.domain.user.kakao;
 
+import com.example.jujuassembly.domain.category.entity.Category;
+import com.example.jujuassembly.domain.category.repository.CategoryRepository;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.global.jwt.JwtUtil;
@@ -30,8 +32,9 @@ public class KakaoService {
   private final RestTemplate restTemplate;
   private final UserRepository userRepository;
   private final JwtUtil jwtUtil;
+  private final CategoryRepository categoryRepository;
 
-  public String kakaoLogin(String code, HttpServletResponse response)
+  public String kakaoLogin(String code)
       throws JsonProcessingException {
     log.info("kakaoLogin 메서드 입성");
 
@@ -50,7 +53,7 @@ public class KakaoService {
       return jwtUtil.getAccessTokenByLoginId(loginId);
     }
 
-    // Cookie 만들어서 반환
+    // accessToken을 만들어서 반환
     String bearerAccessToken = jwtUtil.createAccessToken(loginId);
 
     // 토큰을 DB에 저장
@@ -153,8 +156,8 @@ public class KakaoService {
       if (sameEmailUser != null) {
         kakaoUser = sameEmailUser;
         // 기존 회원정보에 카카오 Id 추가
-        kakaoUser = kakaoUser.kakaoIdUpdate(
-            kakaoId);  //Transactional이 필요 없게 하려고 return을 kakaoUser라는 객체로 했다.
+        kakaoUser = kakaoUser.kakaoIdUpdate(kakaoId);
+        //Transactional이 필요 없게 하려고 return을 kakaoUser라는 객체로 했다.
         // save (@Transactional 걸어버리면 하나의 오류라도 있으면 다시 롤백되므로, 오류 난건 그대로 놓고 나머지 잘 수행된건 그대로 DB에 영향을 주게 하고 싶기 때문.)
       } else {
         // 신규 회원가입
@@ -168,8 +171,12 @@ public class KakaoService {
         // image
         String url = kakaoUserInfo.getImageUrl();
 
+        // 카테고리를 임의로 지정
+        Category firstCategory = categoryRepository.getById(1L);
+        Category secondCatefory = categoryRepository.getById(2L);
+
         kakaoUser = new User(email, kakaoUserInfo.getNickname(), email, encodedPassword, kakaoId,
-            url);
+            url, firstCategory, secondCatefory);
       }
 
       userRepository.save(kakaoUser);
