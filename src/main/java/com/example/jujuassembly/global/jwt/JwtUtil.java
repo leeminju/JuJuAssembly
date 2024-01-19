@@ -193,11 +193,15 @@ public class JwtUtil {
     redisTemplate.delete(accessToken);
   }
 
-  public void checkIsLoggedIn(String loginId, HttpServletResponse response) {
+  public Boolean checkIsLoggedIn(String loginId) {
     if (redisTemplate.hasKey(loginId)) {
-      response.setHeader(AUTHORIZATION_HEADER, redisTemplate.opsForValue().get(loginId));
-      throw new ApiException("이미 로그인 되어있습니다.", HttpStatus.BAD_REQUEST);
+      return true;
     }
+    return false;
+  }
+
+  public String getAccessTokenByLoginId(String loginId) {
+    return redisTemplate.opsForValue().get(loginId);
   }
 
   public boolean checkIsLoggedOut(String accessToken) {

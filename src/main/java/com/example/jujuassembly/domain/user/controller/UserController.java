@@ -100,7 +100,7 @@ public class UserController {
   public ResponseEntity<ApiResponse> login(
       @RequestBody LoginRequestDto requestDto,
       HttpServletResponse response) {
-    String accessToken = userService.login(requestDto, response);
+    String accessToken = userService.login(requestDto);
 
     Cookie cookie = jwtUtil.addJwtToCookie(accessToken);
     response.addCookie(cookie);
