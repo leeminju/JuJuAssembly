@@ -46,7 +46,9 @@ public class KakaoService {
     String loginId = kakaoUser.getLoginId();
 
     // 이미 로그인 되어 있는지 확인
-    jwtUtil.checkIsLoggedIn(loginId, response);
+    if (jwtUtil.checkIsLoggedIn(loginId)) {
+      return jwtUtil.getAccessTokenByLoginId(loginId);
+    }
 
     // Cookie 만들어서 반환
     String bearerAccessToken = jwtUtil.createAccessToken(loginId);
