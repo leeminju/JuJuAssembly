@@ -22,7 +22,8 @@
   <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.4/pagination.css"/>
   <link rel="stylesheet" href="/css/style.css">
-  <script src="/js/common.js"></script>
+  <script src="/js/basic.js"></script>
+  <script src="/js/notification.js"></script>
   <script>
     var productId = -1;
     var categoryId = -1;
@@ -495,108 +496,173 @@
   </div>
 </div>
 
+<div style="    display: flex;    flex-direction: row;">
+  <div id="adminMenu" style="display: none">
+    <div class="d-flex flex-column flex-shrink-0 p-3 bg-body-tertiary"
+         style="width: 280px;height: 800px">
 
-<div class="container">
-  <header
-      class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
-    <div class="col-md-3 mb-2 mb-md-0">
-      <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
-        주주 총회
-      </a>
+      <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+          <a href="/admin" class="nav-link active" aria-current="page">
+            회원 관리
+          </a>
+        </li>
+        <li>
+          <a href="/admin/category" class="nav-link link-body-emphasis">
+            카테고리 관리
+          </a>
+        </li>
+        <li>
+          <a href="/admin/product" class="nav-link link-body-emphasis">
+            상품 관리
+          </a>
+        </li>
+        <li>
+          <a href="/admin/report" class="nav-link link-body-emphasis">
+            제보 관리
+          </a>
+        </li>
+        <li>
+          <a href="/admin/chat" class="nav-link link-body-emphasis">
+            고객과 채팅
+          </a>
+        </li>
+      </ul>
+      <hr>
+
     </div>
-
-    <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0" id="main_menu">
-      <li><a href="#" class="nav-link px-2 link-secondary">주주 총회 소개</a></li>
-      <li><a href="#" class="nav-link px-2">내가 찜한 주류</a></li>
-      <li><a href="#" class="nav-link px-2">내가 쓴 리뷰</a></li>
-      <li><a href="#" class="nav-link px-2">고객 센터</a></li>
-    </ul>
-
-    <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0" id="admin_menu">
-      <li><a href="/admin" class="nav-link px-2">회원 관리</a></li>
-      <li><a href="/admin/category" class="nav-link px-2">카테 고리 관리</a></li>
-      <li><a href="/admin/product" class="nav-link px-2">상품 관리</a></li>
-      <li><a href="/admin/report" class="nav-link px-2">제보 관리</a></li>
-      <li><a href="/admin/chat" class="nav-link px-2">고객 센터</a></li>
-    </ul>
-
-    <div class="col-md-3 text-end">
-      <button id="sign-in-btn" class="btn btn-info" onclick="location.href='/login'">
-        Sign in
-      </button>
-      <button id="sign-up-btn" class="btn btn-outline-info" onclick="location.href='/signup'">
-        Sign up
-      </button>
-      <button class="btn btn-info" id="mypage">
-        <span id="header_nickname" onclick="location.href='/mypage'"></span>님의 마이 페이지
-      </button>
-      <button class="btn btn-outline-info" id="logout-btn" onclick="logout()">
-        Logout
-      </button>
-    </div>
-  </header>
-</div>
-
-
-<div style="display: flex;flex-direction: row;justify-content: center; margin: auto">
-  <div style="margin-right: 20px">
-    <div id="categoryName">카테고리 이름</div>
-    <img style="width: 300px;height: 400px;object-fit: cover" id="product-image" src="">
-    <div style="font-size: 30px;margin: 10px;">
-
-      <svg id="emptyHeart" onclick="likeProduct()" xmlns="http://www.w3.org/2000/svg" width="30"
-           height="30"
-           fill="currentColor"
-           class="bi bi-heart" viewBox="0 0 16 16">
-        <path
-            d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"/>
-      </svg>
-      <svg id="fullHeart" onclick="unlikeProduct()"
-           xmlns="http://www.w3.org/2000/svg"
-           width="30" height="30"
-           fill="currentColor"
-           class="bi bi-heart-fill" viewBox="0 0 16 16">
-        <path fill-rule="evenodd"
-              d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>
-      </svg>
-
-      <span id="likesCount"></span></div>
   </div>
+  <div style="margin-left: 20px;margin-right: 20px;width: 100%">
+    <header style="
+    justify-content: space-between;
+    flex-direction: row;
+    display: flex;
+    height: 100px;
+    align-items: center;">
+      <button id="admin_btn" onclick="showAdminMenu()"
+              style="display:none; border:transparent;background-color:transparent;margin-right: 20px;height: fit-content;">
+        <img
+            style="object-fit: contain;width: 30px;height: 30px" src="/images/menu.png"></button>
+      <div class="col-md-3 mb-2 mb-md-0">
+        <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
+          주주 총회
+        </a>
+      </div>
 
-  <div style="width: 50%">
-    <h3 id="name"> 이름 </h3>
-    <div id="description"> 설명</div>
-    <div>지역 :<span id="area">지역</span></div>
-    <div>회사 :<span id="company"> 회사</span></div>
-    <div>도수 :<span id="alcoholDegree">알코올 도수</span></div>
-    <div>★<span id="averageRating">평점</span></div>
-  </div>
+      <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+        <li><a href="/" class="nav-link px-2 ">주주 총회 소개</a></li>
+        <li><a href="/main/product" class="nav-link px-2">주류 목록 보기</a></li>
+        <li><a href="/main/report" class="nav-link px-2">주류 제보 하기</a></li>
+        <li><a href="/main/myLike" class="nav-link px-2">내가 찜한 주류</a></li>
+        <li><a href="/main/myReview" class="nav-link px-2">내가 쓴 리뷰</a></li>
+        <li><a href="/main/chat" class="nav-link px-2">고객 센터</a></li>
+      </ul>
 
-</div>
+      <div class="col-md-3 text-end">
+        <button onclick="location.href='/main/search'"
+                style="background-color: transparent;border: transparent">
+          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
+               class="bi bi-search" viewBox="0 0 16 16">
+            <path
+                d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+          </svg>
+        </button>
+        <!-- 알림 버튼 -->
+        <button data-bs-toggle="modal"
+                data-bs-target="#notificationModal"
+                id="notification-btn" style="background-color: transparent; border: transparent">
+          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
+               class="bi bi-bell" viewBox="0 0 16 16">
+            <path
+                d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6"/>
+          </svg>
+        </button>
 
-<div style="display: flex;
+        <button id="sign-in-btn" class="btn btn-info" onclick="location.href='/login'">
+          Sign in
+        </button>
+        <button id="sign-up-btn" class="btn btn-outline-info" onclick="location.href='/signup'">
+          Sign up
+        </button>
+        <button onclick="location.href='/mypage'" class="btn btn-info" id="mypage"
+                style="display: none;">
+          <span id="header_nickname"></span>님의 마이 페이지
+        </button>
+        <button class="btn btn-outline-info" id="logout-btn" onclick="logout()"
+                style="display: none;">
+          Logout
+        </button>
+
+      </div>
+
+
+    </header>
+    <div style="height: fit-content;">
+      <div style="display: flex;flex-direction: row;justify-content: center; margin: auto">
+        <div style="margin-right: 20px">
+          <div id="categoryName">카테고리 이름</div>
+          <img style="width: 300px;height: 400px;object-fit: cover" id="product-image" src="">
+          <div style="font-size: 30px;margin: 10px;">
+
+            <svg id="emptyHeart" onclick="likeProduct()" xmlns="http://www.w3.org/2000/svg"
+                 width="30"
+                 height="30"
+                 fill="currentColor"
+                 class="bi bi-heart" viewBox="0 0 16 16">
+              <path
+                  d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"/>
+            </svg>
+            <svg id="fullHeart" onclick="unlikeProduct()"
+                 xmlns="http://www.w3.org/2000/svg"
+                 width="30" height="30"
+                 fill="currentColor"
+                 class="bi bi-heart-fill" viewBox="0 0 16 16">
+              <path fill-rule="evenodd"
+                    d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>
+            </svg>
+
+            <span id="likesCount"></span></div>
+        </div>
+
+        <div style="width: 50%">
+          <h3 id="name"> 이름 </h3>
+          <div id="description"> 설명</div>
+          <div>지역 :<span id="area">지역</span></div>
+          <div>회사 :<span id="company"> 회사</span></div>
+          <div>도수 :<span id="alcoholDegree">알코올 도수</span></div>
+          <div>★<span id="averageRating">평점</span></div>
+        </div>
+
+      </div>
+
+      <div style="display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 10px">
-  <div class="pagination">
-    정렬:
-    <select id="sorting" onchange="getReviews()" style="margin-right: 10px">
-      <option value="createdAt">작성일</option>
-      <option value="modifiedAt">수정일</option>
-    </select>
-    <input type="radio" name="isAsc" value="asc" onchange="getReviews()"/> 오름차순
-    <input type="radio" name="isAsc" value="desc" onchange="getReviews()" checked/> 내림차순
+        <div class="pagination">
+          정렬:
+          <select id="sorting" onchange="getReviews()" style="margin-right: 10px">
+            <option value="createdAt">작성일</option>
+            <option value="modifiedAt">수정일</option>
+          </select>
+          <input type="radio" name="isAsc" value="asc" onchange="getReviews()"/> 오름차순
+          <input type="radio" name="isAsc" value="desc" onchange="getReviews()" checked/> 내림차순
+        </div>
+        <div id="pagination" class="pagination" style="margin-top:10px"></div>
+      </div>
+      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createReview"
+              style="margin-left:75%">리뷰 작성
+      </button>
+      <div class="my-3 p-3 bg-body rounded shadow-sm"
+           style="margin: 10px auto 10px auto;width: 60%;"
+           id="reviewList">
+        <h6 class="border-bottom pb-2 mb-0">리뷰 목록(<span id="reviewCount"></span>)</h6>
+      </div>
+    </div>
   </div>
-  <div id="pagination" class="pagination" style="margin-top:10px"></div>
 </div>
-<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createReview"
-        style="margin-left:75%">리뷰 작성
-</button>
-<div class="my-3 p-3 bg-body rounded shadow-sm" style="margin: 10px auto 10px auto;width: 60%;"
-     id="reviewList">
-  <h6 class="border-bottom pb-2 mb-0">리뷰 목록(<span id="reviewCount"></span>)</h6>
-</div>
+
 
 </body>
 </html>

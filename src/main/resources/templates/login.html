@@ -34,7 +34,7 @@
     <button id="login-id-submit" onclick="onLogin()">로그인</button>
     <button id="login-kakao-btn"
             onclick="location.href='https://kauth.kakao.com/oauth/authorize?client_id=384eb140b7adc777306aa35e86b7fa7f&redirect_uri=http://ec2-54-180-83-232.ap-northeast-2.compute.amazonaws.com:8080/v1/auth/kakao/callback&response_type=code'">
-    카카오로 로그인하기
+      카카오로 로그인하기
     </button>
   </div>
   <div id="login-failed" style="display:none" class="alert alert-danger" role="alert"></div>
@@ -104,28 +104,7 @@
     })
     .done(function (res, status, xhr) {
       alert(res['msg']);
-
-      //로그인한 회원 정보
-      $.ajax({
-        type: 'GET',
-        url: `/v1/users/myprofile`,
-        contentType: 'application/json',
-        success: function (response) {
-          if (response['data']['role'] === "USER") {
-            window.location.href = host;
-          } else {
-            window.location.href = '/admin';
-          }
-
-        },
-        error(error, status, request) {
-          if (error['responseJSON']['data']) {
-            alert(error['responseJSON']['data']);
-          } else {
-            alert(error['responseJSON']['msg']);
-          }
-        }
-      });
+      window.location.href = host;
     });
   }
 </script>

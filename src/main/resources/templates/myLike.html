@@ -15,13 +15,17 @@
           integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
           crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
-  <link rel="stylesheet" href="/css/style.css">
+  <script src="http://code.jquery.com/jquery-latest.js"></script>
+  <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.4/pagination.min.js"></script>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.4/pagination.css"/>
   <script src="/js/basic.js"></script>
   <script src="/js/notification.js"></script>
   <link rel="stylesheet" href="/css/style.css">
-  <script src="/js/category.js"></script>
 </head>
 <body>
+
 <div style="    display: flex;    flex-direction: row;">
   <div id="adminMenu" style="display: none">
     <div class="d-flex flex-column flex-shrink-0 p-3 bg-body-tertiary"
@@ -29,12 +33,12 @@
 
       <ul class="nav nav-pills flex-column mb-auto">
         <li class="nav-item">
-          <a href="/admin"  class="nav-link link-body-emphasis" aria-current="page">
+          <a href="/admin" class="nav-link active" aria-current="page">
             회원 관리
           </a>
         </li>
         <li>
-          <a href="/admin/category" class="nav-link active">
+          <a href="/admin/category" class="nav-link link-body-emphasis">
             카테고리 관리
           </a>
         </li>
@@ -79,7 +83,7 @@
         <li><a href="/" class="nav-link px-2">주주 총회 소개</a></li>
         <li><a href="/main/product" class="nav-link px-2">주류 목록 보기</a></li>
         <li><a href="/main/report" class="nav-link px-2">주류 제보 하기</a></li>
-        <li><a href="/main/myLike" class="nav-link px-2">내가 찜한 주류</a></li>
+        <li><a href="/main/myLike" class="nav-link px-2 link-secondary">내가 찜한 주류</a></li>
         <li><a href="/main/myReview" class="nav-link px-2">내가 쓴 리뷰</a></li>
         <li><a href="/main/chat" class="nav-link px-2">고객 센터</a></li>
       </ul>
@@ -124,68 +128,37 @@
 
     </header>
     <div style="height: fit-content;">
-      <div style="margin:auto; width:60%" class="my-3 p-3 bg-body rounded shadow-sm">
-        <h6 class="border-bottom pb-2 mb-0">카테고리 목록</h6>
-        <div style="margin: 10px">
-          <button data-bs-toggle="modal"
-                  data-bs-target="#createCategory"
-                  class="btn btn-light" style="margin-left: 93%">추가
-          </button>
-        </div>
-        <div id="categoryList">
-        </div>
-
-      </div>
+      여기에 내용이 들어가야함!
     </div>
   </div>
 </div>
-<!--카테고리 추가-->
-<div class="modal fade" id="createCategory" aria-hidden="true"
-     aria-labelledby="exampleModalToggleLabel" tabindex="-1">
-  <div class="modal-dialog modal-dialog-scrollable">
+
+<!-- 알림 모달 -->
+<div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5">카테고리 추가</h1>
-        <button onclick="win_reload()" type="button" class="btn-close" data-bs-dismiss="modal"
-                aria-label="Close"></button>
+        <div class="modal-title" id="exampleModalLabel" style="
+             margin-right: 10px;
+              font-size: 25px;
+              font-weight: bold;">알림 목록
+        </div>
+        <div id="unread-count">읽지 않은 알림: 0</div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <input type="text" class="form-control" id="create_category_name" placeholder="이름">
-        <input type="file" accept="image/*" id="create_category_image">
+
+        <!-- 알림 목록이 여기에 표시 -->
+        <ul id="notification-list" style="list-style-type: none;"></ul>
       </div>
       <div class="modal-footer">
-        <button onclick="win_reload()" type="button" class="btn btn-secondary"
-                data-bs-dismiss="modal">Close
-        </button>
-        <button class="btn btn-light" onclick="createCategory()">Save</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
 </div>
 
-<!--카테고리 수정-->
-<div class="modal fade" id="updateCategory" aria-hidden="true"
-     aria-labelledby="exampleModalToggleLabel" tabindex="-1">
-  <div class="modal-dialog modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5">카테고리 수정</h1>
-        <button onclick="win_reload()" type="button" class="btn-close" data-bs-dismiss="modal"
-                aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <input type="text" class="form-control" id="update_category_name" placeholder="이름">
-        <input type="file" accept="image/*" id="update_category_image">
-      </div>
-      <div class="modal-footer">
-        <button onclick="win_reload()" type="button" class="btn btn-secondary"
-                data-bs-dismiss="modal">Close
-        </button>
-        <butto id="update_btn" class="btn btn-light" onclick="updateCategory()">update</butto>
-      </div>
-    </div>
-  </div>
-</div>
 
 </body>
 </html>

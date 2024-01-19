@@ -21,122 +21,64 @@
   <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.4/pagination.css"/>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/basic.js"></script>
+  <script src="/js/notification.js"></script>
+  <script>
+    var imageFile = null;
+    var categoryId = -1;
+    $(document).ready(function () {
 
-</head>
-<body>
+      var currentUrl = window.location.href;
+      let temp = currentUrl.split("/");
+      categoryId = Number(temp[5]);
+      getProductByCategory();
 
-<div class="container">
-  <header
-      class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
-    <div class="col-md-3 mb-2 mb-md-0">
-      <a href="/admin" class="d-inline-flex link-body-emphasis text-decoration-none">
-        주주 총회
-      </a>
-    </div>
-
-    <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
-      <li><a href="/admin" class="nav-link px-2 ">회원 관리</a></li>
-      <li><a href="/admin/category" class="nav-link px-2 ">카테 고리 관리</a></li>
-      <li><a href="/admin/product" class="nav-link px-2 link-secondary">상품 관리</a></li>
-      <li><a href="/admin/report" class="nav-link px-2">제보 관리</a></li>
-      <li><a href="/admin/chat" class="nav-link px-2 ">고객 센터</a></li>
-    </ul>
-
-    <div class="col-md-3 text-end">
-      <button id="sign-in-btn" class="btn btn-info" onclick="location.href='/login'">
-        Sign in
-      </button>
-      <button id="sign-up-btn" class="btn btn-outline-info" onclick="location.href='/signup'">
-        Sign up
-      </button>
-      <button class="btn btn-info" id="mypage">
-        <span id="header_nickname" onclick="location.href='/mypage'"></span>님의 마이 페이지
-      </button>
-      <button class="btn btn-outline-info" id="logout-btn" onclick="logout()">
-        Logout
-      </button>
-    </div>
-  </header>
-</div>
-
-
-<div style="display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 10px">
-  <div class="pagination">
-    정렬:
-    <select id="sorting" onchange="getProductByCategory()" style="margin-right: 10px">
-      <option value="createdAt">작성일</option>
-      <option value="modifiedAt">수정일</option>
-    </select>
-    <input type="radio" name="isAsc" value="asc" onchange="getProductByCategory()"/> 오름차순
-    <input type="radio" name="isAsc" value="desc" onchange="getProductByCategory()" checked/> 내림차순
-  </div>
-  <div id="pagination" class="pagination" style="margin-top:10px"></div>
-</div>
-
-<div id="product_container" style="width: 80%;margin: auto;"
-     class="row row-cols-1 row-cols-md-4 g-4">
-</div>
-
-
-<script>
-  var imageFile = null;
-  var categoryId = -1;
-  $(document).ready(function () {
-
-    var currentUrl = window.location.href;
-    let temp = currentUrl.split("/");
-    categoryId = Number(temp[5]);
-    getProductByCategory();
-
-    $("#image").on("change", function (event) {
-      imageFile = event.target.files[0];
+      $("#image").on("change", function (event) {
+        imageFile = event.target.files[0];
+      });
     });
-  });
 
-  function getProductByCategory() {
-    var sorting = $("#sorting option:selected").val();
-    var isAsc = $(':radio[name="isAsc"]:checked').val();
+    function getProductByCategory() {
+      var sorting = $("#sorting option:selected").val();
+      var isAsc = $(':radio[name="isAsc"]:checked').val();
 
-    let dataSource = `/v1/categories/` + categoryId + `/products?sort=${sorting},${isAsc}`;
+      let dataSource = `/v1/categories/` + categoryId + `/products?sort=${sorting},${isAsc}`;
 
-    $('#product_container').empty();
-    $('#pagination').pagination({
-      dataSource,
-      locator: 'data.content',
-      alias: {
-        pageNumber: 'page',
-        pageSize: 'size'
-      },
-      totalNumberLocator: (response) => {
-        return response.data.totalElements;//전체 갯수
-      },
-      pageSize: 10,
-      showPrevious: true,
-      showNext: true,
-      ajax: {
-        error(error, status, request) {
-          console.log(error);
-        }
-      },
-      callback: function (response, pagination) {
-        $('#product_container').empty();
-        let products = response;
-        for (let i = 0; i < products.length; i++) {
-          let product = products[i];
-          let id = product['id'];
-          let name = product['name'];
-          let image = product['image'];
-          let description = product['description'];
-
-          if (!image) {
-            image = "/images/default_product_image.png"
+      $('#product_container').empty();
+      $('#pagination').pagination({
+        dataSource,
+        locator: 'data.content',
+        alias: {
+          pageNumber: 'page',
+          pageSize: 'size'
+        },
+        totalNumberLocator: (response) => {
+          return response.data.totalElements;//전체 갯수
+        },
+        pageSize: 10,
+        showPrevious: true,
+        showNext: true,
+        ajax: {
+          error(error, status, request) {
+            console.log(error);
           }
+        },
+        callback: function (response, pagination) {
+          $('#product_container').empty();
+          let products = response;
+          for (let i = 0; i < products.length; i++) {
+            let product = products[i];
+            let id = product['id'];
+            let name = product['name'];
+            let image = product['image'];
+            let description = product['description'];
 
-          let product_html = `<div onclick="window.location.href='/productDetails?productId=${id}&categoryId=${categoryId}'">
+            if (!image) {
+              image = "/images/default_product_image.png"
+            }
+
+            let product_html = `<div onclick="window.location.href='/productDetails?productId=${id}&categoryId=${categoryId}'">
                               <img src="${image}" style="object-fit: cover; width: 150px; height: 200px;">
                               <div style="color: black;">
                                   ${name}
@@ -146,15 +88,146 @@
 
                    </div>`;
 
-          $('#product_container').append(product_html);
+            $('#product_container').append(product_html);
+          }
+
         }
 
-      }
-
-    });
-  }
+      });
+    }
 
 
-</script>
+  </script>
+</head>
+<body>
+
+<div style="    display: flex;    flex-direction: row;">
+  <div id="adminMenu" style="display: none">
+    <div class="d-flex flex-column flex-shrink-0 p-3 bg-body-tertiary"
+         style="width: 280px;height: 800px">
+
+      <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+          <a href="/admin" class="nav-link active" aria-current="page">
+            회원 관리
+          </a>
+        </li>
+        <li>
+          <a href="/admin/category" class="nav-link link-body-emphasis">
+            카테고리 관리
+          </a>
+        </li>
+        <li>
+          <a href="/admin/product" class="nav-link link-body-emphasis">
+            상품 관리
+          </a>
+        </li>
+        <li>
+          <a href="/admin/report" class="nav-link link-body-emphasis">
+            제보 관리
+          </a>
+        </li>
+        <li>
+          <a href="/admin/chat" class="nav-link link-body-emphasis">
+            고객과 채팅
+          </a>
+        </li>
+      </ul>
+      <hr>
+
+    </div>
+  </div>
+  <div style="margin-left: 20px;margin-right: 20px;width: 100%">
+    <header style="
+    justify-content: space-between;
+    flex-direction: row;
+    display: flex;
+    height: 100px;
+    align-items: center;">
+      <button id="admin_btn" onclick="showAdminMenu()"
+              style="display:none; border:transparent;background-color:transparent;margin-right: 20px;height: fit-content;">
+        <img
+            style="object-fit: contain;width: 30px;height: 30px" src="/images/menu.png"></button>
+      <div class="col-md-3 mb-2 mb-md-0">
+        <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
+          주주 총회
+        </a>
+      </div>
+
+      <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+        <li><a href="/" class="nav-link px-2 ">주주 총회 소개</a></li>
+        <li><a href="/main/product" class="nav-link px-2">주류 목록 보기</a></li>
+        <li><a href="/main/report" class="nav-link px-2">주류 제보 하기</a></li>
+        <li><a href="/main/myLike" class="nav-link px-2">내가 찜한 주류</a></li>
+        <li><a href="/main/myReview" class="nav-link px-2">내가 쓴 리뷰</a></li>
+        <li><a href="/main/chat" class="nav-link px-2">고객 센터</a></li>
+      </ul>
+
+      <div class="col-md-3 text-end">
+        <button onclick="location.href='/main/search'"
+                style="background-color: transparent;border: transparent">
+          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
+               class="bi bi-search" viewBox="0 0 16 16">
+            <path
+                d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+          </svg>
+        </button>
+        <!-- 알림 버튼 -->
+        <button data-bs-toggle="modal"
+                data-bs-target="#notificationModal"
+                id="notification-btn" style="background-color: transparent; border: transparent">
+          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
+               class="bi bi-bell" viewBox="0 0 16 16">
+            <path
+                d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6"/>
+          </svg>
+        </button>
+
+        <button id="sign-in-btn" class="btn btn-info" onclick="location.href='/login'">
+          Sign in
+        </button>
+        <button id="sign-up-btn" class="btn btn-outline-info" onclick="location.href='/signup'">
+          Sign up
+        </button>
+        <button onclick="location.href='/mypage'" class="btn btn-info" id="mypage"
+                style="display: none;">
+          <span id="header_nickname"></span>님의 마이 페이지
+        </button>
+        <button class="btn btn-outline-info" id="logout-btn" onclick="logout()"
+                style="display: none;">
+          Logout
+        </button>
+
+      </div>
+
+
+    </header>
+    <div style="height: fit-content;">
+      <div style="display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px">
+        <div class="pagination">
+          정렬:
+          <select id="sorting" onchange="getProductByCategory()" style="margin-right: 10px">
+            <option value="createdAt">작성일</option>
+            <option value="modifiedAt">수정일</option>
+          </select>
+          <input type="radio" name="isAsc" value="asc" onchange="getProductByCategory()"/> 오름차순
+          <input type="radio" name="isAsc" value="desc" onchange="getProductByCategory()" checked/>
+          내림차순
+        </div>
+        <div id="pagination" class="pagination" style="margin-top:10px"></div>
+      </div>
+
+      <div id="product_container" style="width: 80%;margin: auto;"
+           class="row row-cols-1 row-cols-md-4 g-4">
+      </div>
+    </div>
+  </div>
+</div>
+
+
 </body>
 </html>

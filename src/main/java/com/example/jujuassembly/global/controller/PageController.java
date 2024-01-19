@@ -52,8 +52,38 @@ public class PageController {
   }
 
   @GetMapping("/admin/report")
+  public String reportManagementPage() {
+    return "reportManagement";
+  }
+
+  @GetMapping("/main/myLike")
+  public String myLikePage() {
+    return "myLike";
+  }
+
+  @GetMapping("/main/myReview")
+  public String myreviewPage() {
+    return "myReview";
+  }
+
+  @GetMapping("/main/product")
+  public String mainProductPage() {
+    return "mainProduct";
+  }
+
+  @GetMapping("/main/report")
   public String reportPage() {
     return "report";
+  }
+
+  @GetMapping("/main/search")
+  public String searchPage() {
+    return "search";
+  }
+
+  @GetMapping("/main/chat")
+  public String userChat() {
+    return "userChat";
   }
 
   //카테고리 별 상품 보기

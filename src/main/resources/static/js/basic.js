@@ -4,6 +4,10 @@ $(document).ready(function () {
   authorizationCheck();
 })
 
+function showAdminMenu() {
+  $('#adminMenu').toggle();
+}
+
 function authorizationCheck() {
   const auth = getToken();
 
@@ -16,6 +20,7 @@ function authorizationCheck() {
     $('#sign-up-btn').show();
     $('#mypage').hide();
     $('#logout-btn').hide();
+    $('#admin_btn').hide();
     logout();
     return;
   }
@@ -26,9 +31,9 @@ function authorizationCheck() {
     url: `/v1/users/myprofile`,
     success: function (response) {
       if (response['data']['role'] === "ADMIN") {
-        window.location.href = '/admin';
+         $('#admin_btn').show();
       }
-      
+
       $('#sign-in-btn').hide();
       $('#sign-up-btn').hide();
       $('#mypage').show();
