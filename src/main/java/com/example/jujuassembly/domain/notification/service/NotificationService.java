@@ -174,6 +174,14 @@ public class NotificationService {
     notification.read();
   }
 
+  // 알림 서비스 내에 알림 삭제 메서드 추가
+  @Transactional
+  public void deleteNotification(Long notificationId) {
+    Notification notification = notificationRepository.findById(notificationId)
+        .orElseThrow(() -> new ApiException("존재하지 않는 알림입니다.", HttpStatus.NOT_FOUND));
+    notificationRepository.delete(notification);
+  }
+
 
   // 알림 삭제
   public void deleteNotificationByEntity(String entityType, Long entityId) {

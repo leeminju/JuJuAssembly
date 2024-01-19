@@ -334,7 +334,8 @@
 }
 
 .toast {
-  position: fixed;
+  z-index: 9999;
+  position: relative;
   bottom: 20px;
   right: 20px;
   background-color: black;
@@ -342,4 +343,12 @@
   padding: 10px;
   border-radius: 5px;
   opacity: 0.8;
+}
+
+element.style {
+  border-radius: 15px;
+  margin-left: 20px;
+  border-style: none;
+  font-size: 15px;
+  font-variant: all-small-caps;
 }
