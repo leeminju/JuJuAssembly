@@ -38,7 +38,6 @@ public class Like {
 
   //좋아요 생성자
   public Like(Product product, User user) {
-    this.id = id;
     this.product = product;
     this.user = user;
   }

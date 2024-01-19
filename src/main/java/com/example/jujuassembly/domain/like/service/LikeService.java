@@ -39,7 +39,6 @@ public class LikeService {
 
     Like like = new Like(product, user);
     likeRepository.save(like);
-    // return new LikeResponseDto(like);
   }
 
   //본인 좋아요 목록 조회
@@ -54,19 +53,17 @@ public class LikeService {
   }
 
   //좋아요 취소
-  public List<LikeResponseDto> cancelLike(Long productId, User user) {
-    Like like = likeRepository.findByProductId(productId);
+  public void cancelLike(Long productId, User user) {
+    Product product = productRepository.getById(productId);
+    Like like = likeRepository.findByProductAndUser(product, user).orElseThrow
+        (() -> new ApiException("좋아요한 기록이 없습니다.", HttpStatus.NOT_FOUND)
+        );
 
     if (!like.getUser().getId().equals(user.getId())) {
       throw new ApiException("본인만 좋아요 취소가 가능힙니다.", HttpStatus.BAD_REQUEST);
     }
 
     likeRepository.delete(like);
-
-    List<LikeResponseDto> likeResponseDtoList = toLikeResponseDtoList(user);
-    return likeResponseDtoList;
-
-
   }
 
   //본인 좋아요 목록 LikeResponseDtof로 조회
@@ -79,5 +76,10 @@ public class LikeService {
       likeResponseDtoList.add(likeResponseDto);
     });
     return likeResponseDtoList;
+  }
+
+  public Boolean getLike(Long productId, User user) {
+    Product product = productRepository.getById(productId);
+    return likeRepository.existsByProductAndUser(product, user);
   }
 }

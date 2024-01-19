@@ -15,210 +15,283 @@
           integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
           crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
-  <script src="/js/admin_start.js"></script>
-  <link rel="stylesheet" href="../static/css/style.css">
+  <script src="/js/basic.js"></script>
+  <script src="/js/notification.js"></script>
+  <link rel="stylesheet" href="/css/style.css">
+  <script>
+    var imageFile = null;
+    $(document).ready(function () {
+      getCategory();
 
-</head>
-<body>
-
-<div class="container">
-  <header
-      class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
-    <div class="col-md-3 mb-2 mb-md-0">
-      <a href="/admin" class="d-inline-flex link-body-emphasis text-decoration-none">
-        주주 총회
-      </a>
-    </div>
-
-    <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
-      <li><a href="/admin" class="nav-link px-2 ">회원 관리</a></li>
-      <li><a href="/admin/category" class="nav-link px-2 ">카테 고리 관리</a></li>
-      <li><a href="/admin/product" class="nav-link px-2 link-secondary">상품 관리</a></li>
-      <li><a href="/admin/report" class="nav-link px-2">제보 관리</a></li>
-      <li><a href="/admin/chat" class="nav-link px-2 ">고객 센터</a></li>
-    </ul>
-
-    <div class="col-md-3 text-end">
-      <button id="sign-in-btn" class="btn btn-info" onclick="location.href='/login'">
-        Sign in
-      </button>
-      <button id="sign-up-btn" class="btn btn-outline-info" onclick="location.href='/signup'">
-        Sign up
-      </button>
-      <button class="btn btn-info" id="mypage">
-        <span id="header_nickname" onclick="location.href='/mypage'"></span>님의 마이 페이지
-      </button>
-      <button class="btn btn-outline-info" id="logout-btn" onclick="logout()">
-        Logout
-      </button>
-    </div>
-  </header>
-</div>
-
-<div>
-  <button id="all_products"  style="background-color: darkblue; color: white; float: right; margin-right: 50px"
-          onclick="location.href='/products'">
-    전체 상품 조회
-  </button>
-</div>
-
-<div class="category">
-  <ul id="category_menu" class="nav nav-pills" style="margin: auto;width: 60%;">
-  </ul>
-
-  <div id="product_container">
-  </div>
-
-</div>
-
-<div style="margin: auto;width: 60%;padding: 20px;border: solid 1px gray; border-radius: 15px;">
-  <h1>상품 등록</h1>
-  <form id="productForm" enctype="multipart/form-data">
-
-    <div class="form-floating" style="margin-top: 20px">
-      <div class="categoryLabel">
-        <label for="categoryId">카테고리 </label>
-      </div>
-      <div class="categorySelect">
-        <select class="form-select" id="categoryId"
-                aria-label="Floating label select example" style="width: 250px;">
-          <option selected>카테고리를 선택해주세요</option>
-        </select>
-      </div>
-    </div>
-
-
-  <p>
-    <label for="name">상품:</label>
-    <input type="text" id="name" name="name" required>
-  </p>
-
-    <p>
-      <label for="description">상품 설명:</label>
-      <input type="text" id="description" name="description" required>
-    </p>
-
-    <p>
-      <label for="area">지역:</label>
-      <input type="text" id="area" name="area" required>
-    </p>
-
-    <p>
-      <label for="company">제조 회사:</label>
-      <input type="text" id="company" name="company" required>
-    </p>
-
-    <p>
-      <label for="alcoholDegree">도수:</label>
-      <input type="number" id="alcoholDegree" name="alcoholDegree" required>
-    </p>
-
-    <p>
-      <label for="image">이미지 업로드:</label>
-      <input type="file" id="image" name="image" accept="image/*" required>
-    </p>
-
-  </form>
-  <p>
-    <button onclick="createProduct()">등록</button>
-  </p>
-</div>
-
-</div>
-
-
-<script>
-  var imageFile = null;
-  $(document).ready(function () {
-    getCategory();
-
-    $("#image").on("change", function (event) {
-      imageFile = event.target.files[0];
+      $("#image").on("change", function (event) {
+        imageFile = event.target.files[0];
+      });
     });
-  });
 
-  function createProduct() {
-    console.log(imageFile);
-    const name = $('#name').val();
-    const description = $('#description').val();
-    const area = $('#area').val();
-    const company = $('#company').val();
-    const alcoholDegree = $('#alcoholDegree').val();
-    const categoryId = $('#categoryId').val();
+    function createProduct() {
+      console.log(imageFile);
+      const name = $('#name').val();
+      const description = $('#description').val();
+      const area = $('#area').val();
+      const company = $('#company').val();
+      const alcoholDegree = $('#alcoholDegree').val();
+      const categoryId = $('#categoryId').val();
 
-    const data = {
-      name: name,
-      description: description,
-      area: area,
-      company: company,
-      alcoholDegree: alcoholDegree
+      const data = {
+        name: name,
+        description: description,
+        area: area,
+        company: company,
+        alcoholDegree: alcoholDegree
+      }
+
+      const formData = new FormData();
+      formData.append('image', imageFile);
+      formData.append("data", new Blob([JSON.stringify(data)], {type: "application/json"}));
+
+      //Ajax 요청 (jQuery 사용)
+      $.ajax({
+        url: '/v1/categories/' + categoryId + '/products',
+        method: 'POST',
+        data: formData,
+        enctype: "multipart/form-data",
+        contentType: false,
+        processData: false,
+        success: function (response) {
+          alert(response['msg']);
+          window.location.reload();
+        },
+        error: function (error) {
+          console.log(error);
+          if (error['responseJSON']['data']) {
+            alert(JSON.stringify(error['responseJSON']['data']))
+          } else {
+            alert(error['responseJSON']['msg']);
+          }
+        }
+      });
     }
 
-    const formData = new FormData();
-    formData.append('image', imageFile);
-    formData.append("data", new Blob([JSON.stringify(data)], {type: "application/json"}));
+    function getCategory() {
+      $.ajax({
+        type: "GET",
+        url: `/v1/categories`,
+        success: function (response) {
+          let categories = response['data'];
+          console.log(categories);
 
-    //Ajax 요청 (jQuery 사용)
-    $.ajax({
-      url: '/v1/categories/' + categoryId + '/products',
-      method: 'POST',
-      data: formData,
-      enctype: "multipart/form-data",
-      contentType: false,
-      processData: false,
-      success: function (response) {
-        alert(response['msg']);
-        window.location.reload();
-      },
-      error: function (error) {
-        console.log(error);
-        if (error['responseJSON']['data']) {
-          alert(JSON.stringify(error['responseJSON']['data']))
-        } else {
-          alert(error['responseJSON']['msg']);
-        }
-      }
-    });
-  }
+          for (let i = 0; i < categories.length; i++) {
+            let category = categories[i];
+            let id = category['id'];
+            let name = category['name'];
+            let image = category['image'];
 
-  function getCategory() {
-    $.ajax({
-      type: "GET",
-      url: `/v1/categories`,
-      success: function (response) {
-        let categories = response['data'];
-        console.log(categories);
+            if (!image) {
+              image = '/images/default_category_image.png'
+            }
 
-        for (let i = 0; i < categories.length; i++) {
-          let category = categories[i];
-          let id = category['id'];
-          let name = category['name'];
-          let image = category['image'];
+            let html = `<option value=${id}> ${name} </option>`
 
-          if(!image){
-            image = '/images/default_category_image.png'
-          }
-
-          let html = `<option value=${id}> ${name} </option>`
-
-          let menu_html = `<li onclick="location.href='/admin/categories/${id}/products'"  >
-                        <img src="${image}" style="object-fit: cover; width: 150px; height: 200px;">
+            let menu_html = `<li onclick="location.href='/admin/categories/${id}/products'"  >
+                        <img src="${image}" style="object-fit: contain; width: 150px; height: 200px;">
                         <div style="color: black;">
                             ${name}
                         </div>
                 </li>`;
 
-          $('#category_menu').append(menu_html);
-          $('#categoryId').append(html);
+            $('#category_menu').append(menu_html);
+            $('#categoryId').append(html);
+          }
+        },
+        error(error, status, request) {
+
         }
-      },
-      error(error, status, request) {
+      });
 
-      }
-    });
+    }
 
-  }
+  </script>
+</head>
+<body>
 
-</script>
+<div style="    display: flex;    flex-direction: row;">
+  <div id="adminMenu" style="display: none">
+    <div class="d-flex flex-column flex-shrink-0 p-3 bg-body-tertiary"
+         style="width: 280px;height: 800px">
+
+      <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+          <a href="/admin" class="nav-link link-body-emphasis" aria-current="page">
+            회원 관리
+          </a>
+        </li>
+        <li>
+          <a href="/admin/category" class="nav-link link-body-emphasis">
+            카테고리 관리
+          </a>
+        </li>
+        <li>
+          <a href="/admin/product" class="nav-link active">
+            상품 관리
+          </a>
+        </li>
+        <li>
+          <a href="/admin/report" class="nav-link link-body-emphasis">
+            제보 관리
+          </a>
+        </li>
+        <li>
+          <a href="/admin/chat" class="nav-link link-body-emphasis">
+            고객과 채팅
+          </a>
+        </li>
+      </ul>
+      <hr>
+
+    </div>
+  </div>
+  <div style="margin-left: 20px;margin-right: 20px;width: 100%">
+    <header style="
+    justify-content: space-between;
+    flex-direction: row;
+    display: flex;
+    height: 100px;
+    align-items: center;">
+      <button id="admin_btn" onclick="showAdminMenu()"
+              style="display:none; border:transparent;background-color:transparent;margin-right: 20px;height: fit-content;">
+        <img
+            style="object-fit: contain;width: 30px;height: 30px" src="/images/menu.png"></button>
+      <div class="col-md-3 mb-2 mb-md-0">
+        <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
+          주주 총회
+        </a>
+      </div>
+
+      <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+        <li><a href="/" class="nav-link px-2 ">주주 총회 소개</a></li>
+        <li><a href="/main/product" class="nav-link px-2">주류 목록 보기</a></li>
+        <li><a href="/main/report" class="nav-link px-2">주류 제보 하기</a></li>
+        <li><a href="/main/myLike" class="nav-link px-2">내가 찜한 주류</a></li>
+        <li><a href="/main/myReview" class="nav-link px-2">내가 쓴 리뷰</a></li>
+        <li><a href="/main/chat" class="nav-link px-2">고객 센터</a></li>
+      </ul>
+
+      <div class="col-md-3 text-end">
+        <button onclick="location.href='/main/search'"
+                style="background-color: transparent;border: transparent">
+          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
+               class="bi bi-search" viewBox="0 0 16 16">
+            <path
+                d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+          </svg>
+        </button>
+        <!-- 알림 버튼 -->
+        <button data-bs-toggle="modal"
+                data-bs-target="#notificationModal"
+                id="notification-btn" style="background-color: transparent; border: transparent">
+          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
+               class="bi bi-bell" viewBox="0 0 16 16">
+            <path
+                d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6"/>
+          </svg>
+        </button>
+
+        <button id="sign-in-btn" class="btn btn-info" onclick="location.href='/login'">
+          Sign in
+        </button>
+        <button id="sign-up-btn" class="btn btn-outline-info" onclick="location.href='/signup'">
+          Sign up
+        </button>
+        <button onclick="location.href='/mypage'" class="btn btn-info" id="mypage"
+                style="display: none;">
+          <span id="header_nickname"></span>님의 마이 페이지
+        </button>
+        <button class="btn btn-outline-info" id="logout-btn" onclick="logout()"
+                style="display: none;">
+          Logout
+        </button>
+
+      </div>
+
+
+    </header>
+    <div style="height: fit-content;">
+      <div>
+        <div>
+          <button id="all_products"
+                  style="background-color: darkblue; color: white; float: right; margin-right: 50px"
+                  onclick="location.href='/products'">
+            전체 상품 조회
+          </button>
+        </div>
+
+        <div class="category">
+          <ul id="category_menu" class="nav nav-pills" style="margin: auto;width: 60%;">
+          </ul>
+
+          <div id="product_container">
+          </div>
+
+        </div>
+
+        <div
+            style="margin: auto;width: 60%;padding: 20px;border: solid 1px grey; border-radius: 15px;">
+          <h1>상품 등록</h1>
+          <form id="productForm" enctype="multipart/form-data">
+
+            <div class="form-floating" style="margin-top: 20px">
+              <div class="categoryLabel">
+                <label for="categoryId">카테고리 </label>
+              </div>
+              <div class="categorySelect">
+                <select class="form-select" id="categoryId"
+                        aria-label="Floating label select example" style="width: 250px;">
+                  <option selected>카테고리를 선택해주세요</option>
+                </select>
+              </div>
+            </div>
+
+
+            <p>
+              <label for="name">상품:</label>
+              <input type="text" id="name" name="name" required>
+            </p>
+
+            <p>
+              <label for="description">상품 설명:</label>
+              <input type="text" id="description" name="description" required>
+            </p>
+
+            <p>
+              <label for="area">지역:</label>
+              <input type="text" id="area" name="area" required>
+            </p>
+
+            <p>
+              <label for="company">제조 회사:</label>
+              <input type="text" id="company" name="company" required>
+            </p>
+
+            <p>
+              <label for="alcoholDegree">도수:</label>
+              <input type="number" id="alcoholDegree" name="alcoholDegree" required>
+            </p>
+
+            <p>
+              <label for="image">이미지 업로드:</label>
+              <input type="file" id="image" name="image" accept="image/*" required>
+            </p>
+
+          </form>
+          <p>
+            <button onclick="createProduct()">등록</button>
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

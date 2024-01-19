@@ -326,6 +326,7 @@
   padding: 10px;
   list-style-type: none;
   cursor: pointer; /* 마우스 오버 시 커서 변경 */
+  margin-right: 40px;
 }
 
 #notification-list li:hover {

@@ -4,7 +4,7 @@ $(document).ready(function () {
 
   // 알림 보기 버튼 클릭 이벤트
   $('#notification-btn').click(function () {
-    showModal();
+    //showModal();
     fetchNotifications();
   });
 });
@@ -111,20 +111,20 @@ function displayUnreadCount(unreadCount) {
   unreadCountElement.text('읽지 않은 알림: ' + unreadCount);
 }
 
-// 알림 모달 창을 표시하는 함수
-function showModal() {
-  var modal = $('#notification-modal');
-  modal.show();
+// // 알림 모달 창을 표시하는 함수
+// function showModal() {
+//   var modal = $('#notification-modal');
+//   modal.show();
+//
+//   $('.close-btn').click(function () {
+//     modal.hide();
+//   });
+// }
 
-  $('.close-btn').click(function () {
-    modal.hide();
-  });
-}
-
-// 모달 창 외부를 클릭하면 모달을 닫는 이벤트 핸들러
-$(window).click(function (event) {
-  var modal = $('#notification-modal');
-  if ($(event.target).is(modal)) {
-    modal.hide();
-  }
-});
+// // 모달 창 외부를 클릭하면 모달을 닫는 이벤트 핸들러
+// $(window).click(function (event) {
+//   var modal = $('#notification-modal');
+//   if ($(event.target).is(modal)) {
+//     modal.hide();
+//   }
+// });

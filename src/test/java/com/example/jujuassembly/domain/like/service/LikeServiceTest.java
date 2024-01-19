@@ -2,6 +2,7 @@ package com.example.jujuassembly.domain.like.service;
 
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -20,6 +21,7 @@ import com.example.jujuassembly.domain.user.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -105,19 +107,19 @@ class LikeServiceTest {
   void cancelLikeTest() {
     // 목 데이터 생성
     Long productId = 1L;
+    Product product = Product.builder().id(productId).name("카스").build();
     User user = User.builder().id(123L).build();
-
-    Like like = Like.builder().user(user).build();
+    Like like = Like.builder().user(user).product(product).build();
 
     // Mocking 설정
-    when(likeRepository.findByProductId(productId)).thenReturn(like);
+    when(productRepository.getById(productId)).thenReturn(product);
+    when(likeRepository.findByProductAndUser(product, user)).thenReturn(Optional.of(like));
 
     // 테스트 대상 메서드 호출
-    List<LikeResponseDto> result = likeService.cancelLike(productId, user);
+    likeService.cancelLike(productId, user);
 
     // 검증
     verify(likeRepository, times(1)).delete(like);
-    assertNotNull(result);
   }
 
 }

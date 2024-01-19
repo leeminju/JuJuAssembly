@@ -41,7 +41,7 @@ public class LikeController {
     likeService.addLike(categoryId, productId, userDetails.getUser());
 
     return ResponseEntity.ok()
-        .body(new ApiResponse<>("좋아요", HttpStatus.OK.value()));
+        .body(new ApiResponse<>("좋아요 성공", HttpStatus.OK.value()));
   }
 
   /**
@@ -71,13 +71,27 @@ public class LikeController {
    */
   //좋아요 취소
   @DeleteMapping("/categories/{categoryId}/products/{productId}/like")
-  private ResponseEntity<ApiResponse<List<LikeResponseDto>>> cancelLike(
+  private ResponseEntity<ApiResponse> cancelLike(
       @PathVariable Long productId,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
-    List<LikeResponseDto> likeResponseDto = likeService.cancelLike(productId,
-        userDetails.getUser());
+    likeService.cancelLike(productId, userDetails.getUser());
     return ResponseEntity.ok()
-        .body(new ApiResponse<>("좋아요", HttpStatus.OK.value(), likeResponseDto));
+        .body(new ApiResponse<>("좋아요 취소", HttpStatus.OK.value()));
+  }
+
+  /**
+   * 현재 사용자가 해당제품 좋아요하고 있는지 확인
+   * @param productId 제풍 아이디
+   * @param userDetails 로그인한 유저 정보
+   * @return
+   */
+  @GetMapping("/categories/{categoryId}/products/{productId}/like")
+  private ResponseEntity<ApiResponse<Boolean>> getLike(
+      @PathVariable Long productId,
+      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    Boolean islike = likeService.getLike(productId, userDetails.getUser());
+    return ResponseEntity.ok()
+        .body(new ApiResponse<>("좋아요 존재 확인", HttpStatus.OK.value(),islike));
   }
 
 
