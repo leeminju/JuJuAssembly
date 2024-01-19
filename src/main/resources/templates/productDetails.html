@@ -399,6 +399,8 @@
             $('#fullHeart').hide();
           }
         }, error: function (error) {
+          $('#emptyHeart').show();
+          $('#fullHeart').hide();
           alert(error['responseJSON']['msg']);
         }
       });
@@ -434,6 +436,7 @@
           $('#likesCount').text(Number(count) - 1);
 
         }, error: function (error) {
+          console.log(error);
           alert(error['responseJSON']['msg']);
         }
       });

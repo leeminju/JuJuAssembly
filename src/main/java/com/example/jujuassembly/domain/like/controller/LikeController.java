@@ -71,15 +71,20 @@ public class LikeController {
    */
   //좋아요 취소
   @DeleteMapping("/categories/{categoryId}/products/{productId}/like")
-  private ResponseEntity<ApiResponse<List<LikeResponseDto>>> cancelLike(
+  private ResponseEntity<ApiResponse> cancelLike(
       @PathVariable Long productId,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
-    List<LikeResponseDto> likeResponseDto = likeService.cancelLike(productId,
-        userDetails.getUser());
+    likeService.cancelLike(productId, userDetails.getUser());
     return ResponseEntity.ok()
-        .body(new ApiResponse<>("좋아요 취소", HttpStatus.OK.value(), likeResponseDto));
+        .body(new ApiResponse<>("좋아요 취소", HttpStatus.OK.value()));
   }
 
+  /**
+   * 현재 사용자가 해당제품 좋아요하고 있는지 확인
+   * @param productId 제풍 아이디
+   * @param userDetails 로그인한 유저 정보
+   * @return
+   */
   @GetMapping("/categories/{categoryId}/products/{productId}/like")
   private ResponseEntity<ApiResponse<Boolean>> getLike(
       @PathVariable Long productId,
