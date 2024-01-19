@@ -96,21 +96,23 @@ public class User extends Timestamped {
     this.secondPreferredCategory = secondPreferredCategory;
   }
 
-  public User(String loginId, String nickname, String email, String password, Long kakaoId, String url) {
+  public User(String loginId, String nickname, String email, String password, Long kakaoId,
+      String url, Category firstPreferredCategory, Category secondPreferredCategory) {
     this.loginId = loginId;
     this.nickname = nickname;
     this.email = email;
     this.password = password;
     this.isArchived = false;
     this.role = UserRoleEnum.USER;
-    this.firstPreferredCategory = null;
-    this.secondPreferredCategory = null;
+    this.firstPreferredCategory = firstPreferredCategory;
+    this.secondPreferredCategory = secondPreferredCategory;
     this.kakaoId = kakaoId;
     this.image = url;
   }
 
   //유저 정보 수정
-  public void updateUser(UserModifyRequestDto modifyRequestDto, String encodePassword, Category category1,
+  public void updateUser(UserModifyRequestDto modifyRequestDto, String encodePassword,
+      Category category1,
       Category category2) {
     this.nickname = modifyRequestDto.getNickname();
     this.email = modifyRequestDto.getEmail();
@@ -138,6 +140,7 @@ public class User extends Timestamped {
     this.kakaoId = kakaoId;
     return this;
   }
+
   public boolean hasSameId(Long id) {
     return this.id.equals(id);
   }

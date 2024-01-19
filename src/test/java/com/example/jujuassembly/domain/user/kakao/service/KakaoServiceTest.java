@@ -8,6 +8,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.example.jujuassembly.domain.category.entity.Category;
+import com.example.jujuassembly.domain.category.repository.CategoryRepository;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.kakao.KakaoService;
 import com.example.jujuassembly.domain.user.kakao.KakaoUserInfoDto;
@@ -40,6 +42,8 @@ public class KakaoServiceTest implements EmailAuthUtil {
   UserRepository userRepository;
   @Mock
   PasswordEncoder passwordEncoder;
+  @Mock
+  CategoryRepository categoryRepository;
 
   @Test
   @DisplayName("카카오 로그인 getTokenTest메서드 테스트")
@@ -114,6 +118,9 @@ public class KakaoServiceTest implements EmailAuthUtil {
 
     when(userRepository.findByKakaoId(eq(TEST_USER_ID))).thenReturn(Optional.empty());
     when(userRepository.findByEmail(eq(TEST_USER_EMAIL))).thenReturn(Optional.empty());
+
+    when(categoryRepository.getById(1L)).thenReturn(TEST_CATEGORY);
+    when(categoryRepository.getById(2L)).thenReturn(TEST_ANOTHER_CATEGORY);
 
     // when
     User result = kakaoService.registerKakaoUserIfNeeded(kakaoUserInfo);
