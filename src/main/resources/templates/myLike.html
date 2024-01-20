@@ -20,10 +20,203 @@
   <script src="/js/basic.js"></script>
   <script src="/js/notification.js"></script>
   <link rel="stylesheet" href="/css/style.css">
+
+  <script>
+    function getLike(categoryId, id) {
+      $.ajax({
+        type: "GET",
+        url: `/v1/categories/${categoryId}/products/${id}/like`,
+        success: function (response) {
+          if (response['data']) {
+            //좋아요 했음
+            $('#fullHeart-' + id).show();
+            $('#emptyHeart-' + id).hide();
+          } else {
+            //좋아요 안했음
+            $('#emptyHeart-' + id).show();
+            $('#fullHeart-' + id).hide();
+          }
+        }, error: function (error) {
+          $('#emptyHeart-' + id).show();
+          $('#fullHeart-' + id).hide();
+          alert(error['responseJSON']['msg']);
+        }
+      });
+    }
+
+    function likeProduct(categoryId, id) {
+      $.ajax({
+        type: "POST",
+        url: `/v1/categories/${categoryId}/products/${id}/like`,
+        success: function (response) {
+          alert(response['msg']);
+          let count = $('#likesCount-' + id).text();
+          $('#fullHeart-' + id).show();
+          $('#emptyHeart-' + id).hide();
+          $('#likesCount-' + id).text(Number(count) + 1);
+
+        }, error: function (error) {
+          alert("로그인한 회원만 찜할 수 있습니다.");
+        }
+      });
+
+    }
+
+    function unlikeProduct(categoryId, id) {
+      $.ajax({
+        type: "DELETE",
+        url: `/v1/categories/${categoryId}/products/${id}/like`,
+        success: function (response) {
+          alert(response['msg']);
+          let count = $('#likesCount-' + id).text();
+          $('#fullHeart-' + id).hide();
+          $('#emptyHeart-' + id).show();
+          $('#likesCount-' + id).text(Number(count) - 1);
+
+          location.reload();
+
+        }, error: function (error) {
+          alert("로그인한 회원만 찜 취소할 수 있습니다.");
+        }
+      });
+    }
+
+    //로그인한 회원 정보에서 userId를 가져오기
+    let userId;
+    $.ajax({
+      type: 'GET',
+      url: `/v1/users/myprofile`,
+      success: function (response) {
+        userId = response['data']['id'];
+      },
+      error(error, status, request) {
+        if (error['responseJSON']['data']) {
+          alert(error['responseJSON']['data']);
+        } else {
+          alert(error['responseJSON']['msg']);
+        }
+      }
+    });
+
+    // 페이지 로드
+    $(document).ready(function () {
+      $.ajax({
+        type: 'GET',
+        url: `/main/myLike`,
+        success: function () {
+          getUserLikeList();
+        },
+        error(error, status, request) {
+          if (error['responseJSON']['data']) {
+            alert(error['responseJSON']['data']);
+          } else {
+            alert(error['responseJSON']['msg']);
+          }
+        }
+      });
+    })
+
+    // 유저의 좋아요 목록 가져오기
+    function getUserLikeList() {
+
+      $(document).ready(function () {
+
+        var sorting = $("#sorting option:selected").val();
+        var isAsc = $(':radio[name="isAsc"]:checked').val();
+
+        let dataSource = `/v1/users/${userId}/like?sort=${sorting},${isAsc}`;
+
+        $('#liked_product_container').empty();
+
+        // pagination
+        $('#pagination').pagination({
+          dataSource,
+          locator: 'data.content',
+          alias: {
+            pageNumber: 'page',
+            pageSize: 'size'
+          },
+          totalNumberLocator: (response) => {
+            return response.data.totalElements;//전체 갯수
+          },
+          pageSize: 9,
+          showPrevious: true,
+          showNext: true,
+          ajax: {
+            error(error, status, request) {
+              console.log(error);
+            }
+          },
+          callback: function (response, pagination) {
+            $('#liked_product_container').empty();
+
+            let products = response;
+            console.log("products : " + products);
+
+            for (let i = 0; i < products.length; i++) {
+              let product = products[i];
+
+              let id = product['productId'];
+
+              let categoryId = product['categoryId'];
+              let name = product['productName'];
+              let image = product['image'];
+              let description = product['description'];
+              let likesCount = product['likesCount'];
+              let reviewCount = product['reviewCount'];
+              let reviewAverage = product['reviewAverage'];
+
+              if (!image) {
+                image = "/images/default_product_image.png"
+              }
+
+              let product_html = `
+        <div class="col">
+          <div class="card h-100">
+            <img style="object-fit: contain" onclick="window.location.href='/productDetails?productId=${id}&categoryId=${categoryId}'" src="${image}" class="card-img-top" alt="상품 이미지">
+            <div class="card-body">
+              <h5 class="card-title">${name}</h5>
+              <p class="card-text">${description}</p>
+              <p class="card-text"> 리뷰수: ${reviewCount}</p>
+              <p class="card-text"> 평점: ${reviewAverage}</p>
+            <svg id="emptyHeart-${id}" onclick="likeProduct(${categoryId},${id})" xmlns="http://www.w3.org/2000/svg"
+                 width="20"
+                 height="20"
+                 fill="currentColor"
+                 class="bi bi-heart" viewBox="0 0 16 16">
+              <path
+                  d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"/>
+            </svg>
+            <svg id="fullHeart-${id}" onclick="unlikeProduct(${categoryId},${id})"
+                 xmlns="http://www.w3.org/2000/svg"
+                 width="20" height="20"
+                 fill="currentColor"
+                 class="bi bi-heart-fill" viewBox="0 0 16 16">
+              <path fill-rule="evenodd"
+                    d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>
+            </svg>
+            <span id="likesCount-${id}">${likesCount}</span></div>
+            <div class="card-footer">
+
+            </div>
+          </div>
+        </div>`;
+              $('#liked_product_container').append(product_html);
+              getLike(categoryId, id);
+            }
+          }
+
+        });
+      })
+    }
+
+  </script>
+
 </head>
+
 <body>
 
-<div style="    display: flex;    flex-direction: row;">
+<div style="display: flex;    flex-direction: row;">
   <div id="adminMenu" style="display: none">
     <div class="d-flex flex-column flex-shrink-0 p-3 bg-body-tertiary"
          style="width: 280px;height: 800px">
@@ -97,13 +290,15 @@
         <!-- 알림 버튼 -->
         <button data-bs-toggle="modal"
                 data-bs-target="#notificationModal"
-                id="notification-btn" style="background-color: transparent; border: transparent; position: relative; margin-right: 15px; padding: 0; border-radius: 50%;">
+                id="notification-btn"
+                style="background-color: transparent; border: transparent; position: relative; margin-right: 15px; padding: 0; border-radius: 50%;">
           <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
                class="bi bi-bell" viewBox="0 0 16 16">
             <path
                 d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6"/>
           </svg>
-          <span id="notification-count-badge" style="position: absolute; top: -7px; right: -7px; background-color: red; color: white; border-radius: 50%; font-size: 12px; padding: 3px 6px;">0</span>
+          <span id="notification-count-badge"
+                style="position: absolute; top: -7px; right: -7px; background-color: red; color: white; border-radius: 50%; font-size: 12px; padding: 3px 6px;">0</span>
         </button>
 
         <button id="sign-in-btn" class="btn btn-info" onclick="location.href='/login'">
@@ -125,9 +320,6 @@
 
 
     </header>
-    <div style="height: fit-content;">
-      여기에 내용이 들어가야함!
-    </div>
   </div>
 </div>
 
@@ -157,6 +349,30 @@
   </div>
 </div>
 
+<div style="height: fit-content;">
+
+  <div style="display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 10px">
+    <div class="pagination">
+      정렬:
+      <select id="sorting" onchange="getUserLikeList()" style="margin-right: 10px">
+        <option value="createdAt">작성일</option>
+        <option value="modifiedAt">수정일</option>
+      </select>
+      <input type="radio" name="isAsc" value="asc" onchange="getUserLikeList()"/> 오름차순
+      <input type="radio" name="isAsc" value="desc" onchange="getUserLikeList()" checked/> 내림차순
+    </div>
+    <div id="pagination" class="pagination" style="margin-top:10px"></div>
+  </div>
+
+  <div id="liked_product_container" style="width: 80%;margin: auto;"
+       class="row row-cols-1 row-cols-md-3 g-4">
+  </div>
+</div>
 
 </body>
+
 </html>

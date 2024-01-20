@@ -15,12 +15,24 @@ import lombok.NoArgsConstructor;
 public class LikeResponseDto {
 
   private Long id;
-  private String product;
-  private String user;
+  private Long productId;
+  private String productName;
+  private String image;
+  private String description;
+  private Long categoryId;
+  private Integer reviewCount;
+  private Double reviewAverage;
+  private int likesCount;
 
   public LikeResponseDto(Like like) {
     this.id = like.getId();
-    this.product = like.getProduct().getName();
-    this.user = like.getUser().getNickname();
+    this.productId = like.getProduct().getId();
+    this.productName = like.getProduct().getName();
+    this.image = like.getProduct().getImage();
+    this.description = like.getProduct().getDescription();
+    this.categoryId = like.getProduct().getCategory().getId();
+    this.reviewCount = like.getProduct().getReviewCount();
+    this.reviewAverage = like.getProduct().getReviewAverage();
+    this.likesCount = like.getProduct().getLikesCount();
   }
 }
