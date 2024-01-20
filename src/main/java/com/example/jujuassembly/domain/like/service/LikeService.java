@@ -10,8 +10,9 @@ import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.global.exception.ApiException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -42,14 +43,15 @@ public class LikeService {
   }
 
   //본인 좋아요 목록 조회
-  public List<LikeResponseDto> viewLikeProducts(Long userId, User loginUser) {
+  public Page<LikeResponseDto> viewLikeProducts(Long userId, User loginUser, Pageable pageable) {
     User user = userRepository.getById(userId);
 
     if (!user.getId().equals(loginUser.getId())) {
       throw new ApiException("본인의 좋아요 목록만 조회 가능힙니다.", HttpStatus.BAD_REQUEST);
     }
-    List<LikeResponseDto> likeResponseDtoList = toLikeResponseDtoList(user);
-    return likeResponseDtoList;
+    Page<Like> likeList = likeRepository.findAllByUser(user, pageable);
+
+    return likeList.map(LikeResponseDto::new);
   }
 
   //좋아요 취소

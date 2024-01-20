@@ -96,4 +96,12 @@ public class Product extends Timestamped {
   public int getLikesCount() {
     return likes.size();
   }
+
+  // 평점 평균 반환 메서드,
+  public Double getReviewAverage() {
+    return reviews.stream()
+        .mapToDouble(Review::getStar)
+        .average()
+        .orElse(0.0);
+  }
 }

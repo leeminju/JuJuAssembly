@@ -2,6 +2,7 @@ package com.example.jujuassembly.domain.like.entity;
 
 import com.example.jujuassembly.domain.product.entity.Product;
 import com.example.jujuassembly.domain.user.entity.User;
+import com.example.jujuassembly.global.entity.Timestamped;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -22,7 +23,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "likes")
-public class Like {
+public class Like extends Timestamped {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
