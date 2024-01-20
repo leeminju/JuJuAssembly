@@ -2,6 +2,7 @@ package com.example.jujuassembly.domain.review.controller;
 
 import com.example.jujuassembly.domain.review.dto.ReviewRequestDto;
 import com.example.jujuassembly.domain.review.dto.ReviewResponseDto;
+import com.example.jujuassembly.domain.review.entity.Review;
 import com.example.jujuassembly.domain.review.service.ReviewService;
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum.Authority;
 import com.example.jujuassembly.global.response.ApiResponse;
@@ -49,7 +50,7 @@ public class ReviewController {
   @PostMapping("/categories/{categoryId}/products/{productId}/reviews")
   public ResponseEntity<ApiResponse<ReviewResponseDto>> createProductsReview(
       @PathVariable Long categoryId, @PathVariable Long productId,
-      @RequestParam MultipartFile[] images,
+      @RequestParam(required = false) MultipartFile[] images,
       @Valid @RequestPart(name = "data") ReviewRequestDto requestDto,
       @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
 
@@ -92,7 +93,7 @@ public class ReviewController {
   @PatchMapping("/categories/{categoryId}/products/{productId}/reviews/{reviewId}")
   public ResponseEntity<ApiResponse<ReviewResponseDto>> updateProductsReview(
       @PathVariable Long categoryId, @PathVariable Long productId, @PathVariable Long reviewId,
-      @RequestParam MultipartFile[] images,
+      @RequestParam(required = false) MultipartFile[] images,
       @Valid @RequestPart(name = "data") ReviewRequestDto requestDto) throws Exception {
 
     ReviewResponseDto responseDto = reviewService.updateProductsReview(categoryId, productId,
@@ -137,13 +138,25 @@ public class ReviewController {
         .body(new ApiResponse(userId + "번 사용자 리뷰 목록 입니다.", HttpStatus.OK.value(), reviews));
   }
 
+  /**
+   *
+   * @param categoryId 현재 리뷰의 카테고리 아이디
+   * @param productId 현재 리뷰의 상품 아이디
+   * @param reviewId 현재 리뷰 아이디
+   * @return
+   */
   @Secured(Authority.ADMIN)
   @PatchMapping("/categories/{categoryId}/products/{productId}/reviews/{reviewId}/verification")
-  public ResponseEntity<ApiResponse<ReviewResponseDto>> verifyReview(@PathVariable Long categoryId,
+  public ResponseEntity<ApiResponse<Boolean>> verifyReview(@PathVariable Long categoryId,
       @PathVariable Long productId, @PathVariable Long reviewId) {
-    ReviewResponseDto responseDto = reviewService.verifyReview(categoryId, productId, reviewId);
-    return ResponseEntity.ok()
-        .body(new ApiResponse(reviewId + "번　리뷰 인증 되었습니다.", HttpStatus.OK.value(), responseDto));
+    Boolean result = reviewService.verifyReview(categoryId, productId, reviewId);
+    if (result) {
+      return ResponseEntity.ok()
+          .body(new ApiResponse(reviewId + "번　리뷰 인증 되었습니다.", HttpStatus.OK.value(), result));
+    } else {
+      return ResponseEntity.ok()
+          .body(new ApiResponse(reviewId + "번　리뷰 인증 취소 되었습니다.", HttpStatus.OK.value(), result));
+    }
   }
 
 }

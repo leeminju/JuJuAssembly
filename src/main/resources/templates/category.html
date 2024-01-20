@@ -137,6 +137,31 @@
     </div>
   </div>
 </div>
+<div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="exampleModalLabel" style="
+             margin-right: 10px;
+              font-size: 25px;
+              font-weight: bold;">알림 목록
+        </div>
+        <div id="unread-count">읽지 않은 알림: 0</div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+
+        <!-- 알림 목록이 여기에 표시 -->
+        <ul id="notification-list" style="list-style-type: none;"></ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!--카테고리 추가-->
 <div class="modal fade" id="createCategory" aria-hidden="true"
      aria-labelledby="exampleModalToggleLabel" tabindex="-1">
