@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
+import com.example.jujuassembly.domain.product.dto.ProductModifyRequestDto;
 import com.example.jujuassembly.domain.product.dto.ProductRequestDto;
 import com.example.jujuassembly.domain.product.dto.ProductResponseDto;
 import com.example.jujuassembly.domain.product.entity.Product;
@@ -259,16 +260,19 @@ public class ProductServiceTest {
   public void updateProductTest() throws Exception {
     // given
     categoryId = 1L;
+    Long modifiedCategoryId = 2L;
+    Category modifideCategory = Category.builder().id(modifiedCategoryId).name("양주").build();
     productId = 100L;
     String imageUrl = "https://test.com/updated-image.jpg";
 
     // 테스트용 수정 DTO 초기화
-    ProductRequestDto testUpdateDto = ProductRequestDto.builder()
+    ProductModifyRequestDto testUpdateDto = ProductModifyRequestDto.builder()
         .name("Updated Product")
         .description("Updated Description")
         .area("Updated Area")
         .company("Updated Company")
         .alcoholDegree(5.5)
+        .modifiedCategoryId(2L)
         .build();
 
     Product mockProduct = mock(Product.class);
@@ -278,6 +282,7 @@ public class ProductServiceTest {
     when(mockProduct.getCompany()).thenReturn("Updated Company");
     when(mockProduct.getAlcoholDegree()).thenReturn(5.5);
     when(mockProduct.getImage()).thenReturn(imageUrl);
+    when(mockProduct.getCategory()).thenReturn(modifideCategory);
 
     // Repository 모의 설정
     when(productRepository.getById(productId)).thenReturn(mockProduct);
