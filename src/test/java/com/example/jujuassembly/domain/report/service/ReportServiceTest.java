@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import com.example.jujuassembly.domain.category.dto.CategoryRequestDto;
 import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
+import com.example.jujuassembly.domain.notification.service.NotificationService;
 import com.example.jujuassembly.domain.report.dto.ReportPatchRequestDto;
 import com.example.jujuassembly.domain.report.dto.ReportRequestDto;
 import com.example.jujuassembly.domain.report.dto.ReportResponseDto;
@@ -48,6 +49,8 @@ class ReportServiceTest {
   S3Manager s3Manager;
   @Mock
   CategoryRepository categoryRepository;
+  @Mock
+  NotificationService notificationService;
 
   @Test
   @DisplayName("제보 상품 생성 테스트")
