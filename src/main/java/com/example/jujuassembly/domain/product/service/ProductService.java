@@ -2,6 +2,7 @@ package com.example.jujuassembly.domain.product.service;
 
 import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
+import com.example.jujuassembly.domain.product.dto.ProductModifyRequestDto;
 import com.example.jujuassembly.domain.product.dto.ProductRequestDto;
 import com.example.jujuassembly.domain.product.dto.ProductResponseDto;
 import com.example.jujuassembly.domain.product.entity.Product;
@@ -93,12 +94,13 @@ public class ProductService {
   // 상품 수정
   @Transactional
   public ProductResponseDto updateProduct(Long categoryId, Long productId,
-      ProductRequestDto requestDto, MultipartFile image) throws IOException {
+      ProductModifyRequestDto requestDto, MultipartFile image) throws IOException {
     Product product = productRepository.getById(productId);
 
     if (!categoryRepository.existsById(categoryId)) {
       throw new ApiException("해당 카테고리가 존재하지 않습니다.", HttpStatus.NOT_FOUND);
     }
+    Category category = categoryRepository.getById(requestDto.getModifiedCategoryId());
 
     //기존의 파일 모두 삭제
     s3Manager.deleteAllImageFiles(productId.toString(), S3Manager.PRODUCT_DIRECTORY_NAME);
@@ -109,7 +111,7 @@ public class ProductService {
       product.setImage(url);
     }
 
-    product.update(requestDto);
+    product.update(requestDto,category);
     return new ProductResponseDto(product);
 
   }

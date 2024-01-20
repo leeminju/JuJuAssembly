@@ -2,6 +2,7 @@ package com.example.jujuassembly.domain.product.entity;
 
 import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.like.entity.Like;
+import com.example.jujuassembly.domain.product.dto.ProductModifyRequestDto;
 import com.example.jujuassembly.domain.product.dto.ProductRequestDto;
 import com.example.jujuassembly.domain.review.entity.Review;
 import com.example.jujuassembly.global.entity.Timestamped;
@@ -74,14 +75,6 @@ public class Product extends Timestamped {
     this.category = category;
   }
 
-  // ProductRequestDto에서 제품 정보를 업데이트하는 메서드
-  public void update(ProductRequestDto requestDto) {
-    this.name = requestDto.getName();
-    this.description = requestDto.getDescription();
-    this.alcoholDegree = requestDto.getAlcoholDegree();
-    this.company = requestDto.getCompany();
-  }
-
   // 제품 이미지 URL 설정 메서드
   public void setImage(String url) {
     this.image = url;
@@ -95,5 +88,13 @@ public class Product extends Timestamped {
   // 좋아요 개수 반환 메서드
   public int getLikesCount() {
     return likes.size();
+  }
+
+  public void update(ProductModifyRequestDto requestDto, Category category) {
+    this.name = requestDto.getName();
+    this.description = requestDto.getDescription();
+    this.alcoholDegree = requestDto.getAlcoholDegree();
+    this.company = requestDto.getCompany();
+    this.category = category;
   }
 }
