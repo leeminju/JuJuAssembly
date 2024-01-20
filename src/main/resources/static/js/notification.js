@@ -9,6 +9,8 @@ $(document).ready(function () {
   if (isLoggedIn) {
     initializeSSE();
     fetchNotifications();
+  } else {
+    $('#notification-count-badge').hide();
   }
 });
 
@@ -39,7 +41,7 @@ function showToast(message) {
   $('body').append(toast);
   setTimeout(function () {
     toast.remove();
-  }, 3000); // 3초 후 토스트 메시지 제거
+  }, 10000); // 3초 후 토스트 메시지 제거
 }
 
 // 실시간으로 수신된 알림을 화면에 표시하는 함수
@@ -79,14 +81,30 @@ function displayNotifications(notifications) {
 
   if (notifications && notifications.length > 0) {
     $.each(notifications, function (i, notification) {
-      var content = notification.content ? notification.content : "알림 내용 없음";
-      var listItem = $('<li>' + content + '</li>');
-      listItem.data('id', notification.id);
-      listItem.data('url', notification.url);
-      listItem.on('click', function () {
-        markAsRead($(this).data('id'));
-        window.location.href = $(this).data('url');
+      var content = $('<span>').text(notification.content ? notification.content : "알림 내용 없음");
+      content.on('click', function () {
+        markAsRead(notification.id);
+        window.location.href = notification.url; // 여기서 리디렉트
       });
+      var deleteButton = $('<button>Delete</button>')
+      .css({
+        'border-radius': '15px',
+        'margin-left': '20px',
+        'border-style': 'none',
+        'font-size': '15px',
+        'font-variant': 'all-small-caps'
+      }).click(function(e) {
+        e.stopPropagation(); // 부모 요소로의 이벤트 전파 방지
+        deleteNotification(notification.id); // AJAX 요청을 통해 알림 삭제
+      });
+      var listItem = $('<li>').append(content).append(deleteButton);
+
+      if (notification.read) {
+        listItem.css('color', 'grey'); // 읽은 알림의 스타일
+        listItem.append(' (읽음)');
+      } else {
+        listItem.css('color', 'black'); // 안 읽은 알림의 스타일
+      }
       list.append(listItem);
     });
   } else {
@@ -101,10 +119,26 @@ function markAsRead(notificationId) {
     method: 'PATCH', // PATCH 요청
     success: function (response) {
       console.log('알림 읽음 처리 성공:', response);
-      // 추가적으로 알림 목록을 업데이트하거나 사용자 인터페이스에 반영할 수 있습니다.
+      // 추가적으로 알림 목록을 업데이트하거나 사용자 인터페이스에 반영
+      fetchNotifications();
     },
     error: function (xhr, status, error) {
       console.error('알림 읽음 처리 실패:', error);
+    }
+  });
+}
+
+// 알림 삭제를 요청하는 함수
+function deleteNotification(notificationId) {
+  $.ajax({
+    url: '/v1/notification/notifications/' + notificationId,
+    type: 'DELETE',
+    success: function(response) {
+      console.log('알림 삭제 성공:', response);
+      fetchNotifications(); // 알림 목록을 다시 불러옴
+    },
+    error: function(xhr, status, error) {
+      console.error('알림 삭제 실패:', error);
     }
   });
 }
@@ -123,21 +157,3 @@ function displayUnreadCount(unreadCount) {
     modalUnreadCountElement.text("읽지 않은 알림이 없습니다."); // 모달 창 내 텍스트를 '읽지 않은 알림이 없습니다.'로 업데이트
   }
 }
-
-// // 알림 모달 창을 표시하는 함수
-// function showModal() {
-//   var modal = $('#notification-modal');
-//   modal.show();
-//
-//   $('.close-btn').click(function () {
-//     modal.hide();
-//   });
-// }
-
-// // 모달 창 외부를 클릭하면 모달을 닫는 이벤트 핸들러
-// $(window).click(function (event) {
-//   var modal = $('#notification-modal');
-//   if ($(event.target).is(modal)) {
-//     modal.hide();
-//   }
-// });

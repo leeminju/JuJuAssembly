@@ -1,17 +1,16 @@
 package com.example.jujuassembly.domain.userManagement.service;
 
 import com.example.jujuassembly.domain.user.dto.UserDetailResponseDto;
-import com.example.jujuassembly.domain.user.dto.UserResponseDto;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.domain.userManagement.dto.UserRoleRequestDto;
 import com.example.jujuassembly.domain.userManagement.dto.UserRoleResponseDto;
-import com.example.jujuassembly.global.exception.ApiException;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,16 +20,11 @@ public class UserManageService {
 
 
   //전체 유저 조회
-  public List<UserDetailResponseDto> viewAllUsers() {
-
-    List<User> allUserList = userRepository.findAll();
-    List<UserDetailResponseDto> allUserResponseDto = new ArrayList<>();
-
-    allUserList.forEach(user -> {
-      var userDto = new UserDetailResponseDto(user);
-      allUserResponseDto.add(userDto);
-    });
-    return allUserResponseDto;
+  @Transactional(readOnly = true)
+  public Page<UserDetailResponseDto> viewAllUsers(Pageable pageable) {
+    Page<User> allUsers = userRepository.findAll(pageable);
+    // "Page" 인터페이스가 제공하는 'map' 메서드 활용
+    return allUsers.map(UserDetailResponseDto::new);
   }
 
   //유저 권한 수정

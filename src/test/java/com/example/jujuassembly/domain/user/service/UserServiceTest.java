@@ -171,7 +171,7 @@ public class UserServiceTest implements EmailAuthUtil {
 
     HttpServletResponse mockResponse = mock(HttpServletResponse.class);
 
-    String result = userService.login(loginRequestDto, mockResponse);
+    String result = userService.login(loginRequestDto);
 
     // then
     assertThat(result).isEqualTo("mockedAccessToken");

@@ -100,7 +100,7 @@ public class UserController {
   public ResponseEntity<ApiResponse> login(
       @RequestBody LoginRequestDto requestDto,
       HttpServletResponse response) {
-    String accessToken = userService.login(requestDto, response);
+    String accessToken = userService.login(requestDto);
 
     Cookie cookie = jwtUtil.addJwtToCookie(accessToken);
     response.addCookie(cookie);
@@ -228,7 +228,7 @@ public class UserController {
       @RequestParam String code,
       HttpServletResponse response) throws JsonProcessingException {
 
-    String accessToken = kakaoService.kakaoLogin(code, response);
+    String accessToken = kakaoService.kakaoLogin(code);
 
     Cookie cookie = jwtUtil.addJwtToCookie(accessToken);
     response.addCookie(cookie);

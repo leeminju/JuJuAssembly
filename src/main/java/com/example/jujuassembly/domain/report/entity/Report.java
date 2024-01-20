@@ -31,7 +31,7 @@ public class Report extends Timestamped {
   private String image;//제보상품 이미지 주소
 
   @Column
-  @Enumerated
+  @Enumerated(value = EnumType.STRING)
   private StatusEnum status;//제보상품 상태(대기중,채택,비채택)
 
   @ManyToOne(fetch = FetchType.LAZY)

@@ -122,7 +122,7 @@ public class UserService {
     return new UserResponseDto(user);
   }
 
-  public String login(LoginRequestDto requestDto, HttpServletResponse response) {
+  public String login(LoginRequestDto requestDto) {
     String loginId = requestDto.getLoginId();
     // 아이디 확인
     User user = userRepository.findByLoginId(loginId).orElse(null);
@@ -135,7 +135,9 @@ public class UserService {
     }
 
     // 중복 로그인 확인
-    jwtUtil.checkIsLoggedIn(loginId, response);
+    if (jwtUtil.checkIsLoggedIn(loginId)) {
+      return jwtUtil.getAccessTokenByLoginId(loginId);
+    }
 
     // 회원탈퇴여부 확인
     if (user.getIsArchived()) {
