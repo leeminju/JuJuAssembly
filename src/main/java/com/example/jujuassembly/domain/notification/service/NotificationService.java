@@ -62,17 +62,6 @@ public class NotificationService {
     return emitter;
   }
 
-
-  // SseEmitter 객체 사용하여 클라이언트에게 이벤트 전송하는 메서드
-  public void sendToClient(SseEmitter emitter, String id, Object data) {
-    try {
-      emitter.send(SseEmitter.event().id(id).name("sse").data(data));
-    } catch (IOException exception) {
-      emitterRepository.deleteById(id);
-      throw new ApiException("SSE 연결에 오류가 발생하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
   // 사용자에게 새 알림을 생성하고 저장한 후, 해당 사용자의 모든 SSE 연결에 이 알림을 전송
   @Transactional
   public void send(User user, String type, Long entityId, User actionUser) {
@@ -101,7 +90,8 @@ public class NotificationService {
   }
 
   // 알림 생성
-  public Notification createNotification(User user, String entityType, Long entityId, User actionUser) {
+  public Notification createNotification(User user, String entityType, Long entityId,
+      User actionUser) {
     String url = "";
     String content = "";
 
@@ -149,6 +139,17 @@ public class NotificationService {
         .build();
 
     return new Notification(requestDto);
+  }
+
+
+  // SseEmitter 객체 사용하여 클라이언트에게 이벤트 전송하는 메서드
+  public void sendToClient(SseEmitter emitter, String id, Object data) {
+    try {
+      emitter.send(SseEmitter.event().id(id).name("sse").data(data));
+    } catch (IOException exception) {
+      emitterRepository.deleteById(id);
+      throw new ApiException("SSE 연결에 오류가 발생하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
 

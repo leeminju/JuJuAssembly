@@ -2,10 +2,9 @@ package com.example.jujuassembly.domain.report.service;
 
 import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
-import com.example.jujuassembly.domain.report.dto.ReportPatchRequestDto;
-import com.example.jujuassembly.domain.notification.entity.Notification;
 import com.example.jujuassembly.domain.notification.repository.NotificationRepository;
 import com.example.jujuassembly.domain.notification.service.NotificationService;
+import com.example.jujuassembly.domain.report.dto.ReportPatchRequestDto;
 import com.example.jujuassembly.domain.report.dto.ReportRequestDto;
 import com.example.jujuassembly.domain.report.dto.ReportResponseDto;
 import com.example.jujuassembly.domain.report.dto.ReportStatusRequestDto;
@@ -117,11 +116,9 @@ public class ReportService {
     report.updateStatus(requestDto.getStatus());
 
     // 제보한 사용자에게 상태 변경 알림 전송
-    if (!user.equals(report.getUser())) {
+    if (report.getUser().getId().equals(user.getId())) {
       // 변경된 상태에 대한 알림 생성 및 저장
-      Notification notification = notificationService.createNotification(
-          report.getUser(), "REPORT", reportId, user);
-      notificationRepository.save(notification);
+      notificationService.send(report.getUser(), "REPORT", reportId, user);
     }
 
     return new ReportResponseDto(report);

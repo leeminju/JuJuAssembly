@@ -1,7 +1,6 @@
 package com.example.jujuassembly.domain.reviewLike.service;
 
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
-import com.example.jujuassembly.domain.notification.entity.Notification;
 import com.example.jujuassembly.domain.notification.repository.NotificationRepository;
 import com.example.jujuassembly.domain.notification.service.NotificationService;
 import com.example.jujuassembly.domain.product.entity.Product;
@@ -66,11 +65,9 @@ public class ReviewLikeService {
       isNewLike = true;  // 새로운 '좋아요'로 설정
     }
 
+    // 새로운 '좋아요'가 있고, 현재 사용자가 리뷰 작성자가 아닌 경우에만 알림 발송
     if (isNewLike && !user.equals(review.getUser())) {
-      // 새로운 '좋아요'가 있고, 리뷰 작성자와 다른 사용자가 '좋아요'를 눌렀을 경우에만 알림 발송
-      Notification notification = notificationService.createNotification(review.getUser(), "REVIEW",
-          reviewId, user);
-      notificationRepository.save(notification);
+      notificationService.send(review.getUser(), "REVIEW", reviewId, user);
     }
 
     return Optional.of(responseDto);

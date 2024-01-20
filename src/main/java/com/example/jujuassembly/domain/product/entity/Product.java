@@ -90,11 +90,19 @@ public class Product extends Timestamped {
     return likes.size();
   }
 
+
   public void update(ProductModifyRequestDto requestDto, Category category) {
     this.name = requestDto.getName();
     this.description = requestDto.getDescription();
     this.alcoholDegree = requestDto.getAlcoholDegree();
     this.company = requestDto.getCompany();
     this.category = category;
+
+  // 평점 평균 반환 메서드,
+  public Double getReviewAverage() {
+    return reviews.stream()
+        .mapToDouble(Review::getStar)
+        .average()
+        .orElse(0.0);
   }
 }

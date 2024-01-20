@@ -4,8 +4,11 @@ import com.example.jujuassembly.domain.like.dto.LikeResponseDto;
 import com.example.jujuassembly.domain.like.service.LikeService;
 import com.example.jujuassembly.global.response.ApiResponse;
 import com.example.jujuassembly.global.security.UserDetailsImpl;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -51,14 +54,16 @@ public class LikeController {
    * @param loginUserDetails 좋아요 목록을 조회할 로그인한 사용자
    * @return 작업 성공 여부와 좋아요 리스트를 담은 ResponseEntity
    */
-  @GetMapping("/user/{userId}/like")
-  private ResponseEntity<ApiResponse<List<LikeResponseDto>>> viewLikeProducts(
+  @GetMapping("/users/{userId}/like")
+  private ResponseEntity<ApiResponse<Page<LikeResponseDto>>> viewLikeProducts(
       @PathVariable Long userId,
-      @AuthenticationPrincipal UserDetailsImpl loginUserDetails) {
-    List<LikeResponseDto> likeList = likeService.viewLikeProducts(userId,
-        loginUserDetails.getUser());
+      @AuthenticationPrincipal UserDetailsImpl loginUserDetails,
+      @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    Page<LikeResponseDto> page = likeService.viewLikeProducts(
+        userId, loginUserDetails.getUser(), pageable
+    );
     return ResponseEntity.ok()
-        .body(new ApiResponse<>("좋아요 목록 조회", HttpStatus.OK.value(), likeList));
+        .body(new ApiResponse<>("좋아요 목록 조회", HttpStatus.OK.value(), page));
   }
 
 
@@ -81,7 +86,7 @@ public class LikeController {
 
   /**
    * 현재 사용자가 해당제품 좋아요하고 있는지 확인
-   * @param productId 제풍 아이디
+   * @param productId   제풍 아이디
    * @param userDetails 로그인한 유저 정보
    * @return
    */
@@ -91,7 +96,7 @@ public class LikeController {
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
     Boolean islike = likeService.getLike(productId, userDetails.getUser());
     return ResponseEntity.ok()
-        .body(new ApiResponse<>("좋아요 존재 확인", HttpStatus.OK.value(),islike));
+        .body(new ApiResponse<>("좋아요 존재 확인", HttpStatus.OK.value(), islike));
   }
 
 

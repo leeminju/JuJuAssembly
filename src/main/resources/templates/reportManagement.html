@@ -497,12 +497,12 @@
       padding: 10px">
         <div class="pagination">
           정렬:
-          <select id="sorting" onchange="getUserReports()" style="margin-right: 10px">
+          <select id="sorting" onchange="getAllReports()" style="margin-right: 10px">
             <option value="createdAt">작성일</option>
             <option value="modifiedAt">수정일</option>
           </select>
-          <input type="radio" name="isAsc" value="asc" onchange="getUserReports()"/> 오름차순
-          <input type="radio" name="isAsc" value="desc" onchange="getUserReports()" checked/> 내림차순
+          <input type="radio" name="isAsc" value="asc" onchange="getAllReports()"/> 오름차순
+          <input type="radio" name="isAsc" value="desc" onchange="getAllReports()" checked/> 내림차순
         </div>
         <div id="pagination" class="pagination" style="margin-top:10px"></div>
       </div>
