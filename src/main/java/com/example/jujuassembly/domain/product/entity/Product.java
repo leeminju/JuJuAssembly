@@ -97,7 +97,8 @@ public class Product extends Timestamped {
     this.alcoholDegree = requestDto.getAlcoholDegree();
     this.company = requestDto.getCompany();
     this.category = category;
-
+  }
+  
   // 평점 평균 반환 메서드,
   public Double getReviewAverage() {
     return reviews.stream()
