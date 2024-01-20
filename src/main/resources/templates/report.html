@@ -38,7 +38,7 @@
 
       error(error, status, request) {
         if (error['responseJSON']['data']) {
-          alert(error['responseJSON']['data']);
+          alert(JSON.stringify(error['responseJSON']['data']));
         } else {
           alert(error['responseJSON']['msg']);
         }
@@ -56,9 +56,6 @@
     });
 
   })
-
-
-
 
   function getCategory() {
     $.ajax({
@@ -181,8 +178,7 @@
 
   }
 
-
-  function updateId(id,categoryId, name) {
+  function updateId(id, categoryId, name) {
     $('#update_report_name').val(name);
     $('#update_btn').val(id);
     current_categoryId = categoryId;
@@ -194,14 +190,13 @@
       alert("이미지를 선택해주세요");
     }
 
-
     let id = $('#update_btn').val();
     let name = $('#update_report_name').val();
     let currentCategoryId = current_categoryId;
     let categoryId = $('#updateCategoryId').val();
     let data = {
       "name": name,
-      "modifiedCategoryId":categoryId
+      "modifiedCategoryId": categoryId
     }
 
     const formData = new FormData();
@@ -225,7 +220,7 @@
     });
   }
 
-  function removeReport(category,id) {
+  function removeReport(category, id) {
     $.ajax({
       type: "DELETE",
       url: `/v1/categories/${category}/reports/${id}`,
@@ -314,13 +309,15 @@
         <!-- 알림 버튼 -->
         <button data-bs-toggle="modal"
                 data-bs-target="#notificationModal"
-                id="notification-btn" style="background-color: transparent; border: transparent; position: relative; margin-right: 15px; padding: 0; border-radius: 50%;">
+                id="notification-btn"
+                style="background-color: transparent; border: transparent; position: relative; margin-right: 15px; padding: 0; border-radius: 50%;">
           <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
                class="bi bi-bell" viewBox="0 0 16 16">
             <path
                 d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6"/>
           </svg>
-          <span id="notification-count-badge" style="position: absolute; top: -7px; right: -7px; background-color: red; color: white; border-radius: 50%; font-size: 12px; padding: 3px 6px;">0</span>
+          <span id="notification-count-badge"
+                style="position: absolute; top: -7px; right: -7px; background-color: red; color: white; border-radius: 50%; font-size: 12px; padding: 3px 6px;">0</span>
         </button>
 
         <button id="sign-in-btn" class="btn btn-info" onclick="location.href='/login'">
@@ -342,7 +339,7 @@
 
 
     </header>
-    <div style="height: fit-content;">
+    <div style="height: fit-content;width: 60%;margin: auto">
       <h2 style="display: flex;
         flex-direction: column;
         align-items: center;
@@ -410,7 +407,8 @@
     <div class="modal-content">
       <div class="modal-header">
         <h1 class="modal-title fs-5">제보 상품 수정</h1>
-        <button onclick="window.location.reload()" type="button" class="btn-close" data-bs-dismiss="modal"
+        <button onclick="window.location.reload()" type="button" class="btn-close"
+                data-bs-dismiss="modal"
                 aria-label="Close"></button>
       </div>
       <div class="modal-body">

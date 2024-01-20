@@ -34,9 +34,6 @@ public class ReviewService {
   @Transactional
   public ReviewResponseDto createProductsReview(Long categoryId, Long productId,
       MultipartFile[] images, ReviewRequestDto requestDto, User user) throws Exception {
-    if (images.length > 4) {
-      throw new ApiException("사진은 4장 까지만 업로드 가능합니다.", HttpStatus.BAD_REQUEST);
-    }
 
     categoryRepository.getById(categoryId);
     Product product = productRepository.getById(productId);
@@ -44,8 +41,15 @@ public class ReviewService {
 
     Review review = new Review(requestDto, product, user);
     Review savedReview = reviewRepository.save(review);
-    // 이미지 업로드
-    reviewImageService.uploadReviewImages(savedReview, images);
+
+    if (images != null && images.length > 4) {
+      throw new ApiException("사진은 4장 까지만 업로드 가능합니다.", HttpStatus.BAD_REQUEST);
+    }
+
+    if (images != null) {
+      // 이미지 업로드
+      reviewImageService.uploadReviewImages(savedReview, images);
+    }
 
     return new ReviewResponseDto(savedReview);
   }
@@ -64,9 +68,7 @@ public class ReviewService {
   @Transactional
   public ReviewResponseDto updateProductsReview(Long categoryId, Long productId, Long reviewId,
       MultipartFile[] images, ReviewRequestDto requestDto) throws Exception {
-    if (images.length > 4) {
-      throw new ApiException("사진은 4장 까지만 업로드 가능합니다.", HttpStatus.BAD_REQUEST);
-    }
+
     categoryRepository.getById(categoryId);
     Product product = productRepository.getById(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
@@ -76,8 +78,14 @@ public class ReviewService {
     //기존의 파일 모두 삭제
     reviewImageService.deleteAllReviewImages(review, "reviews");
 
+    if (images != null && images.length > 4) {
+      throw new ApiException("사진은 4장 까지만 업로드 가능합니다.", HttpStatus.BAD_REQUEST);
+    }
+
     //새로 업로드
-    reviewImageService.uploadReviewImages(review, images);
+    if (images != null) {
+      reviewImageService.uploadReviewImages(review, images);
+    }
 
     review.update(requestDto);
 
@@ -107,19 +115,19 @@ public class ReviewService {
   }
 
   @Transactional
-  public ReviewResponseDto verifyReview(Long categoryId, Long productId, Long reviewId) {
+  public boolean verifyReview(Long categoryId, Long productId, Long reviewId) {
     categoryRepository.getById(categoryId);
     Product product = productRepository.getById(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
     Review review = reviewRepository.getById(reviewId);
     checkReviewProductAndProductIdEquality(review, productId);
 
+    review.changeVerified();//현재 값에서 바꾸기
     if (review.getIsVerified()) {
-      throw new ApiException("이미 인증된 리뷰 입니다.", HttpStatus.BAD_REQUEST);
+      return true;
+    } else {
+      return false;
     }
-    review.verify();
-
-    return new ReviewResponseDto(review);
   }
 
 

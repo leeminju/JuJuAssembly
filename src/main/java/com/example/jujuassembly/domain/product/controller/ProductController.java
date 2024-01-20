@@ -1,5 +1,6 @@
 package com.example.jujuassembly.domain.product.controller;
 
+import com.example.jujuassembly.domain.product.dto.ProductModifyRequestDto;
 import com.example.jujuassembly.domain.product.dto.ProductRequestDto;
 import com.example.jujuassembly.domain.product.dto.ProductResponseDto;
 import com.example.jujuassembly.domain.product.service.ProductService;
@@ -7,7 +8,6 @@ import com.example.jujuassembly.domain.user.entity.UserRoleEnum.Authority;
 import com.example.jujuassembly.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import java.io.IOException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -131,7 +131,7 @@ public class ProductController {
   public ResponseEntity<ApiResponse> updateProduct(@PathVariable Long categoryId,
       @PathVariable Long productId,
       @RequestParam(value = "image", required = false) MultipartFile image,
-      @RequestPart("data") @Valid ProductRequestDto requestDto) throws IOException {
+      @RequestPart("data") @Valid ProductModifyRequestDto requestDto) throws IOException {
     productService.updateProduct(categoryId, productId, requestDto, image);
     return ResponseEntity.ok().body(new ApiResponse<>("상품 수정에 성공하였습니다.", HttpStatus.OK.value()));
   }

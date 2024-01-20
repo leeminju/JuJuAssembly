@@ -28,7 +28,7 @@
     var categoryId = -1;
     var create_imageFile = null;
     var update_imageFile = null;
-
+    var update_product_imageFile = null;
     $(document).ready(function () {
 
       // 현재 페이지 URL에서 쿼리 문자열을 가져옴
@@ -39,6 +39,8 @@
       productId = parsedParams['productId'];
       categoryId = parsedParams['categoryId'];
 
+      getCategory();
+      getMyprofile();
       getProductDetails();
       getReviews();
       getLike();
@@ -50,7 +52,65 @@
         update_imageFile = event.target.files;
       });
 
+      $("#image").on("change", function (event) {
+        update_product_imageFile = event.target.files[0];
+      });
+
     })
+
+    function getCategory() {
+      $.ajax({
+        type: "GET",
+        url: `/v1/categories`,
+        success: function (response) {
+          let categories = response['data'];
+
+          for (let i = 0; i < categories.length; i++) {
+            let category = categories[i];
+            let id = category['id'];
+            let name = category['name'];
+
+            let category_html = `<option value=${id}>${name}</option>`
+            $('#modifiedCategoryId').append(category_html);
+          }
+        },
+        error(error, status, request) {
+          console.log(error);
+        }
+      });
+
+    }
+
+    function getMyprofile() {
+      //로그인한 회원 정보
+      const auth = getToken();
+
+      if (auth !== undefined && auth !== '') {
+        $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+          jqXHR.setRequestHeader('Authorization', auth);
+        });
+      } else {
+        $('#update_product_btn').hide();
+        $('#delete_product_btn').hide();
+        return;
+      }
+
+      $.ajax({
+        type: 'GET',
+        url: `/v1/users/myprofile`,
+        success: function (response) {
+          let user = response['data'];
+          role = user['role'];
+          if (role != "ADMIN") {
+            $('#update_product_btn').hide();
+            $('#delete_product_btn').hide();
+          }
+        },
+        error(error, status, request) {
+          console.log(error)
+        }
+      });
+    }
 
     function parseQueryString(url) {
       var params = {};
@@ -87,15 +147,21 @@
           let likesCount = product['likesCount'];
 
           $('#name').text(name);
+          $('#update_name').val(name);
           $('#area').text(area);
+          $('#update_area').val(area);
           $('#company').text(company);
+          $('#update_company').val(company);
           $('#product-image').attr("src", image);
           $('#alcoholDegree').text(alcoholDegree);
+          $('#update_alcoholDegree').val(alcoholDegree);
           $('#averageRating').text(averageRating);
           $('#description').text(description);
+          $('#update_product_description').val(description);
           $('#reviewCount').text(reviewCount);
           $('#likesCount').text(likesCount);
           $('#categoryName').text(categoryName);
+          $('#modifiedCategoryId').val(categoryId);
         },
         error(error, status, request) {
         }
@@ -108,11 +174,6 @@
 
     function createReview() {
 
-      if (!create_imageFile || create_imageFile.length === 0) {
-        alert("이미지를 선택해주세요");
-        return;
-      }
-
       let description = $('#create_description').val();
       let star = $('#create_star').val();
       let munchies = $('#create_munchies').val();
@@ -124,8 +185,10 @@
 
       const formData = new FormData();
 
-      for (let i = 0; i < create_imageFile.length; i++) {
-        formData.append('images', create_imageFile[i]);
+      if (create_imageFile) {
+        for (let i = 0; i < create_imageFile.length; i++) {
+          formData.append('images', create_imageFile[i]);
+        }
       }
       formData.append("data",
           new Blob([JSON.stringify(data)], {type: "application/json"}));
@@ -181,8 +244,7 @@
 
             let id = review['id'];
             let images = review['images'];
-            let length = images.length;
-            let productImage = review['prodcutImage'];
+            let productImage = review['productImage'];
             let categoryId = review['categoryId'];
             let productId = review['productId'];
             let productName = review['productName'];
@@ -206,9 +268,6 @@
             </div>
             <div >${createdAt_Text}에 작성<div>
             <div style="margin-bottom:20px" id="modifiedAt-${id}"> ${modifiedAt_Text}에 수정</div>
-
-
-
       <div style="display: flex;flex-direction: row;">
         <div>
           <button type="button" class="btn btn-outline-secondary" onclick="likeReview(${categoryId}, ${productId}, ${id})">
@@ -217,8 +276,6 @@
             </svg>
               <span id="likeCount-${id}">${likeCount}</span>
           </button>
-
-
           <button type="button" class="btn btn-outline-secondary" onclick="dislikeReview(${categoryId}, ${productId}, ${id})">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hand-thumbs-down" viewBox="0 0 16 16">
                   <path d="M8.864 15.674c-.956.24-1.843-.484-1.908-1.42-.072-1.05-.23-2.015-.428-2.59-.125-.36-.479-1.012-1.04-1.638-.557-.624-1.282-1.179-2.131-1.41C2.685 8.432 2 7.85 2 7V3c0-.845.682-1.464 1.448-1.546 1.07-.113 1.564-.415 2.068-.723l.048-.029c.272-.166.578-.349.97-.484C6.931.08 7.395 0 8 0h3.5c.937 0 1.599.478 1.934 1.064.164.287.254.607.254.913 0 .152-.023.312-.077.464.201.262.38.577.488.9.11.33.172.762.004 1.15.069.13.12.268.159.403.077.27.113.567.113.856s-.036.586-.113.856c-.035.12-.08.244-.138.363.394.571.418 1.2.234 1.733-.206.592-.682 1.1-1.2 1.272-.847.283-1.803.276-2.516.211a10 10 0 0 1-.443-.05 9.36 9.36 0 0 1-.062 4.51c-.138.508-.55.848-1.012.964zM11.5 1H8c-.51 0-.863.068-1.14.163-.281.097-.506.229-.776.393l-.04.025c-.555.338-1.198.73-2.49.868-.333.035-.554.29-.554.55V7c0 .255.226.543.62.65 1.095.3 1.977.997 2.614 1.709.635.71 1.064 1.475 1.238 1.977.243.7.407 1.768.482 2.85.025.362.36.595.667.518l.262-.065c.16-.04.258-.144.288-.255a8.34 8.34 0 0 0-.145-4.726.5.5 0 0 1 .595-.643h.003l.014.004.058.013a9 9 0 0 0 1.036.157c.663.06 1.457.054 2.11-.163.175-.059.45-.301.57-.651.107-.308.087-.67-.266-1.021L12.793 7l.353-.354c.043-.042.105-.14.154-.315.048-.167.075-.37.075-.581s-.027-.414-.075-.581c-.05-.174-.111-.273-.154-.315l-.353-.354.353-.354c.047-.047.109-.176.005-.488a2.2 2.2 0 0 0-.505-.804l-.353-.354.353-.354c.006-.005.041-.05.041-.17a.9.9 0 0 0-.121-.415C12.4 1.272 12.063 1 11.5 1"></path>
@@ -329,10 +386,6 @@
     }
 
     function updateReview() {
-      if (!update_imageFile) {
-        alert("이미지를 선택해주세요");
-        return;
-      }
 
       let reviewId = $('#update_btn').val();
 
@@ -350,8 +403,10 @@
           new Blob([JSON.stringify(data)], {type: "application/json"}));
 
       // 배열의 각 파일을 순회하면서 FormData에 따로 추가합니다.
-      for (let i = 0; i < update_imageFile.length; i++) {
-        formData.append('images', update_imageFile[i]);
+      if (update_imageFile) {
+        for (let i = 0; i < update_imageFile.length; i++) {
+          formData.append('images', update_imageFile[i]);
+        }
       }
 
       $.ajax({
@@ -441,9 +496,110 @@
       });
     }
 
+    function deleteProduct() {
+      $.ajax({
+        type: "DELETE",
+        url: `/v1/categories/${categoryId}/products/${productId}`,
+        success: function (response) {
+          alert(response['msg']);
+          window.location.href = "/admin/product";
+        }, error: function (error) {
+          alert(error['response']['msg']);
+        }
+      });
+    }
+
+    function updateProduct() {
+      if (!update_product_imageFile) {
+        alert("이미지를 선택해주세요");
+        return;
+      }
+
+      let name = $('#update_name').val();
+      let description = $('#update_product_description').val();
+      let area = $('#update_area').val();
+      let company = $('#update_company').val();
+      let modifiedCategoryId = $('#modifiedCategoryId').val();
+      let alcoholDegree = $('#update_alcoholDegree').val();
+
+      data = {
+        "name": name,
+        "description": description,
+        "area": area,
+        "modifiedCategoryId": modifiedCategoryId,
+        "company": company,
+        "alcoholDegree": alcoholDegree
+      }
+
+      const formData = new FormData();
+      formData.append('image', update_product_imageFile);
+      formData.append("data",
+          new Blob([JSON.stringify(data)], {type: "application/json"}));
+
+      $.ajax({
+        type: "PATCH",
+        url: `/v1/categories/${categoryId}/products/${productId}`,
+        data: formData,
+        enctype: "multipart/form-data",
+        contentType: false,
+        processData: false,
+        success: function (response) {
+          alert(response['msg']);
+          window.location.reload();
+        }, error: function (error) {
+          if (error['responseJSON']['data']) {
+            alert(JSON.stringify(error['responseJSON']['data']));
+          } else {
+            alert(error['responseJSON']['msg'])
+          }
+        }
+      });
+    }
   </script>
 </head>
 <body>
+
+<!--상품 수정-->
+<div class="modal fade" id="updateProduct" aria-hidden="true"
+     aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">상품 수정</h1>
+        <button onclick="win_reload()" type="button" class="btn-close" data-bs-dismiss="modal"
+                aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" class="form-control" id="update_name" placeholder="이름">
+        <input type="text" class="form-control" id="update_product_description" placeholder="설명">
+        <input type="text" class="form-control" id="update_area" placeholder="지역">
+        <input type="text" class="form-control" id="update_company" placeholder="회사">
+        <input type="number" class="form-control" id="update_alcoholDegree" placeholder="알코올 도수">
+        <div class="form-floating" style="margin-top: 20px">
+          <div class="categoryLabel">
+            <label for="modifiedCategoryId">카테고리 </label>
+          </div>
+          <div class="categorySelect">
+            <select class="form-select" id="modifiedCategoryId"
+                    aria-label="Floating label select example" style="width: 200px;">
+              <option selected>카테고리를 선택해주세요</option>
+            </select>
+          </div>
+        </div>
+        <input type="file" accept="image/*" id="image">
+
+      </div>
+      <div class="modal-footer">
+        <button onclick="win_reload()" type="button" class="btn btn-secondary"
+                data-bs-dismiss="modal">Close
+        </button>
+        <button id="update_save_btn" class="btn btn-light" onclick="updateProduct()">update
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 리뷰 작성 -->
 <div class="modal fade" id="createReview" aria-hidden="true"
      aria-labelledby="exampleModalToggleLabel" tabindex="-1">
   <div class="modal-dialog modal-dialog-scrollable">
@@ -469,6 +625,7 @@
   </div>
 </div>
 
+<!-- 리뷰 수정 모달 -->
 <div class="modal fade" id="updateReview" aria-hidden="true"
      aria-labelledby="exampleModalToggleLabel" tabindex="-1">
   <div class="modal-dialog modal-dialog-scrollable">
@@ -652,6 +809,16 @@
         </div>
 
         <div style="width: 50%">
+          <div style="margin: 10px;">
+            <button id="update_product_btn" type="button" class="btn btn-light"
+                    data-bs-target="#updateProduct" data-bs-toggle="modal"
+                    style="float: right;margin-left: 10px;">수정
+            </button>
+            <button onclick="deleteProduct()" id="delete_product_btn"
+                    type="button" class="btn btn-light"
+                    style="float: right;">삭제
+            </button>
+          </div>
           <h3 id="name"> 이름 </h3>
           <div id="description"> 설명</div>
           <div>지역 :<span id="area">지역</span></div>

@@ -42,7 +42,7 @@ function authorizationCheck() {
     },
     error(error, status, request) {
       if (error['responseJSON']['data']) {
-        alert(error['responseJSON']['data']);
+        alert(JSON.stringify(error['responseJSON']['data']));
       } else {
         alert(error['responseJSON']['msg']);
       }

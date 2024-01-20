@@ -82,7 +82,7 @@ public class Review extends Timestamped {
   }
 
   // 리뷰를 인증 처리하는 메서드
-  public void verify() {
-    this.isVerified = true;
+  public void changeVerified() {
+    this.isVerified = !this.getIsVerified();
   }
 }
