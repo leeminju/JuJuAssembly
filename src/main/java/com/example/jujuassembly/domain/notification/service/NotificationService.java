@@ -101,9 +101,8 @@ public class NotificationService {
         if (optionalReview.isPresent()) {
           Review review = optionalReview.get();
           if (actionUser != null && review.getUser() != null) {
-            url = "/v1/categories/" + review.getProduct().getCategory().getId()
-                + "/products/" + review.getProduct().getId()
-                + "#review-" + entityId;
+            url = "/productDetails?productId=" + review.getProduct().getId()
+                + "&categoryId=" + review.getProduct().getCategory().getId();
             content = actionUser.getNickname() + "님이 " + review.getUser().getNickname()
                 + "님의 리뷰에 좋아요를 눌렀습니다.";
           }
@@ -115,7 +114,7 @@ public class NotificationService {
         if (optionalReport.isPresent()) {
           Report report = optionalReport.get();
           if (report.getUser() != null) {
-            url = "/report/" + entityId;
+            url = "/main/report";
             String statusString = report.getStatus().name().toString();
             content = report.getUser().getNickname() + "님의 제보 상태가 " + statusString + "로 변경되었습니다.";
           }
