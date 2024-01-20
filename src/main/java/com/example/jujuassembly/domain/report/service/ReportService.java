@@ -105,22 +105,14 @@ public class ReportService {
     return new ReportResponseDto(report);
   }
 
-  //제보상품 상태 변경
   @Transactional
-  public ReportResponseDto patchReportStatus(Long categoryId, Long reportId,
-      ReportStatusRequestDto requestDto, User user) {
-
+  public ReportResponseDto patchReportStatus(Long categoryId, Long reportId, ReportStatusRequestDto requestDto, User user) {
     categoryRepository.getById(categoryId);
     Report report = reportRepository.getById(reportId);
-
     report.updateStatus(requestDto.getStatus());
 
-    // 제보한 사용자에게 상태 변경 알림 전송
-    if (report.getUser().getId().equals(user.getId())) {
-      // 변경된 상태에 대한 알림 생성 및 저장
-      notificationService.send(report.getUser(), "REPORT", reportId, user);
-    }
-
+    // 관리자가 상태를 변경했을 때, 제보한 사용자에게 알림 전송
+    notificationService.send(report.getUser(), "REPORT", reportId, user);
     return new ReportResponseDto(report);
   }
 

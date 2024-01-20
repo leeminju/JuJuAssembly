@@ -5,34 +5,17 @@ $(document).ready(function () {
   var isLoggedIn = getToken(); // 사용자 로그인 상태 확인
 
   if (isLoggedIn) {
-    var userId = getUserIdFromToken(); // 사용자 ID 추출
-    initializeSSE(userId); // SSE 구독 초기화
+    initializeSSE(); // SSE 구독 초기화
     fetchNotifications(); // 기존 알림 목록 조회
   } else {
     $('#notification-count-badge').hide(); // 로그인되지 않았을 경우 알림 아이콘 숨김
   }
 });
 
-
-function getUserIdFromToken() {
-  let token = getToken();
-  if (!token) {
-    return null;
-  }
-
-  try {
-    let decodedToken = jwt_decode(token);
-    return decodedToken.user_id; // 토큰에 포함된 'user_id' 필드
-  } catch (error) {
-    console.error("토큰 디코드 실패:", error);
-    return null;
-  }
-}
-
 // SSE 구독을 위한 함수
-function initializeSSE(userId) {
+function initializeSSE() {
   if (!!window.EventSource) {
-    source = new EventSource('/v1/notification/subscribe?lastEventId=' + userId);
+    source = new EventSource('/v1/notification/subscribe');
 
     source.addEventListener("sse", function (event) {
       var data = JSON.parse(event.data);

@@ -116,7 +116,7 @@ public class NotificationService {
           Report report = optionalReport.get();
           if (report.getUser() != null) {
             url = "/report/" + entityId;
-            String statusString = report.getStatus().toString();
+            String statusString = report.getStatus().name().toString();
             content = report.getUser().getNickname() + "님의 제보 상태가 " + statusString + "로 변경되었습니다.";
           }
         }
