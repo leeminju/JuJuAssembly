@@ -18,8 +18,13 @@
   <script src="/js/basic.js"></script>
   <script src="/js/notification.js"></script>
   <script src="/js/userManage.js"></script>
+  <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.4/pagination.min.js"></script>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.4/pagination.css"/>
   <link rel="stylesheet" href="/css/style.css">
 </head>
+
 <body>
 <div style="    display: flex;    flex-direction: row;">
   <div id="adminMenu" style="display: none">
@@ -123,13 +128,38 @@
 
 
     </header>
-    <div style="height: fit-content;">
-      <div class="my-3 p-3 bg-body rounded shadow-sm"
+<!--    <div style="height: fit-content;">
+     &lt;!&ndash; <div class="my-3 p-3 bg-body rounded shadow-sm"
            style="margin: 10px auto 10px auto;width: 60%;"
            id="userList">
         <h6 class="border-bottom pb-2 mb-0">전체 회원 목록</h6>
+      </div>&ndash;&gt;
+    </div>-->
+    <div style="height: fit-content;">
+      <h6 class="border-bottom pb-2 mb-0">전체 회원 목록</h6>
+      <div style="display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 10px">
+        <div class="pagination">
+          정렬:
+          <select id="sorting" onchange="getAllUsers()" style="margin-right: 10px">
+          <option value="createdAt">등록일</option>
+            <option value="modifiedAt">수정일</option>
+          </select>
+          <input type="radio" name="isAsc" value="asc" onchange="getAllUsers"/> 오름차순
+          <input type="radio" name="isAsc" value="desc" onchange="getAllUsers()" checked/> 내림차순
+        </div>
+        <div id="pagination" class="pagination" style="margin-top:10px"></div>
+      </div>
+
+      <div class="my-3 p-3 bg-body rounded shadow-sm"
+          style="margin: 10px auto 10px auto;width: 60%;"
+          id="userList" >
       </div>
     </div>
+  </div>
   </div>
 </div>
 
