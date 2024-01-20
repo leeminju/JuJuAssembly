@@ -1,30 +1,44 @@
 var source;
 
 $(document).ready(function () {
-
   // 로그인 상태를 확인하는 로직 (예시: 쿠키에서 토큰 확인)
-  var isLoggedIn = getToken();
+  var isLoggedIn = getToken(); // 사용자 로그인 상태 확인
 
-  // 로그인 상태일 경우에만 SSE 구독과 알림 조회를 실행
   if (isLoggedIn) {
-    initializeSSE();
-    fetchNotifications();
+    var userId = getUserIdFromToken(); // 사용자 ID 추출
+    initializeSSE(userId); // SSE 구독 초기화
+    fetchNotifications(); // 기존 알림 목록 조회
   } else {
-    $('#notification-count-badge').hide();
+    $('#notification-count-badge').hide(); // 로그인되지 않았을 경우 알림 아이콘 숨김
   }
 });
 
-// SSE 구독을 위한 함수
-function initializeSSE() {
-  if (!!window.EventSource) {
-    source = new EventSource('/v1/notification/subscribe');
 
-    source.onmessage = function (event) {
-      console.log('Received SSE:', event.data);
-      var notification = JSON.parse(event.data);
-      displayRealTimeNotification(notification);
-      displayNotifications([notification]); // 알림 목록에 추가
-    };
+function getUserIdFromToken() {
+  let token = getToken();
+  if (!token) {
+    return null;
+  }
+
+  try {
+    let decodedToken = jwt_decode(token);
+    return decodedToken.user_id; // 토큰에 포함된 'user_id' 필드
+  } catch (error) {
+    console.error("토큰 디코드 실패:", error);
+    return null;
+  }
+}
+
+// SSE 구독을 위한 함수
+function initializeSSE(userId) {
+  if (!!window.EventSource) {
+    source = new EventSource('/v1/notification/subscribe?lastEventId=' + userId);
+
+    source.addEventListener("sse", function (event) {
+      var data = JSON.parse(event.data);
+      displayRealTimeNotification(data); // 실시간 알림 표시
+      displayNotifications([data]); // 실시간 알림을 목록에 추가
+    });
 
     source.onerror = function (error) {
       console.error('SSE 연결 오류:', error);
@@ -35,18 +49,45 @@ function initializeSSE() {
   }
 }
 
-// 토스트 메시지를 표시하는 함수
-function showToast(message) {
-  var toast = $('<div class="toast">' + message + '</div>');
-  $('body').append(toast);
-  setTimeout(function () {
-    toast.remove();
-  }, 10000); // 3초 후 토스트 메시지 제거
-}
 
 // 실시간으로 수신된 알림을 화면에 표시하는 함수
-function displayRealTimeNotification(notification) {
-  showToast('새 알림: ' + notification.content);
+function displayRealTimeNotification(data) {
+  // 브라우저 알림 허용 권한 확인 및 요청
+  checkNotificationPermission().then(granted => {
+    if (granted) {
+      // 브라우저 알림 표시
+      showNotification(data);
+    }
+  });
+}
+
+function checkNotificationPermission() {
+  return new Promise((resolve, reject) => {
+    if (Notification.permission === 'granted') {
+      resolve(true);
+    } else if (Notification.permission !== 'denied') {
+      Notification.requestPermission().then(permission => {
+        resolve(permission === 'granted');
+      });
+    } else {
+      resolve(false);
+    }
+  });
+}
+
+function showNotification(data) {
+  const notification = new Notification('새 알림', {
+    body: data.content,
+    icon: '/path/to/icon.png' // 알림 아이콘 경로 (옵션)
+  });
+
+  setTimeout(() => {
+    notification.close();
+  }, 10 * 1000);
+
+  notification.onclick = () => {
+    window.open(data.url, '_blank');
+  };
 }
 
 // 서버로부터 알림 목록을 조회하는 함수
@@ -79,38 +120,47 @@ function displayNotifications(notifications) {
   var list = $('#notification-list');
   list.empty();
 
-  if (notifications && notifications.length > 0) {
-    $.each(notifications, function (i, notification) {
-      var content = $('<span>').text(notification.content ? notification.content : "알림 내용 없음");
-      content.on('click', function () {
-        markAsRead(notification.id);
-        window.location.href = notification.url; // 여기서 리디렉트
-      });
-      var deleteButton = $('<button>Delete</button>')
-      .css({
-        'border-radius': '15px',
-        'margin-left': '20px',
-        'border-style': 'none',
-        'font-size': '15px',
-        'font-variant': 'all-small-caps'
-      }).click(function(e) {
-        e.stopPropagation(); // 부모 요소로의 이벤트 전파 방지
-        deleteNotification(notification.id); // AJAX 요청을 통해 알림 삭제
-      });
-      var listItem = $('<li>').append(content).append(deleteButton);
+  if (notifications.length === 0) {
+    list.append('<li>새로운 알림이 없습니다.</li>');
+  } else {
+    notifications.forEach(function(notification) {
+      var listItem = $('<li>').addClass('notification-item');
+      var content = $('<span>').text(notification.content);
 
       if (notification.read) {
-        listItem.css('color', 'grey'); // 읽은 알림의 스타일
-        listItem.append(' (읽음)');
+        content.css('color', 'grey'); // 읽은 알림의 스타일
+        content.append(' (읽음)');
       } else {
-        listItem.css('color', 'black'); // 안 읽은 알림의 스타일
+        content.css('color', 'black'); // 안 읽은 알림의 스타일
       }
+
+      // 알림 클릭 이벤트 핸들러
+      content.click(function() {
+        markAsRead(notification.id);
+        window.location.href = notification.url; // 해당 알림의 URL로 이동
+      });
+
+      listItem.append(content);
+
+      // 삭제 버튼 (옵션)
+      var deleteButton = $('<button>').text('delete').css({
+        'border-radius': '15px',
+        'margin-left': '200px',
+        'border-style': 'none',
+        'font-size': '15px',
+        'font-variant': 'all-small-caps',
+        'cursor': 'pointer'
+      }).click(function() {
+        deleteNotification(notification.id);
+      });
+
+      listItem.append(deleteButton);
+
       list.append(listItem);
     });
-  } else {
-    list.append('<li>알림이 없습니다.</li>');
   }
 }
+
 
 // 알림을 읽음 상태로 변경하는 함수
 function markAsRead(notificationId) {
