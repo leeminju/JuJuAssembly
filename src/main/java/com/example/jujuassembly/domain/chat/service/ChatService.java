@@ -9,6 +9,7 @@ import com.example.jujuassembly.domain.room.entity.Room;
 import com.example.jujuassembly.domain.room.repository.RoomRepository;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,6 +48,8 @@ public class ChatService {
   public List<ChatResponseDto> findAllChats(Long roomId) {
     Room room = roomRepository.getById(roomId);
     List<Chat> chats = room.getChats();
+
+    Collections.reverse(chats);
 
     return chats.stream()
         .map(chat -> new ChatResponseDto(chat))

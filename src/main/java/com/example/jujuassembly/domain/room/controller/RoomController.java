@@ -13,12 +13,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/v1")
 public class RoomController {
 
   private final RoomService roomService;
@@ -35,7 +37,7 @@ public class RoomController {
   public void publish(@DestinationVariable Long roomId,
       @RequestBody @Valid ChatRequestDto chatRequestDto) {
     chatService.save(roomId, chatRequestDto);
-    simpMessagingTemplate.convertAndSend("/subscribe/rooms/" + roomId, chatRequestDto.getMessage());
+    simpMessagingTemplate.convertAndSend("/subscribe/rooms/" + roomId, chatRequestDto);
   }
 
   /**
@@ -44,7 +46,7 @@ public class RoomController {
    * @param roomRequestDto 채팅방 생성 요청 DTO
    * @return 생성 또는 조회된 채팅방 ID와 함께 성공 응답 반환
    */
-  @GetMapping("/rooms") // ModelAttribute
+  @PostMapping("/rooms") // ModelAttribute
   public ResponseEntity<ApiResponse> createOrGet(
       @RequestBody @Valid RoomRequestDto roomRequestDto) {
     RoomIdResponseDto roomIdResponseDto = roomService.getOrCreate(roomRequestDto);
