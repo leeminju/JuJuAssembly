@@ -28,7 +28,7 @@
     var categoryId = -1;
     var create_imageFile = null;
     var update_imageFile = null;
-
+    var update_product_imageFile = null;
     $(document).ready(function () {
 
       // 현재 페이지 URL에서 쿼리 문자열을 가져옴
@@ -39,6 +39,8 @@
       productId = parsedParams['productId'];
       categoryId = parsedParams['categoryId'];
 
+      getCategory();
+      getMyprofile();
       getProductDetails();
       getReviews();
       getLike();
@@ -50,7 +52,65 @@
         update_imageFile = event.target.files;
       });
 
+      $("#image").on("change", function (event) {
+        update_product_imageFile = event.target.files[0];
+      });
+
     })
+
+    function getCategory() {
+      $.ajax({
+        type: "GET",
+        url: `/v1/categories`,
+        success: function (response) {
+          let categories = response['data'];
+
+          for (let i = 0; i < categories.length; i++) {
+            let category = categories[i];
+            let id = category['id'];
+            let name = category['name'];
+
+            let category_html = `<option value=${id}>${name}</option>`
+            $('#modifiedCategoryId').append(category_html);
+          }
+        },
+        error(error, status, request) {
+          console.log(error);
+        }
+      });
+
+    }
+
+    function getMyprofile() {
+      //로그인한 회원 정보
+      const auth = getToken();
+
+      if (auth !== undefined && auth !== '') {
+        $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+          jqXHR.setRequestHeader('Authorization', auth);
+        });
+      } else {
+        $('#update_product_btn').hide();
+        $('#delete_product_btn').hide();
+        return;
+      }
+
+      $.ajax({
+        type: 'GET',
+        url: `/v1/users/myprofile`,
+        success: function (response) {
+          let user = response['data'];
+          role = user['role'];
+          if (role != "ADMIN") {
+            $('#update_product_btn').hide();
+            $('#delete_product_btn').hide();
+          }
+        },
+        error(error, status, request) {
+          console.log(error)
+        }
+      });
+    }
 
     function parseQueryString(url) {
       var params = {};
@@ -87,15 +147,21 @@
           let likesCount = product['likesCount'];
 
           $('#name').text(name);
+          $('#update_name').val(name);
           $('#area').text(area);
+          $('#update_area').val(area);
           $('#company').text(company);
+          $('#update_company').val(company);
           $('#product-image').attr("src", image);
           $('#alcoholDegree').text(alcoholDegree);
+          $('#update_alcoholDegree').val(alcoholDegree);
           $('#averageRating').text(averageRating);
           $('#description').text(description);
+          $('#update_product_description').val(description);
           $('#reviewCount').text(reviewCount);
           $('#likesCount').text(likesCount);
           $('#categoryName').text(categoryName);
+          $('#modifiedCategoryId').val(categoryId);
         },
         error(error, status, request) {
         }
@@ -441,9 +507,110 @@
       });
     }
 
+    function deleteProduct() {
+      $.ajax({
+        type: "DELETE",
+        url: `/v1/categories/${categoryId}/products/${productId}`,
+        success: function (response) {
+          alert(response['msg']);
+          window.location.href = "/admin/product";
+        }, error: function (error) {
+          alert(error['response']['msg']);
+        }
+      });
+    }
+
+    function updateProduct() {
+      if (!update_product_imageFile) {
+        alert("이미지를 선택해주세요");
+        return;
+      }
+
+      let name = $('#update_name').val();
+      let description = $('#update_product_description').val();
+      let area = $('#update_area').val();
+      let company = $('#update_company').val();
+      let modifiedCategoryId = $('#modifiedCategoryId').val();
+      let alcoholDegree = $('#update_alcoholDegree').val();
+
+      data = {
+        "name": name,
+        "description": description,
+        "area": area,
+        "modifiedCategoryId": modifiedCategoryId,
+        "company": company,
+        "alcoholDegree": alcoholDegree
+      }
+
+      const formData = new FormData();
+      formData.append('image', update_product_imageFile);
+      formData.append("data",
+          new Blob([JSON.stringify(data)], {type: "application/json"}));
+
+      $.ajax({
+        type: "PATCH",
+        url: `/v1/categories/${categoryId}/products/${productId}`,
+        data: formData,
+        enctype: "multipart/form-data",
+        contentType: false,
+        processData: false,
+        success: function (response) {
+          alert(response['msg']);
+          window.location.reload();
+        }, error: function (error) {
+          if (error['responseJSON']['data']) {
+            alert(JSON.stringify(error['responseJSON']['data']));
+          } else {
+            alert(error['responseJSON']['msg'])
+          }
+        }
+      });
+    }
   </script>
 </head>
 <body>
+
+<!--상품 수정-->
+<div class="modal fade" id="updateProduct" aria-hidden="true"
+     aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">상품 수정</h1>
+        <button onclick="win_reload()" type="button" class="btn-close" data-bs-dismiss="modal"
+                aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" class="form-control" id="update_name" placeholder="이름">
+        <input type="text" class="form-control" id="update_product_description" placeholder="설명">
+        <input type="text" class="form-control" id="update_area" placeholder="지역">
+        <input type="text" class="form-control" id="update_company" placeholder="회사">
+        <input type="number" class="form-control" id="update_alcoholDegree" placeholder="알코올 도수">
+        <div class="form-floating" style="margin-top: 20px">
+          <div class="categoryLabel">
+            <label for="modifiedCategoryId">카테고리 </label>
+          </div>
+          <div class="categorySelect">
+            <select class="form-select" id="modifiedCategoryId"
+                    aria-label="Floating label select example" style="width: 200px;">
+              <option selected>카테고리를 선택해주세요</option>
+            </select>
+          </div>
+        </div>
+        <input type="file" accept="image/*" id="image">
+
+      </div>
+      <div class="modal-footer">
+        <button onclick="win_reload()" type="button" class="btn btn-secondary"
+                data-bs-dismiss="modal">Close
+        </button>
+        <button id="update_save_btn" class="btn btn-light" onclick="updateProduct()">update
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 리뷰 작성 -->
 <div class="modal fade" id="createReview" aria-hidden="true"
      aria-labelledby="exampleModalToggleLabel" tabindex="-1">
   <div class="modal-dialog modal-dialog-scrollable">
@@ -469,6 +636,7 @@
   </div>
 </div>
 
+<!-- 리뷰 수정 모달 -->
 <div class="modal fade" id="updateReview" aria-hidden="true"
      aria-labelledby="exampleModalToggleLabel" tabindex="-1">
   <div class="modal-dialog modal-dialog-scrollable">
@@ -652,6 +820,16 @@
         </div>
 
         <div style="width: 50%">
+          <div style="margin: 10px;">
+            <button id="update_product_btn" type="button" class="btn btn-light"
+                    data-bs-target="#updateProduct" data-bs-toggle="modal"
+                    style="float: right;margin-left: 10px;">수정
+            </button>
+            <button onclick="deleteProduct()" id="delete_product_btn"
+                    type="button" class="btn btn-light"
+                    style="float: right;">삭제
+            </button>
+          </div>
           <h3 id="name"> 이름 </h3>
           <div id="description"> 설명</div>
           <div>지역 :<span id="area">지역</span></div>
