@@ -29,6 +29,7 @@
     var create_imageFile = null;
     var update_imageFile = null;
     var update_product_imageFile = null;
+
     $(document).ready(function () {
 
       // 현재 페이지 URL에서 쿼리 문자열을 가져옴
@@ -204,7 +205,11 @@
           alert(response['msg']);
           window.location.reload();
         }, error: function (error) {
-          alert("로그인한 회원만 작성할 수 있습니다.");
+          if (error['responseJSON']['data']) {
+            alert(JSON.stringify(error['responseJSON']['data']));
+          } else {
+            alert(error['responseJSON']['msg']);
+          }
         }
       });
 
@@ -283,11 +288,6 @@
                   <span id="dislikeCount-${id}">${dislikeCount}</span>
           </button>
 
-
-
-
-
-
        </div>
         <div style="margin-left: 78%">
           <button onclick="updateId('${id}')" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateReview">
@@ -327,8 +327,8 @@
           }
           alert(response['msg']);
         },
-        error: function (xhr, status, error) {
-          alert("리뷰 추천에 실패했습니다: " + error);
+        error: function (error) {
+          alert(error['responseJSON']['msg']);
         }
       });
     }
@@ -347,8 +347,8 @@
           }
           alert(response['msg']);
         },
-        error: function (xhr, status, error) {
-          alert("리뷰 비추천에 실패했습니다: " + error);
+        error: function (error) {
+          alert(error['responseJSON']['msg']);
         }
       });
     }

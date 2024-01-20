@@ -42,33 +42,30 @@ public class ReviewLikeService {
     Review review = reviewRepository.getById(reviewId);
     checkReviewProductAndProductIdEquality(review, productId);
 
+    if (user.getId().equals(review.getUser().getId())) {
+      throw new ApiException("본인의 리뷰에 추천 누를 수 없습니다.", HttpStatus.BAD_REQUEST);
+    }
+
     Optional<ReviewLike> reviewLike = reviewLikeRepository.findByReviewAndUser(review, user);
 
-    boolean isNewLike = false;
-
     if (reviewLike.isPresent()) {
+      //이미 추천 누름
       if (reviewLike.get().getStatus().equals(ReviewLikeStatusEnum.LIKE)) {
         reviewLikeRepository.delete(reviewLike.get());//이미 추천을 눌렀다면 추천 해제
         // 데이터베이스 알림 삭제
         notificationService.deleteNotificationByEntity("REVIEW", reviewId);
         return Optional.empty();
       } else {
-        reviewLike.get().like();//비추천 -> 추천으로 변경
-        responseDto = new ReviewLikeResponseDto(reviewLike.get());
-        isNewLike = true;
+        throw new ApiException("이미 비추천을 눌렀습니다", HttpStatus.BAD_REQUEST);
       }
     } else {
       ReviewLike newReviewLike = new ReviewLike(review, user);
       newReviewLike.like();
       ReviewLike savedReviewLike = reviewLikeRepository.save(newReviewLike);
       responseDto = new ReviewLikeResponseDto(savedReviewLike);
-      isNewLike = true;  // 새로운 '좋아요'로 설정
     }
 
-    // 새로운 '좋아요'가 있고, 현재 사용자가 리뷰 작성자가 아닌 경우에만 알림 발송
-    if (isNewLike && !user.equals(review.getUser())) {
-      notificationService.send(review.getUser(), "REVIEW", reviewId, user);
-    }
+    notificationService.send(review.getUser(), "REVIEW", reviewId, user);
 
     return Optional.of(responseDto);
   }
@@ -84,6 +81,10 @@ public class ReviewLikeService {
     Review review = reviewRepository.getById(reviewId);
     checkReviewProductAndProductIdEquality(review, productId);
 
+    if (user.getId().equals(review.getUser().getId())) {
+      throw new ApiException("본인의 리뷰에 비추천 누를 수 없습니다.", HttpStatus.BAD_REQUEST);
+    }
+
     Optional<ReviewLike> reviewLike = reviewLikeRepository.findByReviewAndUser(review, user);
 
     if (reviewLike.isPresent()) {
@@ -91,8 +92,7 @@ public class ReviewLikeService {
         reviewLikeRepository.delete(reviewLike.get());//이미 비추천을 눌렀다면 추천 해제
         return Optional.empty();
       } else {
-        reviewLike.get().dislike();//추천 -> 비추천으로 변경
-        responseDto = new ReviewLikeResponseDto(reviewLike.get());
+        throw new ApiException("이미 추천을 눌렀습니다", HttpStatus.BAD_REQUEST);
       }
     } else {
       ReviewLike newReviewLike = new ReviewLike(review, user);
