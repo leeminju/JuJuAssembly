@@ -1,14 +1,16 @@
 package com.example.jujuassembly.domain.userManagement.controller;
 
 import com.example.jujuassembly.domain.user.dto.UserDetailResponseDto;
-import com.example.jujuassembly.domain.user.dto.UserResponseDto;
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum.Authority;
 import com.example.jujuassembly.domain.userManagement.dto.UserRoleRequestDto;
 import com.example.jujuassembly.domain.userManagement.dto.UserRoleResponseDto;
 import com.example.jujuassembly.domain.userManagement.service.UserManageService;
 import com.example.jujuassembly.global.response.ApiResponse;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -33,10 +35,11 @@ public class UserManageController {
    * @return 전체 사용자 목록을 포함한 ApiResponse
    */
   @GetMapping("/users")
-  public ResponseEntity<ApiResponse<List<UserDetailResponseDto>>> viewAllUsers() {
-    List<UserDetailResponseDto> allUserResponseDtoList = userManageService.viewAllUsers();
+  public ResponseEntity<ApiResponse<Page<UserDetailResponseDto>>> viewAllUsers(
+      @PageableDefault(size = 10, sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
+    Page<UserDetailResponseDto> allUserResponseDto = userManageService.viewAllUsers(pageable);
     return ResponseEntity.ok().body(
-        new ApiResponse<>("전체 사용자 조회", HttpStatus.OK.value(), allUserResponseDtoList));
+        new ApiResponse<>("전체 사용자 조회", HttpStatus.OK.value(), allUserResponseDto));
   }
 
   /**
