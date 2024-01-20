@@ -192,15 +192,23 @@ public class UserService {
       throw new ApiException("비밀번호 확인이 일치 하지 않습니다!", HttpStatus.BAD_REQUEST);
     }
 
-    if (userRepository.findByNickname(modifyRequestDto.getNickname()).isPresent()) {
-      throw new ApiException("중복된 nickname 입니다.", HttpStatus.BAD_REQUEST);
+    //현재와 동일한 닉네임으로 변경 가능
+    if (!user.getNickname().equals(modifyRequestDto.getNickname())) {
+      if (userRepository.findByNickname(modifyRequestDto.getNickname()).isPresent()) {
+        throw new ApiException("중복된 nickname 입니다.", HttpStatus.BAD_REQUEST);
+      }
     }
-    if (userRepository.findByEmail(modifyRequestDto.getEmail()).isPresent()) {
-      throw new ApiException("중복된 email 입니다.", HttpStatus.BAD_REQUEST);
+
+    //현재와 동일한 이메일로 변경 가능
+    if (!user.getEmail().equals(modifyRequestDto.getEmail())) {
+      if (userRepository.findByEmail(modifyRequestDto.getEmail()).isPresent()) {
+        throw new ApiException("중복된 email 입니다.", HttpStatus.BAD_REQUEST);
+      }
     }
 
     User loginUser = userRepository.getById(userId);
-    Category category1 = categoryRepository.getById(modifyRequestDto.getFirstPreferredCategoryId());
+    Category category1 = categoryRepository.getById(
+        modifyRequestDto.getFirstPreferredCategoryId());
     Category category2 = categoryRepository.getById(
         modifyRequestDto.getSecondPreferredCategoryId());
     String encodePassword = passwordEncoder.encode(modifyRequestDto.getPassword());

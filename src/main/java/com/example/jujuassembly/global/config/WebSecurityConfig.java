@@ -65,6 +65,7 @@ public class WebSecurityConfig {
             .requestMatchers("/products").permitAll()
             .requestMatchers("/admin/**").permitAll()
             .requestMatchers("/main/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/v1/products/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/v1/users/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/v1/categories/**").permitAll()
             .requestMatchers("/v1/auth/**").permitAll()

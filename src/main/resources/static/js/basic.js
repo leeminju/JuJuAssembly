@@ -21,7 +21,6 @@ function authorizationCheck() {
     $('#mypage').hide();
     $('#logout-btn').hide();
     $('#admin_btn').hide();
-    logout();
     return;
   }
 
@@ -30,8 +29,9 @@ function authorizationCheck() {
     type: 'GET',
     url: `/v1/users/myprofile`,
     success: function (response) {
+      role = response['data']['role'];
       if (response['data']['role'] === "ADMIN") {
-         $('#admin_btn').show();
+        $('#admin_btn').show();
       }
 
       $('#sign-in-btn').hide();
