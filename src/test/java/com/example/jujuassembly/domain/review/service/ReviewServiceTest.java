@@ -263,9 +263,27 @@ class ReviewServiceTest {
     given(reviewRepository.getById(reviewId)).willReturn(review);
 
     //when
-    ReviewResponseDto reviews = reviewService.verifyReview(categoryId, productId, reviewId);
+    Boolean result = reviewService.verifyReview(categoryId, productId, reviewId);
 
     //then
     assertEquals(true, review.getIsVerified());
+  }
+
+  @Test
+  @DisplayName("리뷰 인증 취소")
+  void unverifyReview() {
+    Review review = Review.builder().id(reviewId).description("맛있다")
+        .star(4.0).munchies("조개탕").product(product).user(user).isVerified(true)
+        .reviewImages(reviewImages).reviewLikes(reviewLikes).build();
+    //given
+    given(categoryRepository.getById(categoryId)).willReturn(category1);
+    given(productRepository.getById(productId)).willReturn(product);
+    given(reviewRepository.getById(reviewId)).willReturn(review);
+
+    //when
+    Boolean result = reviewService.verifyReview(categoryId, productId, reviewId);
+
+    //then
+    assertEquals(false, review.getIsVerified());
   }
 }
