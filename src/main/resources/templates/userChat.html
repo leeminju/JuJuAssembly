@@ -171,19 +171,9 @@
         // 채팅 모달 열기
         $('#chatModal').modal('show');
 
-        // shown.bs.modal 이벤트에 대한 핸들러 등록
-        $('#chatModal').on('shown.bs.modal', function () {
-          // ESC 키 이벤트 핸들러 등록
-          document.addEventListener('keydown', function (event) {
-            // ESC 키를 눌렀을 때 모달이 닫히지 않도록 막기
-            if (event.key === 'Escape') {
-              event.preventDefault();
-              event.stopPropagation();
-            }
-          });
-        });
-
         fetchChatHistory(chatRoomId);
+        var chatContainer = $('#chatContainer');
+        chatContainer.scrollTop(chatContainer.prop("scrollHeight"));
         console.log(`Chat Room ID: ${chatRoomId}`);
       },
       error: function (error) {
@@ -418,7 +408,7 @@
   </div>
 </div>
 <!-- 채팅창 모달 -->
-<div class="modal fade" data-bs-backdrop="static" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel"
+<div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" no-close-on-esc id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel"
      aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
