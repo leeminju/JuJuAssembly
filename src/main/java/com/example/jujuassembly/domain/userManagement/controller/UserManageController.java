@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@Secured(Authority.ADMIN)
 @RequestMapping("/v1")
 public class UserManageController {
 
@@ -49,6 +48,7 @@ public class UserManageController {
    * @param userRolerequestDto 수정할 권한 정보를 담은 DTO
    * @return 수정된 사용자 권한 정보를 포함한 ApiResponse
    */
+  @Secured(Authority.ADMIN)
   @PatchMapping("/users/{userId}/role")
   public ResponseEntity<ApiResponse<UserRoleResponseDto>> modifyUserRole(
       @PathVariable Long userId,
