@@ -56,7 +56,7 @@
   var stompClient;
   var currentUserId;
   var currentChatRoomId;
-  var hasFetchedChatHistory = false;
+
 
   var myId = -1;
   $(document).ready(function () {
@@ -72,6 +72,12 @@
         } else {
           alert(error['responseJSON']['msg']);
         }
+      }
+    });
+    $(document).on('keydown', function(event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
       }
     });
 
@@ -162,15 +168,14 @@
 
         // 웹소켓 연결
         connectWebSocket(chatRoomId);
-
+        clearChatContainer();
         // 채팅 모달 열기
         $('#chatModal').modal('show');
 
-        // 채팅 기록을 이미 가져왔는지 여부 확인
-        if (!hasFetchedChatHistory) {
-          fetchChatHistory(chatRoomId);
-          hasFetchedChatHistory = true;
-        }
+        fetchChatHistory(chatRoomId);
+
+        var chatContainer = $('#chatContainer');
+        chatContainer.scrollTop(chatContainer.prop("scrollHeight"));
 
         console.log(`Chat Room ID: ${chatRoomId}`);
       },
@@ -194,12 +199,23 @@
         var message = JSON.parse(response.body);
         console.log(`채팅방 ${chatRoomId}에서 메시지 수신:`, message);
 
-        // 수신한 메시지를 채팅 창에 추가
-        addMessageToChatContainer(message.senderId, message.message);
+          // 수신한 메시지를 채팅 창에 추가
+          addMessageToChatContainer(message.senderId, message.message);
+
       });
     });
   }
 
+
+  //웹소켓 연결 종료 함수
+  function disconnectWebSocket() {
+    stompClient.unsubscribe(`/subscribe/rooms/${currentChatRoomId}`);
+    if (stompClient !== null && stompClient.connected) {
+      stompClient.disconnect(function () {
+        console.log('웹 소켓 연결이 종료되었습니다.');
+      });
+    }
+  }
   function fetchChatHistory(chatRoomId) {
     // API를 통해 채팅 기록 가져오기
     $.ajax({
@@ -213,6 +229,7 @@
           var chat = chatHistory[i];
           addMessageToChatContainer(chat.senderId, chat.message);
         }
+        console.log("채팅불러오기가 실행도었습니다.")
       },
       error: function (error) {
         console.log(error);
@@ -235,6 +252,17 @@
     chatContainer.scrollTop(chatContainer.prop("scrollHeight"));
   }
 
+  //채팅기록 비우는 메서드
+  function clearChatContainer() {
+    // "chatContainer"라는 ID를 가진 요소를 찾아서 내용을 비워줌
+    var chatContainer = $('#chatContainer');
+
+    // 채팅 창 내용 비우기
+    if (chatContainer.length) {
+      chatContainer.empty();
+    }
+  }
+
   // 채팅 메시지 전송 함수
   function sendChatMessage() {
     let message = $('#chatMessageInput').val();
@@ -251,6 +279,7 @@
   }
 </script>
 <body>
+
 <div style="    display: flex;    flex-direction: row;">
   <div id="adminMenu" style="display: none">
     <div class="d-flex flex-column flex-shrink-0 p-3 bg-body-tertiary"
@@ -358,7 +387,7 @@
 
 
     <div style="height: fit-content;">
-      <h1 style="    width: fit-content; margin: 10px auto 10px auto">고객 센터</h1>
+      <h1 style="    width: fit-content; margin: 10px auto 10px auto">고객과의 채팅</h1>
       <div style="display: flex;
         flex-direction: column;
         align-items: center;
@@ -387,13 +416,13 @@
   </div>
 </div>
 <!-- 채팅창 모달 -->
-<div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel"
+<div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" no-close-on-esc  id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel"
      aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="chatModalLabel">채팅창</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" onclick="disconnectWebSocket()" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <!-- 채팅창을 표시할 영역 -->
@@ -407,7 +436,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="disconnectWebSocket()">닫기</button>
       </div>
     </div>
   </div>

@@ -17,13 +17,16 @@ import com.example.jujuassembly.domain.room.repository.RoomRepository;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -41,6 +44,8 @@ class ChatServiceTest {
   ChatRepository chatRepository;
   @Mock
   RoomRepository roomRepository;
+  @Mock
+  Room room;
 
   @Test
   @DisplayName("채팅 내용 저장 테스트")
@@ -113,40 +118,42 @@ class ChatServiceTest {
     assertEquals(room2.getLatestChat().getContent(), result.get(1).getLatestMessage());
   }
 
-//   @Test
-//   @DisplayName("채팅방의 모든 채팅 가져오기 테스트")
-//   void findAllChatsTest() {
-//     Long userId = 1L;
-//     Long userId2 = 2L;
-//     User user = User.builder().id(userId).build();
-//     User admin = User.builder().id(userId2).build();
+   @Test
+   @DisplayName("채팅방의 모든 채팅 가져오기 테스트")
+   void findAllChatsTest() {
+     // 테스트 데이터 설정
+     Long roomId = 1L;
+     Room room = Room.builder().id(roomId).build();
 
-//     //가짜 채팅목록 생성
-//     Chat chat1 = Chat.builder().receiver(user).content("내용").sender(admin).id(1L).build();
-//     Chat chat2 = Chat.builder().receiver(user).content("내용").sender(admin).id(2L).build();
-//     List<Chat> chats = List.of(chat1, chat2);
-//     // 가짜 채팅방 데이터 생성
-//     Long roomId = 1L;
-//     Room room1 = Room.builder().id(roomId).chats(chats).admin(admin).user(user).build();
+     User sender = User.builder().id(1L).build();
+     User receiver = User.builder().id(2L).build();
 
-//     ReflectionTestUtils.setField(chat1, Chat.class, "room", room1, Room.class);
-//     ReflectionTestUtils.setField(chat2, Chat.class, "room", room1, Room.class);
+     List<Chat> chatList = new ArrayList<>();
+     chatList.add(Chat.builder().id(2L).room(room).sender(sender).receiver(receiver).build());
+     chatList.add(Chat.builder().id(1L).room(room).sender(sender).receiver(receiver).build());
 
-//     // Mocking 설정
-//     when(userRepository.getById(userId)).thenReturn(user);
-//     when(roomRepository.getById(room1.getId())).thenReturn(room1);
+     // Mock 객체 설정
+     Room roomMock = Mockito.mock(Room.class);  // Room을 Mock 객체로 만듦
+     when(roomRepository.getById(roomId)).thenReturn(roomMock);
+     when(roomMock.getChats()).thenReturn(chatList);
 
-//     // 테스트 대상 메서드 호출
-//     List<ChatResponseDto> result = chatService.findAllChats(roomId);
+     // 테스트 대상 메서드 호출
+     List<ChatResponseDto> result = chatService.findAllChats(roomId);
 
-//     // Mocking된 메서드의 호출 여부 검증
-//     verify(roomRepository, times(1)).getById(roomId);
+     // 예상 결과 설정
+     List<ChatResponseDto> expected = chatList.stream()
+         .map(ChatResponseDto::new)
+         .collect(Collectors.toList());
 
-//     // 결과 검증 - 여러 가지 방법 중에 선택
-//     // 1. 결과의 크기가 예상과 일치하는지 확인
-//     assertEquals(2, result.size());
-//     // 2. 특정 데이터의 일치 여부 확인 (예를 들어, chat1과 chat2의 비교)
-//     assertEquals(chat1.getContent(), result.get(0).getMessage());
-//     assertEquals(chat2.getContent(), result.get(1).getMessage());
-//   }
+     // 결과 확인
+     assertEquals(expected.size(), result.size());
+     assertEquals(expected.get(0).getSenderId(), result.get(0).getSenderId());
+     assertEquals(expected.get(0).getMessage(), result.get(0).getMessage());
+     assertEquals(expected.get(1).getSenderId(), result.get(1).getSenderId());
+     assertEquals(expected.get(1).getMessage(), result.get(1).getMessage());
+
+     // Mock 객체 검증
+     verify(roomRepository, times(1)).getById(roomId);
+     verify(roomMock, times(1)).getChats();
+   }
 }
