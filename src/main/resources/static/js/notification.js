@@ -21,6 +21,8 @@ function initializeSSE() {
       var data = JSON.parse(event.data);
       displayRealTimeNotification(data); // 실시간 알림 표시
       displayNotifications([data]); // 실시간 알림을 목록에 추가
+      updateNotificationsListAndBadge(); // 새 알림으로 목록 및 뱃지 업데이트
+      fetchNotifications();
     });
 
     source.onerror = function (error) {
@@ -32,6 +34,10 @@ function initializeSSE() {
   }
 }
 
+// 서버로부터 새로운 알림 목록을 가져와 업데이트하는 함수
+function updateNotificationsListAndBadge() {
+  fetchNotifications(); // 서버로부터 최신 알림 목록을 가져옴
+}
 
 // 실시간으로 수신된 알림을 화면에 표시하는 함수
 function displayRealTimeNotification(data) {
@@ -140,6 +146,8 @@ function displayNotifications(notifications) {
       listItem.append(deleteButton);
 
       list.append(listItem);
+
+      list.prepend(listItem); // 새 알림을 목록의 맨 위에 추가
     });
   }
 }
@@ -178,15 +186,15 @@ function deleteNotification(notificationId) {
 
 // 읽지 않은 알림의 개수를 표시하는 함수
 function displayUnreadCount(unreadCount) {
-  var unreadCountBadge = $('#notification-count-badge'); // 알림 버튼 옆의 배지
-  var modalUnreadCountElement = $('#unread-count'); // 모달 창 내의 텍스트 요소
+  var unreadCountBadge = $('#notification-count-badge');
+  var modalUnreadCountElement = $('#unread-count');
 
   if(unreadCount > 0) {
-    unreadCountBadge.text(unreadCount); // 버튼 옆의 배지에 숫자만 표시
-    modalUnreadCountElement.text("읽지 않은 알림: " + unreadCount); // 모달 창 내의 텍스트를 '읽지 않은 알림: 숫자'로 업데이트
-    unreadCountBadge.show(); // 숨겨져 있었다면 배지를 보이게 처리
+    unreadCountBadge.text(unreadCount);
+    modalUnreadCountElement.text("읽지 않은 알림: " + unreadCount);
+    unreadCountBadge.show();
   } else {
-    unreadCountBadge.hide(); // 알림이 0개일 때는 배지를 숨김
-    modalUnreadCountElement.text("읽지 않은 알림이 없습니다."); // 모달 창 내 텍스트를 '읽지 않은 알림이 없습니다.'로 업데이트
+    unreadCountBadge.hide();
+    modalUnreadCountElement.text("읽지 않은 알림이 없습니다.");
   }
 }
