@@ -12,6 +12,7 @@ import com.example.jujuassembly.domain.review.entity.Review;
 import com.example.jujuassembly.domain.review.repository.ReviewRepository;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.global.exception.ApiException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -118,7 +119,20 @@ public class NotificationService {
           if (report.getUser() != null) {
             url = "/main/report";
             String statusString = report.getStatus().name().toString();
-            content = report.getUser().getNickname() + "님의 제보 상태가 " + statusString + "로 변경되었습니다.";
+
+            switch (statusString) {
+              case "PROCEEDING":
+                content = report.getUser().getNickname() + "님의 제보가 아직 진행중입니다.";
+                break;
+              case "ADOPTED":
+                content = report.getUser().getNickname() + "님의 제보가 채택되었습니다.";
+                break;
+              case "UN_ADOPTED":
+                content = report.getUser().getNickname() + "님의 제보가 비채택되었습니다.";
+                break;
+              default:
+                content = "알 수 없는 상태입니다.";
+            }
           }
         }
         break;
@@ -146,7 +160,8 @@ public class NotificationService {
   // SseEmitter 객체 사용하여 클라이언트에게 이벤트 전송하는 메서드
   public void sendToClient(SseEmitter emitter, String id, Object data) {
     try {
-      emitter.send(SseEmitter.event().id(id).name("sse").data(data));
+      String jsonData = new ObjectMapper().writeValueAsString(data);
+      emitter.send(SseEmitter.event().id(id).name("sse").data(jsonData));
     } catch (IOException exception) {
       emitterRepository.deleteById(id);
       log.error("SSE 연결 오류", exception);

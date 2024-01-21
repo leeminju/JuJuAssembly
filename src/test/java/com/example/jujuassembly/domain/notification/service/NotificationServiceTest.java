@@ -168,30 +168,6 @@ public class NotificationServiceTest {
     verify(emitterRepository, never()).deleteById(anyString());
   }
 
-  // @Test
-  // @DisplayName("SseEmitter를 통해 클라이언트에게 예외 발생시키고 예외 처리하는 테스트")
-  // public void testSendToClientWithException() throws IOException {
-  //   // Arrange
-  //   SseEmitter emitter = mock(SseEmitter.class);
-  //   String id = "1";
-  //   Object data = "Test data";
-
-  
-  //   // Mock 객체의 동작 설정: emitter.send() 메서드가 예외를 던지도록 설정
-  //   doThrow(new IOException("Test exception")).when(emitter).send(any(SseEmitter.SseEventBuilder.class));
-
-  
-  //   // Act
-  //   ApiException exception = assertThrows(ApiException.class, () -> {
-  //     notificationService.sendToClient(emitter, id, data);
-  //   });
-
-  //   // Assert
-  //   String expectedErrorMessage = "SSE 연결에 오류가 발생하였습니다.";
-  //   assertEquals(expectedErrorMessage, exception.getMsg());
-  //   verify(emitterRepository, times(1)).deleteById(eq(id));
-  // }
-
 
   @Test
   @DisplayName("사용자에게 새 알림을 생성하고 저장한 후, 해당 사용자의 모든 SSE 연결에 이 알림을 전송하는 테스트")

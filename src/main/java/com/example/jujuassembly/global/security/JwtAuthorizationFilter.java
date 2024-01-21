@@ -1,6 +1,9 @@
 package com.example.jujuassembly.global.security;
 
 
+import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
+import com.example.jujuassembly.domain.user.entity.UserRoleEnum.Authority;
+import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.jwt.JwtUtil;
 import com.example.jujuassembly.global.response.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,6 +41,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     if (Objects.nonNull(accessToken)) {
 
+      UserDetailsImpl userDetails;
+
       // 로그아웃이 되었는지 확인
       if (jwtUtil.checkIsLoggedOut(accessToken)) {
         accessToken = jwtUtil.createExpiredToken(accessToken);
@@ -72,7 +77,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         String username = info.getSubject();
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         // -> userDetails 에 담고
-        UserDetailsImpl userDetails = userDetailsService.getUserDetailsImpl(username);
+        userDetails = userDetailsService.getUserDetailsImpl(username);
         // -> authentication의 principal 에 담고
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
             userDetails.getAuthorities());
@@ -89,6 +94,18 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
         return;//return을 해줘야 결과 출력
       }
+
+      // BANNED 유저 확인
+      if (userDetails != null) {
+        if (userDetails.getUser().getRole().equals(UserRoleEnum.BANNED)) { //형식에 맞춰서
+          ApiResponse apiResponse = new ApiResponse("BANNED USER", HttpStatus.FORBIDDEN.value());
+          response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+          response.setContentType("application/json; charset=UTF-8");
+          response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
+          return;
+        }
+      }
+
     }
 
     filterChain.doFilter(request, response);
