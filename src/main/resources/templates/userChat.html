@@ -55,7 +55,7 @@
   var stompClient;
   var currentAdminId;
   var currentChatRoomId;
-  var hasFetchedChatHistory = false;
+
 
   var myId = -1;
   $(document).ready(function () {
@@ -68,6 +68,13 @@
       error(error, status, request) {
         alert("로그인이 필요한 서비스 입니다.");
         window.location.href = "/login"
+      }
+    });
+
+    $(document).on('keydown', function(event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
       }
     });
 
@@ -159,13 +166,24 @@
 
         // 웹소켓 연결
         connectWebSocket(chatRoomId);
+        clearChatContainer();
 
         // 채팅 모달 열기
         $('#chatModal').modal('show');
 
-        // 채팅 목록 표시 등의 동작을 수행
-        // ...
+        // shown.bs.modal 이벤트에 대한 핸들러 등록
+        $('#chatModal').on('shown.bs.modal', function () {
+          // ESC 키 이벤트 핸들러 등록
+          document.addEventListener('keydown', function (event) {
+            // ESC 키를 눌렀을 때 모달이 닫히지 않도록 막기
+            if (event.key === 'Escape') {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+          });
+        });
 
+        fetchChatHistory(chatRoomId);
         console.log(`Chat Room ID: ${chatRoomId}`);
       },
       error: function (error) {
@@ -187,17 +205,21 @@
       stompClient.subscribe(`/subscribe/rooms/${chatRoomId}`, function (response) {
         var message = JSON.parse(response.body);
         console.log(`채팅방 ${chatRoomId}에서 메시지 수신:`, message);
+          // 수신한 메시지를 채팅 창에 추가
+          addMessageToChatContainer(message.senderId, message.message);
 
-        // 채팅 기록을 이미 가져왔는지 여부 확인
-        if (!hasFetchedChatHistory) {
-          fetchChatHistory(chatRoomId);
-          hasFetchedChatHistory = true;
-        }
-
-        // 수신한 메시지를 채팅 창에 추가
-        addMessageToChatContainer(message.senderId, message.message);
       });
     });
+  }
+
+ //웹소켓 연결 종료 함수
+  function disconnectWebSocket() {
+    stompClient.unsubscribe(`/subscribe/rooms/${currentChatRoomId}`);
+    if (stompClient !== null && stompClient.connected) {
+      stompClient.disconnect(function () {
+        console.log('웹 소켓 연결이 종료되었습니다.');
+      });
+    }
   }
 
   function fetchChatHistory(chatRoomId) {
@@ -233,6 +255,17 @@
     chatContainer.append(messageHtml);
     // 스크롤을 가장 아래로 내림
     chatContainer.scrollTop(chatContainer.prop("scrollHeight"));
+  }
+
+  //채팅기록 비우는 메서드
+  function clearChatContainer() {
+    // "chatContainer"라는 ID를 가진 요소를 찾아서 내용을 비워줌
+    var chatContainer = $('#chatContainer');
+
+    // 채팅 창 내용 비우기
+    if (chatContainer.length) {
+      chatContainer.empty();
+    }
   }
 
   // 채팅 메시지 전송 함수
@@ -357,7 +390,7 @@
 
     </header>
     <div style="height: fit-content;">
-      <h1 style="    width: fit-content; margin: 10px auto 10px auto">고객과의 채팅</h1>
+      <h1 style="    width: fit-content; margin: 10px auto 10px auto">관리자와 채팅</h1>
       <div style="display: flex;
         flex-direction: column;
         align-items: center;
@@ -385,13 +418,13 @@
   </div>
 </div>
 <!-- 채팅창 모달 -->
-<div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel"
+<div class="modal fade" data-bs-backdrop="static" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel"
      aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="chatModalLabel">채팅창</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" onclick="disconnectWebSocket()" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <!-- 채팅창을 표시할 영역 -->
@@ -405,7 +438,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="disconnectWebSocket()">닫기</button>
       </div>
     </div>
   </div>
