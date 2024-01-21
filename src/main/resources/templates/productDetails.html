@@ -611,7 +611,14 @@
       </div>
       <div class="modal-body">
         <input type="text" class="form-control" id="create_description" placeholder="설명">
-        <input type="number" class="form-control" id="create_star" placeholder="별점 1점 ~ 5점 사이">
+        <select class="form-control" id="create_star" style="color: dimgray">
+          <option class="form-control" selected>별점선택</option>
+          <option value="1">⭐</option>
+          <option value="2">⭐⭐</option>
+          <option value="3">⭐⭐⭐</option>
+          <option value="4">⭐⭐⭐⭐</option>
+          <option value="5">⭐⭐⭐⭐⭐</option>
+        </select>
         <input type="text" class="form-control" id="create_munchies" placeholder="추천 안주">
         <input type="file" accept="image/*" id="create_review_image" multiple>
       </div>
@@ -637,7 +644,14 @@
       </div>
       <div class="modal-body">
         <input type="text" class="form-control" id="update_description" placeholder="설명">
-        <input type="number" class="form-control" id="update_star" placeholder="별점 1점 ~ 5점 사이">
+        <select class="form-control" id="update_star" style="color: dimgray">
+          <option class="form-control" selected placeholder="별점선택">별점선택</option>
+          <option value="1">⭐</option>
+          <option value="2">⭐⭐</option>
+          <option value="3">⭐⭐⭐</option>
+          <option value="4">⭐⭐⭐⭐</option>
+          <option value="5">⭐⭐⭐⭐⭐</option>
+        </select>
         <input type="text" class="form-control" id="update_munchies" placeholder="추천 안주">
         <input type="file" accept="image/*" id="update_review_image" multiple>
       </div>
