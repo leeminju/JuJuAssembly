@@ -1,6 +1,7 @@
 package com.example.jujuassembly.domain.reviewLike.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -21,6 +22,7 @@ import com.example.jujuassembly.domain.reviewLike.entity.ReviewLikeStatusEnum;
 import com.example.jujuassembly.domain.reviewLike.repository.ReviewLikeRepository;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
+import com.example.jujuassembly.global.exception.ApiException;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -58,8 +60,11 @@ class ReviewLikeServiceTest {
   private Long reviewId = 3L;
   private Long reviewLikeId = 4L;
   private Long userId = 5L;
+  private Long reviewUserId = 6L;
   private String loginId = "tester";
+  private String reviewUserLoginId = "tester2";
   private User user;
+  private User reviewUser;
   private Product product;
   private Category category;
   private Review review;
@@ -69,10 +74,11 @@ class ReviewLikeServiceTest {
   void setUp() {
     // Mock 객체 생성 및 초기화
     user = User.builder().id(userId).loginId(loginId).build();
+    reviewUser = User.builder().id(reviewUserId).loginId(reviewUserLoginId).build();
+
     category = Category.builder().id(categoryId).build();
     product = Product.builder().id(productId).category(category).build();
-    review = Review.builder().id(reviewId).product(product).build();
-
+    review = Review.builder().id(reviewId).product(product).user(reviewUser).build();
 
     when(productRepository.getById(productId)).thenReturn(product);
     when(categoryRepository.getById(categoryId)).thenReturn(category);
@@ -119,18 +125,12 @@ class ReviewLikeServiceTest {
         Optional.of(mockReviewLike));
 
     // when
-    Optional<ReviewLikeResponseDto> result = reviewLikeService.likeReview(categoryId,
-        productId,
-        reviewId, user);
-
-    // then
-    assertTrue(result.isPresent());
-    result.ifPresent(actualValue -> {
-      assertEquals(reviewId, actualValue.getReviewId());
-      assertEquals(reviewLikeId, actualValue.getId());
-      assertEquals(ReviewLikeStatusEnum.LIKE, actualValue.getStatus());
-      assertEquals(loginId, actualValue.getUserLoginId());
+    ApiException exception = assertThrows(ApiException.class, () -> {
+      reviewLikeService.likeReview(categoryId,
+          productId, reviewId, user);
     });
+    // then
+    assertEquals("이미 비추천을 눌렀습니다", exception.getMsg());
   }
 
   @Test
@@ -192,19 +192,14 @@ class ReviewLikeServiceTest {
         Optional.of(mockReviewLike));
 
     // when
-    Optional<ReviewLikeResponseDto> result = reviewLikeService.dislikeReview(categoryId,
-        productId,
-        reviewId, user);
-
-    // then
-    assertTrue(result.isPresent());
-    result.ifPresent(actualValue -> {
-      assertEquals(reviewId, actualValue.getReviewId());
-      assertEquals(reviewLikeId, actualValue.getId());
-      assertEquals(ReviewLikeStatusEnum.DISLIKE, actualValue.getStatus());
-      assertEquals(loginId, actualValue.getUserLoginId());
+    ApiException exception = assertThrows(ApiException.class, () -> {
+      reviewLikeService.dislikeReview(categoryId,
+          productId, reviewId, user);
     });
+    // then
+    assertEquals("이미 추천을 눌렀습니다", exception.getMsg());
   }
+
 
   @Test
   @DisplayName("리뷰 비추천 해제 테스트")

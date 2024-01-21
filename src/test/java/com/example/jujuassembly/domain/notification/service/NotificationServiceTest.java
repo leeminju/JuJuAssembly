@@ -58,6 +58,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEvent
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class NotificationServiceTest {
+
   @Mock
   SseEmitter emitter1;
   @Mock
@@ -175,9 +176,11 @@ public class NotificationServiceTest {
   //   String id = "1";
   //   Object data = "Test data";
 
+  
   //   // Mock 객체의 동작 설정: emitter.send() 메서드가 예외를 던지도록 설정
   //   doThrow(new IOException("Test exception")).when(emitter).send(any(SseEmitter.SseEventBuilder.class));
 
+  
   //   // Act
   //   ApiException exception = assertThrows(ApiException.class, () -> {
   //     notificationService.sendToClient(emitter, id, data);
@@ -237,9 +240,6 @@ public class NotificationServiceTest {
   }
 
 
-
-
-
   @Test
   @DisplayName("알림 생성 테스트")
   void createNotificationTest() {
@@ -262,7 +262,7 @@ public class NotificationServiceTest {
     assertNotNull(notification);
     assertEquals(user, notification.getUser());
     assertEquals("ActionUserNickname님이 UserNickname님의 리뷰에 좋아요를 눌렀습니다.", notification.getContent());
-    assertEquals("/v1/categories/10/products/100#review-1000", notification.getUrl());
+    assertEquals("/productDetails?productId=100&categoryId=10", notification.getUrl());
     assertFalse(notification.isRead());
   }
 
@@ -397,7 +397,8 @@ public class NotificationServiceTest {
     List<Notification> mockNotifications = List.of(mockNotification1, mockNotification2);
 
     // NotificationRepository의 findByEntityTypeAndEntityId 메서드가 mockNotifications를 반환하도록 설정
-    when(notificationRepository.findByEntityTypeAndEntityId(entityType, entityId)).thenReturn(mockNotifications);
+    when(notificationRepository.findByEntityTypeAndEntityId(entityType, entityId)).thenReturn(
+        mockNotifications);
 
     // NotificationRepository의 deleteAll 메서드가 아무 것도 하지 않도록 설정
     doNothing().when(notificationRepository).deleteAll(mockNotifications);
