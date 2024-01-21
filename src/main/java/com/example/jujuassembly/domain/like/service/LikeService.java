@@ -68,18 +68,6 @@ public class LikeService {
     likeRepository.delete(like);
   }
 
-  //본인 좋아요 목록 LikeResponseDtof로 조회
-  public List<LikeResponseDto> toLikeResponseDtoList(User user) {
-    Long userId = user.getId();
-    List<Like> likeList = likeRepository.findAllByUserId(userId);
-    List<LikeResponseDto> likeResponseDtoList = new ArrayList<>();
-    likeList.forEach(like -> {
-      var likeResponseDto = new LikeResponseDto(like);
-      likeResponseDtoList.add(likeResponseDto);
-    });
-    return likeResponseDtoList;
-  }
-
   public Boolean getLike(Long productId, User user) {
     Product product = productRepository.getById(productId);
     return likeRepository.existsByProductAndUser(product, user);
