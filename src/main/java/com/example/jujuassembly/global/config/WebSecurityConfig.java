@@ -1,6 +1,7 @@
 package com.example.jujuassembly.global.config;
 
 import com.example.jujuassembly.global.jwt.JwtUtil;
+import com.example.jujuassembly.global.security.CustomAccessDeniedHandler;
 import com.example.jujuassembly.global.security.CustomAuthenticationEntryPoint;
 import com.example.jujuassembly.global.security.JwtAuthorizationFilter;
 import com.example.jujuassembly.global.security.UserDetailsService;
@@ -17,7 +18,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -28,7 +28,7 @@ public class WebSecurityConfig {
 
   private final JwtUtil jwtUtil;
   private final UserDetailsService userDetailsService;
-  private final AccessDeniedHandler customAccessDeniedHandler;
+  private final CustomAccessDeniedHandler customAccessDeniedHandler;
   private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
   private final ObjectMapper objectMapper;
 
@@ -75,9 +75,8 @@ public class WebSecurityConfig {
 
     // 필터 관리
     http.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
-        .exceptionHandling(handler -> handler.accessDeniedHandler(customAccessDeniedHandler));
-//        .exceptionHandling(
-//            handler -> handler.authenticationEntryPoint(customAuthenticationEntryPoint));
+        .exceptionHandling(handler -> handler.accessDeniedHandler(customAccessDeniedHandler))
+        .exceptionHandling(handler -> handler.authenticationEntryPoint(customAuthenticationEntryPoint));
 
     return http.build();
   }

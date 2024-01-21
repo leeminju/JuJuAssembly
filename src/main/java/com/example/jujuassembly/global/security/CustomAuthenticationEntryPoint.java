@@ -25,7 +25,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
             throws IOException {
 
         String responseBody = objectMapper.writeValueAsString(
-            new ApiResponse("토큰이 유효하지 않습니다.",HttpStatus.UNAUTHORIZED.value()) );
+            new ApiResponse("토큰이 유효하지 않거나 만료되었습니다. 다시 로그인 해주세요.",HttpStatus.UNAUTHORIZED.value()) );
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
