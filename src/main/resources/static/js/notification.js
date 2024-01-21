@@ -15,7 +15,7 @@ $(document).ready(function () {
 // SSE 구독을 위한 함수
 function initializeSSE() {
   if (!!window.EventSource) {
-    source = new EventSource('http://ec2-54-180-83-232.ap-northeast-2.compute.amazonaws.com:8080/v1/notification/subscribe');
+    source = new EventSource('/v1/notification/subscribe');
 
     source.addEventListener("sse", function (event) {
       var data = JSON.parse(event.data);
