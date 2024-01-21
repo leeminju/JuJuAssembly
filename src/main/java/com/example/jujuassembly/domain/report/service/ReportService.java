@@ -31,7 +31,6 @@ public class ReportService {
   private final CategoryRepository categoryRepository;
 
   private final NotificationService notificationService;
-  private final NotificationRepository notificationRepository;
 
 
   //생성

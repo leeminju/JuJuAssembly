@@ -97,8 +97,19 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
       // BANNED 유저 확인
       if (userDetails != null) {
-        if (userDetails.getUser().getRole().equals(UserRoleEnum.BANNED)) { //형식에 맞춰서
+        if (userDetails.getUser().getRole().equals(UserRoleEnum.BANNED)) {
           ApiResponse apiResponse = new ApiResponse("BANNED USER", HttpStatus.FORBIDDEN.value());
+          response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+          response.setContentType("application/json; charset=UTF-8");
+          response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
+          return;
+        }
+      }
+
+      // 회원 탈퇴한 유저인지 확인
+      if (userDetails != null) {
+        if (userDetails.getUser().getIsArchived()) {
+          ApiResponse apiResponse = new ApiResponse("이미 회원 탈퇴한 유저입니다.", HttpStatus.FORBIDDEN.value());
           response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
           response.setContentType("application/json; charset=UTF-8");
           response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
