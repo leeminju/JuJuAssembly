@@ -113,7 +113,8 @@ function displayNotifications(notifications) {
     list.append('<li>새로운 알림이 없습니다.</li>');
   } else {
     notifications.forEach(function(notification) {
-      var listItem = $('<li>').addClass('notification-item');
+      // 부모 요소에 relative positioning 추가
+      var listItem = $('<li>').addClass('notification-item').css('position', 'relative');
       var content = $('<span>').text(notification.content);
 
       if (notification.read) {
@@ -133,8 +134,11 @@ function displayNotifications(notifications) {
 
       // 삭제 버튼 (옵션)
       var deleteButton = $('<button>').text('delete').css({
-        'border-radius': '15px',
-        'margin-left': '200px',
+        'position': 'absolute',  // 버튼을 listItem에 상대적으로 위치시킴
+        'right': '10px',         // 오른쪽 여백 설정
+        'top': '50%',            // 버튼을 상위 요소의 중앙에 위치시킴
+        'transform': 'translateY(-50%)', // 버튼을 정확히 중앙에 위치시키기 위해 Y축 기준으로 -50% 조정
+        'border-radius': '30px',
         'border-style': 'none',
         'font-size': '15px',
         'font-variant': 'all-small-caps',
