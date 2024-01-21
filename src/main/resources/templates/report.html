@@ -37,11 +37,8 @@
       },
 
       error(error, status, request) {
-        if (error['responseJSON']['data']) {
-          alert(JSON.stringify(error['responseJSON']['data']));
-        } else {
-          alert(error['responseJSON']['msg']);
-        }
+        alert("로그인이 필요한 서비스 입니다.");
+        window.location.href = "/login"
       }
     });
     getCategory('categoryId');
@@ -340,11 +337,11 @@
 
     </header>
     <div style="height: fit-content;width: 60%;margin: auto">
-      <h2 style="display: flex;
+      <h1 style="display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 10px">상품 제보</h2>
+        padding: 10px">상품 제보</h1>
 
       <div style="display: flex;
       flex-direction: column;

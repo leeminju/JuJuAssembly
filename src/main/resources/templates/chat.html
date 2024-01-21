@@ -95,7 +95,7 @@
       totalNumberLocator: (response) => {
         return response.data.totalElements;
       },
-      pageSize: 80,
+      pageSize: 9,
       showPrevious: true,
       showNext: true,
       ajax: {
@@ -108,19 +108,19 @@
         let users = response;
         for (let i = 0; i < users.length; i++) {
           let user = users[i];
-            let userId = user['id'];
-            let image = user['image'];
-            let loginId = user['loginId']
-            let nickname = user['nickname']
-            let email = user['email']
-            let role = user['role'];
-            let firstPreferredCategoryId = user['firstPreferredCategoryId'];
-            let secondPreferredCategoryId = user['secondPreferredCategoryId'];
+          let userId = user['id'];
+          let image = user['image'];
+          let loginId = user['loginId']
+          let nickname = user['nickname']
+          let email = user['email']
+          let role = user['role'];
+          let firstPreferredCategoryId = user['firstPreferredCategoryId'];
+          let secondPreferredCategoryId = user['secondPreferredCategoryId'];
 
-            if (!image) {
-              image = "/images/default_user_image.png"
-            }
-            let html = `<div class="d-flex text-body-secondary pt-3">
+          if (!image) {
+            image = "/images/default_user_image.png"
+          }
+          let html = `<div class="d-flex text-body-secondary pt-3">
         <img style="margin: 7px; width: 40px;height: 40px;object-fit: contain;" src=${image}>
         <p class="pb-3 mb-0 small lh-sm border-bottom"  style="display: flex;flex-direction: row;justify-content: center;">
            <div style="width: 80%">
@@ -134,7 +134,7 @@
 
         </p>
     </div>`;
-            $('#userList').append(html);
+          $('#userList').append(html);
 
         }
       }, error(error, status, request) {
@@ -165,7 +165,6 @@
 
         // 채팅 모달 열기
         $('#chatModal').modal('show');
-
 
         // 채팅 기록을 이미 가져왔는지 여부 확인
         if (!hasFetchedChatHistory) {
@@ -220,13 +219,15 @@
       }
     });
   }
+
   //채팅창에추가하는 메서드
   function addMessageToChatContainer(senderId, message) {
     // 채팅창 영역을 가져옴
     var chatContainer = $('#chatContainer');
 
     // 메시지를 표시할 HTML 생성
-    var messageHtml = `<div class="chat-message ${senderId === myId ? 'sent' : 'received'}">${message}</div>`;
+    var messageHtml = `<div class="chat-message ${senderId === myId ? 'sent'
+        : 'received'}">${message}</div>`;
 
     // 생성한 HTML을 채팅창에 추가
     chatContainer.append(messageHtml);
@@ -244,7 +245,6 @@
       "receiverId": currentUserId,
       "message": message
     }));
-
 
     // 메시지 입력 창 초기화
     $('#chatMessageInput').val('');
@@ -358,7 +358,7 @@
 
 
     <div style="height: fit-content;">
-      <h6 class="border-bottom pb-2 mb-0">관리자 목록</h6>
+      <h1 style="    width: fit-content; margin: 10px auto 10px auto">고객 센터</h1>
       <div style="display: flex;
         flex-direction: column;
         align-items: center;
@@ -377,14 +377,18 @@
       </div>
 
       <div class="my-3 p-3 bg-body rounded shadow-sm"
-           style="margin: 10px auto 10px auto;width: 60%;"
-           id="userList" >
+           style="margin: 10px auto 10px auto;width: 60%;">
+        <h6 class="border-bottom pb-2 mb-0">회원 목록</h6>
+        <div id="userList">
+
+        </div>
       </div>
     </div>
   </div>
 </div>
 <!-- 채팅창 모달 -->
-<div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
+<div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel"
+     aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
@@ -398,7 +402,8 @@
         <!-- 메시지 전송 버튼 -->
         <div class="input-group mb-3">
           <input type="text" class="form-control" id="chatMessageInput" placeholder="메시지를 입력하세요">
-          <button class="btn btn-primary" id="sendMessageBtn" onclick="sendChatMessage()">전송</button>
+          <button class="btn btn-primary" id="sendMessageBtn" onclick="sendChatMessage()">전송
+          </button>
         </div>
       </div>
       <div class="modal-footer">
@@ -432,31 +437,6 @@
     </div>
   </div>
 
-  <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-       aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
-          <div class="modal-title" id="exampleModalLabel" style="
-             margin-right: 10px;
-              font-size: 25px;
-              font-weight: bold;">알림 목록
-          </div>
-          <div id="unread-count">읽지 않은 알림: 0</div>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"
-                  aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-
-          <!-- 알림 목록이 여기에 표시 -->
-          <ul id="notification-list" style="list-style-type: none;"></ul>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
 
 </div>
 </body>
