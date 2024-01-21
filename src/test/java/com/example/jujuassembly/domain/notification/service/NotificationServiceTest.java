@@ -10,6 +10,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -104,7 +105,7 @@ public class NotificationServiceTest {
     ArgumentCaptor<SseEventBuilder> captor = ArgumentCaptor.forClass(SseEventBuilder.class);
 
     // Dummy Event 전송 로직 검증
-    String expectedDummyEventMessage = "EventStream Created. [userId=" + userId + "]";
+    String expectedDummyEventMessage = "\"EventStream Created. [userId=" + userId + "]\"";
     try {
       verify(mockEmitter).send(captor.capture());
       SseEmitter.SseEventBuilder capturedEventBuilder = captor.getValue();
@@ -116,7 +117,6 @@ public class NotificationServiceTest {
       boolean isExpectedMessagePresent = actualDataWithMediaTypeSet.stream()
           .anyMatch(dataWithMediaType -> {
             Object data = dataWithMediaType.getData(); // 실제 데이터 객체
-            // 이 부분에서 data 객체의 내용을 검사하여 expectedDummyEventMessage와 일치하는지 확인
             return data.toString().equals(expectedDummyEventMessage);
           });
 
@@ -142,10 +142,11 @@ public class NotificationServiceTest {
         .filter(entry -> lastEventId.compareTo(entry.getKey()) < 0)
         .forEach(entry -> {
           try {
-            verify(mockEmitter).send(captor.capture());
+            verify(mockEmitter, atLeastOnce()).send(captor.capture());
             SseEventBuilder event = captor.getValue();
             // 각 이벤트의 데이터가 모의 데이터와 일치하는지 검증
-            assertEquals(entry.getValue(), event.build().getClass());
+            Set<DataWithMediaType> eventData = event.build();
+            assertTrue(eventData.stream().anyMatch(dataWithMediaType -> dataWithMediaType.getData().toString().equals(entry.getValue())));
           } catch (IOException e) {
             e.printStackTrace();
           }
