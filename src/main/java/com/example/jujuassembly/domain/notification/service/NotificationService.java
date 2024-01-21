@@ -12,6 +12,7 @@ import com.example.jujuassembly.domain.review.entity.Review;
 import com.example.jujuassembly.domain.review.repository.ReviewRepository;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.global.exception.ApiException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -159,7 +160,8 @@ public class NotificationService {
   // SseEmitter 객체 사용하여 클라이언트에게 이벤트 전송하는 메서드
   public void sendToClient(SseEmitter emitter, String id, Object data) {
     try {
-      emitter.send(SseEmitter.event().id(id).name("sse").data(data));
+      String jsonData = new ObjectMapper().writeValueAsString(data);
+      emitter.send(SseEmitter.event().id(id).name("sse").data(jsonData));
     } catch (IOException exception) {
       emitterRepository.deleteById(id);
       log.error("SSE 연결 오류", exception);
