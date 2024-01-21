@@ -23,8 +23,9 @@
   <script src="/js/basic.js"></script>
   <script src="/js/notification.js"></script>
   <script>
-
+    var myId = -1;
     var userId = -1;
+    var role = null;
     var update_imageFile = null;
     var currentCategoryId = null;
     var currentProductId = null;
@@ -35,12 +36,39 @@
 
       // 특정 매개변수 값 가져오기
       userId = parsedParams['userId'];
+      getMyprofile()
       getUserReview();
       $("#update_review_image").on("change", function (event) {
         update_imageFile = event.target.files;
       });
 
     })
+
+    function getMyprofile() {
+      //로그인한 회원 정보
+      const auth = getToken();
+
+      if (auth !== undefined && auth !== '') {
+        $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+          jqXHR.setRequestHeader('Authorization', auth);
+        });
+      } else {
+        return;
+      }
+
+      $.ajax({
+        type: 'GET',
+        url: `/v1/users/myprofile`,
+        success: function (response) {
+          let user = response['data'];
+          role = user['role'];
+          myId = user['id'];
+        },
+        error(error, status, request) {
+          console.log(error)
+        }
+      });
+    }
 
     // 쿼리 문자열을 객체로 파싱하는 함수
     function parseQueryString(url) {
@@ -104,6 +132,8 @@
             let munchies = review['munchies'];
             let star = review['star'];
             let isVerified = review['isVerified'];
+            let userNickname = review['user']['nickname'];
+            $('#review_user_nickname').text(userNickname);
 
             let createdAt_Text = calulateTime(createdAt);
             let modifiedAt_Text = calulateTime(modifiedAt);
@@ -132,9 +162,9 @@
         <p></p>
         <small id="modifiedAt-${id}" class="text-body-secondary">${modifiedAt_Text} 수정</small>
        <div>
-        <button onclick="updateId('${categoryId}','${productId}','${id}','${description}','${star}','${munchies}')" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#updateReview"
+        <button id="update_review_btn-${id}" onclick="updateId('${categoryId}','${productId}','${id}','${description}','${star}','${munchies}')" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#updateReview"
         class="btn btn-light">수정</button>
-        <button onclick="removeReview(${categoryId},${productId},${id})" class="btn btn-light">삭제</button>
+        <button id="delete_review_btn-${id}" ="removeReview(${categoryId},${productId},${id})" class="btn btn-light">삭제</button>
         <button onclick="verify('${categoryId}','${productId}','${id}')" id="verify_btn-${id}" class="btn btn-light"></button>
         </div>
       </div>
@@ -156,6 +186,15 @@
             } else {
               $('#verify_btn-' + id).text("인증 처리");
               $('#verifiy_mark-' + id).hide();
+            }
+
+            if (role != "ADMIN") {
+              $('#verify_btn-' + id).hide();
+            }
+
+            if (myId != userId && role != "ADMIN") {
+              $('#update_review_btn-' + id).hide();
+              $('#delete_review_btn-' + id).hide();
             }
           }
         }
@@ -327,7 +366,7 @@
         <li><a href="/" class="nav-link px-2">주주 총회 소개</a></li>
         <li><a href="/main/product" class="nav-link px-2">주류 목록 보기</a></li>
         <li><a href="/main/report" class="nav-link px-2">주류 제보 하기</a></li>
-        <li><a href="/main/myLike" class="nav-link px-2 link-secondary">내가 찜한 주류</a></li>
+        <li><a href="/main/myLike" class="nav-link px-2">내가 찜한 주류</a></li>
         <li><a href="/main/myReview" class="nav-link px-2">내가 쓴 리뷰</a></li>
         <li><a href="/main/chat" class="nav-link px-2">고객 센터</a></li>
       </ul>
@@ -375,6 +414,8 @@
 
     </header>
     <div style="height: fit-content;">
+      <h1 style="margin: 10px auto 10px auto;width: fit-content;"><span
+          id="review_user_nickname"></span>님의 리뷰 목록</h1>
       <div style="display: flex;
     flex-direction: column;
     align-items: center;
