@@ -90,11 +90,8 @@
         userId = response['data']['id'];
       },
       error(error, status, request) {
-        if (error['responseJSON']['data']) {
-          alert(error['responseJSON']['data']);
-        } else {
-          alert(error['responseJSON']['msg']);
-        }
+        alert("로그인이 필요한 서비스 입니다.");
+        window.location.href = "/login"
       }
     });
 
