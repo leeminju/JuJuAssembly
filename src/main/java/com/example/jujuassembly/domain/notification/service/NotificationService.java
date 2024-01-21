@@ -118,7 +118,20 @@ public class NotificationService {
           if (report.getUser() != null) {
             url = "/main/report";
             String statusString = report.getStatus().name().toString();
-            content = report.getUser().getNickname() + "님의 제보 상태가 " + statusString + "로 변경되었습니다.";
+
+            switch (statusString) {
+              case "PROCEEDING":
+                content = report.getUser().getNickname() + "님의 제보가 아직 진행중입니다.";
+                break;
+              case "ADOPTED":
+                content = report.getUser().getNickname() + "님의 제보가 채택되었습니다.";
+                break;
+              case "UN_ADOPTED":
+                content = report.getUser().getNickname() + "님의 제보가 비채택되었습니다.";
+                break;
+              default:
+                content = "알 수 없는 상태입니다.";
+            }
           }
         }
         break;
