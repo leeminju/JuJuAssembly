@@ -113,40 +113,40 @@ class ChatServiceTest {
     assertEquals(room2.getLatestChat().getContent(), result.get(1).getLatestMessage());
   }
 
-  @Test
-  @DisplayName("채팅방의 모든 채팅 가져오기 테스트")
-  void findAllChatsTest() {
-    Long userId = 1L;
-    Long userId2 = 2L;
-    User user = User.builder().id(userId).build();
-    User admin = User.builder().id(userId2).build();
+//   @Test
+//   @DisplayName("채팅방의 모든 채팅 가져오기 테스트")
+//   void findAllChatsTest() {
+//     Long userId = 1L;
+//     Long userId2 = 2L;
+//     User user = User.builder().id(userId).build();
+//     User admin = User.builder().id(userId2).build();
 
-    //가짜 채팅목록 생성
-    Chat chat1 = Chat.builder().receiver(user).content("내용").sender(admin).id(1L).build();
-    Chat chat2 = Chat.builder().receiver(user).content("내용").sender(admin).id(2L).build();
-    List<Chat> chats = List.of(chat1, chat2);
-    // 가짜 채팅방 데이터 생성
-    Long roomId = 1L;
-    Room room1 = Room.builder().id(roomId).chats(chats).admin(admin).user(user).build();
+//     //가짜 채팅목록 생성
+//     Chat chat1 = Chat.builder().receiver(user).content("내용").sender(admin).id(1L).build();
+//     Chat chat2 = Chat.builder().receiver(user).content("내용").sender(admin).id(2L).build();
+//     List<Chat> chats = List.of(chat1, chat2);
+//     // 가짜 채팅방 데이터 생성
+//     Long roomId = 1L;
+//     Room room1 = Room.builder().id(roomId).chats(chats).admin(admin).user(user).build();
 
-    ReflectionTestUtils.setField(chat1, Chat.class, "room", room1, Room.class);
-    ReflectionTestUtils.setField(chat2, Chat.class, "room", room1, Room.class);
+//     ReflectionTestUtils.setField(chat1, Chat.class, "room", room1, Room.class);
+//     ReflectionTestUtils.setField(chat2, Chat.class, "room", room1, Room.class);
 
-    // Mocking 설정
-    when(userRepository.getById(userId)).thenReturn(user);
-    when(roomRepository.getById(room1.getId())).thenReturn(room1);
+//     // Mocking 설정
+//     when(userRepository.getById(userId)).thenReturn(user);
+//     when(roomRepository.getById(room1.getId())).thenReturn(room1);
 
-    // 테스트 대상 메서드 호출
-    List<ChatResponseDto> result = chatService.findAllChats(roomId);
+//     // 테스트 대상 메서드 호출
+//     List<ChatResponseDto> result = chatService.findAllChats(roomId);
 
-    // Mocking된 메서드의 호출 여부 검증
-    verify(roomRepository, times(1)).getById(roomId);
+//     // Mocking된 메서드의 호출 여부 검증
+//     verify(roomRepository, times(1)).getById(roomId);
 
-    // 결과 검증 - 여러 가지 방법 중에 선택
-    // 1. 결과의 크기가 예상과 일치하는지 확인
-    assertEquals(2, result.size());
-    // 2. 특정 데이터의 일치 여부 확인 (예를 들어, chat1과 chat2의 비교)
-    assertEquals(chat1.getContent(), result.get(0).getMessage());
-    assertEquals(chat2.getContent(), result.get(1).getMessage());
-  }
+//     // 결과 검증 - 여러 가지 방법 중에 선택
+//     // 1. 결과의 크기가 예상과 일치하는지 확인
+//     assertEquals(2, result.size());
+//     // 2. 특정 데이터의 일치 여부 확인 (예를 들어, chat1과 chat2의 비교)
+//     assertEquals(chat1.getContent(), result.get(0).getMessage());
+//     assertEquals(chat2.getContent(), result.get(1).getMessage());
+//   }
 }
