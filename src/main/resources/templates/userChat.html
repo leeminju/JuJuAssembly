@@ -66,11 +66,8 @@
         myId = response['data']['id'];
       },
       error(error, status, request) {
-        if (error['responseJSON']['data']) {
-          alert(error['responseJSON']['data']);
-        } else {
-          alert(error['responseJSON']['msg']);
-        }
+        alert("로그인이 필요한 서비스 입니다.");
+        window.location.href = "/login"
       }
     });
 
@@ -83,7 +80,7 @@
 
     let dataSource = `/v1/users?sort=${sorting},${isAsc}`;
 
-    $('#adminList').empty();
+
     $('#pagination').pagination({
       dataSource,
       locator: 'data.content',
@@ -94,7 +91,7 @@
       totalNumberLocator: (response) => {
         return response.data.totalElements;
       },
-      pageSize: 80,
+      pageSize: 9,
       showPrevious: true,
       showNext: true,
       ajax: {
@@ -103,7 +100,6 @@
         }
       },
       callback: function (response, pagination) {
-        $('#adminList').empty();
         let users = response;
         for (let i = 0; i < users.length; i++) {
           let user = users[i];
@@ -222,13 +218,15 @@
       }
     });
   }
-//채팅창에추가하는 메서드
+
+  //채팅창에추가하는 메서드
   function addMessageToChatContainer(senderId, message) {
     // 채팅창 영역을 가져옴
     var chatContainer = $('#chatContainer');
 
     // 메시지를 표시할 HTML 생성
-    var messageHtml = `<div class="chat-message ${senderId === myId ? 'sent' : 'received'}">${message}</div>`;
+    var messageHtml = `<div class="chat-message ${senderId === myId ? 'sent'
+        : 'received'}">${message}</div>`;
 
     // 생성한 HTML을 채팅창에 추가
     chatContainer.append(messageHtml);
@@ -246,7 +244,6 @@
       "receiverId": currentAdminId,
       "message": message
     }));
-
 
     // 메시지 입력 창 초기화
     $('#chatMessageInput').val('');
@@ -328,13 +325,15 @@
         <!-- 알림 버튼 -->
         <button data-bs-toggle="modal"
                 data-bs-target="#notificationModal"
-                id="notification-btn" style="background-color: transparent; border: transparent; position: relative; margin-right: 15px; padding: 0; border-radius: 50%;">
+                id="notification-btn"
+                style="background-color: transparent; border: transparent; position: relative; margin-right: 15px; padding: 0; border-radius: 50%;">
           <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
                class="bi bi-bell" viewBox="0 0 16 16">
             <path
                 d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6"/>
           </svg>
-          <span id="notification-count-badge" style="position: absolute; top: -7px; right: -7px; background-color: red; color: white; border-radius: 50%; font-size: 12px; padding: 3px 6px;">0</span>
+          <span id="notification-count-badge"
+                style="position: absolute; top: -7px; right: -7px; background-color: red; color: white; border-radius: 50%; font-size: 12px; padding: 3px 6px;">0</span>
         </button>
 
         <button id="sign-in-btn" class="btn btn-info" onclick="location.href='/login'">
@@ -357,7 +356,7 @@
 
     </header>
     <div style="height: fit-content;">
-      <h6 class="border-bottom pb-2 mb-0">관리자 목록</h6>
+
       <div style="display: flex;
         flex-direction: column;
         align-items: center;
@@ -377,13 +376,15 @@
 
       <div class="my-3 p-3 bg-body rounded shadow-sm"
            style="margin: 10px auto 10px auto;width: 60%;"
-           id="adminList" >
+           id="adminList">
+        <h6 class="border-bottom pb-2 mb-0">관리자 목록</h6>
       </div>
     </div>
   </div>
 </div>
 <!-- 채팅창 모달 -->
-<div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
+<div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel"
+     aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
@@ -397,7 +398,8 @@
         <!-- 메시지 전송 버튼 -->
         <div class="input-group mb-3">
           <input type="text" class="form-control" id="chatMessageInput" placeholder="메시지를 입력하세요">
-          <button class="btn btn-primary" id="sendMessageBtn" onclick="sendChatMessage()">전송</button>
+          <button class="btn btn-primary" id="sendMessageBtn" onclick="sendChatMessage()">전송
+          </button>
         </div>
       </div>
       <div class="modal-footer">

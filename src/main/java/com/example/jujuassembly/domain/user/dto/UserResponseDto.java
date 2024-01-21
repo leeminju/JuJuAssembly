@@ -14,14 +14,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode
 public class UserResponseDto {
-
+  private Long id;
   private String loginId;
   private String nickname;
   private String email;
+  private String image;
 
   public UserResponseDto(User user) {
+    this.id = user.getId();
     this.loginId = user.getLoginId();
     this.nickname = user.getNickname();
     this.email = user.getEmail();
+    this.image = user.getImage();
   }
 }
