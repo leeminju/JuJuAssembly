@@ -120,15 +120,12 @@
 
             let id = review['id'];
             let images = review['images'];
-            let productImage = review['productImage'];
             let categoryId = review['categoryId'];
             let productId = review['productId'];
             let productName = review['productName'];
             let description = review['description'];
             let createdAt = review['createdAt'];
             let modifiedAt = review['modifiedAt'];
-            let likeCount = review['likeCount'];
-            let dislikeCount = review['dislikeCount'];
             let munchies = review['munchies'];
             let star = review['star'];
             let isVerified = review['isVerified'];
@@ -164,7 +161,7 @@
        <div>
         <button id="update_review_btn-${id}" onclick="updateId('${categoryId}','${productId}','${id}','${description}','${star}','${munchies}')" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#updateReview"
         class="btn btn-light">수정</button>
-        <button id="delete_review_btn-${id}" ="removeReview(${categoryId},${productId},${id})" class="btn btn-light">삭제</button>
+        <button id="delete_review_btn-${id}" onclick="removeReview(${categoryId},${productId},${id})" class="btn btn-light">삭제</button>
         <button onclick="verify('${categoryId}','${productId}','${id}')" id="verify_btn-${id}" class="btn btn-light"></button>
         </div>
       </div>

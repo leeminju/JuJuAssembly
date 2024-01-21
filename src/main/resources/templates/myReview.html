@@ -21,6 +21,259 @@
   <script src="/js/notification.js"></script>
   <link rel="stylesheet" href="/css/style.css">
 </head>
+<script>
+  var role = null;
+  var myId = null;
+
+  var update_imageFile = null;
+  var currentCategoryId = null;
+  var currentProductId = null;
+
+  $(document).ready(function () {
+    getMyprofile()
+
+    $("#update_review_image").on("change", function (event) {
+      update_imageFile = event.target.files;
+    });
+
+  })
+
+  function getMyprofile() {
+    //로그인한 회원 정보
+    const auth = getToken();
+
+    if (auth !== undefined && auth !== '') {
+      $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+        jqXHR.setRequestHeader('Authorization', auth);
+      });
+    } else {
+      alert("로그인해야 이용가능 합니다.")
+      window.location.href = "/login";
+      return;
+    }
+
+    $.ajax({
+      type: 'GET',
+      url: `/v1/users/myprofile`,
+      success: function (response) {
+        let user = response['data'];
+        role = user['role'];
+        myId = user['id'];
+        console.log(myId);
+        let nickname = user['nickname'];
+        $('#review_user_nickname').text(nickname);
+        getUserReview();
+      },
+      error(error, status, request) {
+        console.log(error)
+      }
+    });
+  }
+
+  function getUserReview() {
+    console.log(myId);
+    console.log(role);
+    var sorting = $("#sorting option:selected").val();
+    var isAsc = $(':radio[name="isAsc"]:checked').val();
+
+    let dataSource = `/v1/users/${myId}/reviews?sort=${sorting},${isAsc}`;
+
+    $('#reviewList').empty();
+    $('#pagination').pagination({
+      dataSource,
+      locator: 'data.content',
+      alias: {
+        pageNumber: 'page',
+        pageSize: 'size'
+      },
+      totalNumberLocator: (response) => {
+        return response.data.totalElements;//전체 갯수
+      },
+      pageSize: 10,
+      showPrevious: true,
+      showNext: true,
+      ajax: {
+        error(error, status, request) {
+          console.log(error);
+        }
+      },
+      callback: function (response, pagination) {
+        $('#reviewList').empty();
+        for (let i = 0; i < response.length; i++) {
+          let review = response[i];
+
+          let id = review['id'];
+          let images = review['images'];
+          let categoryId = review['categoryId'];
+          let productId = review['productId'];
+          let productName = review['productName'];
+          let description = review['description'];
+          let createdAt = review['createdAt'];
+          let modifiedAt = review['modifiedAt'];
+          let munchies = review['munchies'];
+          let star = review['star'];
+          let isVerified = review['isVerified'];
+
+          let createdAt_Text = calulateTime(createdAt);
+          let modifiedAt_Text = calulateTime(modifiedAt);
+
+          let html = `<div class="col" >
+             <div class="card h-100">
+      <img src = ${images[0]} id="review-image-${id}" class="card-img-top" onclick="location.href='/productDetails?productId=${productId}&categoryId=${categoryId}'">
+
+      <div class="card-body" onclick="location.href='/productDetails?productId=${productId}&categoryId=${categoryId}'">
+        <div style="display: flex;flex-direction: row">
+        <div style="width: 70%">
+          <h5 class="card-title">${productName}</h5>
+          <p class="card-text">${description}</p>
+          <p class="card-text">★${star}</p>
+          <p class="card-text">추천 안주: ${munchies}</p>
+        </div>
+        <div id="verifiy_mark-${id}" style="width: 30%">
+         <img style="object-fit: contain;width: 50px;height: 50px;" src="/images/verified.png">
+        </div>
+        </div>
+      </p>
+
+      </div>
+      <div class="card-footer">
+        <small class="text-body-secondary">${createdAt_Text} 작성</small>
+        <p></p>
+        <small id="modifiedAt-${id}" class="text-body-secondary">${modifiedAt_Text} 수정</small>
+       <div>
+        <button id="update_review_btn-${id}" onclick="updateId('${categoryId}','${productId}','${id}','${description}','${star}','${munchies}')" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#updateReview"
+        class="btn btn-light">수정</button>
+        <button id="delete_review_btn-${id}" onclick="removeReview(${categoryId},${productId},${id})" class="btn btn-light">삭제</button>
+        </div>
+      </div>
+    </div>
+            </div>`
+
+          $('#reviewList').append(html);
+
+          if (images.length == 0) {
+            $('#review-image-' + id).hide();//이미지 없다면 숨기기
+          }
+
+          if (createdAt_Text === modifiedAt_Text) {
+            $('#modifiedAt-' + id).hide();
+          }
+
+          if (isVerified) {
+            $('#verifiy_mark-' + id).show();
+          } else {
+            $('#verifiy_mark-' + id).hide();
+          }
+        }
+      }
+    });
+  }
+
+  function calulateTime(time) {
+    const localDateTime = new Date(time);
+    const currentTime = new Date();
+    const timeDifference = currentTime - localDateTime;//밀리초
+    let text = "";
+    if (timeDifference >= 2592000000) {
+      // 한달 이상
+      text = parseInt(timeDifference / 2592000000) + "달 전";
+    } else if (timeDifference >= 604800000) {
+      //7일 이상
+      text = parseInt(timeDifference / 604800000) + "주 전";
+    } else if (timeDifference >= 86400000) {
+      //1일 이상
+      text = parseInt(timeDifference / 86400000) + "일 전";
+    } else if (timeDifference >= 3600000) {
+      //1시간 이상
+      text = parseInt(timeDifference / 3600000) + "시간 전";
+    } else if (timeDifference >= 60000) {
+      //1분 이상
+      text = parseInt(timeDifference / 60000) + "분 전";
+    } else {
+      //1초 이상
+      text = parseInt(timeDifference / 1000) + " 초 전";
+    }
+
+    return text;
+  }
+
+  function updateId(categoryId, productId, id, description, star, munchies) {
+    $('#update_btn').val(id);
+    currentCategoryId = categoryId;
+    currentProductId = productId;
+    $('#update_description').val(description);
+    $('#update_star').val(star);
+    $('#update_munchies').val(munchies);
+  }
+
+  function updateReview() {
+    let reviewId = $('#update_btn').val();
+
+    let description = $('#update_description').val();
+    let star = $('#update_star').val();
+    let munchies = $('#update_munchies').val();
+    let data = {
+      "description": description,
+      "star": star,
+      "munchies": munchies
+    }
+
+    const formData = new FormData();
+    formData.append("data",
+        new Blob([JSON.stringify(data)], {type: "application/json"}));
+
+    // 배열의 각 파일을 순회하면서 FormData에 따로 추가합니다.
+    if (update_imageFile != null) {
+      for (let i = 0; i < update_imageFile.length; i++) {
+        formData.append('images', update_imageFile[i]);
+      }
+    }
+
+    $.ajax({
+      type: "PATCH",
+      url: `/v1/categories/${currentCategoryId}/products/${currentProductId}/reviews/${reviewId}`,
+      data: formData,
+      enctype: "multipart/form-data",
+      contentType: false,
+      processData: false,
+      success: function (response) {
+        alert(response['msg']);
+        window.location.reload();
+      }, error: function (error) {
+        alert(error['responseJSON']['msg']);
+      }
+    });
+  }
+
+  function removeReview(categoryId, productId, id) {
+    console.log("removeReview");
+    $.ajax({
+      type: "DELETE",
+      url: `/v1/categories/${categoryId}/products/${productId}/reviews/${id}`,
+      success: function (response) {
+        alert(response['msg']);
+        window.location.reload();
+      }, error: function (error) {
+        console.log(error);
+        alert(error['responseJSON']['msg']);
+      }
+    });
+  }
+
+  function verify(categoryId, productId, id) {
+    $.ajax({
+      type: "PATCH",
+      url: `/v1/categories/${categoryId}/products/${productId}/reviews/${id}/verification`,
+      success: function (response) {
+        alert(response['msg']);
+        window.location.reload();
+      }, error: function (error) {
+        alert(error['responseJSON']['msg']);
+      }
+    });
+  }
+
+</script>
 <body>
 
 <div style="    display: flex;    flex-direction: row;">
@@ -97,13 +350,15 @@
         <!-- 알림 버튼 -->
         <button data-bs-toggle="modal"
                 data-bs-target="#notificationModal"
-                id="notification-btn" style="background-color: transparent; border: transparent; position: relative; margin-right: 15px; padding: 0; border-radius: 50%;">
+                id="notification-btn"
+                style="background-color: transparent; border: transparent; position: relative; margin-right: 15px; padding: 0; border-radius: 50%;">
           <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
                class="bi bi-bell" viewBox="0 0 16 16">
             <path
                 d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6"/>
           </svg>
-          <span id="notification-count-badge" style="position: absolute; top: -7px; right: -7px; background-color: red; color: white; border-radius: 50%; font-size: 12px; padding: 3px 6px;">0</span>
+          <span id="notification-count-badge"
+                style="position: absolute; top: -7px; right: -7px; background-color: red; color: white; border-radius: 50%; font-size: 12px; padding: 3px 6px;">0</span>
         </button>
 
         <button id="sign-in-btn" class="btn btn-info" onclick="location.href='/login'">
@@ -126,7 +381,29 @@
 
     </header>
     <div style="height: fit-content;">
-      여기에 내용이 들어가야함!
+      <h1 style="margin: 10px auto 10px auto;width: fit-content;"><span
+          id="review_user_nickname"></span>님의 리뷰 목록</h1>
+      <div style="display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px">
+        <div class="pagination">
+          정렬:
+          <select id="sorting" onchange="getUserReview()" style="margin-right: 10px">
+            <option value="createdAt">작성일</option>
+            <option value="modifiedAt">수정일</option>
+          </select>
+          <input type="radio" name="isAsc" value="asc" onchange="getUserReview()"/> 오름차순
+          <input type="radio" name="isAsc" value="desc" onchange="getUserReview()" checked/> 내림차순
+        </div>
+        <div id="pagination" class="pagination" style="margin-top:10px"></div>
+      </div>
+
+
+      <div id="reviewList" style="width: 80%;margin: auto;"
+           class="row row-cols-1 row-cols-md-4 g-4">
+      </div>
     </div>
   </div>
 </div>
@@ -157,6 +434,31 @@
   </div>
 </div>
 
+<!-- 리뷰 수정 모달 -->
+<div class="modal fade" id="updateReview" aria-hidden="true"
+     aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">리뷰 수정</h1>
+        <button onclick="win_reload()" type="button" class="btn-close" data-bs-dismiss="modal"
+                aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" class="form-control" id="update_description" placeholder="설명">
+        <input type="number" class="form-control" id="update_star" placeholder="별점 1점 ~ 5점 사이">
+        <input type="text" class="form-control" id="update_munchies" placeholder="추천 안주">
+        <input type="file" accept="image/*" id="update_review_image" multiple>
+      </div>
+      <div class="modal-footer">
+        <button onclick="win_reload()" type="button" class="btn btn-secondary"
+                data-bs-dismiss="modal">Close
+        </button>
+        <button class="btn btn-light" onclick="updateReview()" id="update_btn">Update</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
