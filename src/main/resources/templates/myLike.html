@@ -348,11 +348,13 @@
 
 <div style="height: fit-content;">
 
-  <div style="display: flex;
+  <div style="
+        display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         padding: 10px">
+    <h1 style="padding: 10px">내가 찜한 주류</h1>
     <div class="pagination">
       정렬:
       <select id="sorting" onchange="getUserLikeList()" style="margin-right: 10px">
@@ -365,7 +367,7 @@
     <div id="pagination" class="pagination" style="margin-top:10px"></div>
   </div>
 
-  <div id="liked_product_container" style="width: 80%;margin: auto;"
+  <div id="liked_product_container" style="width: 60%;margin: auto;"
        class="row row-cols-1 row-cols-md-3 g-4">
   </div>
 </div>

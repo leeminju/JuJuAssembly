@@ -19,7 +19,7 @@ function getAllUsers() {
     totalNumberLocator: (response) => {
       return response.data.totalElements;//전체 갯수
     },
-    pageSize: 80,
+    pageSize: 9,
     showPrevious: true,
     showNext: true,
     ajax: {

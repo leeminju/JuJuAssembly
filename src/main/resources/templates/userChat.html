@@ -80,7 +80,7 @@
 
     let dataSource = `/v1/users?sort=${sorting},${isAsc}`;
 
-    $('#adminList').empty();
+
     $('#pagination').pagination({
       dataSource,
       locator: 'data.content',
@@ -91,7 +91,7 @@
       totalNumberLocator: (response) => {
         return response.data.totalElements;
       },
-      pageSize: 80,
+      pageSize: 9,
       showPrevious: true,
       showNext: true,
       ajax: {
@@ -100,7 +100,6 @@
         }
       },
       callback: function (response, pagination) {
-        $('#adminList').empty();
         let users = response;
         for (let i = 0; i < users.length; i++) {
           let user = users[i];
@@ -357,7 +356,7 @@
 
     </header>
     <div style="height: fit-content;">
-      <h6 class="border-bottom pb-2 mb-0">관리자 목록</h6>
+
       <div style="display: flex;
         flex-direction: column;
         align-items: center;
@@ -378,6 +377,7 @@
       <div class="my-3 p-3 bg-body rounded shadow-sm"
            style="margin: 10px auto 10px auto;width: 60%;"
            id="adminList">
+        <h6 class="border-bottom pb-2 mb-0">관리자 목록</h6>
       </div>
     </div>
   </div>
