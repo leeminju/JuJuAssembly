@@ -26,6 +26,7 @@ import com.example.jujuassembly.domain.user.dto.UserDetailResponseDto;
 import com.example.jujuassembly.domain.user.dto.UserModifyRequestDto;
 import com.example.jujuassembly.domain.user.dto.UserResponseDto;
 import com.example.jujuassembly.domain.user.entity.User;
+import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.global.EmailAuthUtil;
 import com.example.jujuassembly.global.jwt.JwtUtil;
@@ -34,6 +35,7 @@ import com.example.jujuassembly.global.s3.S3Manager;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletResponse;
 import java.security.Key;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.DisplayName;
@@ -195,7 +197,7 @@ public class UserServiceTest implements EmailAuthUtil {
     // when-then
     assertEquals(true, jwtUtil.validateToken(accessToken.substring(7)));
   }
-
+/*
   @Test
   @DisplayName("프로필 조회 테스트")
   void viewProfileTest() {
@@ -216,13 +218,40 @@ public class UserServiceTest implements EmailAuthUtil {
     );
 
     // when
-    UserDetailResponseDto result = userService.viewProfile(userId, user);
+    UserDetailResponseDto result = userService.viewMyProfile(user);
 
     // then
     assertNotNull(result);
     assertEquals(user.getLoginId(), result.getLoginId());
     assertEquals(user.getNickname(), result.getNickname());
     assertEquals(user.getEmail(), result.getEmail());
+  }*/
+
+
+  @Test
+  @DisplayName("프로필 조회 테스트")
+  void testViewMyProfile() {
+  // 가상의 사용자 객체 생성
+    Long userId = 123L;
+    Category category1 = Category.builder().id(1L).name("소주").build();
+    Category category2 = Category.builder().id(2L).name("맥주").build();
+    User mockUser = User.builder().id(userId).loginId("user").nickname("user").email("email")
+        .password("1234").isArchived(false).role(UserRoleEnum.USER).image("aaa").kakaoId(2L)
+        .firstPreferredCategory(category1).secondPreferredCategory(category2).build();
+
+
+    // when
+    // UserService의 viewMyProfile 메서드 호출
+    UserDetailResponseDto resultDto = userService.viewMyProfile(mockUser);
+
+    // then
+    assertThat(resultDto).isNotNull();
+    assertThat(resultDto.getId()).isEqualTo(mockUser.getId());
+    assertThat(resultDto.getLoginId()).isEqualTo(mockUser.getLoginId());
+    assertThat(resultDto.getNickname()).isEqualTo(mockUser.getNickname());
+    assertThat(resultDto.getEmail()).isEqualTo(mockUser.getEmail());
+    //assertThat(resultDto.getRole()).isEqualTo(mockUser.getRole());
+    assertThat(resultDto.getImage()).isEqualTo(mockUser.getImage());
   }
 
 
