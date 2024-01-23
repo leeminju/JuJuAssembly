@@ -2,8 +2,6 @@ package com.example.jujuassembly.global.security;
 
 
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
-import com.example.jujuassembly.domain.user.entity.UserRoleEnum.Authority;
-import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.jwt.JwtUtil;
 import com.example.jujuassembly.global.response.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,11 +40,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     if (Objects.nonNull(accessToken)) {
 
       UserDetailsImpl userDetails;
-
-      // 로그아웃이 되었는지 확인
-      if (jwtUtil.checkIsLoggedOut(accessToken)) {
-        accessToken = jwtUtil.createExpiredToken(accessToken);
-      }
 
       String accessTokenValue = accessToken.substring(7);
 
@@ -109,7 +102,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
       // 회원 탈퇴한 유저인지 확인
       if (userDetails != null) {
         if (userDetails.getUser().getIsArchived()) {
-          ApiResponse apiResponse = new ApiResponse("이미 회원 탈퇴한 유저입니다.", HttpStatus.FORBIDDEN.value());
+          ApiResponse apiResponse = new ApiResponse("이미 회원 탈퇴한 유저입니다.",
+              HttpStatus.FORBIDDEN.value());
           response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
           response.setContentType("application/json; charset=UTF-8");
           response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
