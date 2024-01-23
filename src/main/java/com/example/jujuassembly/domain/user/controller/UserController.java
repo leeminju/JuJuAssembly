@@ -128,21 +128,6 @@ public class UserController {
     return ResponseEntity.ok().body(new ApiResponse("로그아웃 성공", HttpStatus.OK.value()));
   }
 
-  /**
-   * 프로필 조회 API
-   *
-   * @param userId      조회할 유저의 ID
-   * @param userDetails 인증된 사용자의 UserDetailsImpl
-   * @return 프로필조회 성공 여부를 담은 ApiResponse
-   */
-  @GetMapping("/users/{userId}")
-  public ResponseEntity<ApiResponse> viewProfile(
-      @PathVariable Long userId,
-      @AuthenticationPrincipal UserDetailsImpl userDetails) {
-    UserDetailResponseDto responseDto = userService.viewProfile(userId, userDetails.getUser());
-    return ResponseEntity.ok()
-        .body(new ApiResponse("프로필 조회", HttpStatus.OK.value(), responseDto));
-  }
 
   /**
    * 내 프로필 조회 API
