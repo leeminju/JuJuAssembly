@@ -71,12 +71,6 @@
       }
     });
 
-    $(document).on('keydown', function(event) {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-    });
 
     getAllAdminUsers();
   })
@@ -172,8 +166,7 @@
         $('#chatModal').modal('show');
 
         fetchChatHistory(chatRoomId);
-        var chatContainer = $('#chatContainer');
-        chatContainer.scrollTop(chatContainer.prop("scrollHeight"));
+
         console.log(`Chat Room ID: ${chatRoomId}`);
       },
       error: function (error) {
@@ -225,6 +218,9 @@
           var chat = chatHistory[i];
           addMessageToChatContainer(chat.senderId, chat.message);
         }
+        let chatContainer = $('#chatContainer');
+        chatContainer.scrollTop(chatContainer.prop("scrollHeight"));
+
       },
       error: function (error) {
         console.log(error);
@@ -408,7 +404,7 @@
   </div>
 </div>
 <!-- 채팅창 모달 -->
-<div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" no-close-on-esc id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel"
+<div class="modal fade" data-bs-backdrop="static"  data-bs-keyboard="false" no-close-on-esc id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel"
      aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
