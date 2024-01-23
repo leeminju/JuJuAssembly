@@ -36,7 +36,6 @@ public class KakaoService {
 
   public String kakaoLogin(String code)
       throws JsonProcessingException {
-    log.info("kakaoLogin 메서드 입성");
 
     // 1. "인가 코드"로 "액세스 토큰" 요청
     String accessToken = getToken(code);
@@ -101,7 +100,6 @@ public class KakaoService {
     // HTTP 응답 (JSON) -> 액세스 토큰 파싱
     JsonNode jsonNode = new ObjectMapper().readTree(response.getBody());
 
-    log.info("getToken 나갑니다");
     return jsonNode.get("access_token").asText();
   }
 
