@@ -45,7 +45,7 @@ public class NotificationService {
     // 사용자 ID와 현재 시간을 조합해 고유한 emitter 식별자 생성
     String id = userId + "_" + System.currentTimeMillis();
 
-    SseEmitter emitter = emitterRepository.save(id, new SseEmitter());
+    SseEmitter emitter = emitterRepository.save(id, new SseEmitter(DEFAULT_TIMEOUT));
 
     // 연결이 완료되거나 타임아웃 되면 emitter를 레포지토리에서 제거
     emitter.onCompletion(() -> emitterRepository.deleteById(id));

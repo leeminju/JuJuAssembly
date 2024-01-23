@@ -68,6 +68,7 @@ public class WebSecurityConfig {
             .requestMatchers(HttpMethod.GET, "/v1/products/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/v1/users/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/v1/categories/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/v1/notification/**").permitAll()
             .requestMatchers("/v1/auth/**").permitAll()
             .requestMatchers("/ws-connection").permitAll()
             .anyRequest().authenticated() // 그 외 모든 요청 인증처리
