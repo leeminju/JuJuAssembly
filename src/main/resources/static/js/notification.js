@@ -1,15 +1,23 @@
 var source;
 
 $(document).ready(function () {
-  // 로그인 상태를 확인하는 로직 (예시: 쿠키에서 토큰 확인)
+  // 로그인 상태를 확인하는 로직
   var isLoggedIn = getToken(); // 사용자 로그인 상태 확인
 
   if (isLoggedIn) {
+    // 로그인 상태라면 필요한 초기화 수행
     initializeSSE(); // SSE 구독 초기화
     fetchNotifications(); // 기존 알림 목록 조회
   } else {
-    $('#notification-count-badge').hide(); // 로그인되지 않았을 경우 알림 아이콘 숨김
+    // 로그인 상태가 아니라면 알림 아이콘 숨김
+    $('#notification-count-badge').hide();
   }
+
+  // 로그아웃 버튼에 이벤트 핸들러 연결
+  $('#logout-btn').on('click', function() {
+    logout();
+  });
+
   // 페이지가 닫힐 때 EventSource 연결을 닫기 위한 핸들러
   window.onbeforeunload = function() {
     if (source) {
@@ -20,7 +28,13 @@ $(document).ready(function () {
 
 // SSE 구독을 위한 함수
 function initializeSSE() {
-  if (!!window.EventSource) {
+  if (window.EventSource) {
+    // 기존의 EventSource 인스턴스가 있다면 닫고 초기화
+    // if (source) {
+    //   source.close();
+    //   source = null;
+    // }
+
     source = new EventSource('/v1/notification/subscribe');
 
     source.addEventListener("message", function (event) {
@@ -28,12 +42,17 @@ function initializeSSE() {
       displayRealTimeNotification(data); // 실시간 알림 표시
       displayNotifications([data]); // 실시간 알림을 목록에 추가
       updateNotificationsListAndBadge(); // 새 알림으로 목록 및 뱃지 업데이트
-      fetchNotifications();
     });
 
     source.onerror = function (error) {
       console.error('SSE 연결 오류:', error);
-      // 필요에 따라 연결 재시도 로직 추가
+      // 연결 오류 발생 시 기존 인스턴스 정리
+      if (source) {
+        source.close();
+        source = null;
+      }
+      // 필요한 경우 재연결 로직
+      setTimeout(initializeSSE, 5000); // 5초 후 재연결 시도
     }
   } else {
     console.log("브라우저가 SSE를 지원하지 않습니다.");

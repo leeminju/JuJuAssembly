@@ -61,11 +61,11 @@ function getToken() {
 }
 
 function logout() {
-  // SSE 연결 종료
-  if (source) {
-    source.close();
-    source = null; // 참조 제거
-  }
+  // // SSE 연결 종료
+  // if (source) {
+  //   source.close();
+  //   source = null; // 참조 제거
+  // }
 
   $.ajax({
     type: 'POST'
