@@ -123,7 +123,7 @@ public class UserController {
     String accessToken = request.getHeader(JwtUtil.AUTHORIZATION_HEADER);
 
     userService.logout(accessToken, response);
-    response.setHeader(JwtUtil.AUTHORIZATION_HEADER, "logged-out");
+    // 기존 쿠키 삭제는 프론트에서 구현
 
     return ResponseEntity.ok().body(new ApiResponse("로그아웃 성공", HttpStatus.OK.value()));
   }
@@ -234,7 +234,8 @@ public class UserController {
     response.addCookie(cookie);
 
     return ResponseEntity.status(HttpStatus.FOUND)
-        .header(HttpHeaders.LOCATION, "http://ec2-54-180-83-232.ap-northeast-2.compute.amazonaws.com:8080/")
+        .header(HttpHeaders.LOCATION,
+            "http://ec2-54-180-83-232.ap-northeast-2.compute.amazonaws.com:8080/")
         .body(new ApiResponse("카카오 로그인 성공 및 리다이렉트", HttpStatus.FOUND.value()));
   }
 
