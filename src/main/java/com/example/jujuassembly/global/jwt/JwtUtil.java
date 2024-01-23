@@ -11,7 +11,6 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -204,22 +203,18 @@ public class JwtUtil {
     return redisTemplate.opsForValue().get(loginId);
   }
 
-  public boolean checkIsLoggedOut(String accessToken) {
-    return !redisTemplate.hasKey(accessToken);
-  }
-
   public String createExpiredToken(String accessToken) {
     String loginId = getUserInfoFromToken(accessToken.substring(7)).getSubject();
     return createToken(loginId, 0);
   }
 
+  // 세션 쿠키(브라우저 종료 시점에 쿠키 삭제) 생성
   public Cookie addJwtToCookie(String bearerAccessToken) {
     try {
       String spaceRemovedToken = URLEncoder.encode(bearerAccessToken, "utf-8")
           .replaceAll("\\+", "%20"); // 공백 제거
 
       Cookie cookie = new Cookie(AUTHORIZATION_HEADER, spaceRemovedToken);
-      cookie.setMaxAge((int) ACCESS_TOKEN_TIME);
       cookie.setPath("/");
 
       return cookie;
