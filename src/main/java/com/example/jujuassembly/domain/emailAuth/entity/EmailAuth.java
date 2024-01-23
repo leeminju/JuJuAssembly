@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "email_auth")
+@Table(name = "email_auths")
 public class EmailAuth extends Timestamped {
 
   @Id
