@@ -17,6 +17,7 @@ import com.example.jujuassembly.global.jwt.JwtUtil;
 import com.example.jujuassembly.global.s3.S3Manager;
 import com.example.jujuassembly.global.security.UserDetailsImpl;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -154,18 +155,6 @@ public class UserService {
     return accessToken;
   }
 
-  public void logout(String accessToken, HttpServletResponse response) {
-    if (!jwtUtil.validateToken(accessToken.substring(7))) {
-      String responseHeaderAccessToken = response.getHeader(JwtUtil.AUTHORIZATION_HEADER);
-      jwtUtil.removeRefreshToken(responseHeaderAccessToken);
-      jwtUtil.removeAccessToken(responseHeaderAccessToken);
-    } else {
-      jwtUtil.removeRefreshToken(accessToken);
-      jwtUtil.removeAccessToken(accessToken);
-    }
-  }
-
-
   public UserDetailResponseDto viewMyProfile(User user) {
     return new UserDetailResponseDto(user);
   }
@@ -239,4 +228,8 @@ public class UserService {
     user.setIsArchived(true);
   }
 
+  public void logout(String loginId, HttpServletResponse response) throws IOException {
+    String accessToken = jwtUtil.getAccessTokenByLoginId(loginId);
+    jwtUtil.removeTokensAtRedisDB(accessToken, response);
+  }
 }

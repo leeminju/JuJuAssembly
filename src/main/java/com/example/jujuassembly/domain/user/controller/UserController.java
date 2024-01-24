@@ -16,12 +16,14 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -110,26 +112,6 @@ public class UserController {
   }
 
   /**
-   * 로그아웃 API
-   *
-   * @param request HttpServletRequest 객체
-   * @return 로그아웃 성공 여부를 담은 ApiResponse
-   */
-  @PostMapping("/users/logout")
-  public ResponseEntity<ApiResponse> logout(
-      HttpServletRequest request,
-      HttpServletResponse response) {
-
-    String accessToken = request.getHeader(JwtUtil.AUTHORIZATION_HEADER);
-
-    userService.logout(accessToken, response);
-    // 기존 쿠키 삭제는 프론트에서 구현
-
-    return ResponseEntity.ok().body(new ApiResponse("로그아웃 성공", HttpStatus.OK.value()));
-  }
-
-
-  /**
    * 내 프로필 조회 API
    *
    * @param userDetails 인증된 사용자의 UserDetailsImpl
@@ -186,21 +168,25 @@ public class UserController {
    * @param request HttpServletRequest 객체
    * @return 탈퇴 여부 ApiResponse
    */
+  @Transactional
   @DeleteMapping("/users/{userId}")
   public ResponseEntity<ApiResponse> deleteAccount(
       @PathVariable Long userId,
       HttpServletRequest request,
       HttpServletResponse response,
-      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+      @AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
 
     // 회원탈퇴
     String password = request.getHeader("Password");
     userService.deleteAccount(userId, password, userDetails);
 
     // 로그아웃
-    String accessToken = request.getHeader(JwtUtil.AUTHORIZATION_HEADER);
-    userService.logout(accessToken, response);
-    response.setHeader(JwtUtil.AUTHORIZATION_HEADER, "account-deleted");
+    String loginId = userDetails.getUser().getLoginId();
+    userService.logout(loginId, response);
+    Cookie cookie = new Cookie(JwtUtil.AUTHORIZATION_HEADER, "account-deleted");
+    cookie.setMaxAge(0);
+    cookie.setPath("/");
+    response.addCookie(cookie);
 
     return ResponseEntity.ok().body(new ApiResponse("회원 탈퇴 성공", HttpStatus.OK.value()));
   }
