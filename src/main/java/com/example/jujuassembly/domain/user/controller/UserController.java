@@ -10,7 +10,7 @@ import com.example.jujuassembly.domain.user.kakao.KakaoService;
 import com.example.jujuassembly.domain.user.service.UserService;
 import com.example.jujuassembly.global.jwt.JwtUtil;
 import com.example.jujuassembly.global.response.ApiResponse;
-import com.example.jujuassembly.global.security.UserDetailsImpl;
+import com.example.jujuassembly.global.filter.UserDetailsImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

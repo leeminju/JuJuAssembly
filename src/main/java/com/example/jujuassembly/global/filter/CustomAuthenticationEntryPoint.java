@@ -1,27 +1,27 @@
-package com.example.jujuassembly.global.security;
+package com.example.jujuassembly.global.filter;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class CustomAccessDeniedHandler implements AccessDeniedHandler {
+public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
   private final FilterUtil filterUtil;
 
   @Override
-  public void handle(
+  public void commence(
       HttpServletRequest request,
       HttpServletResponse response,
-      AccessDeniedException accessDeniedException)
+      AuthenticationException authException)
       throws IOException {
 
-    filterUtil.setMassageToResponse("권한이 없습니다", response);
+    filterUtil.setMassageToResponse("인증 불가", response);
 
   }
 }

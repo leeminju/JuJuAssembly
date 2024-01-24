@@ -3,7 +3,7 @@ package com.example.jujuassembly.domain.reviewLike.controller;
 import com.example.jujuassembly.domain.reviewLike.dto.ReviewLikeResponseDto;
 import com.example.jujuassembly.domain.reviewLike.service.ReviewLikeService;
 import com.example.jujuassembly.global.response.ApiResponse;
-import com.example.jujuassembly.global.security.UserDetailsImpl;
+import com.example.jujuassembly.global.filter.UserDetailsImpl;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

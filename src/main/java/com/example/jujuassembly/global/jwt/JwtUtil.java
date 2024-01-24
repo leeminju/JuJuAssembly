@@ -1,7 +1,7 @@
 package com.example.jujuassembly.global.jwt;
 
 import com.example.jujuassembly.global.exception.ApiException;
-import com.example.jujuassembly.global.security.FilterUtil;
+import com.example.jujuassembly.global.filter.FilterUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;

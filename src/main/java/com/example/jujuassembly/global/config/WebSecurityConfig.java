@@ -1,12 +1,12 @@
 package com.example.jujuassembly.global.config;
 
 import com.example.jujuassembly.global.jwt.JwtUtil;
-import com.example.jujuassembly.global.security.CustomAccessDeniedHandler;
-import com.example.jujuassembly.global.security.CustomAuthenticationEntryPoint;
-import com.example.jujuassembly.global.security.FilterUtil;
-import com.example.jujuassembly.global.security.JwtAuthorizationFilter;
-import com.example.jujuassembly.global.security.LogoutFilter;
-import com.example.jujuassembly.global.security.UserDetailsService;
+import com.example.jujuassembly.global.filter.CustomAccessDeniedHandler;
+import com.example.jujuassembly.global.filter.CustomAuthenticationEntryPoint;
+import com.example.jujuassembly.global.filter.FilterUtil;
+import com.example.jujuassembly.global.filter.JwtAuthorizationFilter;
+import com.example.jujuassembly.global.filter.LogoutFilter;
+import com.example.jujuassembly.global.filter.UserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;

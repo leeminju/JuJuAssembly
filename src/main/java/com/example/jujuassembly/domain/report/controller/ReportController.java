@@ -7,7 +7,7 @@ import com.example.jujuassembly.domain.report.dto.ReportStatusRequestDto;
 import com.example.jujuassembly.domain.report.service.ReportService;
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum.Authority;
 import com.example.jujuassembly.global.response.ApiResponse;
-import com.example.jujuassembly.global.security.UserDetailsImpl;
+import com.example.jujuassembly.global.filter.UserDetailsImpl;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;

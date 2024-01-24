@@ -3,7 +3,7 @@ package com.example.jujuassembly.domain.notification.controller;
 import com.example.jujuassembly.domain.notification.dto.NotificationsResponseDto;
 import com.example.jujuassembly.domain.notification.service.NotificationService;
 import com.example.jujuassembly.global.response.ApiResponse;
-import com.example.jujuassembly.global.security.UserDetailsImpl;
+import com.example.jujuassembly.global.filter.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

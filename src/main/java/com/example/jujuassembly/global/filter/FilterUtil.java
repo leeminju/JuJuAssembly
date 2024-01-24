@@ -1,4 +1,4 @@
-package com.example.jujuassembly.global.security;
+package com.example.jujuassembly.global.filter;
 
 import com.example.jujuassembly.global.response.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
