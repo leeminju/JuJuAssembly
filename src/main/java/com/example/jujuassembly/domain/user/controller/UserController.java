@@ -221,7 +221,7 @@ public class UserController {
   }
 
   // https://kauth.kakao.com/oauth/authorize?response_type=code&client_id= ${REST_API_KEY} &redirect_uri= ${REDIRECT_URI}
-  // https://kauth.kakao.com/oauth/authorize?client_id=384eb140b7adc777306aa35e86b7fa7f&redirect_uri=http://localhost:8080/v1/auth/kakao/callback&response_type=code
+  // https://kauth.kakao.com/oauth/authorize?client_id=384eb140b7adc777306aa35e86b7fa7f&redirect_uri=http://jujuassembly.store/v1/auth/kakao/callback&response_type=code
   // 카카오 로그인 요청 url
   @GetMapping("/auth/kakao/callback")
   public ResponseEntity<ApiResponse> kakaoLogin(
@@ -235,7 +235,7 @@ public class UserController {
 
     return ResponseEntity.status(HttpStatus.FOUND)
         .header(HttpHeaders.LOCATION,
-            "http://ec2-54-180-83-232.ap-northeast-2.compute.amazonaws.com:8080/")
+            "http://www.jujuassembly.store")
         .body(new ApiResponse("카카오 로그인 성공 및 리다이렉트", HttpStatus.FOUND.value()));
   }
 
