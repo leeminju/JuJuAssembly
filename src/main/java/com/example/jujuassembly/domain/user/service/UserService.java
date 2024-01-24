@@ -167,7 +167,6 @@ public class UserService {
 
 
   public UserDetailResponseDto viewMyProfile(User user) {
-    User loginUser = userRepository.getById(user.getId());
     return new UserDetailResponseDto(user);
   }
 
