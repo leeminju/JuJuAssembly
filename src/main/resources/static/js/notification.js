@@ -17,18 +17,11 @@ $(document).ready(function () {
   $('#logout-btn').on('click', function() {
     logout();
   });
-
-  // 페이지가 닫힐 때 EventSource 연결을 닫기 위한 핸들러
-  window.onbeforeunload = function() {
-    if (source) {
-      source.close();
-    }
-  };
 });
 
 // SSE 구독을 위한 함수
 function initializeSSE() {
-  if (window.EventSource) {
+  if (!!window.EventSource) {
     // 기존의 EventSource 인스턴스가 있다면 닫고 초기화
     // if (source) {
     //   source.close();
@@ -37,11 +30,17 @@ function initializeSSE() {
 
     source = new EventSource('/v1/notification/subscribe');
 
-    source.addEventListener("message", function (event) {
-      var data = JSON.parse(event.data);
+    source.addEventListener("sse", function (event) {
+      const data = JSON.parse(event.data);
+
+      // 더미 데이터인 경우 무시
+      if (data.toString().includes("EventStream Created")) {
+        return;
+      }
+
       displayRealTimeNotification(data); // 실시간 알림 표시
       displayNotifications([data]); // 실시간 알림을 목록에 추가
-      updateNotificationsListAndBadge(); // 새 알림으로 목록 및 뱃지 업데이트
+      fetchNotifications(); // 새 알림으로 목록 및 뱃지 업데이트
     });
 
     source.onerror = function (error) {
@@ -59,10 +58,10 @@ function initializeSSE() {
   }
 }
 
-// 서버로부터 새로운 알림 목록을 가져와 업데이트하는 함수
-function updateNotificationsListAndBadge() {
-  fetchNotifications(); // 서버로부터 최신 알림 목록을 가져옴
-}
+// // 서버로부터 새로운 알림 목록을 가져와 업데이트하는 함수
+// function updateNotificationsListAndBadge() {
+//   fetchNotifications(); // 서버로부터 최신 알림 목록을 가져옴
+// }
 
 // 실시간으로 수신된 알림을 화면에 표시하는 함수
 function displayRealTimeNotification(data) {
