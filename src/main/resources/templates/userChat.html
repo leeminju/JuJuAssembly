@@ -178,7 +178,7 @@
   // 웹소켓 연결 함수
   function connectWebSocket(chatRoomId) {
     // WebSocket 연결
-    var socket = new WebSocket('ws://' + window.location.host + '/ws-connection');
+    var socket = new WebSocket('wss://' + window.location.host + '/ws-connection');
     stompClient = Stomp.over(socket);
 
     stompClient.connect({}, function (frame) {
@@ -414,11 +414,11 @@
       </div>
       <div class="modal-body">
         <!-- 채팅창을 표시할 영역 -->
-        <div id="chatContainer" style="height: 200px; overflow-y: auto;"></div>
+        <div id="chatContainer" style="height: 200px; overflow-y: auto; word-wrap: break-word;"></div>
 
         <!-- 메시지 전송 버튼 -->
         <div class="input-group mb-3">
-          <input type="text" class="form-control" id="chatMessageInput" placeholder="메시지를 입력하세요">
+          <textarea type="text" class="form-control" id="chatMessageInput" placeholder="메시지를 입력하세요"></textarea>
           <button class="btn btn-primary" id="sendMessageBtn" onclick="sendChatMessage()">전송
           </button>
         </div>
