@@ -84,7 +84,7 @@ public class ReportService {
     categoryRepository.getById(categoryId);
     Report report = reportRepository.getById(reportId);
     if (!report.getCategory().getId().equals(categoryId)) {
-      throw new ApiException("현재카테고리가 아닙니다.", HttpStatus.BAD_REQUEST);
+      throw new ApiException("현재 카테고리가 아닙니다.", HttpStatus.BAD_REQUEST);
     }
 
     Category ModifiedCategory = categoryRepository.getById(requestDto.getModifiedCategoryId());
@@ -94,7 +94,14 @@ public class ReportService {
 
     s3Manager.deleteAllImageFiles(reportId.toString(), S3Manager.REPORT_DIRECTORY_NAME);
 
-    if (image != null && !image.isEmpty()) {
+
+    if (image == null || image.getContentType() == null) {
+      if (report.getImage() != null) {
+          report.updateImage(report.getImage());//원래 이미지 유지
+        } else {
+       report.updateImage(null);//원래 이미지 삭제
+        }
+    } else {
       if (!image.getContentType().startsWith("image")) {
         throw new ApiException("이미지 파일 형식이 아닙니다.", HttpStatus.BAD_REQUEST);
       }
