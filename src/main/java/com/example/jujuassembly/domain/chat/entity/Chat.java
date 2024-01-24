@@ -45,7 +45,7 @@ public class Chat extends Timestamped {
   private User receiver;//chat을 받는 사람
 
   @Lob
-  @Column(nullable = false)
+  @Column(nullable = false,columnDefinition = "TEXT")
   private String content;//채팅 내용
 
   public Chat(Room room, User sender, User receiver, String content) {
