@@ -215,7 +215,7 @@
     // API를 통해 채팅 기록 가져오기
     $.ajax({
       type: 'GET',
-      url: `/messages?roomId=${chatRoomId}`,
+      url: `/v1/chats?roomId=${chatRoomId}`,
       success: function (response) {
         var chatHistory = response.data;
 
