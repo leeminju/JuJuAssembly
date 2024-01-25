@@ -72,7 +72,7 @@ public class ReviewService {
     categoryRepository.findCategoryByIdOrElseThrow(categoryId);
     Product product = productRepository.findProductByIdOrElseThrow(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
-    Review review = reviewRepository.getById(reviewId);
+    Review review = reviewRepository.findReviewByIdOrElseThrow(reviewId);
     checkReviewProductAndProductIdEquality(review, productId);
 
     //기존의 파일 모두 삭제
@@ -97,7 +97,7 @@ public class ReviewService {
     categoryRepository.findCategoryByIdOrElseThrow(categoryId);
     Product product = productRepository.findProductByIdOrElseThrow(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
-    Review review = reviewRepository.getById(reviewId);
+    Review review = reviewRepository.findReviewByIdOrElseThrow(reviewId);
     checkReviewProductAndProductIdEquality(review, productId);
 
     // 해당 리뷰에 대한 모든 알림 삭제
@@ -120,7 +120,7 @@ public class ReviewService {
     categoryRepository.findCategoryByIdOrElseThrow(categoryId);
     Product product = productRepository.findProductByIdOrElseThrow(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
-    Review review = reviewRepository.getById(reviewId);
+    Review review = reviewRepository.findReviewByIdOrElseThrow(reviewId);
     checkReviewProductAndProductIdEquality(review, productId);
 
     review.changeVerified();//현재 값에서 바꾸기

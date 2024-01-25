@@ -147,7 +147,7 @@ class ReviewServiceTest {
 
     given(categoryRepository.findCategoryByIdOrElseThrow(categoryId)).willReturn(category1);
     given(productRepository.findProductByIdOrElseThrow(categoryId)).willReturn(product);
-    given(reviewRepository.getById(reviewId)).willReturn(review);
+    given(reviewRepository.findReviewByIdOrElseThrow(reviewId)).willReturn(review);
     //when
     ReviewResponseDto responseDto = reviewService.updateProductsReview(categoryId, productId,
         reviewId, images, requestDto);
@@ -168,7 +168,7 @@ class ReviewServiceTest {
 
     given(categoryRepository.findCategoryByIdOrElseThrow(categoryId)).willReturn(category1);
     given(productRepository.findProductByIdOrElseThrow(productId)).willReturn(product);
-    given(reviewRepository.getById(reviewId)).willReturn(review);
+    given(reviewRepository.findReviewByIdOrElseThrow(reviewId)).willReturn(review);
     //when
     reviewService.deleteProductsReview(categoryId, productId, reviewId);
 
@@ -260,7 +260,7 @@ class ReviewServiceTest {
     //given
     given(categoryRepository.findCategoryByIdOrElseThrow(categoryId)).willReturn(category1);
     given(productRepository.findProductByIdOrElseThrow(productId)).willReturn(product);
-    given(reviewRepository.getById(reviewId)).willReturn(review);
+    given(reviewRepository.findReviewByIdOrElseThrow(reviewId)).willReturn(review);
 
     //when
     Boolean result = reviewService.verifyReview(categoryId, productId, reviewId);
@@ -278,7 +278,7 @@ class ReviewServiceTest {
     //given
     given(categoryRepository.findCategoryByIdOrElseThrow(categoryId)).willReturn(category1);
     given(productRepository.findProductByIdOrElseThrow(productId)).willReturn(product);
-    given(reviewRepository.getById(reviewId)).willReturn(review);
+    given(reviewRepository.findReviewByIdOrElseThrow(reviewId)).willReturn(review);
 
     //when
     Boolean result = reviewService.verifyReview(categoryId, productId, reviewId);

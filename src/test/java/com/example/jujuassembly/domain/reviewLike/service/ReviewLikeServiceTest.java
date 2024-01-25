@@ -83,7 +83,7 @@ class ReviewLikeServiceTest {
 
     when(productRepository.findProductByIdOrElseThrow(productId)).thenReturn(product);
     when(categoryRepository.existsById(categoryId)).thenReturn(true);
-    when(reviewRepository.getById(reviewId)).thenReturn(review);
+    when(reviewRepository.findReviewByIdOrElseThrow(reviewId)).thenReturn(review);
   }
 
   @Test

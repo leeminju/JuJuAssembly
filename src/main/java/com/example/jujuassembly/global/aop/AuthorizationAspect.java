@@ -51,7 +51,7 @@ public class AuthorizationAspect {
   public void checkReviewAccessibility(Long reviewId, UserDetailsImpl userDetails) {
 
     User user = userDetails.getUser();
-    Review review = reviewRepository.getById(reviewId);
+    Review review = reviewRepository.findReviewByIdOrElseThrow(reviewId);
 
     if (!review.getUser().getId().equals(user.getId())) {
       if (!user.getRole().equals(UserRoleEnum.ADMIN)) {

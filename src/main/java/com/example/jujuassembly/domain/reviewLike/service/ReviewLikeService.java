@@ -41,7 +41,7 @@ public class ReviewLikeService {
     categoryRepository.existsById(categoryId);
     Product product = productRepository.findProductByIdOrElseThrow(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
-    Review review = reviewRepository.getById(reviewId);
+    Review review = reviewRepository.findReviewByIdOrElseThrow(reviewId);
     checkReviewProductAndProductIdEquality(review, productId);
 
     if (user.getId().equals(review.getUser().getId())) {
@@ -65,7 +65,7 @@ public class ReviewLikeService {
     categoryRepository.existsById(categoryId);
     Product product = productRepository.findProductByIdOrElseThrow(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
-    Review review = reviewRepository.getById(reviewId);
+    Review review = reviewRepository.findReviewByIdOrElseThrow(reviewId);
     checkReviewProductAndProductIdEquality(review, productId);
 
     if (user.getId().equals(review.getUser().getId())) {
