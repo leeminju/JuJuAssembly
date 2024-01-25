@@ -1,10 +1,8 @@
-package com.example.jujuassembly.global.security;
+package com.example.jujuassembly.global.filter;
 
 
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
 import com.example.jujuassembly.global.jwt.JwtUtil;
-import com.example.jujuassembly.global.response.ApiResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -15,7 +13,6 @@ import java.io.IOException;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -28,7 +25,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
   private final JwtUtil jwtUtil;
   private final UserDetailsService userDetailsService;
-  private final ObjectMapper objectMapper;
+  private final FilterUtil filterUtil;
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -81,20 +78,14 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         // -> 이제 @AuthenticationPrincipal 로 조회할 수 있음
       } else {
         // 인증정보가 존재하지 않을때
-        ApiResponse apiResponse = new ApiResponse("토큰이 유효하지 않습니다.", HttpStatus.BAD_REQUEST.value());
-        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        response.setContentType("application/json; charset=UTF-8");
-        response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
-        return;//return을 해줘야 결과 출력
+        filterUtil.setMassageToResponse("인가 불가: 토큰이 유효하지 않습니다.", response);
+        return;
       }
 
       // BANNED 유저 확인
       if (userDetails != null) {
         if (userDetails.getUser().getRole().equals(UserRoleEnum.BANNED)) {
-          ApiResponse apiResponse = new ApiResponse("BANNED USER", HttpStatus.FORBIDDEN.value());
-          response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-          response.setContentType("application/json; charset=UTF-8");
-          response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
+          filterUtil.setMassageToResponse("BANNED USER", response);
           return;
         }
       }
@@ -102,11 +93,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
       // 회원 탈퇴한 유저인지 확인
       if (userDetails != null) {
         if (userDetails.getUser().getIsArchived()) {
-          ApiResponse apiResponse = new ApiResponse("이미 회원 탈퇴한 유저입니다.",
-              HttpStatus.FORBIDDEN.value());
-          response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-          response.setContentType("application/json; charset=UTF-8");
-          response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
+          filterUtil.setMassageToResponse("이미 회원 탈퇴한 유저입니다.", response);
           return;
         }
       }

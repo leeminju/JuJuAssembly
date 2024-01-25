@@ -1,11 +1,12 @@
 package com.example.jujuassembly.global.config;
 
 import com.example.jujuassembly.global.jwt.JwtUtil;
-import com.example.jujuassembly.global.security.CustomAccessDeniedHandler;
-import com.example.jujuassembly.global.security.CustomAuthenticationEntryPoint;
-import com.example.jujuassembly.global.security.JwtAuthorizationFilter;
-import com.example.jujuassembly.global.security.UserDetailsService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.jujuassembly.global.filter.CustomAccessDeniedHandler;
+import com.example.jujuassembly.global.filter.CustomAuthenticationEntryPoint;
+import com.example.jujuassembly.global.filter.FilterUtil;
+import com.example.jujuassembly.global.filter.JwtAuthorizationFilter;
+import com.example.jujuassembly.global.filter.LogoutFilter;
+import com.example.jujuassembly.global.filter.UserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -30,7 +31,7 @@ public class WebSecurityConfig {
   private final UserDetailsService userDetailsService;
   private final CustomAccessDeniedHandler customAccessDeniedHandler;
   private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
-  private final ObjectMapper objectMapper;
+  private final FilterUtil filterUtil;
 
   @Bean
   public PasswordEncoder passwordEncoder() {
@@ -39,7 +40,12 @@ public class WebSecurityConfig {
 
   @Bean
   public JwtAuthorizationFilter jwtAuthorizationFilter() {
-    return new JwtAuthorizationFilter(jwtUtil, userDetailsService, objectMapper);
+    return new JwtAuthorizationFilter(jwtUtil, userDetailsService, filterUtil);
+  }
+
+  @Bean
+  public LogoutFilter logoutFilter() {
+    return new LogoutFilter(jwtUtil, filterUtil);
   }
 
   @Bean
@@ -77,7 +83,9 @@ public class WebSecurityConfig {
     // 필터 관리
     http.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
         .exceptionHandling(handler -> handler.accessDeniedHandler(customAccessDeniedHandler))
-        .exceptionHandling(handler -> handler.authenticationEntryPoint(customAuthenticationEntryPoint));
+        .exceptionHandling(
+            handler -> handler.authenticationEntryPoint(customAuthenticationEntryPoint));
+    http.addFilterBefore(logoutFilter(), JwtAuthorizationFilter.class);
 
     return http.build();
   }

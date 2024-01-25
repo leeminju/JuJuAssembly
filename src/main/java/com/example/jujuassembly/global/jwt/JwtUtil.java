@@ -1,6 +1,7 @@
 package com.example.jujuassembly.global.jwt;
 
 import com.example.jujuassembly.global.exception.ApiException;
+import com.example.jujuassembly.global.filter.FilterUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -11,6 +12,8 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -31,6 +34,7 @@ import org.springframework.stereotype.Component;
 public class JwtUtil {
 
   private final RedisTemplate<String, String> redisTemplate;
+  private final FilterUtil filterUtil;
 
   // Header KEY 값
   public static final String AUTHORIZATION_HEADER = "Authorization";
@@ -38,7 +42,7 @@ public class JwtUtil {
   // Token 식별자
   public static final String BEARER_PREFIX = "Bearer ";
 
-  public static final long ACCESS_TOKEN_TIME = 15 * 60 * 1000;  // 15분
+  public static final long ACCESS_TOKEN_TIME =  1000;  // 15분
 
   public static final long REFRESH_TOKEN_TIME = 7 * 24 * 60 * 60 * 1000;  // 7일
 
@@ -85,12 +89,18 @@ public class JwtUtil {
       log.error("Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.");
     } catch (IllegalArgumentException e) {
       log.error("JWT claims is empty, 잘못된 JWT 토큰 입니다.");
+    } catch (Exception e) {
+      log.error("token validattion 에러");
     }
     return false;
   }
 
   public Claims getUserInfoFromToken(String token) {
-    return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+    try {
+      return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+    } catch (Exception ex) {
+      throw new ApiException("토큰에서 유저 정보 조회 실패", HttpStatus.BAD_REQUEST);
+    }
   }
 
   public String createAccessToken(String loginId) {
@@ -128,17 +138,10 @@ public class JwtUtil {
     try {
       Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessTokenValue);
       return false;
-    } catch (SecurityException | MalformedJwtException e) {
-      log.error("Invalid JWT signature, 유효하지 않는 JWT 서명 입니다.");
-      return false;
     } catch (ExpiredJwtException e) {
       log.error("Expired JWT token, 만료된 JWT token 입니다.");
       return true;
-    } catch (UnsupportedJwtException e) {
-      log.error("Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.");
-      return false;
-    } catch (IllegalArgumentException e) {
-      log.error("JWT claims is empty, 잘못된 JWT 토큰 입니다.");
+    } catch (Exception e) {
       return false;
     }
   }
@@ -152,24 +155,17 @@ public class JwtUtil {
     return createAccessToken(loginId);
   }
 
-  // logout시 refresh token 만료시키기
-  public void removeRefreshToken(String accessToken) {
-    if (!redisTemplate.hasKey(accessToken)) {
-      throw new ApiException("RefreshToken이 유효하지 않습니다.", HttpStatus.BAD_REQUEST);
+  public void removeTokensAtRedisDB(String accessToken, HttpServletResponse response)
+      throws IOException {
+    String refreshToken = redisTemplate.opsForValue().get(accessToken);
+    Claims info = getUserInfoFromToken(refreshToken.substring(7));
+    String loginId = info.getSubject();
+    if (!redisTemplate.hasKey(loginId) || !redisTemplate.hasKey(accessToken)) {
+      filterUtil.setMassageToResponse("redis에 해당 access token이 존재하지 않음.", response);
     }
     redisTemplate.delete(accessToken);
-  }
-
-  // logout시 access token 만료시키기
-  public void removeAccessToken(String accessToken) {
-    Claims claims = getUserInfoFromToken(accessToken.substring(7));
-    String loginId = claims.getSubject();
-    if (!redisTemplate.hasKey(loginId)) {
-      throw new ApiException("AccessToken이 유효하지 않습니다.", HttpStatus.BAD_REQUEST);
-    }
     redisTemplate.delete(loginId);
   }
-
 
   public void regenerateToken(String newAccessToken, String accessToken,
       String refreshTokenValue) {
@@ -203,11 +199,6 @@ public class JwtUtil {
     return redisTemplate.opsForValue().get(loginId);
   }
 
-  public String createExpiredToken(String accessToken) {
-    String loginId = getUserInfoFromToken(accessToken.substring(7)).getSubject();
-    return createToken(loginId, 0);
-  }
-
   // 세션 쿠키(브라우저 종료 시점에 쿠키 삭제) 생성
   public Cookie addJwtToCookie(String bearerAccessToken) {
     try {
@@ -222,4 +213,13 @@ public class JwtUtil {
       throw new RuntimeException(e);
     }
   }
+
+  // 로그아웃시 사용되는 쿠키 만료용
+  public Cookie createExpiredCookie(String key, String value) {
+    Cookie cookie = new Cookie(key, value);
+    cookie.setMaxAge(0);
+    cookie.setPath("/");
+    return cookie;
+  }
+
 }

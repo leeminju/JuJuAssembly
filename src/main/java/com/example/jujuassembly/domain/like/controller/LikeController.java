@@ -3,7 +3,7 @@ package com.example.jujuassembly.domain.like.controller;
 import com.example.jujuassembly.domain.like.dto.LikeResponseDto;
 import com.example.jujuassembly.domain.like.service.LikeService;
 import com.example.jujuassembly.global.response.ApiResponse;
-import com.example.jujuassembly.global.security.UserDetailsImpl;
+import com.example.jujuassembly.global.filter.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
