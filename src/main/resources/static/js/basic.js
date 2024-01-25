@@ -61,23 +61,25 @@ function getToken() {
 }
 
 function logout() {
+  CookieRemove();
+  alert("로그아웃");
   // // SSE 연결 종료
   // if (source) {
   //   source.close();
   //   source = null; // 참조 제거
   // }
 
-  $.ajax({
-    type: 'POST'
-    , url: `/v1/users/logout`
-    , success: function (response) {
-      alert(response['msg']);
-      CookieRemove();
-      window.location.reload();
-    }, error(error, status, request) {
-      console.log(error);
-    }
-  });
+  // $.ajax({
+  //   type: 'POST'
+  //   , url: `/v1/users/logout`
+  //   , success: function (response) {
+  //     alert(response['msg']);
+  //     CookieRemove();
+  //     window.location.reload();
+  //   }, error(error, status, request) {
+  //     console.log(error);
+  //   }
+  // });
 }
 
 function CookieRemove() {
