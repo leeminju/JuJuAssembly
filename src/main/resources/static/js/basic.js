@@ -61,8 +61,8 @@ function getToken() {
 }
 
 function logout() {
-  CookieRemove();
   alert("로그아웃");
+  window.location.reload();
   // // SSE 연결 종료
   // if (source) {
   //   source.close();
