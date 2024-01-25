@@ -278,7 +278,7 @@ class ReportServiceTest {
     report.updateCategory(category);
     report.builder().image("https://test.com/image.jpg").build();
 
-    given(categoryRepository.getById(category.getId())).willReturn(category);
+    given(categoryRepository.findCategoryByIdOrElseThrow(category.getId())).willReturn(category);
     given(reportRepository.getById(report.getId())).willReturn(report);
 
     //수정할 report 생성
@@ -331,15 +331,15 @@ class ReportServiceTest {
     CategoryRequestDto categoryRequestDto = CategoryRequestDto.builder().name("ExistingCategory")
         .build();
     Category existingCategory = new Category(categoryRequestDto);
-    when(categoryRepository.getById(category.getId())).thenReturn(existingCategory);
+    when(categoryRepository.findCategoryByIdOrElseThrow(category.getId())).thenReturn(existingCategory);
     when(reportRepository.getById(report.getId())).thenReturn(report);
 
     // When
     reportService.deleteReport(category.getId(), report.getId());
 
     // Then
-    // CategoryRepository.getById() 메소드가 호출되었는지 확인
-    verify(categoryRepository, times(1)).getById(category.getId());
+    // CategoryRepository.findCategoryByIdOrElseThrow() 메소드가 호출되었는지 확인
+    verify(categoryRepository, times(1)).findCategoryByIdOrElseThrow(category.getId());
 
     // CategoryRepository.delete() 메소드가 호출되었는지 확인
     verify(reportRepository, times(1)).delete(report);

@@ -36,7 +36,7 @@ public class ReviewService {
       MultipartFile[] images, ReviewRequestDto requestDto, User user) throws Exception {
 
     categoryRepository.findCategoryByIdOrElseThrow(categoryId);
-    Product product = productRepository.getById(productId);
+    Product product = productRepository.findProductByIdOrElseThrow(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
 
     Review review = new Review(requestDto, product, user);
@@ -57,7 +57,7 @@ public class ReviewService {
   public Page<ReviewResponseDto> getProductsReview(Long categoryId, Long productId,
       Pageable pageable) {
     categoryRepository.findCategoryByIdOrElseThrow(categoryId);
-    Product product = productRepository.getById(productId);
+    Product product = productRepository.findProductByIdOrElseThrow(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
 
     Page<Review> reviews = reviewRepository.findAllByProduct(product, pageable);
@@ -70,7 +70,7 @@ public class ReviewService {
       MultipartFile[] images, ReviewRequestDto requestDto) throws Exception {
 
     categoryRepository.findCategoryByIdOrElseThrow(categoryId);
-    Product product = productRepository.getById(productId);
+    Product product = productRepository.findProductByIdOrElseThrow(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
     Review review = reviewRepository.getById(reviewId);
     checkReviewProductAndProductIdEquality(review, productId);
@@ -95,7 +95,7 @@ public class ReviewService {
   @Transactional
   public void deleteProductsReview(Long categoryId, Long productId, Long reviewId) {
     categoryRepository.findCategoryByIdOrElseThrow(categoryId);
-    Product product = productRepository.getById(productId);
+    Product product = productRepository.findProductByIdOrElseThrow(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
     Review review = reviewRepository.getById(reviewId);
     checkReviewProductAndProductIdEquality(review, productId);
@@ -118,7 +118,7 @@ public class ReviewService {
   @Transactional
   public boolean verifyReview(Long categoryId, Long productId, Long reviewId) {
     categoryRepository.findCategoryByIdOrElseThrow(categoryId);
-    Product product = productRepository.getById(productId);
+    Product product = productRepository.findProductByIdOrElseThrow(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
     Review review = reviewRepository.getById(reviewId);
     checkReviewProductAndProductIdEquality(review, productId);

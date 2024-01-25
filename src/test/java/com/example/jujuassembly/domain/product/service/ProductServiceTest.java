@@ -188,7 +188,7 @@ public class ProductServiceTest {
     // ...
 
     // Repository 모의 설정
-    when(productRepository.getById(productId)).thenReturn(mockProduct);
+    when(productRepository.findProductByIdOrElseThrow(productId)).thenReturn(mockProduct);
     when(categoryRepository.existsById(categoryId)).thenReturn(true);
 
     // when
@@ -285,7 +285,7 @@ public class ProductServiceTest {
     when(mockProduct.getCategory()).thenReturn(modifideCategory);
 
     // Repository 모의 설정
-    when(productRepository.getById(productId)).thenReturn(mockProduct);
+    when(productRepository.findProductByIdOrElseThrow(productId)).thenReturn(mockProduct);
     when(categoryRepository.existsById(categoryId)).thenReturn(true);
 
     // MultipartFile 객체 초기화 및 모의 설정
@@ -317,7 +317,7 @@ public class ProductServiceTest {
     productId = 100L;
 
     Product product = new Product(requestDto, category);
-    when(productRepository.getById(productId)).thenReturn(product);
+    when(productRepository.findProductByIdOrElseThrow(productId)).thenReturn(product);
 
     // when
     productService.deleteProduct(productId);

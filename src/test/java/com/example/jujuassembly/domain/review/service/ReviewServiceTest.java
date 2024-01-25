@@ -122,7 +122,7 @@ class ReviewServiceTest {
         .reviewImages(reviewImages).reviewLikes(reviewLikes).build();
 
     given(categoryRepository.findCategoryByIdOrElseThrow(categoryId)).willReturn(category1);
-    given(productRepository.getById(productId)).willReturn(product);
+    given(productRepository.findProductByIdOrElseThrow(productId)).willReturn(product);
     given(reviewRepository.save(any(Review.class))).willReturn(review);
 
     //when
@@ -146,7 +146,7 @@ class ReviewServiceTest {
         .reviewImages(reviewImages).reviewLikes(reviewLikes).build();
 
     given(categoryRepository.findCategoryByIdOrElseThrow(categoryId)).willReturn(category1);
-    given(productRepository.getById(categoryId)).willReturn(product);
+    given(productRepository.findProductByIdOrElseThrow(categoryId)).willReturn(product);
     given(reviewRepository.getById(reviewId)).willReturn(review);
     //when
     ReviewResponseDto responseDto = reviewService.updateProductsReview(categoryId, productId,
@@ -167,7 +167,7 @@ class ReviewServiceTest {
         .reviewImages(reviewImages).reviewLikes(reviewLikes).build();
 
     given(categoryRepository.findCategoryByIdOrElseThrow(categoryId)).willReturn(category1);
-    given(productRepository.getById(categoryId)).willReturn(product);
+    given(productRepository.findProductByIdOrElseThrow(productId)).willReturn(product);
     given(reviewRepository.getById(reviewId)).willReturn(review);
     //when
     reviewService.deleteProductsReview(categoryId, productId, reviewId);
@@ -188,8 +188,8 @@ class ReviewServiceTest {
         .star(4.0).munchies("순대").product(product).user(user)
         .reviewImages(reviewImages).reviewLikes(reviewLikes).build();
 
-    given(categoryRepository.getById(categoryId)).willReturn(category1);
-    given(productRepository.getById(productId)).willReturn(product);
+    given(categoryRepository.findCategoryByIdOrElseThrow(categoryId)).willReturn(category1);
+    given(productRepository.findProductByIdOrElseThrow(productId)).willReturn(product);
     // 가상의 Review 엔티티 리스트 생성
     List<Review> reviewList = Arrays.asList(review, review2);
 
@@ -258,8 +258,8 @@ class ReviewServiceTest {
         .star(4.0).munchies("조개탕").product(product).user(user).isVerified(false)
         .reviewImages(reviewImages).reviewLikes(reviewLikes).build();
     //given
-    given(categoryRepository.getById(categoryId)).willReturn(category1);
-    given(productRepository.getById(productId)).willReturn(product);
+    given(categoryRepository.findCategoryByIdOrElseThrow(categoryId)).willReturn(category1);
+    given(productRepository.findProductByIdOrElseThrow(productId)).willReturn(product);
     given(reviewRepository.getById(reviewId)).willReturn(review);
 
     //when
@@ -276,8 +276,8 @@ class ReviewServiceTest {
         .star(4.0).munchies("조개탕").product(product).user(user).isVerified(true)
         .reviewImages(reviewImages).reviewLikes(reviewLikes).build();
     //given
-    given(categoryRepository.getById(categoryId)).willReturn(category1);
-    given(productRepository.getById(productId)).willReturn(product);
+    given(categoryRepository.findCategoryByIdOrElseThrow(categoryId)).willReturn(category1);
+    given(productRepository.findProductByIdOrElseThrow(productId)).willReturn(product);
     given(reviewRepository.getById(reviewId)).willReturn(review);
 
     //when

@@ -81,7 +81,7 @@ class ReviewLikeServiceTest {
     product = Product.builder().id(productId).category(category).build();
     review = Review.builder().id(reviewId).product(product).user(reviewUser).build();
 
-    when(productRepository.getById(productId)).thenReturn(product);
+    when(productRepository.findProductByIdOrElseThrow(productId)).thenReturn(product);
     when(categoryRepository.existsById(categoryId)).thenReturn(true);
     when(reviewRepository.getById(reviewId)).thenReturn(review);
   }

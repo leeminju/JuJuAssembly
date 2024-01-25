@@ -88,7 +88,7 @@ class LikeServiceTest implements CategoryTest {
 
     when(mockProduct.getCategory()).thenReturn(mockCategory);
     when(mockCategory.getId()).thenReturn(categoryId);
-    when(productRepository.getById(productId)).thenReturn(mockProduct);
+    when(productRepository.findProductByIdOrElseThrow(productId)).thenReturn(mockProduct);
     when(mockUser.getId()).thenReturn(userId);
     when(likeRepository.findAllByUserId(userId)).thenReturn(Collections.emptyList());
 
@@ -170,7 +170,7 @@ class LikeServiceTest implements CategoryTest {
     Like like = Like.builder().user(user).product(product).build();
 
     // Mocking 설정
-    when(productRepository.getById(productId)).thenReturn(product);
+    when(productRepository.findProductByIdOrElseThrow(productId)).thenReturn(product);
     when(likeRepository.findByProductAndUser(product, user)).thenReturn(Optional.of(like));
 
     // 테스트 대상 메서드 호출

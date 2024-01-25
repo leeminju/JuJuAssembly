@@ -39,7 +39,7 @@ public class ReviewLikeService {
       User user) {
 
     categoryRepository.existsById(categoryId);
-    Product product = productRepository.getById(productId);
+    Product product = productRepository.findProductByIdOrElseThrow(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
     Review review = reviewRepository.getById(reviewId);
     checkReviewProductAndProductIdEquality(review, productId);
@@ -63,7 +63,7 @@ public class ReviewLikeService {
       Long reviewId, User user) {
     ReviewLikeResponseDto responseDto = null;
     categoryRepository.existsById(categoryId);
-    Product product = productRepository.getById(productId);
+    Product product = productRepository.findProductByIdOrElseThrow(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
     Review review = reviewRepository.getById(reviewId);
     checkReviewProductAndProductIdEquality(review, productId);

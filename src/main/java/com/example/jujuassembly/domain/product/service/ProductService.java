@@ -71,7 +71,7 @@ public class ProductService {
   // 상품 상세 조회
   @Transactional(readOnly = true)
   public ProductResponseDto getProduct(Long productId, Long categoryId) {
-    Product product = productRepository.getById(productId);
+    Product product = productRepository.findProductByIdOrElseThrow(productId);
 
     if (!categoryRepository.existsById(categoryId)) {
       throw new ApiException("해당 카테고리가 존재하지 않습니다.", HttpStatus.NOT_FOUND);
@@ -95,7 +95,7 @@ public class ProductService {
   @Transactional
   public ProductResponseDto updateProduct(Long categoryId, Long productId,
       ProductModifyRequestDto requestDto, MultipartFile image) throws IOException {
-    Product product = productRepository.getById(productId);
+    Product product = productRepository.findProductByIdOrElseThrow(productId);
 
     if (!categoryRepository.existsById(categoryId)) {
       throw new ApiException("해당 카테고리가 존재하지 않습니다.", HttpStatus.NOT_FOUND);
@@ -118,7 +118,7 @@ public class ProductService {
 
   // 상품 삭제
   public void deleteProduct(Long productId) {
-    Product product = productRepository.getById(productId);
+    Product product = productRepository.findProductByIdOrElseThrow(productId);
 
     //기존의 파일 모두 삭제
     s3Manager.deleteAllImageFiles(productId.toString(), S3Manager.PRODUCT_DIRECTORY_NAME);

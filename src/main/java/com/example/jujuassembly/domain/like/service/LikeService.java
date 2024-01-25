@@ -27,7 +27,7 @@ public class LikeService {
   //좋아요
   public void addLike(Long categoryId, Long productId, User user) {
     //상품, 카테고리 존재여부 확인
-    Product product = productRepository.getById(productId);
+    Product product = productRepository.findProductByIdOrElseThrow(productId);
 
     if (!product.getCategory().getId().equals(categoryId)) {
       throw new ApiException("해당 상품이 해당 카테고리에 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
@@ -56,7 +56,7 @@ public class LikeService {
 
   //좋아요 취소
   public void cancelLike(Long productId, User user) {
-    Product product = productRepository.getById(productId);
+    Product product = productRepository.findProductByIdOrElseThrow(productId);
     Like like = likeRepository.findByProductAndUser(product, user).orElseThrow
         (() -> new ApiException("좋아요한 기록이 없습니다.", HttpStatus.NOT_FOUND)
         );
@@ -69,7 +69,7 @@ public class LikeService {
   }
 
   public Boolean getLike(Long productId, User user) {
-    Product product = productRepository.getById(productId);
+    Product product = productRepository.findProductByIdOrElseThrow(productId);
     return likeRepository.existsByProductAndUser(product, user);
   }
 }
