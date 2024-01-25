@@ -125,10 +125,10 @@ public class NotificationService {
 
             switch (statusString) {
               case "PROCEEDING":
-                content = report.getUser().getNickname() + "님이 제보한 상품 " + report.getName() + "가(이) 비채택되었습니다.";
+                content = report.getUser().getNickname() + "님이 제보한 상품 " + report.getName() + "가(이) 진행중입니다.";
                 break;
               case "ADOPTED":
-                content = report.getUser().getNickname() + "님이 제보한 상품 " + report.getName() + "가(이) 비채택되었습니다.";
+                content = report.getUser().getNickname() + "님이 제보한 상품 " + report.getName() + "가(이) 채택되었습니다.";
                 break;
               case "UN_ADOPTED":
                 content = report.getUser().getNickname() + "님이 제보한 상품 " + report.getName() + "가(이) 비채택되었습니다.";
