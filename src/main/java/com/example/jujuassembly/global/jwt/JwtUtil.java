@@ -42,7 +42,7 @@ public class JwtUtil {
   // Token 식별자
   public static final String BEARER_PREFIX = "Bearer ";
 
-  public static final long ACCESS_TOKEN_TIME =  1000;  // 15분
+  public static final long ACCESS_TOKEN_TIME = 15 * 60 * 1000;  // 15분
 
   public static final long REFRESH_TOKEN_TIME = 7 * 24 * 60 * 60 * 1000;  // 7일
 
@@ -210,7 +210,7 @@ public class JwtUtil {
 
       return cookie;
     } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
+      throw new ApiException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
