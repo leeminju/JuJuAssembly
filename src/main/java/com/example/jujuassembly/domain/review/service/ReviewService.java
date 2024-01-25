@@ -92,6 +92,7 @@ public class ReviewService {
     return new ReviewResponseDto(review);
   }
 
+  @Transactional
   public void deleteProductsReview(Long categoryId, Long productId, Long reviewId) {
     categoryRepository.getById(categoryId);
     Product product = productRepository.getById(productId);
