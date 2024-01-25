@@ -68,8 +68,22 @@
   }
 
   function logout() {
-    CookieRemove();
-    alert("로그아웃");
+    $.ajax({
+      type: 'POST',
+      url: `/v1/users/logout`,
+      success: function (response) {
+        msg = response['msg'];
+        alert(msg)
+        window.location.href = "/login";
+      },
+      error(error, status, request) {
+        if (error['responseJSON']['data']) {
+          alert(JSON.stringify(error['responseJSON']['data']));
+        } else {
+          alert(error['responseJSON']['msg']);
+        }
+      }
+    });
     // $.ajax({
     //   type: 'POST'
     //   , url: `/v1/users/logout`
