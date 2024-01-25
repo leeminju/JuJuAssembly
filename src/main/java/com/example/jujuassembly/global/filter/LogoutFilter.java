@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j(topic = "AccessTokenManagementFilter")
@@ -29,7 +30,7 @@ public class LogoutFilter extends OncePerRequestFilter {
     if (uri.equals("/v1/users/logout")) {
 
       if (accessToken == null) {
-        filterUtil.setMassageToResponse("토큰이 존재하지 않습니다.", response);
+        filterUtil.setMassageToResponse("토큰이 존재하지 않습니다.", response, HttpStatus.UNAUTHORIZED);
         return;
       }
 
@@ -40,7 +41,7 @@ public class LogoutFilter extends OncePerRequestFilter {
       Cookie cookie = jwtUtil.createExpiredCookie(JwtUtil.AUTHORIZATION_HEADER, "logged-out");
       response.addCookie(cookie);
 
-      filterUtil.setMassageToResponse("로그아웃 되었습니다.", response);
+      filterUtil.setMassageToResponse("로그아웃 되었습니다.", response,HttpStatus.UNAUTHORIZED);
       return;
     }
 

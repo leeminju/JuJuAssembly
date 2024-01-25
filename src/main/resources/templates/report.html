@@ -156,7 +156,7 @@
             <div class="card-body">
               <h5 class="card-title">${name}</h5>
               <p class="card-text">${status}</p>
-                      <div><button onclick="updateId('${id}','${categoryId}','${name}')" data-bs-toggle="modal"
+                      <div><button onclick="updateId('${id}','${categoryId}','${name}','${image}')" data-bs-toggle="modal"
             data-bs-target="#updateReport"
             class="btn btn-light" style="margin-left:10px;float: right">수정</button>
           <button onclick="removeReport(${categoryId},${id})" class="btn btn-light" style="float: right">삭제</button></div>
@@ -175,17 +175,35 @@
 
   }
 
-  function updateId(id, categoryId, name) {
+  //제보 상품 수정 버튼 클릭시
+  function updateId(id, categoryId, name, image) {
     $('#update_report_name').val(name);
     $('#update_btn').val(id);
     current_categoryId = categoryId;
-
+    $('#existing_image').attr('src', image);
+    $('#update_report_image').hide()
+    //$('#update_report_image').attr('src', image);
+    $('#image_remove_btn').show().attr("disabled", false);
   }
 
+  //제보 게시물 업데이트 (update버튼 클릭시)
   function updateReport() {
-    if (!update_imageFile) {
-      alert("이미지를 선택해주세요");
+    let original = false;
+     const formData = new FormData();
+    var original_image = $('#image_remove_btn').val();
+
+    if (!original_image) {
+      original = false;//기존 이미지 삭제됨
+    } else {
+      original = true;//기존 이미지 유지
     }
+
+    if (!updateFile) {
+      formData.append('image', null);
+    } else {
+      formData.append('image', updateFile);
+    }
+
 
     let id = $('#update_btn').val();
     let name = $('#update_report_name').val();
@@ -196,8 +214,6 @@
       "modifiedCategoryId": categoryId
     }
 
-    const formData = new FormData();
-    formData.append('image', update_imageFile);
     formData.append("data",
         new Blob([JSON.stringify(data)], {type: "application/json"}));
 
@@ -217,6 +233,10 @@
     });
   }
 
+
+
+
+
   function removeReport(category, id) {
     $.ajax({
       type: "DELETE",
@@ -229,6 +249,30 @@
       }
     });
   }
+
+  function removeOriginal() {
+    $('#existing_image').hide();
+    $('#image_remove_btn').val(null).attr('disabled', true);
+    // 파일 입력 재설정
+    $('#update_report_image').show();
+  }
+
+  function loadExistingImage() {
+    // 선택된 파일 가져오기
+    var selectedFile = document.getElementById('update_report_image').files[0];
+
+    // 파일이 선택되었는지 확인
+    if (selectedFile) {
+      // 선택한 이미지 표시
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        $('#existing_image').attr('src', e.target.result).show();
+        $('#image_remove_btn').show().attr('disabled', false);
+      };
+      reader.readAsDataURL(selectedFile);
+    }
+  }
+
 </script>
 
 <body>
@@ -421,7 +465,11 @@
           </div>
         </div>
         <input type="text" class="form-control" id="update_report_name" placeholder="이름">
-        <input type="file" accept="image/*" id="update_report_image">
+       <!-- <input type="file" accept="image/*" id="update_report_image">-->
+   < <img id="existing_image" src="" alt="기존 이미지" style="max-width: 100%; max-height: 200px;">
+        <button id="image_remove_btn" class="btn btn-secondary" onclick="removeOriginal()">기존 이미지 삭제</button>
+       <!-- <input th:class="form-control" type="file" accept="image/*" id="edit_image">-->
+        <input th:class="form-control" type="file" accept="image/*" id="update_report_image">
       </div>
       <div class="modal-footer">
         <button onclick="window.location.reload();" type="button" class="btn btn-secondary"

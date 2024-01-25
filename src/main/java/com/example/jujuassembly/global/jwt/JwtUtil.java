@@ -161,7 +161,7 @@ public class JwtUtil {
     Claims info = getUserInfoFromToken(refreshToken.substring(7));
     String loginId = info.getSubject();
     if (!redisTemplate.hasKey(loginId) || !redisTemplate.hasKey(accessToken)) {
-      filterUtil.setMassageToResponse("redis에 해당 access token이 존재하지 않음.", response);
+      filterUtil.setMassageToResponse("redis에 해당 access token이 존재하지 않음.", response,HttpStatus.NOT_FOUND);
     }
     redisTemplate.delete(accessToken);
     redisTemplate.delete(loginId);

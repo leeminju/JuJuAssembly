@@ -51,9 +51,6 @@
     const auth = getToken();
 
     if (auth !== undefined && auth !== '') {
-      $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
-        jqXHR.setRequestHeader('Authorization', auth);
-      });
       logout();
     } else {
       return;
@@ -71,18 +68,19 @@
   }
 
   function logout() {
-
-    $.ajax({
-      type: 'POST'
-      , url: `/v1/users/logout`
-      , success: function (response) {
-        alert(response['msg']);
-        CookieRemove();
-        window.location.reload();
-      }, error(error, status, request) {
-        console.log(error);
-      }
-    });
+    CookieRemove();
+    alert("로그아웃");
+    // $.ajax({
+    //   type: 'POST'
+    //   , url: `/v1/users/logout`
+    //   , success: function (response) {
+    //     alert(response['msg']);
+    //     CookieRemove();
+    //     window.location.reload();
+    //   }, error(error, status, request) {
+    //     console.log(error);
+    //   }
+    // });
   }
 
   function CookieRemove() {
