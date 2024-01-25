@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 
 public interface RoomRepository extends JpaRepository<Room, Long> {
 
-  default Room getById(Long id) {
+  default Room findRoomByIdOrElseThrow(Long id) {
     return findById(id).orElseThrow(
         () -> new ApiException("해당하는 채팅방이 없습니다.", HttpStatus.NOT_FOUND)
     );

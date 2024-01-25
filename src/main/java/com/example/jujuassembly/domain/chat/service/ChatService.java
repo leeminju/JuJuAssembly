@@ -29,7 +29,7 @@ public class ChatService {
   public void save(Long roomId, ChatRequestDto chatRequestDto) {
     User sender = userRepository.findUserByIdOrElseThrow(chatRequestDto.getSenderId());
     User receiver = userRepository.findUserByIdOrElseThrow(chatRequestDto.getReceiverId());
-    Room room = roomRepository.getById(roomId);
+    Room room = roomRepository.findRoomByIdOrElseThrow(roomId);
     Chat chat = new Chat(room, sender, receiver, chatRequestDto.getMessage());
     chatRepository.save(chat);
   }
@@ -46,7 +46,7 @@ public class ChatService {
 
   @Transactional(readOnly = true)
   public List<ChatResponseDto> findAllChats(Long roomId) {
-    Room room = roomRepository.getById(roomId);
+    Room room = roomRepository.findRoomByIdOrElseThrow(roomId);
     List<Chat> chats = room.getChats();
 
     Collections.reverse(chats);

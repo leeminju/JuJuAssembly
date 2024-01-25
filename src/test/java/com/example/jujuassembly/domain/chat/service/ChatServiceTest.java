@@ -64,7 +64,7 @@ class ChatServiceTest {
 
     given(userRepository.findUserByIdOrElseThrow(chatRequestDto.getSenderId())).willReturn(sender);
     given(userRepository.findUserByIdOrElseThrow(chatRequestDto.getReceiverId())).willReturn(reciver);
-    given(roomRepository.getById(roomId)).willReturn(room);
+    given(roomRepository.findRoomByIdOrElseThrow(roomId)).willReturn(room);
 
     //when
     chatService.save(roomId, chatRequestDto);
@@ -99,8 +99,8 @@ class ChatServiceTest {
 
     // Mocking 설정
     when(userRepository.findUserByIdOrElseThrow(userId)).thenReturn(user);
-    when(roomRepository.getById(room1.getId())).thenReturn(room1);
-    when(roomRepository.getById(room2.getId())).thenReturn(room2);
+    when(roomRepository.findRoomByIdOrElseThrow(room1.getId())).thenReturn(room1);
+    when(roomRepository.findRoomByIdOrElseThrow(room2.getId())).thenReturn(room2);
     when(roomRepository.findByAdminIdOrUserId(userId, user.getId())).thenReturn(
         Arrays.asList(room1, room2));
 
@@ -134,7 +134,7 @@ class ChatServiceTest {
 
      // Mock 객체 설정
      Room roomMock = Mockito.mock(Room.class);  // Room을 Mock 객체로 만듦
-     when(roomRepository.getById(roomId)).thenReturn(roomMock);
+     when(roomRepository.findRoomByIdOrElseThrow(roomId)).thenReturn(roomMock);
      when(roomMock.getChats()).thenReturn(chatList);
 
      // 테스트 대상 메서드 호출
