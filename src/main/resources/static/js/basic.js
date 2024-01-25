@@ -61,8 +61,25 @@ function getToken() {
 }
 
 function logout() {
-  alert("로그아웃");
-  window.location.reload();
+
+  $.ajax({
+    type: 'POST',
+    url: `/v1/users/logout`,
+    success: function (response) {
+      msg = response['msg'];
+      alert(msg)
+      window.location.href = "/";
+    },
+    error(error, status, request) {
+      if (error['responseJSON']['data']) {
+        alert(JSON.stringify(error['responseJSON']['data']));
+      } else {
+        alert(error['responseJSON']['msg']);
+      }
+    }
+  });
+
+
   // // SSE 연결 종료
   // if (source) {
   //   source.close();

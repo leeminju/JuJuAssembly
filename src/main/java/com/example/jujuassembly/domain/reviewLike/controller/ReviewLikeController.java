@@ -34,15 +34,15 @@ public class ReviewLikeController {
   public ResponseEntity<ApiResponse> likeReview(@PathVariable Long categoryId,
       @PathVariable Long productId, @PathVariable Long reviewId,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
-    Optional<ReviewLikeResponseDto> response = reviewLikeService.likeReview(categoryId, productId,
+    boolean response = reviewLikeService.likeReview(categoryId, productId,
         reviewId,
         userDetails.getUser());
-    if (response.isPresent()) {
+    if (response) {
       return ResponseEntity.ok()
-          .body(new ApiResponse("리뷰를 추천했습니다.", HttpStatus.OK.value(), response.get()));
+          .body(new ApiResponse("리뷰를 추천했습니다.", HttpStatus.OK.value(), true));
     } else {
       return ResponseEntity.ok()
-          .body(new ApiResponse("리뷰를 추천 취소했습니다.", HttpStatus.OK.value()));
+          .body(new ApiResponse("리뷰를 추천 취소했습니다.", HttpStatus.OK.value(), false));
     }
   }
 
@@ -59,13 +59,14 @@ public class ReviewLikeController {
   public ResponseEntity<ApiResponse> dislikeReview(@PathVariable Long categoryId,
       @PathVariable Long productId, @PathVariable Long reviewId,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
-    Optional<ReviewLikeResponseDto> response = reviewLikeService.dislikeReview(categoryId, productId, reviewId, userDetails.getUser());
-    if (response.isPresent()) {
+    boolean response = reviewLikeService.dislikeReview(categoryId,
+        productId, reviewId, userDetails.getUser());
+    if (response) {
       return ResponseEntity.ok()
-          .body(new ApiResponse("리뷰를 비추천했습니다.", HttpStatus.OK.value(), response.get()));
+          .body(new ApiResponse("리뷰를 비추천했습니다.", HttpStatus.OK.value(), true));
     } else {
       return ResponseEntity.ok()
-          .body(new ApiResponse("리뷰를 비추천 취소했습니다.", HttpStatus.OK.value()));
+          .body(new ApiResponse("리뷰를 비추천 취소했습니다.", HttpStatus.OK.value(), false));
     }
   }
 }
