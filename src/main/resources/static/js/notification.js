@@ -51,7 +51,7 @@ function initializeSSE() {
         source = null;
       }
       // 필요한 경우 재연결 로직
-      setTimeout(initializeSSE, 5000); // 5초 후 재연결 시도
+      setTimeout(initializeSSE, 3000); // 5초 후 재연결 시도
     }
   } else {
     console.log("브라우저가 SSE를 지원하지 않습니다.");
