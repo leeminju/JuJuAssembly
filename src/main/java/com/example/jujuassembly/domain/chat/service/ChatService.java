@@ -27,16 +27,16 @@ public class ChatService {
 
   @Transactional
   public void save(Long roomId, ChatRequestDto chatRequestDto) {
-    User sender = userRepository.getById(chatRequestDto.getSenderId());
-    User receiver = userRepository.getById(chatRequestDto.getReceiverId());
-    Room room = roomRepository.getById(roomId);
+    User sender = userRepository.findUserByIdOrElseThrow(chatRequestDto.getSenderId());
+    User receiver = userRepository.findUserByIdOrElseThrow(chatRequestDto.getReceiverId());
+    Room room = roomRepository.findRoomByIdOrElseThrow(roomId);
     Chat chat = new Chat(room, sender, receiver, chatRequestDto.getMessage());
     chatRepository.save(chat);
   }
 
   @Transactional(readOnly = true)
   public List<LatestChatResponseDto> findAllLatestChats(Long id) {
-    User user = userRepository.getById(id);
+    User user = userRepository.findUserByIdOrElseThrow(id);
     List<Room> rooms = roomRepository.findByAdminIdOrUserId(id, user.getId());
     return rooms.stream()
         .map(room -> new LatestChatResponseDto(room.getPartner(id), room.getLatestChat()))
@@ -46,7 +46,7 @@ public class ChatService {
 
   @Transactional(readOnly = true)
   public List<ChatResponseDto> findAllChats(Long roomId) {
-    Room room = roomRepository.getById(roomId);
+    Room room = roomRepository.findRoomByIdOrElseThrow(roomId);
     List<Chat> chats = room.getChats();
 
     Collections.reverse(chats);

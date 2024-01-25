@@ -62,9 +62,9 @@ class ChatServiceTest {
         .build();
     Room room = Room.builder().id(roomId).admin(sender).user(reciver).build();
 
-    given(userRepository.getById(chatRequestDto.getSenderId())).willReturn(sender);
-    given(userRepository.getById(chatRequestDto.getReceiverId())).willReturn(reciver);
-    given(roomRepository.getById(roomId)).willReturn(room);
+    given(userRepository.findUserByIdOrElseThrow(chatRequestDto.getSenderId())).willReturn(sender);
+    given(userRepository.findUserByIdOrElseThrow(chatRequestDto.getReceiverId())).willReturn(reciver);
+    given(roomRepository.findRoomByIdOrElseThrow(roomId)).willReturn(room);
 
     //when
     chatService.save(roomId, chatRequestDto);
@@ -98,9 +98,9 @@ class ChatServiceTest {
     ReflectionTestUtils.setField(chat2, Chat.class, "createdAt", now, LocalDateTime.class);
 
     // Mocking 설정
-    when(userRepository.getById(userId)).thenReturn(user);
-    when(roomRepository.getById(room1.getId())).thenReturn(room1);
-    when(roomRepository.getById(room2.getId())).thenReturn(room2);
+    when(userRepository.findUserByIdOrElseThrow(userId)).thenReturn(user);
+    when(roomRepository.findRoomByIdOrElseThrow(room1.getId())).thenReturn(room1);
+    when(roomRepository.findRoomByIdOrElseThrow(room2.getId())).thenReturn(room2);
     when(roomRepository.findByAdminIdOrUserId(userId, user.getId())).thenReturn(
         Arrays.asList(room1, room2));
 
@@ -108,7 +108,7 @@ class ChatServiceTest {
     List<LatestChatResponseDto> result = chatService.findAllLatestChats(userId);
 
     // Mocking된 메서드의 호출 여부 검증
-    verify(userRepository, times(1)).getById(userId);
+    verify(userRepository, times(1)).findUserByIdOrElseThrow(userId);
     verify(roomRepository, times(1)).findByAdminIdOrUserId(userId, user.getId());
 
     // 결과 검증 - 여러 가지 방법 중에 선택
@@ -134,7 +134,7 @@ class ChatServiceTest {
 
      // Mock 객체 설정
      Room roomMock = Mockito.mock(Room.class);  // Room을 Mock 객체로 만듦
-     when(roomRepository.getById(roomId)).thenReturn(roomMock);
+     when(roomRepository.findRoomByIdOrElseThrow(roomId)).thenReturn(roomMock);
      when(roomMock.getChats()).thenReturn(chatList);
 
      // 테스트 대상 메서드 호출
@@ -153,7 +153,7 @@ class ChatServiceTest {
      assertEquals(expected.get(1).getMessage(), result.get(1).getMessage());
 
      // Mock 객체 검증
-     verify(roomRepository, times(1)).getById(roomId);
+     verify(roomRepository, times(1)).findRoomByIdOrElseThrow(roomId);
      verify(roomMock, times(1)).getChats();
    }
 }
