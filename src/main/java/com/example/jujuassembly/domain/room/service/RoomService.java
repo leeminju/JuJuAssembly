@@ -28,8 +28,8 @@ public class RoomService {
             roomRequestDto.getUserId())
         .orElseGet(() ->
             new Room(
-                userRepository.getById(roomRequestDto.getAdminId()),
-                userRepository.getById(roomRequestDto.getUserId())
+                userRepository.findUserByIdOrElseThrow(roomRequestDto.getAdminId()),
+                userRepository.findUserByIdOrElseThrow(roomRequestDto.getUserId())
             )
         );
     Room savedRoom = roomRepository.save(room);
@@ -38,8 +38,7 @@ public class RoomService {
     Long recipientId = user.getId().equals(roomRequestDto.getAdminId())
         ? roomRequestDto.getUserId()
         : roomRequestDto.getAdminId();
-    User recipient = userRepository.findById(recipientId)
-        .orElseThrow(() -> new ApiException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+    User recipient = userRepository.findUserByIdOrElseThrow(recipientId);
 
     // 해당 유저에게 알림 전송
     notificationService.send(recipient, "ROOM", savedRoom.getId(), user);

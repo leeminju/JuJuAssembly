@@ -59,10 +59,8 @@ class RoomServiceTest {
     Room fakeRoom = new Room(adminUser, normalUser);
 
     // Mocking 설정
-    when(userRepository.getById(adminId)).thenReturn(adminUser);
-    when(userRepository.getById(userId)).thenReturn(normalUser);
-    when(userRepository.findById(userId)).thenReturn(Optional.of(normalUser));
-    when(userRepository.findById(adminId)).thenReturn(Optional.of(adminUser));
+    when(userRepository.findUserByIdOrElseThrow(adminId)).thenReturn(adminUser);
+    when(userRepository.findUserByIdOrElseThrow(userId)).thenReturn(normalUser);
     when(roomRepository.findByAdminIdAndUserId(adminId, userId)).thenReturn(Optional.of(fakeRoom));
     when(roomRepository.save(any(Room.class))).thenReturn(fakeRoom);
 
@@ -71,7 +69,8 @@ class RoomServiceTest {
         .send(any(User.class), anyString(), anyLong(), any(User.class));
 
     // 테스트 대상 메서드 호출
-    RoomRequestDto roomRequestDto = RoomRequestDto.builder().adminId(adminId).userId(userId).build();
+    RoomRequestDto roomRequestDto = RoomRequestDto.builder().adminId(adminId).userId(userId)
+        .build();
     RoomIdResponseDto result = roomService.getOrCreate(roomRequestDto, currentUser);
 
     // Mocking된 메서드의 호출 여부 검증
@@ -82,6 +81,7 @@ class RoomServiceTest {
     assertEquals(fakeRoom.getId(), result.getRoomId());
 
     // NotificationService 호출 검증
-    verify(notificationService, times(1)).send(eq(adminUser), eq("ROOM"), eq(fakeRoom.getId()), eq(currentUser));
+    verify(notificationService, times(1)).send(eq(adminUser), eq("ROOM"), eq(fakeRoom.getId()),
+        eq(currentUser));
   }
 }

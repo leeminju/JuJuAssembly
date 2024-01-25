@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
-  default Review getById(Long id) {
+  default Review findReviewByIdOrElseThrow(Long id) {
     return findById(id).orElseThrow(
         () -> new ApiException("해당하는 리뷰가 없습니다.", HttpStatus.NOT_FOUND)
     );

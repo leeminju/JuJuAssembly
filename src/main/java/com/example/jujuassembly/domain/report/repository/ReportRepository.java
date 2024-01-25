@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 
 public interface ReportRepository extends JpaRepository<Report, Long> {
 
-  default Report getById(Long id) {
+  default Report findReportByIdOrElseThrow(Long id) {
     return findById(id).orElseThrow(
         () -> new ApiException("해당하는 상품 제보가 없습니다.", HttpStatus.NOT_FOUND)
     );

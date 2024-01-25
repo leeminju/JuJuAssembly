@@ -170,8 +170,8 @@ public class KakaoService {
         String url = kakaoUserInfo.getImageUrl();
 
         // 카테고리를 임의로 지정
-        Category firstCategory = categoryRepository.getById(1L);
-        Category secondCatefory = categoryRepository.getById(2L);
+        Category firstCategory = categoryRepository.findCategoryByIdOrElseThrow(1L);
+        Category secondCatefory = categoryRepository.findCategoryByIdOrElseThrow(2L);
 
         kakaoUser = new User(email, kakaoUserInfo.getNickname(), email, encodedPassword, kakaoId,
             url, firstCategory, secondCatefory);

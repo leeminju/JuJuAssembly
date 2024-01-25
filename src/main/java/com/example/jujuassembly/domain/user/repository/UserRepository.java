@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-  default User getById(Long id){
+  default User findUserByIdOrElseThrow(Long id){
     return findById(id).orElseThrow(
         () -> new ApiException("해당하는 사용자가 없습니다.", HttpStatus.NOT_FOUND)
     );

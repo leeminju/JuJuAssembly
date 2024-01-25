@@ -35,8 +35,8 @@ public class ReviewService {
   public ReviewResponseDto createProductsReview(Long categoryId, Long productId,
       MultipartFile[] images, ReviewRequestDto requestDto, User user) throws Exception {
 
-    categoryRepository.getById(categoryId);
-    Product product = productRepository.getById(productId);
+    categoryRepository.findCategoryByIdOrElseThrow(categoryId);
+    Product product = productRepository.findProductByIdOrElseThrow(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
 
     Review review = new Review(requestDto, product, user);
@@ -56,8 +56,8 @@ public class ReviewService {
 
   public Page<ReviewResponseDto> getProductsReview(Long categoryId, Long productId,
       Pageable pageable) {
-    categoryRepository.getById(categoryId);
-    Product product = productRepository.getById(productId);
+    categoryRepository.findCategoryByIdOrElseThrow(categoryId);
+    Product product = productRepository.findProductByIdOrElseThrow(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
 
     Page<Review> reviews = reviewRepository.findAllByProduct(product, pageable);
@@ -69,10 +69,10 @@ public class ReviewService {
   public ReviewResponseDto updateProductsReview(Long categoryId, Long productId, Long reviewId,
       MultipartFile[] images, ReviewRequestDto requestDto) throws Exception {
 
-    categoryRepository.getById(categoryId);
-    Product product = productRepository.getById(productId);
+    categoryRepository.findCategoryByIdOrElseThrow(categoryId);
+    Product product = productRepository.findProductByIdOrElseThrow(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
-    Review review = reviewRepository.getById(reviewId);
+    Review review = reviewRepository.findReviewByIdOrElseThrow(reviewId);
     checkReviewProductAndProductIdEquality(review, productId);
 
     //기존의 파일 모두 삭제
@@ -92,11 +92,12 @@ public class ReviewService {
     return new ReviewResponseDto(review);
   }
 
+  @Transactional
   public void deleteProductsReview(Long categoryId, Long productId, Long reviewId) {
-    categoryRepository.getById(categoryId);
-    Product product = productRepository.getById(productId);
+    categoryRepository.findCategoryByIdOrElseThrow(categoryId);
+    Product product = productRepository.findProductByIdOrElseThrow(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
-    Review review = reviewRepository.getById(reviewId);
+    Review review = reviewRepository.findReviewByIdOrElseThrow(reviewId);
     checkReviewProductAndProductIdEquality(review, productId);
 
     // 해당 리뷰에 대한 모든 알림 삭제
@@ -108,7 +109,7 @@ public class ReviewService {
   }
 
   public Page<ReviewResponseDto> getMyReviews(Long userId, Pageable pageable) {
-    User user = userRepository.getById(userId);
+    User user = userRepository.findUserByIdOrElseThrow(userId);
 
     Page<Review> reviews = reviewRepository.findAllByUser(user, pageable);
     return reviews.map(ReviewResponseDto::new);
@@ -116,10 +117,10 @@ public class ReviewService {
 
   @Transactional
   public boolean verifyReview(Long categoryId, Long productId, Long reviewId) {
-    categoryRepository.getById(categoryId);
-    Product product = productRepository.getById(productId);
+    categoryRepository.findCategoryByIdOrElseThrow(categoryId);
+    Product product = productRepository.findProductByIdOrElseThrow(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
-    Review review = reviewRepository.getById(reviewId);
+    Review review = reviewRepository.findReviewByIdOrElseThrow(reviewId);
     checkReviewProductAndProductIdEquality(review, productId);
 
     review.changeVerified();//현재 값에서 바꾸기
