@@ -228,7 +228,6 @@ class ReportServiceTest {
     ReflectionTestUtils.setField(updatereport, Report.class, "id", 1L, Long.class);
 
     MultipartFile image = mock(MultipartFile.class);
-    when(image.isEmpty()).thenReturn(false);
     when(image.getContentType()).thenReturn("image/jpeg");
     String imageUrl = "https://modified.com/image.jpg";
     when(s3Manager.upload(eq(image), eq("reports"), eq(updatereport.getId()))).thenReturn(imageUrl);
