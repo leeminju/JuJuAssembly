@@ -78,7 +78,7 @@ function checkNotificationPermission() {
 }
 
 function showNotification(data) {
-  const notification = new Notification('새 알림', {
+  const notification = new Notification('JUJUASSEMBLY 알림', {
     body: data.content
   });
 
