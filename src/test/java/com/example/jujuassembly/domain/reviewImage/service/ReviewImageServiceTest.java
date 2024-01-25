@@ -15,7 +15,9 @@ import com.example.jujuassembly.domain.reviewImage.entity.ReviewImage;
 import com.example.jujuassembly.domain.reviewImage.repository.ReviewImageRepository;
 import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.s3.S3Manager;
+import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,6 +41,9 @@ class ReviewImageServiceTest {
   ReviewImageRepository reviewImageRepository;
   @Mock
   S3Manager s3Manager;
+
+  @Mock
+  ReviewImage reviewImage;
 
   @InjectMocks
   ReviewImageService reviewImageService;
@@ -119,4 +124,30 @@ class ReviewImageServiceTest {
     verify(reviewImageRepository, times(1)).deleteAllByReview(eq(review));
     verify(s3Manager, times(1)).deleteAllImageFiles(eq(review.getId().toString()), eq(dirName));
   }
+
+  @Test
+  @DisplayName("리뷰 이미지 단건 삭제 테스트")
+  void deleteReviewImageTest() {
+    // given
+    Long reviewId = 1L;
+    String imageUrl = "https://sparta.com/image.jpg";
+
+    // 가상의 ReviewImage 객체 생성
+    Review mockReview = Review.builder().id(reviewId).build();
+   ReviewImage mockImage2 = ReviewImage.builder().id(1L)
+        .review(mockReview).imageUrl(imageUrl).build();
+
+    // 가상의 이미지가 리뷰와 연관되어 있는지 확인하는 조건 설정
+    when(reviewImageRepository.getById(1L)).thenReturn(mockImage2);
+
+    // deleteReviewImage 메서드 호출
+    reviewImageService.deleteReviewImage(reviewId, 1L);
+
+    // ReviewImage가 삭제되었는지 확인
+    verify(reviewImageRepository).delete(mockImage2);
+
+    // S3Manager로 이미지 파일이 삭제되었는지 확인
+    verify(s3Manager).deleteImageFile(imageUrl, S3Manager.REVIEW_DIRECTORY_NAME);
+  }
 }
+
