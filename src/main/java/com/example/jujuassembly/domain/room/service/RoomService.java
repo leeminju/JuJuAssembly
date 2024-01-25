@@ -1,10 +1,10 @@
 package com.example.jujuassembly.domain.room.service;
 
 import com.example.jujuassembly.domain.notification.service.NotificationService;
-import com.example.jujuassembly.domain.room.repository.RoomRepository;
 import com.example.jujuassembly.domain.room.dto.RoomIdResponseDto;
 import com.example.jujuassembly.domain.room.dto.RoomRequestDto;
 import com.example.jujuassembly.domain.room.entity.Room;
+import com.example.jujuassembly.domain.room.repository.RoomRepository;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
