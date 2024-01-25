@@ -49,11 +49,7 @@ public class ReviewLike extends Timestamped {
     this.user = user;
   }
 
-  public void like() {
-    this.status = ReviewLikeStatusEnum.LIKE;
-  }
-
-  public void dislike() {
-    this.status = ReviewLikeStatusEnum.DISLIKE;
+  public void setStatus(ReviewLikeStatusEnum status) {
+    this.status = status;
   }
 }
