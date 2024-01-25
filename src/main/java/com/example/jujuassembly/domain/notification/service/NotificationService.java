@@ -10,6 +10,8 @@ import com.example.jujuassembly.domain.report.entity.Report;
 import com.example.jujuassembly.domain.report.repository.ReportRepository;
 import com.example.jujuassembly.domain.review.entity.Review;
 import com.example.jujuassembly.domain.review.repository.ReviewRepository;
+import com.example.jujuassembly.domain.room.entity.Room;
+import com.example.jujuassembly.domain.room.repository.RoomRepository;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.global.exception.ApiException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,6 +38,7 @@ public class NotificationService {
   private final NotificationRepository notificationRepository;
   private final ReviewRepository reviewRepository;
   private final ReportRepository reportRepository;
+  private final RoomRepository roomRepository;
 
 
   // 사용자가 SSE를 통해 알림을 실시간으로 받을 수 있게 설정하는 메서드
@@ -134,6 +137,18 @@ public class NotificationService {
                 content = "알 수 없는 상태입니다.";
             }
           }
+        }
+        break;
+
+      case "ROOM":
+        // 채팅방 ID를 기반으로 채팅방 정보 조회
+        Optional<Room> optionalRoom = roomRepository.findById(entityId);
+        if (optionalRoom.isPresent()) {
+          Room room = optionalRoom.get();
+          User partner = room.getPartner(user.getId()); // 상대방 정보
+
+          url = "/chatroom?roomId=" + entityId; // 채팅방 URL 지정
+          content = partner.getNickname() + "님에게 문의가 왔습니다.";
         }
         break;
 
