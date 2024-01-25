@@ -72,8 +72,7 @@ class ReportServiceTest {
     MultipartFile image = mock(MultipartFile.class);
 
     given(categoryRepository.findCategoryByIdOrElseThrow(category.getId())).willReturn(category);
-//    given(reportRepository.getById(report.getId())).willReturn(Optional.of(report));
-    given(image.getContentType()).willReturn("image/png");
+   given(image.getContentType()).willReturn("image/png");
 
     //when
 
@@ -219,7 +218,7 @@ class ReportServiceTest {
     //이미지 파일 생성
 
     given(categoryRepository.findCategoryByIdOrElseThrow(category.getId())).willReturn(category);
-    given(reportRepository.getById(report.getId())).willReturn(report);
+    given(reportRepository.findReportByIdOrElseThrow(report.getId())).willReturn(report);
 
     //수정할 report 생성
     //리포트 초기화
@@ -279,7 +278,7 @@ class ReportServiceTest {
     report.builder().image("https://test.com/image.jpg").build();
 
     given(categoryRepository.findCategoryByIdOrElseThrow(category.getId())).willReturn(category);
-    given(reportRepository.getById(report.getId())).willReturn(report);
+    given(reportRepository.findReportByIdOrElseThrow(report.getId())).willReturn(report);
 
     //수정할 report 생성
     //리포트 초기화
@@ -332,7 +331,7 @@ class ReportServiceTest {
         .build();
     Category existingCategory = new Category(categoryRequestDto);
     when(categoryRepository.findCategoryByIdOrElseThrow(category.getId())).thenReturn(existingCategory);
-    when(reportRepository.getById(report.getId())).thenReturn(report);
+    when(reportRepository.findReportByIdOrElseThrow(report.getId())).thenReturn(report);
 
     // When
     reportService.deleteReport(category.getId(), report.getId());

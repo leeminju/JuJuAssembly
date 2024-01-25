@@ -82,7 +82,7 @@ public class ReportService {
       throws IOException {
 
     categoryRepository.findCategoryByIdOrElseThrow(categoryId);
-    Report report = reportRepository.getById(reportId);
+    Report report = reportRepository.findReportByIdOrElseThrow(reportId);
     if (!report.getCategory().getId().equals(categoryId)) {
       throw new ApiException("현재 카테고리가 아닙니다.", HttpStatus.BAD_REQUEST);
     }
@@ -114,7 +114,7 @@ public class ReportService {
   @Transactional
   public ReportResponseDto patchReportStatus(Long categoryId, Long reportId, ReportStatusRequestDto requestDto, User user) {
     categoryRepository.findCategoryByIdOrElseThrow(categoryId);
-    Report report = reportRepository.getById(reportId);
+    Report report = reportRepository.findReportByIdOrElseThrow(reportId);
     report.updateStatus(requestDto.getStatus());
 
     // 관리자가 상태를 변경했을 때, 제보한 사용자에게 알림 전송
@@ -127,7 +127,7 @@ public class ReportService {
   public void deleteReport(Long categoryId, Long reportId) {
 
     categoryRepository.findCategoryByIdOrElseThrow(categoryId);
-    Report report = reportRepository.getById(reportId);
+    Report report = reportRepository.findReportByIdOrElseThrow(reportId);
 
     reportRepository.delete(report);
 
