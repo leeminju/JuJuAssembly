@@ -52,12 +52,17 @@ class RoomServiceTest {
     User adminUser = User.builder().id(adminId).build();
     User normalUser = User.builder().id(userId).build();
 
+    // 현재 사용자를 설정 (예: normalUser가 현재 사용자라고 가정)
+    User currentUser = normalUser;
+
     // 가짜 채팅방 데이터 생성
     Room fakeRoom = new Room(adminUser, normalUser);
 
     // Mocking 설정
     when(userRepository.getById(adminId)).thenReturn(adminUser);
     when(userRepository.getById(userId)).thenReturn(normalUser);
+    when(userRepository.findById(userId)).thenReturn(Optional.of(normalUser));
+    when(userRepository.findById(adminId)).thenReturn(Optional.of(adminUser));
     when(roomRepository.findByAdminIdAndUserId(adminId, userId)).thenReturn(Optional.of(fakeRoom));
     when(roomRepository.save(any(Room.class))).thenReturn(fakeRoom);
 
@@ -66,9 +71,8 @@ class RoomServiceTest {
         .send(any(User.class), anyString(), anyLong(), any(User.class));
 
     // 테스트 대상 메서드 호출
-    RoomRequestDto roomRequestDto = RoomRequestDto.builder().adminId(adminId).userId(userId)
-        .build();
-    RoomIdResponseDto result = roomService.getOrCreate(roomRequestDto);
+    RoomRequestDto roomRequestDto = RoomRequestDto.builder().adminId(adminId).userId(userId).build();
+    RoomIdResponseDto result = roomService.getOrCreate(roomRequestDto, currentUser);
 
     // Mocking된 메서드의 호출 여부 검증
     verify(roomRepository, times(1)).findByAdminIdAndUserId(adminId, userId);
@@ -76,10 +80,8 @@ class RoomServiceTest {
 
     // 결과 검증
     assertEquals(fakeRoom.getId(), result.getRoomId());
-    assertEquals(fakeRoom.getId(), result.getRoomId());
 
     // NotificationService 호출 검증
-    verify(notificationService, times(1)).send(eq(adminUser), eq("ROOM"), eq(fakeRoom.getId()),
-        eq(normalUser));
+    verify(notificationService, times(1)).send(eq(adminUser), eq("ROOM"), eq(fakeRoom.getId()), eq(currentUser));
   }
 }
