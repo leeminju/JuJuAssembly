@@ -114,7 +114,7 @@ public class ProductServiceTest {
     productId = 100L;
 
     // when
-    when(categoryRepository.getById(categoryId)).thenReturn(category);
+    when(categoryRepository.findCategoryByIdOrElseThrow(categoryId)).thenReturn(category);
     when(productRepository.save(any(Product.class))).thenAnswer(invocation -> {
       Product savedProduct = invocation.getArgument(0);
       ReflectionTestUtils.setField(savedProduct, "id", productId); // Reflection을 사용하여 ID 설정

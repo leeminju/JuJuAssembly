@@ -121,7 +121,7 @@ class ReviewServiceTest {
         .star(requestDto.getStar()).munchies(requestDto.getMunchies()).product(product).user(user)
         .reviewImages(reviewImages).reviewLikes(reviewLikes).build();
 
-    given(categoryRepository.getById(categoryId)).willReturn(category1);
+    given(categoryRepository.findCategoryByIdOrElseThrow(categoryId)).willReturn(category1);
     given(productRepository.getById(productId)).willReturn(product);
     given(reviewRepository.save(any(Review.class))).willReturn(review);
 
@@ -145,7 +145,7 @@ class ReviewServiceTest {
         .star(requestDto.getStar()).munchies(requestDto.getMunchies()).product(product).user(user)
         .reviewImages(reviewImages).reviewLikes(reviewLikes).build();
 
-    given(categoryRepository.getById(categoryId)).willReturn(category1);
+    given(categoryRepository.findCategoryByIdOrElseThrow(categoryId)).willReturn(category1);
     given(productRepository.getById(categoryId)).willReturn(product);
     given(reviewRepository.getById(reviewId)).willReturn(review);
     //when
@@ -166,7 +166,7 @@ class ReviewServiceTest {
         .star(2.0).munchies("안주").product(product).user(user)
         .reviewImages(reviewImages).reviewLikes(reviewLikes).build();
 
-    given(categoryRepository.getById(categoryId)).willReturn(category1);
+    given(categoryRepository.findCategoryByIdOrElseThrow(categoryId)).willReturn(category1);
     given(productRepository.getById(categoryId)).willReturn(product);
     given(reviewRepository.getById(reviewId)).willReturn(review);
     //when

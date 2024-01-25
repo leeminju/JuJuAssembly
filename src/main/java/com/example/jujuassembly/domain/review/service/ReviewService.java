@@ -35,7 +35,7 @@ public class ReviewService {
   public ReviewResponseDto createProductsReview(Long categoryId, Long productId,
       MultipartFile[] images, ReviewRequestDto requestDto, User user) throws Exception {
 
-    categoryRepository.getById(categoryId);
+    categoryRepository.findCategoryByIdOrElseThrow(categoryId);
     Product product = productRepository.getById(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
 
@@ -56,7 +56,7 @@ public class ReviewService {
 
   public Page<ReviewResponseDto> getProductsReview(Long categoryId, Long productId,
       Pageable pageable) {
-    categoryRepository.getById(categoryId);
+    categoryRepository.findCategoryByIdOrElseThrow(categoryId);
     Product product = productRepository.getById(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
 
@@ -69,7 +69,7 @@ public class ReviewService {
   public ReviewResponseDto updateProductsReview(Long categoryId, Long productId, Long reviewId,
       MultipartFile[] images, ReviewRequestDto requestDto) throws Exception {
 
-    categoryRepository.getById(categoryId);
+    categoryRepository.findCategoryByIdOrElseThrow(categoryId);
     Product product = productRepository.getById(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
     Review review = reviewRepository.getById(reviewId);
@@ -94,7 +94,7 @@ public class ReviewService {
 
   @Transactional
   public void deleteProductsReview(Long categoryId, Long productId, Long reviewId) {
-    categoryRepository.getById(categoryId);
+    categoryRepository.findCategoryByIdOrElseThrow(categoryId);
     Product product = productRepository.getById(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
     Review review = reviewRepository.getById(reviewId);
@@ -117,7 +117,7 @@ public class ReviewService {
 
   @Transactional
   public boolean verifyReview(Long categoryId, Long productId, Long reviewId) {
-    categoryRepository.getById(categoryId);
+    categoryRepository.findCategoryByIdOrElseThrow(categoryId);
     Product product = productRepository.getById(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
     Review review = reviewRepository.getById(reviewId);

@@ -74,8 +74,8 @@ public class UserService {
     }
 
     // categoryId 검증
-    categoryRepository.getById(firstPreferredCategoryId);
-    categoryRepository.getById(secondPreferredCategoryId);
+    categoryRepository.findCategoryByIdOrElseThrow(firstPreferredCategoryId);
+    categoryRepository.findCategoryByIdOrElseThrow(secondPreferredCategoryId);
 
     // password 확인
     // 1. nickname과 같은 값이 포함됐는지
@@ -108,9 +108,11 @@ public class UserService {
     String email = emailAuth.getEmail();
     String password = emailAuth.getPassword();
     Long firstPreferredCategoryId = emailAuth.getFirstPreferredCategoryId();
-    Category firstPreferredCategory = categoryRepository.getById(firstPreferredCategoryId);
+    Category firstPreferredCategory = categoryRepository.findCategoryByIdOrElseThrow(
+        firstPreferredCategoryId);
     Long secondPreferredCategoryId = emailAuth.getSecondPreferredCategoryId();
-    Category secondPreferredCategory = categoryRepository.getById(secondPreferredCategoryId);
+    Category secondPreferredCategory = categoryRepository.findCategoryByIdOrElseThrow(
+        secondPreferredCategoryId);
 
     User user = new User(loginId, nickname, email, password, firstPreferredCategory,
         secondPreferredCategory);
@@ -189,9 +191,9 @@ public class UserService {
     }
 
     User loginUser = userRepository.getById(userId);
-    Category category1 = categoryRepository.getById(
+    Category category1 = categoryRepository.findCategoryByIdOrElseThrow(
         modifyRequestDto.getFirstPreferredCategoryId());
-    Category category2 = categoryRepository.getById(
+    Category category2 = categoryRepository.findCategoryByIdOrElseThrow(
         modifyRequestDto.getSecondPreferredCategoryId());
     String encodePassword = passwordEncoder.encode(modifyRequestDto.getPassword());
     loginUser.updateUser(modifyRequestDto, encodePassword, category1, category2);

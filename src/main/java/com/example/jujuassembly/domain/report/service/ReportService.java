@@ -39,7 +39,7 @@ public class ReportService {
       ReportRequestDto requestDto, User user)
       throws IOException {
 
-    Category category = categoryRepository.getById(categoryId);
+    Category category = categoryRepository.findCategoryByIdOrElseThrow(categoryId);
     Report report = new Report(requestDto);
     report.updateUser(user);
     report.updateCategory(category);
@@ -81,13 +81,13 @@ public class ReportService {
       ReportPatchRequestDto requestDto)
       throws IOException {
 
-    categoryRepository.getById(categoryId);
+    categoryRepository.findCategoryByIdOrElseThrow(categoryId);
     Report report = reportRepository.getById(reportId);
     if (!report.getCategory().getId().equals(categoryId)) {
       throw new ApiException("현재 카테고리가 아닙니다.", HttpStatus.BAD_REQUEST);
     }
 
-    Category ModifiedCategory = categoryRepository.getById(requestDto.getModifiedCategoryId());
+    Category ModifiedCategory = categoryRepository.findCategoryByIdOrElseThrow(requestDto.getModifiedCategoryId());
 
     report.updateName(requestDto.getName());
     report.updateCategory(ModifiedCategory);
@@ -113,7 +113,7 @@ public class ReportService {
 
   @Transactional
   public ReportResponseDto patchReportStatus(Long categoryId, Long reportId, ReportStatusRequestDto requestDto, User user) {
-    categoryRepository.getById(categoryId);
+    categoryRepository.findCategoryByIdOrElseThrow(categoryId);
     Report report = reportRepository.getById(reportId);
     report.updateStatus(requestDto.getStatus());
 
@@ -126,7 +126,7 @@ public class ReportService {
   @Transactional
   public void deleteReport(Long categoryId, Long reportId) {
 
-    categoryRepository.getById(categoryId);
+    categoryRepository.findCategoryByIdOrElseThrow(categoryId);
     Report report = reportRepository.getById(reportId);
 
     reportRepository.delete(report);

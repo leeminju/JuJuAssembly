@@ -33,7 +33,7 @@ public class ProductService {
   @Transactional
   public ProductResponseDto createProduct(Long categoryId, ProductRequestDto requestDto,
       MultipartFile image) throws Exception {
-    Category category = categoryRepository.getById(categoryId);
+    Category category = categoryRepository.findCategoryByIdOrElseThrow(categoryId);
 
     Product product = new Product(requestDto, category);
     product = productRepository.save(product);
@@ -100,7 +100,7 @@ public class ProductService {
     if (!categoryRepository.existsById(categoryId)) {
       throw new ApiException("해당 카테고리가 존재하지 않습니다.", HttpStatus.NOT_FOUND);
     }
-    Category category = categoryRepository.getById(requestDto.getModifiedCategoryId());
+    Category category = categoryRepository.findCategoryByIdOrElseThrow(requestDto.getModifiedCategoryId());
 
     //기존의 파일 모두 삭제
     s3Manager.deleteAllImageFiles(productId.toString(), S3Manager.PRODUCT_DIRECTORY_NAME);

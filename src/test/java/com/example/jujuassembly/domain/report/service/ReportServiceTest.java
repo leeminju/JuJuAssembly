@@ -71,7 +71,7 @@ class ReportServiceTest {
     report.updateCategory(category);
     MultipartFile image = mock(MultipartFile.class);
 
-    given(categoryRepository.getById(category.getId())).willReturn(category);
+    given(categoryRepository.findCategoryByIdOrElseThrow(category.getId())).willReturn(category);
 //    given(reportRepository.getById(report.getId())).willReturn(Optional.of(report));
     given(image.getContentType()).willReturn("image/png");
 
@@ -218,7 +218,7 @@ class ReportServiceTest {
     report.builder().image("https://test.com/image.jpg").build();
     //이미지 파일 생성
 
-    given(categoryRepository.getById(category.getId())).willReturn(category);
+    given(categoryRepository.findCategoryByIdOrElseThrow(category.getId())).willReturn(category);
     given(reportRepository.getById(report.getId())).willReturn(report);
 
     //수정할 report 생성
