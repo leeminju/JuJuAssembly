@@ -92,6 +92,20 @@ public class ReviewService {
     return new ReviewResponseDto(review);
   }
 
+  //사진 삭제
+  @Transactional
+  public ReviewResponseDto deleteReviewImage(Long categoryId, Long productId,
+     Long reviewId, Long imageId){
+      Product product = productRepository.getById(productId);
+      checkProductCategoryAndCategoryIdEquality(product, categoryId);
+      Review review = reviewRepository.getById(reviewId);
+      checkReviewProductAndProductIdEquality(review, productId);
+      reviewImageService.deleteReviewImage(reviewId, imageId);
+      Review reviewAfterDelete = reviewRepository.getById(reviewId);
+
+      return new ReviewResponseDto(reviewAfterDelete);
+  }
+
   public void deleteProductsReview(Long categoryId, Long productId, Long reviewId) {
     categoryRepository.getById(categoryId);
     Product product = productRepository.getById(productId);
