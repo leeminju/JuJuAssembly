@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -78,14 +79,14 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         // -> 이제 @AuthenticationPrincipal 로 조회할 수 있음
       } else {
         // 인증정보가 존재하지 않을때
-        filterUtil.setMassageToResponse("인가 불가: 토큰이 유효하지 않습니다.", response);
+        filterUtil.setMassageToResponse("인가 불가: 토큰이 유효하지 않습니다.", response, HttpStatus.UNAUTHORIZED);
         return;
       }
 
       // BANNED 유저 확인
       if (userDetails != null) {
         if (userDetails.getUser().getRole().equals(UserRoleEnum.BANNED)) {
-          filterUtil.setMassageToResponse("BANNED USER", response);
+          filterUtil.setMassageToResponse("BANNED USER", response,HttpStatus.FORBIDDEN);
           return;
         }
       }
@@ -93,7 +94,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
       // 회원 탈퇴한 유저인지 확인
       if (userDetails != null) {
         if (userDetails.getUser().getIsArchived()) {
-          filterUtil.setMassageToResponse("이미 회원 탈퇴한 유저입니다.", response);
+          filterUtil.setMassageToResponse("이미 회원 탈퇴한 유저입니다.", response,HttpStatus.FORBIDDEN);
           return;
         }
       }

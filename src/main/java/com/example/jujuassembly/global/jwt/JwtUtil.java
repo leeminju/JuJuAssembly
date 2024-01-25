@@ -42,7 +42,7 @@ public class JwtUtil {
   // Token 식별자
   public static final String BEARER_PREFIX = "Bearer ";
 
-  public static final long ACCESS_TOKEN_TIME =  1000;  // 15분
+  public static final long ACCESS_TOKEN_TIME = 15 * 60 * 1000;  // 15분
 
   public static final long REFRESH_TOKEN_TIME = 7 * 24 * 60 * 60 * 1000;  // 7일
 
@@ -161,7 +161,7 @@ public class JwtUtil {
     Claims info = getUserInfoFromToken(refreshToken.substring(7));
     String loginId = info.getSubject();
     if (!redisTemplate.hasKey(loginId) || !redisTemplate.hasKey(accessToken)) {
-      filterUtil.setMassageToResponse("redis에 해당 access token이 존재하지 않음.", response);
+      filterUtil.setMassageToResponse("redis에 해당 access token이 존재하지 않음.", response,HttpStatus.NOT_FOUND);
     }
     redisTemplate.delete(accessToken);
     redisTemplate.delete(loginId);
@@ -210,7 +210,7 @@ public class JwtUtil {
 
       return cookie;
     } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
+      throw new ApiException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
