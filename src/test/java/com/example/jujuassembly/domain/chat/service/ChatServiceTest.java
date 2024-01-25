@@ -108,7 +108,7 @@ class ChatServiceTest {
     List<LatestChatResponseDto> result = chatService.findAllLatestChats(userId);
 
     // Mocking된 메서드의 호출 여부 검증
-    verify(userRepository, times(1)).getById(userId);
+    verify(userRepository, times(1)).findUserByIdOrElseThrow(userId);
     verify(roomRepository, times(1)).findByAdminIdOrUserId(userId, user.getId());
 
     // 결과 검증 - 여러 가지 방법 중에 선택
@@ -153,7 +153,7 @@ class ChatServiceTest {
      assertEquals(expected.get(1).getMessage(), result.get(1).getMessage());
 
      // Mock 객체 검증
-     verify(roomRepository, times(1)).getById(roomId);
+     verify(roomRepository, times(1)).findRoomByIdOrElseThrow(roomId);
      verify(roomMock, times(1)).getChats();
    }
 }
