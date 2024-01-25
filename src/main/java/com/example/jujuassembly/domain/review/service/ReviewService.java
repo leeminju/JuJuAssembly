@@ -109,7 +109,7 @@ public class ReviewService {
   }
 
   public Page<ReviewResponseDto> getMyReviews(Long userId, Pageable pageable) {
-    User user = userRepository.getById(userId);
+    User user = userRepository.findUserByIdOrElseThrow(userId);
 
     Page<Review> reviews = reviewRepository.findAllByUser(user, pageable);
     return reviews.map(ReviewResponseDto::new);

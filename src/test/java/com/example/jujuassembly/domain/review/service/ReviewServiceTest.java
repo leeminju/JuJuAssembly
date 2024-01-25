@@ -227,7 +227,7 @@ class ReviewServiceTest {
         .star(4.0).munchies("순대").product(product2).user(user)
         .reviewImages(reviewImages).reviewLikes(reviewLikes).build();
 
-    given(userRepository.getById(userId)).willReturn(user);
+    given(userRepository.findUserByIdOrElseThrow(userId)).willReturn(user);
 
     List<Review> reviewList = Arrays.asList(review, review2);
     Page<Review> mockReviews = new PageImpl<>(reviewList, pageable, reviewList.size());

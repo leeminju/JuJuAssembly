@@ -62,8 +62,8 @@ class ChatServiceTest {
         .build();
     Room room = Room.builder().id(roomId).admin(sender).user(reciver).build();
 
-    given(userRepository.getById(chatRequestDto.getSenderId())).willReturn(sender);
-    given(userRepository.getById(chatRequestDto.getReceiverId())).willReturn(reciver);
+    given(userRepository.findUserByIdOrElseThrow(chatRequestDto.getSenderId())).willReturn(sender);
+    given(userRepository.findUserByIdOrElseThrow(chatRequestDto.getReceiverId())).willReturn(reciver);
     given(roomRepository.getById(roomId)).willReturn(room);
 
     //when
@@ -98,7 +98,7 @@ class ChatServiceTest {
     ReflectionTestUtils.setField(chat2, Chat.class, "createdAt", now, LocalDateTime.class);
 
     // Mocking 설정
-    when(userRepository.getById(userId)).thenReturn(user);
+    when(userRepository.findUserByIdOrElseThrow(userId)).thenReturn(user);
     when(roomRepository.getById(room1.getId())).thenReturn(room1);
     when(roomRepository.getById(room2.getId())).thenReturn(room2);
     when(roomRepository.findByAdminIdOrUserId(userId, user.getId())).thenReturn(

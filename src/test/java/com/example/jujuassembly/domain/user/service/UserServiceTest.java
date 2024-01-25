@@ -222,7 +222,7 @@ public class UserServiceTest implements EmailAuthUtil {
     PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
     CategoryRepository categoryRepository = mock(CategoryRepository.class);
     when(passwordEncoder.matches(any(), any())).thenReturn(true);
-    when(userRepository.getById(userId)).thenReturn(user);
+    when(userRepository.findUserByIdOrElseThrow(userId)).thenReturn(user);
     when(categoryRepository.findCategoryByIdOrElseThrow(any())).thenReturn(category1);
 
     UserService userService = new UserService(
@@ -259,7 +259,7 @@ public class UserServiceTest implements EmailAuthUtil {
 
     String mockImageUrl = "https://example.com/image.jpg";
 
-    when(userRepository.getById(userId)).thenReturn(user);
+    when(userRepository.findUserByIdOrElseThrow(userId)).thenReturn(user);
     doNothing().when(s3Manager).deleteAllImageFiles(anyString(), anyString());
     when(s3Manager.upload(any(), eq("users"), eq(user.getId()))).thenReturn(mockImageUrl);
 

@@ -79,7 +79,7 @@ public class AuthorizationAspect {
       UserDetailsImpl userDetails) {
 
     User accessingUser = userDetails.getUser();
-    User reportUser = userRepository.getById(userId);
+    User reportUser = userRepository.findUserByIdOrElseThrow(userId);
 
     if (!accessingUser.getId().equals(reportUser.getId())) {
       if (!accessingUser.getRole().equals(UserRoleEnum.ADMIN)) {

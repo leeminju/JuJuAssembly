@@ -190,7 +190,7 @@ public class UserService {
       }
     }
 
-    User loginUser = userRepository.getById(userId);
+    User loginUser = userRepository.findUserByIdOrElseThrow(userId);
     Category category1 = categoryRepository.findCategoryByIdOrElseThrow(
         modifyRequestDto.getFirstPreferredCategoryId());
     Category category2 = categoryRepository.findCategoryByIdOrElseThrow(
@@ -204,7 +204,7 @@ public class UserService {
   //프로필 사진 추가
   @Transactional
   public UserDetailResponseDto uploadImage(Long userId, MultipartFile image) throws Exception {
-    User user = userRepository.getById(userId);
+    User user = userRepository.findUserByIdOrElseThrow(userId);
     s3Manager.deleteAllImageFiles(userId.toString(), S3Manager.USER_DIRECTORY_NAME);
 
     if (image != null && !image.isEmpty()) {
@@ -218,7 +218,7 @@ public class UserService {
   // 회원 탈퇴
   @Transactional
   public void deleteAccount(Long userId, String password, UserDetailsImpl userDetails) {
-    User user = userRepository.getById(userId);
+    User user = userRepository.findUserByIdOrElseThrow(userId);
     if (!userId.equals(userDetails.getUser().getId())) {
       throw new ApiException("해당 사용자만 로그아웃 할 수 있습니다.", HttpStatus.UNAUTHORIZED);
     }

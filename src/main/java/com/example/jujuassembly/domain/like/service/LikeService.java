@@ -44,7 +44,7 @@ public class LikeService {
 
   //본인 좋아요 목록 조회
   public Page<LikeResponseDto> viewLikeProducts(Long userId, User loginUser, Pageable pageable) {
-    User user = userRepository.getById(userId);
+    User user = userRepository.findUserByIdOrElseThrow(userId);
 
     if (!user.getId().equals(loginUser.getId())) {
       throw new ApiException("본인의 좋아요 목록만 조회 가능힙니다.", HttpStatus.BAD_REQUEST);

@@ -121,7 +121,7 @@ class LikeServiceTest implements CategoryTest {
     Page<Like> mockReport = new PageImpl<>(likeList, pageable, likeList.size());
 
     when(likeRepository.findAllByUser(user, pageable)).thenReturn(mockReport);
-    when(userRepository.getById(userId)).thenReturn(user);
+    when(userRepository.findUserByIdOrElseThrow(userId)).thenReturn(user);
     //when(likeRepository.findAllByUserId(userId)).thenReturn(likeList);
 
     // when

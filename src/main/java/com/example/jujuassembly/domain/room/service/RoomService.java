@@ -26,14 +26,14 @@ public class RoomService {
             roomRequestDto.getUserId())
         .orElseGet(() ->
             new Room(
-                userRepository.getById(roomRequestDto.getAdminId()),
-                userRepository.getById(roomRequestDto.getUserId())
+                userRepository.findUserByIdOrElseThrow(roomRequestDto.getAdminId()),
+                userRepository.findUserByIdOrElseThrow(roomRequestDto.getUserId())
             )
         );
     Room savedRoom = roomRepository.save(room);
 
     // 채팅을 시작하는 사용자 정보 조회
-    User actionUser = userRepository.getById(roomRequestDto.getUserId());
+    User actionUser = userRepository.findUserByIdOrElseThrow(roomRequestDto.getUserId());
 
     // 관리자에게 채팅방 생성 알림 보내기
     if (savedRoom.getAdmin().getId().equals(roomRequestDto.getAdminId())) {
