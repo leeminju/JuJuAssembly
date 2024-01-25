@@ -2,11 +2,10 @@ package com.example.jujuassembly.domain.review.controller;
 
 import com.example.jujuassembly.domain.review.dto.ReviewRequestDto;
 import com.example.jujuassembly.domain.review.dto.ReviewResponseDto;
-import com.example.jujuassembly.domain.review.entity.Review;
 import com.example.jujuassembly.domain.review.service.ReviewService;
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum.Authority;
 import com.example.jujuassembly.global.response.ApiResponse;
-import com.example.jujuassembly.global.security.UserDetailsImpl;
+import com.example.jujuassembly.global.filter.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

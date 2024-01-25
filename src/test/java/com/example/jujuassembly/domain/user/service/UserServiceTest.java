@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyChar;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -32,10 +31,7 @@ import com.example.jujuassembly.global.EmailAuthUtil;
 import com.example.jujuassembly.global.jwt.JwtUtil;
 import com.example.jujuassembly.global.mail.EmailService;
 import com.example.jujuassembly.global.s3.S3Manager;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletResponse;
-import java.security.Key;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.DisplayName;
@@ -48,7 +44,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
@@ -181,64 +176,15 @@ public class UserServiceTest implements EmailAuthUtil {
   }
 
   @Test
-  @DisplayName("로그아웃 테스트")
-  void logoutTest() {
-    // given
-    jwtUtil = spy(new JwtUtil(redisTemplate));
-
-    String testLawKey = "주주총회로그아웃테스트를위한키값";
-    byte[] bytes = testLawKey.getBytes();
-    Key testKey = Keys.hmacShaKeyFor(bytes);
-
-    ReflectionTestUtils.setField(jwtUtil, JwtUtil.class, "key", testKey, Key.class);
-    String accessToken = jwtUtil.createAccessToken(TEST_USER_LOGINID);
-    HttpServletResponse response = mock(HttpServletResponse.class);
-
-    // when-then
-    assertEquals(true, jwtUtil.validateToken(accessToken.substring(7)));
-  }
-/*
-  @Test
-  @DisplayName("프로필 조회 테스트")
-  void viewProfileTest() {
-    // given
-    Long userId = 123L;
-    Category category1 = Category.builder().id(1L).name("소주").build();
-    Category category2 = Category.builder().id(2L).name("맥주").build();
-    User user = User.builder().id(userId).loginId("user").nickname("user").email("email")
-        .firstPreferredCategory(category1).secondPreferredCategory(category2).build();
-
-    UserRepository userRepository = mock(UserRepository.class);
-    when(userRepository.getById(userId)).thenReturn(user);
-
-    UserService userService = new UserService(
-        userRepository, mock(PasswordEncoder.class), mock(EmailAuthService.class),
-        mock(CategoryRepository.class), mock(EmailAuthRepository.class), mock(JwtUtil.class),
-        mock(S3Manager.class)
-    );
-
-    // when
-    UserDetailResponseDto result = userService.viewMyProfile(user);
-
-    // then
-    assertNotNull(result);
-    assertEquals(user.getLoginId(), result.getLoginId());
-    assertEquals(user.getNickname(), result.getNickname());
-    assertEquals(user.getEmail(), result.getEmail());
-  }*/
-
-
-  @Test
   @DisplayName("프로필 조회 테스트")
   void testViewMyProfile() {
-  // 가상의 사용자 객체 생성
+    // 가상의 사용자 객체 생성
     Long userId = 123L;
     Category category1 = Category.builder().id(1L).name("소주").build();
     Category category2 = Category.builder().id(2L).name("맥주").build();
     User mockUser = User.builder().id(userId).loginId("user").nickname("user").email("email")
         .password("1234").isArchived(false).role(UserRoleEnum.USER).image("aaa").kakaoId(2L)
         .firstPreferredCategory(category1).secondPreferredCategory(category2).build();
-
 
     // when
     // UserService의 viewMyProfile 메서드 호출
@@ -304,7 +250,8 @@ public class UserServiceTest implements EmailAuthUtil {
     Long userId = 1L;
     Category category1 = Category.builder().id(1L).name("소주").build();
     Category category2 = Category.builder().id(2L).name("맥주").build();
-    User user = User.builder().id(userId).firstPreferredCategory(category1).secondPreferredCategory(category2).build();
+    User user = User.builder().id(userId).firstPreferredCategory(category1)
+        .secondPreferredCategory(category2).build();
 
     // 이미지 파일 생성
     byte[] content = "fakeImage".getBytes();
