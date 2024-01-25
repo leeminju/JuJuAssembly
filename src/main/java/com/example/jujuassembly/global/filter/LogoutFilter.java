@@ -41,7 +41,7 @@ public class LogoutFilter extends OncePerRequestFilter {
       Cookie cookie = jwtUtil.createExpiredCookie(JwtUtil.AUTHORIZATION_HEADER, "logged-out");
       response.addCookie(cookie);
 
-      filterUtil.setMassageToResponse("로그아웃 되었습니다.", response,HttpStatus.UNAUTHORIZED);
+      filterUtil.setMassageToResponse("로그아웃 되었습니다.", response, HttpStatus.OK);
       return;
     }
 

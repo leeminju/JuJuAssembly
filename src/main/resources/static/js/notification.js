@@ -13,10 +13,6 @@ $(document).ready(function () {
     $('#notification-count-badge').hide();
   }
 
-  // 로그아웃 버튼에 이벤트 핸들러 연결
-  $('#logout-btn').on('click', function() {
-    logout();
-  });
 });
 
 // SSE 구독을 위한 함수
