@@ -65,14 +65,24 @@
   var currentAdminId;
   var currentChatRoomId;
 
-
   var myId = -1;
+  var partenerId = -1;
   $(document).ready(function () {
     $.ajax({
       type: 'GET',
       url: `/v1/users/myprofile`,
       success: function (response) {
         myId = response['data']['id'];
+        if (response['data']['role'] == "ADMIN") {
+          window.location.href = "/admin/chat";
+        }
+        getAllAdminUsers();
+        var currentUrl = window.location.href;
+        var parsedParams = parseQueryString(currentUrl);
+        partenerId = parsedParams['userId'];
+        if (partenerId != -1) {
+          openChatModal(partenerId);
+        }
       },
       error(error, status, request) {
         alert("로그인이 필요한 서비스 입니다.");
@@ -80,16 +90,29 @@
       }
     });
 
-
-    getAllAdminUsers();
   })
+
+  function parseQueryString(url) {
+    var params = {};
+    var queryString = url.split('?')[1];
+
+    if (queryString) {
+      queryString.split('&').forEach(function (pair) {
+        var keyValue = pair.split('=');
+        var key = decodeURIComponent(keyValue[0]);
+        var value = decodeURIComponent(keyValue[1]);
+        params[key] = value;
+      });
+    }
+
+    return params;
+  }
 
   function getAllAdminUsers() {
     var sorting = $("#sorting option:selected").val();
     var isAsc = $(':radio[name="isAsc"]:checked').val();
 
     let dataSource = `/v1/users?sort=${sorting},${isAsc}`;
-
 
     $('#pagination').pagination({
       dataSource,
@@ -171,7 +194,6 @@
 
         // 채팅 모달 열기
         $('#chatModal').modal('show');
-
         fetchChatHistory(chatRoomId);
 
         console.log(`Chat Room ID: ${chatRoomId}`);
@@ -192,7 +214,7 @@
       console.log('WebSocket에 연결됨');
       // 채팅 룸에 구독
       enterChatRoom()
-      setTimeout(function(){
+      setTimeout(function () {
         stompClient.subscribe(`/subscribe/rooms/${chatRoomId}`, function (response) {
           var message = JSON.parse(response.body);
           console.log(`채팅방 ${chatRoomId}에서 메시지 수신:`, message);
@@ -205,7 +227,7 @@
     });
   }
 
- //웹소켓 연결 종료 함수
+  //웹소켓 연결 종료 함수
   function disconnectWebSocket() {
     exitChatRoom()
     stompClient.unsubscribe(`/subscribe/rooms/${currentChatRoomId}`);
@@ -226,6 +248,7 @@
     }));
     console.log("유저입장")
   }
+
   // 채팅방 퇴장을 서버에 알리는 함수
   function exitChatRoom() {
     var message = "사용자가 퇴장했습니다."
@@ -439,27 +462,33 @@
   </div>
 </div>
 <!-- 채팅창 모달 -->
-<div class="modal fade" data-bs-backdrop="static"  data-bs-keyboard="false" no-close-on-esc id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel"
+<div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" no-close-on-esc
+     id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel"
      aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="chatModalLabel">채팅창</h5>
-        <button type="button" onclick="disconnectWebSocket()" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" onclick="disconnectWebSocket()" class="btn-close"
+                data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <!-- 채팅창을 표시할 영역 -->
-        <div id="chatContainer" style="height: 200px; overflow-y: auto; word-wrap: break-word;"></div>
+        <div id="chatContainer"
+             style="height: 200px; overflow-y: auto; word-wrap: break-word;"></div>
 
         <!-- 메시지 전송 버튼 -->
         <div class="input-group mb-3">
-          <textarea type="text" class="form-control" id="chatMessageInput" placeholder="메시지를 입력하세요"></textarea>
+          <textarea type="text" class="form-control" id="chatMessageInput"
+                    placeholder="메시지를 입력하세요"></textarea>
           <button class="btn btn-primary" id="sendMessageBtn" onclick="sendChatMessage()">전송
           </button>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="disconnectWebSocket()">닫기</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                onclick="disconnectWebSocket()">닫기
+        </button>
       </div>
     </div>
   </div>
