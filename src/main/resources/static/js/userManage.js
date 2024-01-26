@@ -47,13 +47,14 @@ function getAllUsers() {
         let html = `<div class="d-flex text-body-secondary pt-3">
         <img style="margin: 7px; width: 40px;height: 40px;object-fit: contain;" src=${image}>
         <p class="pb-3 mb-0 small lh-sm border-bottom"  style="display: flex;flex-direction: row;justify-content: center;">
-           <div style="width: 80%">
+           <div style="width: 67%">
              <strong class="d-block text-gray-dark">${loginId}(${nickname})</strong>
              email : ${email}<br>
              role : ${role}
            </div>
-           <div style="width: 22%">
-              <button class="btn btn-light" onclick="location.href='/userReview?userId=${userId}'">리뷰 목록</button>
+           <div style="display: flex;flex-direction: row;align-items: center">
+              <button style="margin-right: 10px" class="btn btn-light" onclick="location.href='/userReview?userId=${userId}'">리뷰 목록</button>
+              <button style="margin-right: 10px" class="btn btn-light" onclick="location.href='/userReport?userId=${userId}'">제보 목록</button>
                <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                권한 변경
                </button>
