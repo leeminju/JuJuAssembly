@@ -50,7 +50,7 @@ public class ReportController {
    */
   @PostMapping("/categories/{categoryId}/reports")
   public ResponseEntity<ApiResponse> postReport(@PathVariable Long categoryId,
-      @RequestParam MultipartFile image,
+      @RequestParam(required = false) MultipartFile image,
       @Valid @RequestPart("data") ReportRequestDto requestDto,
       @AuthenticationPrincipal UserDetailsImpl userDetails)
       throws IOException {
