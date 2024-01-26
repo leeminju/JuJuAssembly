@@ -47,6 +47,15 @@
       align-self: flex-start;
       background-color: #e0e0e0; /* 상대방이 보낸 메시지 배경색 */
     }
+
+    .special {
+      background-color: #f0f0f0; /* 특별한 메시지 배경색 */
+      color: #333; /* 특별한 메시지 글자색 */
+      text-align: center; /* 가운데 정렬 */
+      padding: 10px; /* 내부 여백 설정 */
+      border-radius: 0; /* 모서리 둥글기 제거 */
+      max-width: calc(100% - 20px); /* 최대 너비 설정 (모달창 가로크기에서 왼쪽, 오른쪽 여백 10px씩 뺀 크기) */
+    }
   </style>
 
 </head>
@@ -181,26 +190,50 @@
 
     stompClient.connect({}, function (frame) {
       console.log('WebSocket에 연결됨');
-
       // 채팅 룸에 구독
-      stompClient.subscribe(`/subscribe/rooms/${chatRoomId}`, function (response) {
-        var message = JSON.parse(response.body);
-        console.log(`채팅방 ${chatRoomId}에서 메시지 수신:`, message);
+      enterChatRoom()
+      setTimeout(function(){
+        stompClient.subscribe(`/subscribe/rooms/${chatRoomId}`, function (response) {
+          var message = JSON.parse(response.body);
+          console.log(`채팅방 ${chatRoomId}에서 메시지 수신:`, message);
           // 수신한 메시지를 채팅 창에 추가
           addMessageToChatContainer(message.senderId, message.message);
 
-      });
+        });
+
+      }, 1000);
     });
   }
 
  //웹소켓 연결 종료 함수
   function disconnectWebSocket() {
+    exitChatRoom()
     stompClient.unsubscribe(`/subscribe/rooms/${currentChatRoomId}`);
     if (stompClient !== null && stompClient.connected) {
       stompClient.disconnect(function () {
         console.log('웹 소켓 연결이 종료되었습니다.');
       });
     }
+  }
+
+  // 채팅방 입장을 서버에 알리는 함수
+  function enterChatRoom() {
+    var message = "사용자가 입장했습니다."
+    stompClient.send(`/publish/rooms/enterexit/${currentChatRoomId}`, {}, JSON.stringify({
+      "senderId": 0,
+      "receiverId": 0,
+      "message": message
+    }));
+    console.log("유저입장")
+  }
+  // 채팅방 퇴장을 서버에 알리는 함수
+  function exitChatRoom() {
+    var message = "사용자가 퇴장했습니다."
+    stompClient.send(`/publish/rooms/enterexit/${currentChatRoomId}`, {}, JSON.stringify({
+      "senderId": 0,
+      "receiverId": 0,
+      "message": message
+    }));
   }
 
   function fetchChatHistory(chatRoomId) {
@@ -234,6 +267,10 @@
     // 메시지를 표시할 HTML 생성
     var messageHtml = `<div class="chat-message ${senderId === myId ? 'sent'
         : 'received'}">${message}</div>`;
+    // 만약 senderId가 0이면 다른 CSS 적용
+    if (senderId === 0) {
+      messageHtml = `<div class="chat-message special">${message}</div>`;
+    }
 
     // 생성한 HTML을 채팅창에 추가
     chatContainer.append(messageHtml);
