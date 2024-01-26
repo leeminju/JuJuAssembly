@@ -92,8 +92,6 @@ public class ReportService {
     report.updateName(requestDto.getName());
     report.updateCategory(ModifiedCategory);
 
-    s3Manager.deleteAllImageFiles(reportId.toString(), S3Manager.REPORT_DIRECTORY_NAME);
-
     if (image == null || image.getContentType() == null) {
       if (report.getImage() != null) {
         if (original) {
