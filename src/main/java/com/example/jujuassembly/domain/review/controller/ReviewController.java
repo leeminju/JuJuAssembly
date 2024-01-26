@@ -102,6 +102,20 @@ public class ReviewController {
         .body(new ApiResponse<>("리뷰가 수정되었습니다.", HttpStatus.OK.value(), responseDto));
   }
 
+
+  //상품 수정 사진 삭제
+  @DeleteMapping("/categories/{categoryId}/products/{productId}/reviews/{reviewId}/images/{imageId}")
+  public ResponseEntity<ApiResponse<ReviewResponseDto>> deleteProductsReviewImage(
+      @PathVariable Long categoryId, @PathVariable Long productId,
+      @PathVariable Long reviewId, @PathVariable Long imageId ){
+
+    ReviewResponseDto responseDto = reviewService.deleteReviewImage(categoryId, productId,
+        reviewId, imageId);
+
+    return ResponseEntity.ok()
+        .body(new ApiResponse<>("선택 사진이 삭제되었습니다.", HttpStatus.OK.value(), responseDto));
+  }
+
   /**
    * 상품 리뷰 삭제 API
    *

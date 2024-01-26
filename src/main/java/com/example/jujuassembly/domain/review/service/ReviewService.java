@@ -92,6 +92,20 @@ public class ReviewService {
     return new ReviewResponseDto(review);
   }
 
+
+  @Transactional
+  public ReviewResponseDto deleteReviewImage(Long categoryId, Long productId,
+     Long reviewId, Long imageId){
+      Product product = productRepository.findProductByIdOrElseThrow(productId);
+      checkProductCategoryAndCategoryIdEquality(product, categoryId);
+      Review review = reviewRepository.findReviewByIdOrElseThrow(reviewId);
+      checkReviewProductAndProductIdEquality(review, productId);
+      reviewImageService.deleteReviewImage(reviewId, imageId);
+      Review reviewAfterDelete = reviewRepository.findReviewByIdOrElseThrow(reviewId);
+
+      return new ReviewResponseDto(reviewAfterDelete);
+  }
+
   @Transactional
   public void deleteProductsReview(Long categoryId, Long productId, Long reviewId) {
     categoryRepository.findCategoryByIdOrElseThrow(categoryId);

@@ -57,7 +57,7 @@ public class Review extends Timestamped {
   @JoinColumn(name = "user_id", nullable = false)
   private User user;// 해당 리뷰를 작성한 사용자
 
-  @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "review", orphanRemoval = true)
   private Set<ReviewImage> reviewImages = new LinkedHashSet<>();
 
   @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)

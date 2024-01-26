@@ -1,6 +1,7 @@
 package com.example.jujuassembly.domain.reviewImage.service;
 
 import com.example.jujuassembly.domain.review.entity.Review;
+import com.example.jujuassembly.domain.review.repository.ReviewRepository;
 import com.example.jujuassembly.domain.reviewImage.entity.ReviewImage;
 import com.example.jujuassembly.domain.reviewImage.repository.ReviewImageRepository;
 import com.example.jujuassembly.global.exception.ApiException;
@@ -18,6 +19,7 @@ public class ReviewImageService {
 
   private final ReviewImageRepository reviewImageRepository;
   private final S3Manager s3Manager;
+  private final ReviewRepository reviewRepository;
 
   @Transactional(propagation = Propagation.MANDATORY)
   public void uploadReviewImages(Review review, MultipartFile[] images) throws Exception {
@@ -40,7 +42,7 @@ public class ReviewImageService {
     }
   }
 
-  //리뷰 이미지 1개 삭제
+/*  //리뷰 이미지 1개 삭제
   @Transactional(propagation = Propagation.MANDATORY)
   public void deleteReviewImage(Review review, String fileUrl) {
     reviewImageRepository.deleteByReview(review);
@@ -52,10 +54,25 @@ public class ReviewImageService {
         break;
       }
     }
+  }*/
+
+
+  //사진 하나만 삭제
+  @Transactional
+  public void deleteReviewImage(Long reviewId, Long imageId) {
+    ReviewImage image = reviewImageRepository.getById(imageId);
+    if (!image.getReview().getId().equals(reviewId)) {
+      throw new ApiException("해당 상품의 리뷰가 아닙니다.", HttpStatus.BAD_REQUEST);
+    }
+    String imageUrl = image.getImageUrl();
+
+    reviewImageRepository.delete(image);
+    s3Manager.deleteImageFile(imageUrl, S3Manager.REVIEW_DIRECTORY_NAME);
   }
 
 
   // 디렉토리의 모든 파일 삭제
+  @Transactional
   public void deleteAllReviewImages(Review review, String dirName) {
     review.getReviewImages().removeAll(review.getReviewImages());
     reviewImageRepository.deleteAllByReview(review);
