@@ -21,6 +21,11 @@ public class PageController {
     return "userReview";
   }
 
+  @GetMapping("/userReport")
+  public String userReportPage() {
+    return "userReport";
+  }
+
   @GetMapping("/login")
   public String loginPage() {
     return "login";

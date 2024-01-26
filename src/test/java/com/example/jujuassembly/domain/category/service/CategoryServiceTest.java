@@ -107,7 +107,7 @@ class CategoryServiceTest implements CategoryTest {
 
     Category existingCategory = new Category(requestDto1);
     existingCategory.builder().image("https://exapmple.com/image.jpg").build();
-    when(categoryRepository.getById(TEST_CATEGORY_ID)).thenReturn(existingCategory);
+    when(categoryRepository.findCategoryByIdOrElseThrow(TEST_CATEGORY_ID)).thenReturn(existingCategory);
 
 
     //when
@@ -116,8 +116,8 @@ class CategoryServiceTest implements CategoryTest {
     CategoryResponseDto result = categoryService.updateCategory(categoryRequestDto, TEST_CATEGORY_ID, image);
 
     // Then
-    // CategoryRepository.getById() 메소드가 호출되었는지 확인
-    verify(categoryRepository, times(1)).getById(TEST_CATEGORY_ID);
+    // CategoryRepository.findCategoryByIdOrElseThrow() 메소드가 호출되었는지 확인
+    verify(categoryRepository, times(1)).findCategoryByIdOrElseThrow(TEST_CATEGORY_ID);
 
     // S3Manager.deleteAllImageFiles() 메소드가 호출되었는지 확인
     verify(s3Manager, times(1)).deleteAllImageFiles(TEST_CATEGORY_ID.toString(), "categories");
@@ -139,14 +139,14 @@ class CategoryServiceTest implements CategoryTest {
     Long categoryId = 1L;
     CategoryRequestDto categoryRequestDto =CategoryRequestDto.builder().name("ExistingCategory").build();
     Category existingCategory = new Category(categoryRequestDto);
-    when(categoryRepository.getById(categoryId)).thenReturn(existingCategory);
+    when(categoryRepository.findCategoryByIdOrElseThrow(categoryId)).thenReturn(existingCategory);
 
     // When
     categoryService.deleteCategory(categoryId);
 
     // Then
-    // CategoryRepository.getById() 메소드가 호출되었는지 확인
-    verify(categoryRepository, times(1)).getById(categoryId);
+    // CategoryRepository.findCategoryByIdOrElseThrow() 메소드가 호출되었는지 확인
+    verify(categoryRepository, times(1)).findCategoryByIdOrElseThrow(categoryId);
 
     // CategoryRepository.delete() 메소드가 호출되었는지 확인
     verify(categoryRepository, times(1)).delete(existingCategory);

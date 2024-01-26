@@ -240,7 +240,8 @@
         <div
             style="margin: auto;width: 60%;padding: 20px;border: solid 1px grey; border-radius: 15px;">
           <h1>상품 등록</h1>
-          <form id="productForm" enctype="multipart/form-data">
+          <form style="display: flex; flex-direction: column;align-items: flex-end;width: 300px;"
+                id="productForm" enctype="multipart/form-data">
 
             <div class="form-floating" style="margin-top: 20px">
               <div class="categoryLabel">
@@ -248,7 +249,8 @@
               </div>
               <div class="categorySelect">
                 <select class="form-select" id="categoryId"
-                        aria-label="Floating label select example" style="width: 250px;">
+                        aria-label="Floating label select example"
+                        style="margin-bottom:10px; width: 250px;">
                   <option selected>카테고리를 선택해주세요</option>
                 </select>
               </div>
@@ -279,15 +281,13 @@
               <label for="alcoholDegree">도수:</label>
               <input type="number" id="alcoholDegree" name="alcoholDegree" required>
             </p>
-
-            <p>
-              <label for="image">이미지 업로드:</label>
-              <input type="file" id="image" name="image" accept="image/*" required>
-            </p>
-
           </form>
           <p>
-            <button onclick="createProduct()">등록</button>
+            <label for="image">이미지 업로드:</label>
+            <input type="file" id="image" name="image" accept="image/*" required>
+          </p>
+          <p>
+            <button type="button" class="btn btn-primary" onclick="createProduct()">등록</button>
           </p>
         </div>
 

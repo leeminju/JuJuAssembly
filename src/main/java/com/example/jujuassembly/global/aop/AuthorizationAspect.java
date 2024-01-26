@@ -51,7 +51,7 @@ public class AuthorizationAspect {
   public void checkReviewAccessibility(Long reviewId, UserDetailsImpl userDetails) {
 
     User user = userDetails.getUser();
-    Review review = reviewRepository.getById(reviewId);
+    Review review = reviewRepository.findReviewByIdOrElseThrow(reviewId);
 
     if (!review.getUser().getId().equals(user.getId())) {
       if (!user.getRole().equals(UserRoleEnum.ADMIN)) {
@@ -65,7 +65,7 @@ public class AuthorizationAspect {
       UserDetailsImpl userDetails) {
 
     User user = userDetails.getUser();
-    Report report = reportRepository.getById(reportId);
+    Report report = reportRepository.findReportByIdOrElseThrow(reportId);
 
     if (!report.getUser().getId().equals(user.getId())) {
       if (!user.getRole().equals(UserRoleEnum.ADMIN)) {
@@ -79,7 +79,7 @@ public class AuthorizationAspect {
       UserDetailsImpl userDetails) {
 
     User accessingUser = userDetails.getUser();
-    User reportUser = userRepository.getById(userId);
+    User reportUser = userRepository.findUserByIdOrElseThrow(userId);
 
     if (!accessingUser.getId().equals(reportUser.getId())) {
       if (!accessingUser.getRole().equals(UserRoleEnum.ADMIN)) {

@@ -74,8 +74,8 @@ public class UserService {
     }
 
     // categoryId 검증
-    categoryRepository.getById(firstPreferredCategoryId);
-    categoryRepository.getById(secondPreferredCategoryId);
+    categoryRepository.findCategoryByIdOrElseThrow(firstPreferredCategoryId);
+    categoryRepository.findCategoryByIdOrElseThrow(secondPreferredCategoryId);
 
     // password 확인
     // 1. nickname과 같은 값이 포함됐는지
@@ -108,9 +108,11 @@ public class UserService {
     String email = emailAuth.getEmail();
     String password = emailAuth.getPassword();
     Long firstPreferredCategoryId = emailAuth.getFirstPreferredCategoryId();
-    Category firstPreferredCategory = categoryRepository.getById(firstPreferredCategoryId);
+    Category firstPreferredCategory = categoryRepository.findCategoryByIdOrElseThrow(
+        firstPreferredCategoryId);
     Long secondPreferredCategoryId = emailAuth.getSecondPreferredCategoryId();
-    Category secondPreferredCategory = categoryRepository.getById(secondPreferredCategoryId);
+    Category secondPreferredCategory = categoryRepository.findCategoryByIdOrElseThrow(
+        secondPreferredCategoryId);
 
     User user = new User(loginId, nickname, email, password, firstPreferredCategory,
         secondPreferredCategory);
@@ -188,10 +190,10 @@ public class UserService {
       }
     }
 
-    User loginUser = userRepository.getById(userId);
-    Category category1 = categoryRepository.getById(
+    User loginUser = userRepository.findUserByIdOrElseThrow(userId);
+    Category category1 = categoryRepository.findCategoryByIdOrElseThrow(
         modifyRequestDto.getFirstPreferredCategoryId());
-    Category category2 = categoryRepository.getById(
+    Category category2 = categoryRepository.findCategoryByIdOrElseThrow(
         modifyRequestDto.getSecondPreferredCategoryId());
     String encodePassword = passwordEncoder.encode(modifyRequestDto.getPassword());
     loginUser.updateUser(modifyRequestDto, encodePassword, category1, category2);
@@ -202,7 +204,7 @@ public class UserService {
   //프로필 사진 추가
   @Transactional
   public UserDetailResponseDto uploadImage(Long userId, MultipartFile image) throws Exception {
-    User user = userRepository.getById(userId);
+    User user = userRepository.findUserByIdOrElseThrow(userId);
     s3Manager.deleteAllImageFiles(userId.toString(), S3Manager.USER_DIRECTORY_NAME);
 
     if (image != null && !image.isEmpty()) {
@@ -216,7 +218,7 @@ public class UserService {
   // 회원 탈퇴
   @Transactional
   public void deleteAccount(Long userId, String password, UserDetailsImpl userDetails) {
-    User user = userRepository.getById(userId);
+    User user = userRepository.findUserByIdOrElseThrow(userId);
     if (!userId.equals(userDetails.getUser().getId())) {
       throw new ApiException("해당 사용자만 로그아웃 할 수 있습니다.", HttpStatus.UNAUTHORIZED);
     }
