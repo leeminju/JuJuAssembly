@@ -10,8 +10,6 @@ import com.example.jujuassembly.domain.product.repository.ProductRepository;
 import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.s3.S3Manager;
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -100,7 +98,8 @@ public class ProductService {
     if (!categoryRepository.existsById(categoryId)) {
       throw new ApiException("해당 카테고리가 존재하지 않습니다.", HttpStatus.NOT_FOUND);
     }
-    Category category = categoryRepository.findCategoryByIdOrElseThrow(requestDto.getModifiedCategoryId());
+    Category category = categoryRepository.findCategoryByIdOrElseThrow(
+        requestDto.getModifiedCategoryId());
 
     //기존의 파일 모두 삭제
     s3Manager.deleteAllImageFiles(productId.toString(), S3Manager.PRODUCT_DIRECTORY_NAME);
@@ -111,7 +110,7 @@ public class ProductService {
       product.setImage(url);
     }
 
-    product.update(requestDto,category);
+    product.update(requestDto, category);
     return new ProductResponseDto(product);
 
   }

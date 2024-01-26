@@ -8,7 +8,6 @@ import com.example.jujuassembly.domain.product.repository.ProductRepository;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.global.exception.ApiException;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -40,6 +39,9 @@ public class LikeService {
 
     Like like = new Like(product, user);
     likeRepository.save(like);
+
+    product.incrementLikesCount(); // 좋아요 수 증가
+    productRepository.save(product);
   }
 
   //본인 좋아요 목록 조회
@@ -64,6 +66,10 @@ public class LikeService {
     if (!like.getUser().getId().equals(user.getId())) {
       throw new ApiException("본인만 좋아요 취소가 가능힙니다.", HttpStatus.BAD_REQUEST);
     }
+
+    // 좋아요 취소 전에 좋아요 카운트 감소
+    product.decrementLikesCount();
+    productRepository.save(product);
 
     likeRepository.delete(like);
   }

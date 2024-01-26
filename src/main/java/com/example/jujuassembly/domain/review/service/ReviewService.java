@@ -42,6 +42,9 @@ public class ReviewService {
     Review review = new Review(requestDto, product, user);
     Review savedReview = reviewRepository.save(review);
 
+    product.incrementReviewCount(); // 리뷰 수 증가
+    productRepository.save(product);
+
     if (images != null && images.length > 4) {
       throw new ApiException("사진은 4장 까지만 업로드 가능합니다.", HttpStatus.BAD_REQUEST);
     }
@@ -95,15 +98,15 @@ public class ReviewService {
 
   @Transactional
   public ReviewResponseDto deleteReviewImage(Long categoryId, Long productId,
-     Long reviewId, Long imageId){
-      Product product = productRepository.findProductByIdOrElseThrow(productId);
-      checkProductCategoryAndCategoryIdEquality(product, categoryId);
-      Review review = reviewRepository.findReviewByIdOrElseThrow(reviewId);
-      checkReviewProductAndProductIdEquality(review, productId);
-      reviewImageService.deleteReviewImage(reviewId, imageId);
-      Review reviewAfterDelete = reviewRepository.findReviewByIdOrElseThrow(reviewId);
+      Long reviewId, Long imageId) {
+    Product product = productRepository.findProductByIdOrElseThrow(productId);
+    checkProductCategoryAndCategoryIdEquality(product, categoryId);
+    Review review = reviewRepository.findReviewByIdOrElseThrow(reviewId);
+    checkReviewProductAndProductIdEquality(review, productId);
+    reviewImageService.deleteReviewImage(reviewId, imageId);
+    Review reviewAfterDelete = reviewRepository.findReviewByIdOrElseThrow(reviewId);
 
-      return new ReviewResponseDto(reviewAfterDelete);
+    return new ReviewResponseDto(reviewAfterDelete);
   }
 
   @Transactional
@@ -113,6 +116,10 @@ public class ReviewService {
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
     Review review = reviewRepository.findReviewByIdOrElseThrow(reviewId);
     checkReviewProductAndProductIdEquality(review, productId);
+
+    // 리뷰 삭제 전에 리뷰 카운트 감소
+    product.decrementReviewCount();
+    productRepository.save(product);
 
     // 해당 리뷰에 대한 모든 알림 삭제
     notificationService.deleteNotificationByEntity("REVIEW", reviewId);
