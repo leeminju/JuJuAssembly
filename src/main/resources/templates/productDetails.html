@@ -303,7 +303,7 @@
 
        </div>
         <div style="display: flex;flex-direction: row;height: 40px">
-          <button style="width: 70px; margin-right: 10px" id="update_review_btn-${id}" onclick="updateId('${id}')" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateReview">
+          <button style="width: 70px; margin-right: 10px" id="update_review_btn-${id}" onclick="updateId('${categoryId}','${productId}','${id}','${description}','${star}','${munchies}','${images}')" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateReview">
           수정</button>
           <button style="width: 70px" id="delete_review_btn-${id}" onclick="removeReview('${id}')" class="btn btn-primary">삭제 </button>
         </div>
@@ -407,8 +407,13 @@
       return text;
     }
 
-    function updateId(id) {
-      $('#update_btn').val(id);
+    function updateId(categoryId, productId, id, description, star, munchies, images) {
+      console.log(images);
+      $('#update_description').val(description);
+      $('#update_star').val(star);
+      $('#update_munchies').val(munchies);
+      $('#imageList').val(images);
+
     }
 
     function updateReview() {
@@ -691,6 +696,7 @@
           <option value="5">⭐⭐⭐⭐⭐</option>
         </select>
         <input type="text" class="form-control" id="update_munchies" placeholder="추천 안주">
+        <div id="imageList" style="padding:10px; width: 100%;height: 160px;display: flex;flex-direction: row;"></div>
         <input type="file" accept="image/*" id="update_review_image" multiple>
       </div>
       <div class="modal-footer">

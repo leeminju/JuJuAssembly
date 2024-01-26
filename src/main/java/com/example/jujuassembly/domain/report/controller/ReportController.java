@@ -119,15 +119,16 @@ public class ReportController {
    * @return ResponseEntity<ApiResponse> 객체
    * @throws IOException 이미지 파일 처리 중 발생하는 예외
    */
-  @PatchMapping("/categories/{categoryId}/reports/{reportId}")
+  @PatchMapping("/categories/{categoryId}/reports/{reportId}/{original}")
   public ResponseEntity<ApiResponse> patchReport(@PathVariable Long categoryId,
       @PathVariable Long reportId,
-      @RequestParam MultipartFile image,
+      @PathVariable boolean original,
+      @RequestParam(required = false) MultipartFile image,
       @Valid @RequestPart("data") ReportPatchRequestDto requestDto,
       @AuthenticationPrincipal UserDetailsImpl userDetails)
       throws IOException {
 
-    ReportResponseDto reportResponseDto = reportService.patchReport(categoryId, reportId, image,
+    ReportResponseDto reportResponseDto = reportService.patchReport(categoryId, reportId, image, original,
         requestDto);
 
     return ResponseEntity.status(HttpStatus.OK).body(

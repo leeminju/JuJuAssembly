@@ -199,7 +199,9 @@
     return text;
   }
 
+  //수정 눌렀을때
   function updateId(categoryId, productId, id, description, star, munchies) {
+    console.log(description);
     $('#update_btn').val(id);
     currentCategoryId = categoryId;
     currentProductId = productId;
