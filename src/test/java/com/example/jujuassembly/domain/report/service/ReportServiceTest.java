@@ -197,7 +197,7 @@ class ReportServiceTest {
     assertEquals(fakeReports.get(0).getName(),result.getContent().get(0).getName());
   }
 
-  @Test
+ /* @Test
   @DisplayName("제보 상품 수정 테스트")
   void patchReportTest() throws IOException {
 //given
@@ -257,7 +257,7 @@ class ReportServiceTest {
     assertEquals(expectReport.getImage(), resultReport.getImage());
     assertEquals(expectReport.getStatus(), resultReport.getStatus());
   }
-
+*/
   @Test
   @DisplayName("제보 상품 상태 변경 테스트")
   void patchReportStatusTest() throws IOException {

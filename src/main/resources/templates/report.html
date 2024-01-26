@@ -179,31 +179,25 @@
   function updateId(id, categoryId, name, image) {
     $('#update_report_name').val(name);
     $('#update_btn').val(id);
+    $('#updateCategoryId').val(categoryId);
     current_categoryId = categoryId;
     $('#existing_image').attr('src', image);
     $('#update_report_image').hide()
-    //$('#update_report_image').attr('src', image);
     $('#image_remove_btn').show().attr("disabled", false);
+
   }
 
   //제보 게시물 업데이트 (update버튼 클릭시)
   function updateReport() {
-    let original = false;
-     const formData = new FormData();
-    var original_image = $('#image_remove_btn').val();
+    let original = $('#image_remove_btn').val();
+    const formData = new FormData();
+    console.log(original);
 
-    if (!original_image) {
-      original = false;//기존 이미지 삭제됨
-    } else {
-      original = true;//기존 이미지 유지
-    }
-
-    if (!updateFile) {
+    if (!update_imageFile) {
       formData.append('image', null);
-    } else {
-      formData.append('image', updateFile);
+    }else{
+      formData.append('image', update_imageFile);
     }
-
 
     let id = $('#update_btn').val();
     let name = $('#update_report_name').val();
@@ -219,7 +213,7 @@
 
     $.ajax({
       type: "PATCH",
-      url: `/v1/categories/${currentCategoryId}/reports/${id}`,
+      url: `/v1/categories/${currentCategoryId}/reports/${id}/${original}`,
       data: formData,
       enctype: "multipart/form-data",
       contentType: false,
@@ -232,10 +226,6 @@
       }
     });
   }
-
-
-
-
 
   function removeReport(category, id) {
     $.ajax({
@@ -257,21 +247,6 @@
     $('#update_report_image').show();
   }
 
-  function loadExistingImage() {
-    // 선택된 파일 가져오기
-    var selectedFile = document.getElementById('update_report_image').files[0];
-
-    // 파일이 선택되었는지 확인
-    if (selectedFile) {
-      // 선택한 이미지 표시
-      var reader = new FileReader();
-      reader.onload = function (e) {
-        $('#existing_image').attr('src', e.target.result).show();
-        $('#image_remove_btn').show().attr('disabled', false);
-      };
-      reader.readAsDataURL(selectedFile);
-    }
-  }
 
 </script>
 
@@ -465,10 +440,13 @@
           </div>
         </div>
         <input type="text" class="form-control" id="update_report_name" placeholder="이름">
-       <!-- <input type="file" accept="image/*" id="update_report_image">-->
-   < <img id="existing_image" src="" alt="기존 이미지" style="max-width: 100%; max-height: 200px;">
-        <button id="image_remove_btn" class="btn btn-secondary" onclick="removeOriginal()">기존 이미지 삭제</button>
+        <!-- <input type="file" accept="image/*" id="update_report_image">-->
+        <img id="existing_image" src="" alt="기존 이미지" style="max-width: 100%; max-height: 200px;">
+        <button id="image_remove_btn" value=true class="btn btn-secondary" onclick="removeOriginal()">기존 이미지
+          삭제
+        </button>
        <!-- <input th:class="form-control" type="file" accept="image/*" id="edit_image">-->
+        <!-- <input th:class="form-control" type="file" accept="image/*" id="edit_image">-->
         <input th:class="form-control" type="file" accept="image/*" id="update_report_image">
       </div>
       <div class="modal-footer">
