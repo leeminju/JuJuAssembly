@@ -73,7 +73,9 @@
       url: `/v1/users/myprofile`,
       success: function (response) {
         myId = response['data']['id'];
-
+        if (response['data']['role'] == "ADMIN") {
+          window.location.href = "/admin/chat";
+        }
         getAllAdminUsers();
         var currentUrl = window.location.href;
         var parsedParams = parseQueryString(currentUrl);
