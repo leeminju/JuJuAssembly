@@ -1,6 +1,7 @@
 package com.example.jujuassembly.domain.reviewLike.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -80,9 +81,9 @@ class ReviewLikeServiceTest {
     product = Product.builder().id(productId).category(category).build();
     review = Review.builder().id(reviewId).product(product).user(reviewUser).build();
 
-    when(productRepository.getById(productId)).thenReturn(product);
-    when(categoryRepository.getById(categoryId)).thenReturn(category);
-    when(reviewRepository.getById(reviewId)).thenReturn(review);
+    when(productRepository.findProductByIdOrElseThrow(productId)).thenReturn(product);
+    when(categoryRepository.existsById(categoryId)).thenReturn(true);
+    when(reviewRepository.findReviewByIdOrElseThrow(reviewId)).thenReturn(review);
   }
 
   @Test
@@ -98,19 +99,12 @@ class ReviewLikeServiceTest {
 
     when(reviewLikeRepository.save(any(ReviewLike.class))).thenReturn(mockReviewLike);
     // when
-    Optional<ReviewLikeResponseDto> result = reviewLikeService.likeReview(categoryId,
+    boolean result = reviewLikeService.likeReview(categoryId,
         productId,
         reviewId, user);
 
     // then
-    assertTrue(result.isPresent());
-    result.ifPresent(actualValue -> {
-      assertEquals(reviewId, actualValue.getReviewId());
-      assertEquals(reviewLikeId, actualValue.getId());
-      assertEquals(ReviewLikeStatusEnum.LIKE, actualValue.getStatus());
-      assertEquals(loginId, actualValue.getUserLoginId());
-    });
-
+    assertTrue(result);
   }
 
   @Test
@@ -145,11 +139,11 @@ class ReviewLikeServiceTest {
         Optional.of(reviewLike));
 
     // when
-    Optional<ReviewLikeResponseDto> result = reviewLikeService.likeReview(categoryId, productId,
+    boolean result = reviewLikeService.likeReview(categoryId, productId,
         reviewId, user);
 
     // then
-    assertTrue(result.isEmpty());
+    assertFalse(result);
     verify(reviewLikeRepository, times(1)).delete(reviewLike);
   }
 
@@ -166,18 +160,12 @@ class ReviewLikeServiceTest {
 
     when(reviewLikeRepository.save(any(ReviewLike.class))).thenReturn(mockReviewLike);
     // when
-    Optional<ReviewLikeResponseDto> result = reviewLikeService.dislikeReview(categoryId,
+    boolean result = reviewLikeService.dislikeReview(categoryId,
         productId,
         reviewId, user);
 
     // then
-    assertTrue(result.isPresent());
-    result.ifPresent(actualValue -> {
-      assertEquals(reviewId, actualValue.getReviewId());
-      assertEquals(reviewLikeId, actualValue.getId());
-      assertEquals(ReviewLikeStatusEnum.DISLIKE, actualValue.getStatus());
-      assertEquals(loginId, actualValue.getUserLoginId());
-    });
+    assertTrue(result);
   }
 
   @Test
@@ -213,11 +201,11 @@ class ReviewLikeServiceTest {
         Optional.of(reviewLike));
 
     // when
-    Optional<ReviewLikeResponseDto> result = reviewLikeService.dislikeReview(categoryId, productId,
+    boolean result = reviewLikeService.dislikeReview(categoryId, productId,
         reviewId, user);
 
     // then
-    assertTrue(result.isEmpty());
+    assertFalse(result);
     verify(reviewLikeRepository, times(1)).delete(reviewLike);
   }
 

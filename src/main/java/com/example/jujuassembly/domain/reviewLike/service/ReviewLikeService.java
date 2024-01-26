@@ -32,78 +32,54 @@ public class ReviewLikeService {
   private final NotificationService notificationService;
   private final NotificationRepository notificationRepository;
 
+  private static boolean result = false;
+
   @Transactional
-  public Optional<ReviewLikeResponseDto> likeReview(Long categoryId, Long productId, Long reviewId,
+  public boolean likeReview(Long categoryId, Long productId, Long reviewId,
       User user) {
-    ReviewLikeResponseDto responseDto = null;
-    categoryRepository.getById(categoryId);
-    Product product = productRepository.getById(productId);
+
+    categoryRepository.existsById(categoryId);
+    Product product = productRepository.findProductByIdOrElseThrow(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
-    Review review = reviewRepository.getById(reviewId);
+    Review review = reviewRepository.findReviewByIdOrElseThrow(reviewId);
     checkReviewProductAndProductIdEquality(review, productId);
 
     if (user.getId().equals(review.getUser().getId())) {
       throw new ApiException("본인의 리뷰에 추천 누를 수 없습니다.", HttpStatus.BAD_REQUEST);
     }
 
-    Optional<ReviewLike> reviewLike = reviewLikeRepository.findByReviewAndUser(review, user);
+    Optional<ReviewLike> reviewResponse = reviewLikeRepository.findByReviewAndUser(review, user);
 
-    if (reviewLike.isPresent()) {
-      //이미 추천 누름
-      if (reviewLike.get().getStatus().equals(ReviewLikeStatusEnum.LIKE)) {
-        reviewLikeRepository.delete(reviewLike.get());//이미 추천을 눌렀다면 추천 해제
-        // 데이터베이스 알림 삭제
-        notificationService.deleteNotificationByEntity("REVIEW", reviewId);
-        return Optional.empty();
-      } else {
-        throw new ApiException("이미 비추천을 눌렀습니다", HttpStatus.BAD_REQUEST);
-      }
-    } else {
-      ReviewLike newReviewLike = new ReviewLike(review, user);
-      newReviewLike.like();
-      ReviewLike savedReviewLike = reviewLikeRepository.save(newReviewLike);
-      responseDto = new ReviewLikeResponseDto(savedReviewLike);
-    }
+    reviewResponse.ifPresentOrElse(
+        response -> cancelReviewResponse(response, reviewId, ReviewLikeStatusEnum.LIKE),
+        () -> saveReviewResponse(review, user, reviewId, ReviewLikeStatusEnum.LIKE));
 
-    notificationService.send(review.getUser(), "REVIEW", reviewId, user);
-
-    return Optional.of(responseDto);
+    return result;
   }
 
 
   @Transactional
-  public Optional<ReviewLikeResponseDto> dislikeReview(Long categoryId, Long productId,
+  public boolean dislikeReview(Long categoryId, Long productId,
       Long reviewId, User user) {
     ReviewLikeResponseDto responseDto = null;
-    categoryRepository.getById(categoryId);
-    Product product = productRepository.getById(productId);
+    categoryRepository.existsById(categoryId);
+    Product product = productRepository.findProductByIdOrElseThrow(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
-    Review review = reviewRepository.getById(reviewId);
+    Review review = reviewRepository.findReviewByIdOrElseThrow(reviewId);
     checkReviewProductAndProductIdEquality(review, productId);
 
     if (user.getId().equals(review.getUser().getId())) {
       throw new ApiException("본인의 리뷰에 비추천 누를 수 없습니다.", HttpStatus.BAD_REQUEST);
     }
 
-    Optional<ReviewLike> reviewLike = reviewLikeRepository.findByReviewAndUser(review, user);
+    Optional<ReviewLike> reviewResponse = reviewLikeRepository.findByReviewAndUser(review, user);
 
-    if (reviewLike.isPresent()) {
-      if (reviewLike.get().getStatus().equals(ReviewLikeStatusEnum.DISLIKE)) {
-        reviewLikeRepository.delete(reviewLike.get());//이미 비추천을 눌렀다면 추천 해제
-        return Optional.empty();
-      } else {
-        throw new ApiException("이미 추천을 눌렀습니다", HttpStatus.BAD_REQUEST);
-      }
-    } else {
-      ReviewLike newReviewLike = new ReviewLike(review, user);
-      newReviewLike.dislike();
-      ReviewLike savedReviewLike = reviewLikeRepository.save(newReviewLike);
-      responseDto = new ReviewLikeResponseDto(savedReviewLike);
-    }
+    reviewResponse.ifPresentOrElse(
+        response -> cancelReviewResponse(response, reviewId, ReviewLikeStatusEnum.DISLIKE),
+        () -> saveReviewResponse(review, user, reviewId, ReviewLikeStatusEnum.DISLIKE));
 
-    return Optional.of(responseDto);
+    return result;
   }
-
 
   //상품 카테고리 일치 검증
   private void checkProductCategoryAndCategoryIdEquality(Product product, Long categoryId) {
@@ -119,5 +95,32 @@ public class ReviewLikeService {
     }
   }
 
+  void cancelReviewResponse(ReviewLike response, Long reviewId, ReviewLikeStatusEnum statusEnum) {
+    if (response.getStatus().equals(statusEnum)) {
+      reviewLikeRepository.delete(response);
+      if (statusEnum == ReviewLikeStatusEnum.LIKE) {
+        notificationService.deleteNotificationByEntity("REVIEW", reviewId);
+      }
+      result = false;
+    } else {
+      if (statusEnum == ReviewLikeStatusEnum.LIKE) {
+        throw new ApiException("이미 비추천을 눌렀습니다", HttpStatus.BAD_REQUEST);
+      } else {
+        throw new ApiException("이미 추천을 눌렀습니다", HttpStatus.BAD_REQUEST);
+      }
+    }
+  }
 
+  void saveReviewResponse(Review review, User user, Long reviewId,
+      ReviewLikeStatusEnum statusEnum) {
+    ReviewLike newReviewLike = new ReviewLike(review, user);
+    newReviewLike.setStatus(statusEnum);
+    reviewLikeRepository.save(newReviewLike);
+
+    if (statusEnum == ReviewLikeStatusEnum.LIKE) {
+      notificationService.send(review.getUser(), "REVIEW", reviewId, user);
+    }
+
+    result = true;
+  }
 }

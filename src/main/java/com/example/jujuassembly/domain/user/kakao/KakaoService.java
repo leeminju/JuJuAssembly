@@ -82,7 +82,7 @@ public class KakaoService {
     MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
     body.add("grant_type", "authorization_code");
     body.add("client_id", "384eb140b7adc777306aa35e86b7fa7f");
-    body.add("redirect_uri", "http://www.jujuassembly.store/v1/auth/kakao/callback");
+    body.add("redirect_uri", "https://jujuassembly.store/v1/auth/kakao/callback");
     body.add("code", code);
 
     RequestEntity<MultiValueMap<String, String>> requestEntity = RequestEntity   // '이런 형태로 request해라' 라고 나와있음
@@ -170,8 +170,8 @@ public class KakaoService {
         String url = kakaoUserInfo.getImageUrl();
 
         // 카테고리를 임의로 지정
-        Category firstCategory = categoryRepository.getById(1L);
-        Category secondCatefory = categoryRepository.getById(2L);
+        Category firstCategory = categoryRepository.findCategoryByIdOrElseThrow(1L);
+        Category secondCatefory = categoryRepository.findCategoryByIdOrElseThrow(2L);
 
         kakaoUser = new User(email, kakaoUserInfo.getNickname(), email, encodedPassword, kakaoId,
             url, firstCategory, secondCatefory);

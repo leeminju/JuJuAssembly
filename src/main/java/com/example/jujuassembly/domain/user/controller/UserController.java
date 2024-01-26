@@ -192,7 +192,7 @@ public class UserController {
   }
 
   // https://kauth.kakao.com/oauth/authorize?response_type=code&client_id= ${REST_API_KEY} &redirect_uri= ${REDIRECT_URI}
-  // https://kauth.kakao.com/oauth/authorize?client_id=384eb140b7adc777306aa35e86b7fa7f&redirect_uri=http://www.jujuassembly.store/v1/auth/kakao/callback&response_type=code
+  // https://kauth.kakao.com/oauth/authorize?client_id=384eb140b7adc777306aa35e86b7fa7f&redirect_uri=https://jujuassembly.store/v1/auth/kakao/callback&response_type=code
   // 카카오 로그인 요청 url
   @GetMapping("/auth/kakao/callback")
   public ResponseEntity<ApiResponse> kakaoLogin(

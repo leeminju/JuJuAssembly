@@ -12,21 +12,11 @@ $(document).ready(function () {
     // 로그인 상태가 아니라면 알림 아이콘 숨김
     $('#notification-count-badge').hide();
   }
-
-  // 로그아웃 버튼에 이벤트 핸들러 연결
-  $('#logout-btn').on('click', function() {
-    logout();
-  });
 });
 
 // SSE 구독을 위한 함수
 function initializeSSE() {
   if (!!window.EventSource) {
-    // 기존의 EventSource 인스턴스가 있다면 닫고 초기화
-    // if (source) {
-    //   source.close();
-    //   source = null;
-    // }
 
     source = new EventSource('/v1/notification/subscribe');
 
@@ -51,19 +41,13 @@ function initializeSSE() {
         source = null;
       }
       // 필요한 경우 재연결 로직
-      setTimeout(initializeSSE, 5000); // 5초 후 재연결 시도
+      setTimeout(initializeSSE, 3000); // 3초 후 재연결 시도
     }
   } else {
     console.log("브라우저가 SSE를 지원하지 않습니다.");
   }
 }
 
-// // 서버로부터 새로운 알림 목록을 가져와 업데이트하는 함수
-// function updateNotificationsListAndBadge() {
-//   fetchNotifications(); // 서버로부터 최신 알림 목록을 가져옴
-// }
-
-// 실시간으로 수신된 알림을 화면에 표시하는 함수
 function displayRealTimeNotification(data) {
   // 브라우저 알림 허용 권한 확인 및 요청
   checkNotificationPermission().then(granted => {
@@ -89,7 +73,7 @@ function checkNotificationPermission() {
 }
 
 function showNotification(data) {
-  const notification = new Notification('새 알림', {
+  const notification = new Notification('JUJUASSEMBLY 알림', {
     body: data.content
   });
 
@@ -135,9 +119,10 @@ function displayNotifications(notifications) {
   if (notifications.length === 0) {
     list.append('<li>새로운 알림이 없습니다.</li>');
   } else {
-    notifications.forEach(function(notification) {
+    notifications.forEach(function (notification) {
       // 부모 요소에 relative positioning 추가
-      var listItem = $('<li>').addClass('notification-item').css('position', 'relative');
+      var listItem = $('<li>').addClass('notification-item').css('position',
+          'relative');
       var content = $('<span>').text(notification.content);
 
       if (notification.read) {
@@ -148,7 +133,7 @@ function displayNotifications(notifications) {
       }
 
       // 알림 클릭 이벤트 핸들러
-      content.click(function() {
+      content.click(function () {
         markAsRead(notification.id);
         window.location.href = notification.url; // 해당 알림의 URL로 이동
       });
@@ -166,7 +151,7 @@ function displayNotifications(notifications) {
         'font-size': '15px',
         'font-variant': 'all-small-caps',
         'cursor': 'pointer'
-      }).click(function() {
+      }).click(function () {
         deleteNotification(notification.id);
       });
 
@@ -178,7 +163,6 @@ function displayNotifications(notifications) {
     });
   }
 }
-
 
 // 알림을 읽음 상태로 변경하는 함수
 function markAsRead(notificationId) {
@@ -201,11 +185,11 @@ function deleteNotification(notificationId) {
   $.ajax({
     url: '/v1/notification/notifications/' + notificationId,
     type: 'DELETE',
-    success: function(response) {
+    success: function (response) {
       console.log('알림 삭제 성공:', response);
       fetchNotifications(); // 알림 목록을 다시 불러옴
     },
-    error: function(xhr, status, error) {
+    error: function (xhr, status, error) {
       console.error('알림 삭제 실패:', error);
     }
   });
@@ -216,7 +200,7 @@ function displayUnreadCount(unreadCount) {
   var unreadCountBadge = $('#notification-count-badge');
   var modalUnreadCountElement = $('#unread-count');
 
-  if(unreadCount > 0) {
+  if (unreadCount > 0) {
     unreadCountBadge.text(unreadCount);
     modalUnreadCountElement.text("읽지 않은 알림: " + unreadCount);
     unreadCountBadge.show();

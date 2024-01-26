@@ -27,7 +27,7 @@ public class CategoryService {
   }
 
   public CategoryResponseDto getCategoryInfo(Long categoryId) {
-    Category category = categoryRepository.getById(categoryId);
+    Category category = categoryRepository.findCategoryByIdOrElseThrow(categoryId);
     return new CategoryResponseDto(category);
   }
 
@@ -52,7 +52,7 @@ public class CategoryService {
   @Transactional
   public CategoryResponseDto updateCategory(CategoryRequestDto requestDto, Long categoryId,
       MultipartFile image) throws IOException {
-    Category category = categoryRepository.getById(categoryId);
+    Category category = categoryRepository.findCategoryByIdOrElseThrow(categoryId);
     category.updateName(requestDto);
 
     s3Manager.deleteAllImageFiles(categoryId.toString(), S3Manager.CATEGORY_DIRECTORY_NAME);
@@ -70,7 +70,7 @@ public class CategoryService {
 
   @Transactional
   public void deleteCategory(Long categoryId) {
-    Category category = categoryRepository.getById(categoryId);
+    Category category = categoryRepository.findCategoryByIdOrElseThrow(categoryId);
     categoryRepository.delete(category);
     s3Manager.deleteAllImageFiles(categoryId.toString(), S3Manager.CATEGORY_DIRECTORY_NAME);
   }

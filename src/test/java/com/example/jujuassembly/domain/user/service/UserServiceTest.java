@@ -100,7 +100,7 @@ public class UserServiceTest implements EmailAuthUtil {
     when(emailAuthRepository.findByNickname(anyString())).thenReturn(Optional.empty());
     when(emailAuthRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
-    when(categoryRepository.getById(anyLong())).thenReturn(TEST_CATEGORY);
+    when(categoryRepository.findCategoryByIdOrElseThrow(anyLong())).thenReturn(TEST_CATEGORY);
 
     doNothing().when(emailService).sendEmail(anyString(), anyString(), anyString());
 
@@ -222,8 +222,8 @@ public class UserServiceTest implements EmailAuthUtil {
     PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
     CategoryRepository categoryRepository = mock(CategoryRepository.class);
     when(passwordEncoder.matches(any(), any())).thenReturn(true);
-    when(userRepository.getById(userId)).thenReturn(user);
-    when(categoryRepository.getById(any())).thenReturn(category1);
+    when(userRepository.findUserByIdOrElseThrow(userId)).thenReturn(user);
+    when(categoryRepository.findCategoryByIdOrElseThrow(any())).thenReturn(category1);
 
     UserService userService = new UserService(
         userRepository, passwordEncoder, mock(EmailAuthService.class),
@@ -259,7 +259,7 @@ public class UserServiceTest implements EmailAuthUtil {
 
     String mockImageUrl = "https://example.com/image.jpg";
 
-    when(userRepository.getById(userId)).thenReturn(user);
+    when(userRepository.findUserByIdOrElseThrow(userId)).thenReturn(user);
     doNothing().when(s3Manager).deleteAllImageFiles(anyString(), anyString());
     when(s3Manager.upload(any(), eq("users"), eq(user.getId()))).thenReturn(mockImageUrl);
 

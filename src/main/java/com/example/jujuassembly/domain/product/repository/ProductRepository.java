@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-  default Product getById(Long id) {
+  default Product findProductByIdOrElseThrow(Long id) {
     return findById(id).orElseThrow(
         () -> new ApiException("해당 상품을 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
     );

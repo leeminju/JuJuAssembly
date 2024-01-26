@@ -119,8 +119,8 @@ public class KakaoServiceTest implements EmailAuthUtil {
     when(userRepository.findByKakaoId(eq(TEST_USER_ID))).thenReturn(Optional.empty());
     when(userRepository.findByEmail(eq(TEST_USER_EMAIL))).thenReturn(Optional.empty());
 
-    when(categoryRepository.getById(1L)).thenReturn(TEST_CATEGORY);
-    when(categoryRepository.getById(2L)).thenReturn(TEST_ANOTHER_CATEGORY);
+    when(categoryRepository.findCategoryByIdOrElseThrow(1L)).thenReturn(TEST_CATEGORY);
+    when(categoryRepository.findCategoryByIdOrElseThrow(2L)).thenReturn(TEST_ANOTHER_CATEGORY);
 
     // when
     User result = kakaoService.registerKakaoUserIfNeeded(kakaoUserInfo);

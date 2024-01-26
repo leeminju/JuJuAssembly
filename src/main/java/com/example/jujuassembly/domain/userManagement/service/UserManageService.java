@@ -29,7 +29,7 @@ public class UserManageService {
 
   //유저 권한 수정
   public UserRoleResponseDto modifyUserRole(Long userId, UserRoleRequestDto userRoleRequestDto) {
-    User user = userRepository.getById(userId);
+    User user = userRepository.findUserByIdOrElseThrow(userId);
     user.changeRole(userRoleRequestDto.getUserRole());
     userRepository.save(user);
     return new UserRoleResponseDto(user);
