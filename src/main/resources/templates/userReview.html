@@ -122,6 +122,7 @@
             let images = review['images'];
             let categoryId = review['categoryId'];
             let productId = review['productId'];
+            let productImage = review['productImage'];
             let productName = review['productName'];
             let description = review['description'];
             let createdAt = review['createdAt'];
@@ -137,8 +138,9 @@
 
             let html = `<div class="col" >
              <div class="card h-100">
-      <img src = ${images[0]} id="review-image-${id}" class="card-img-top" onclick="location.href='/productDetails?productId=${productId}&categoryId=${categoryId}'">
-
+      <div style="height: 400px;">
+      <img style="height:400px; object-fit: cover" src = ${images[0]} id="review-image-${id}" class="card-img-top" onclick="location.href='/productDetails?productId=${productId}&categoryId=${categoryId}'">
+      </div>
       <div class="card-body" onclick="location.href='/productDetails?productId=${productId}&categoryId=${categoryId}'">
         <div style="display: flex;flex-direction: row">
         <div style="width: 70%">
@@ -171,7 +173,7 @@
             $('#reviewList').append(html);
 
             if (images.length == 0) {
-              $('#review-image-' + id).hide();//이미지 없다면 숨기기
+              $('#review-image-' + id).attr("src", productImage);//이미지 없다면 숨기기
             }
 
             if (createdAt_Text === modifiedAt_Text) {
