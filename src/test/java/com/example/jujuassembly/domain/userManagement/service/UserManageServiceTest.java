@@ -77,7 +77,7 @@ class UserManageServiceTest {
     UserRoleRequestDto userRoleRequestDto = UserRoleRequestDto.builder()
         .userRole(UserRoleEnum.ADMIN).build();
 
-    when(userRepository.getById(1L)).thenReturn(user);
+    when(userRepository.findUserByIdOrElseThrow(1L)).thenReturn(user);
 
     //when
     var result = userManageService.modifyUserRole(1L, userRoleRequestDto);
