@@ -104,13 +104,13 @@ public class ReviewController {
 
 
   //상품 수정 사진 삭제
-  @DeleteMapping("/categories/{categoryId}/products/{productId}/reviews/{reviewId}/images/{imageId}")
+  @DeleteMapping("/categories/{categoryId}/products/{productId}/reviews/{reviewId}/images/{imageIndex}")
   public ResponseEntity<ApiResponse<ReviewResponseDto>> deleteProductsReviewImage(
       @PathVariable Long categoryId, @PathVariable Long productId,
-      @PathVariable Long reviewId, @PathVariable Long imageId ){
+      @PathVariable Long reviewId, @PathVariable Long imageIndex ){
 
     ReviewResponseDto responseDto = reviewService.deleteReviewImage(categoryId, productId,
-        reviewId, imageId);
+        reviewId, imageIndex);
 
     return ResponseEntity.ok()
         .body(new ApiResponse<>("선택 사진이 삭제되었습니다.", HttpStatus.OK.value(), responseDto));

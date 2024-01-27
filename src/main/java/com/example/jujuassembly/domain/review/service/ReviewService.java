@@ -12,6 +12,7 @@ import com.example.jujuassembly.domain.reviewImage.service.ReviewImageService;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.global.exception.ApiException;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +31,7 @@ public class ReviewService {
   private final UserRepository userRepository;
   private final ReviewImageService reviewImageService;
   private final NotificationService notificationService;
+  private final EntityManager entityManager;
 
   @Transactional
   public ReviewResponseDto createProductsReview(Long categoryId, Long productId,
@@ -95,15 +97,17 @@ public class ReviewService {
 
   @Transactional
   public ReviewResponseDto deleteReviewImage(Long categoryId, Long productId,
-     Long reviewId, Long imageId){
-      Product product = productRepository.findProductByIdOrElseThrow(productId);
-      checkProductCategoryAndCategoryIdEquality(product, categoryId);
-      Review review = reviewRepository.findReviewByIdOrElseThrow(reviewId);
-      checkReviewProductAndProductIdEquality(review, productId);
-      reviewImageService.deleteReviewImage(reviewId, imageId);
-      Review reviewAfterDelete = reviewRepository.findReviewByIdOrElseThrow(reviewId);
+      Long reviewId, Long imageIndex) {
+    Product product = productRepository.findProductByIdOrElseThrow(productId);
+    checkProductCategoryAndCategoryIdEquality(product, categoryId);
+    Review review = reviewRepository.findReviewByIdOrElseThrow(reviewId);
+    checkReviewProductAndProductIdEquality(review, productId);
 
-      return new ReviewResponseDto(reviewAfterDelete);
+    reviewImageService.deleteReviewImage(reviewId, imageIndex);
+    entityManager.detach(review);
+    Review reviewAfterDelete = reviewRepository.findReviewByIdOrElseThrow(reviewId);
+
+    return new ReviewResponseDto(reviewAfterDelete);
   }
 
   @Transactional
