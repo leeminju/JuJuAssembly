@@ -413,7 +413,17 @@
       $('#update_star').val(star);
       $('#update_munchies').val(munchies);
       $('#imageList').val(images);
+      if (images.length > 0) {
 
+        for (let i = 0; i < images.length; i++) {
+          let img_html = `<img style="margin-right:10px; width: 150px;height: 150px;object-fit: contain" src="${images[i]}">`;
+          let btn_html = `<button class="btn btn-secondary" id="image_remove_btn" style="width: 15px; height: 15px; flex-direction: column;
+             align-items: center; justify-content: center;font-size: 10px;" onclick="removeImage(${i})">X</button>`;
+          $('#imageList_container').append(img_html + btn_html);
+        }
+      } else {
+        $('#imageList').hide();
+      }
     }
 
     function updateReview() {
@@ -428,6 +438,8 @@
         "star": star,
         "munchies": munchies
       }
+      //let images =
+      //Todo 이미지추가
 
       const formData = new FormData();
       formData.append("data",
