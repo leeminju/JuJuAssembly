@@ -31,6 +31,7 @@
     var update_imageFile = null;
     var update_product_imageFile = null;
     var role = null;
+    var current_review_id;
 
     $(document).ready(function () {
 
@@ -414,10 +415,11 @@
       $('#update_star').val(star);
       $('#update_munchies').val(munchies);
       $('#imageList').val(images);
+      current_review_id = id;
       if (images.length > 0) {
 
         for (let i = 0; i < images.length; i++) {
-          let img_html = `<img style="margin-right:10px; width: 150px;height: 150px;object-fit: contain" src="${images[i]}">`;
+          let img_html = `<img id="original-image-${i}" style="margin-right:10px; width: 150px;height: 150px;object-fit: contain" src="${images[i]}">`;
           let btn_html = `<button class="btn btn-secondary" id="image_remove_btn" style="width: 15px; height: 15px; flex-direction: column;
              align-items: center; justify-content: center;font-size: 10px;" onclick="removeImage(${id}, ${i})">X</button>`;
           $('#imageList_container').append(img_html + btn_html);
@@ -448,33 +450,52 @@
 
     function updateReview() {
 
-      let reviewId = $('#update_btn').val();
+      //let reviewId = $('#update_btn').val();
 
       let description = $('#update_description').val();
       let star = $('#update_star').val();
       let munchies = $('#update_munchies').val();
+      let existingImages = $('[id^="original-image-"]');
+
+
+      const formData = new FormData();
+      console.log("existingImages.length=",existingImages.length);
+      console.log("existingImages=",existingImages[0].src);
+
+      /*  if (existingImages>=1){
+          //사진 유지
+          formData.append('images',images.scr)
+        }*/
+      for (let i = 0; i < existingImages.length; i++) {
+        formData.append('images', existingImages[i].src);
+      }
+
+      let newImagesInput = $('#update_review_image')[0];
+      for (let i = 0; i < newImagesInput.files.length; i++) {
+        formData.append('newImages', newImagesInput.files[i]);
+      }
+
+
       let data = {
         "description": description,
         "star": star,
         "munchies": munchies
       }
-      //let images =
-      //Todo 이미지추가
 
-      const formData = new FormData();
       formData.append("data",
           new Blob([JSON.stringify(data)], {type: "application/json"}));
 
-      // 배열의 각 파일을 순회하면서 FormData에 따로 추가합니다.
-      if (update_imageFile) {
-        for (let i = 0; i < update_imageFile.length; i++) {
-          formData.append('images', update_imageFile[i]);
-        }
-      }
+      /*    // 배열의 각 파일을 순회하면서 FormData에 따로 추가합니다.
+          if (update_imageFile) {
+            for (let i = 0; i < update_imageFile.length; i++) {
+              formData.append('images', update_imageFile[i]);
+            }
+          }*/
+
 
       $.ajax({
         type: "PATCH",
-        url: `/v1/categories/${categoryId}/products/${productId}/reviews/${reviewId}`,
+        url: `/v1/categories/${categoryId}/products/${productId}/reviews/${current_review_id}`,
         data: formData,
         enctype: "multipart/form-data",
         contentType: false,
