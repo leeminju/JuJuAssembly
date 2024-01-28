@@ -38,8 +38,6 @@ function getAllUsers() {
         let nickname = user['nickname']
         let email = user['email']
         let role = user['role'];
-        let firstPreferredCategoryId = user['firstPreferredCategoryId'];
-        let secondPreferredCategoryId = user['secondPreferredCategoryId'];
 
         if (!image) {
           image = "/images/default_user_image.png"

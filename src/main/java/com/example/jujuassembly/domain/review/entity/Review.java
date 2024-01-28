@@ -46,6 +46,9 @@ public class Review extends Timestamped {
   @Column
   private String munchies;//먹거리 정보
 
+  @Column
+  private int likeCount = 0; // 리뷰 추천 수
+
   @Column(name = "is_verified", nullable = false)
   private Boolean isVerified;// 리뷰 인증 여부
 
@@ -84,5 +87,18 @@ public class Review extends Timestamped {
   // 리뷰를 인증 처리하는 메서드
   public void changeVerified() {
     this.isVerified = !this.getIsVerified();
+  }
+
+
+  // 추천(좋아요) 추가 메서드
+  public void incrementLikesCount() {
+    this.likeCount++;
+  }
+
+  // 추천(좋아요) 제거 메서드
+  public void decrementLikesCount() {
+    if (this.likeCount > 0) {
+      this.likeCount--;
+    }
   }
 }

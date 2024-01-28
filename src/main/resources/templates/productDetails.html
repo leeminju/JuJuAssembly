@@ -751,7 +751,7 @@
              class="row row-cols-1 row-cols-md-2 g-4">
           <!-- <div id="imageList" style="padding:10px; width: 100%;height: 160px;display: flex;flex-direction: row;"></div>-->
         </div>
-
+      
         <input type="file" accept="image/*" id="update_review_image" multiple>
       </div>
       <div class="modal-footer">
@@ -950,21 +950,24 @@
         <div class="pagination">
           정렬:
           <select id="sorting" onchange="getReviews()" style="margin-right: 10px">
-            <option value="createdAt">작성일</option>
-            <option value="modifiedAt">수정일</option>
+            <option value="createdAt">작성일 순</option>
+            <option value="modifiedAt">수정일 순</option>
+            <option value="likeCount">좋아요 많은 순</option>
           </select>
           <input type="radio" name="isAsc" value="asc" onchange="getReviews()"/> 오름차순
           <input type="radio" name="isAsc" value="desc" onchange="getReviews()" checked/> 내림차순
         </div>
         <div id="pagination" class="pagination" style="margin-top:10px"></div>
       </div>
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createReview"
-              style="margin-left:75%">리뷰 작성
-      </button>
+      <h6 class="border-bottom pb-2 mb-0" style="margin:auto auto 10px auto;width: 60%;">리뷰 목록(<span
+          id="reviewCount"></span>)
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createReview"
+                style="margin-left:80%">리뷰 작성
+        </button>
+      </h6>
       <div class="my-3 p-3 bg-body rounded shadow-sm"
            style="margin: 10px auto 10px auto;width: 60%;"
            id="reviewList">
-        <h6 class="border-bottom pb-2 mb-0">리뷰 목록(<span id="reviewCount"></span>)</h6>
       </div>
     </div>
   </div>
