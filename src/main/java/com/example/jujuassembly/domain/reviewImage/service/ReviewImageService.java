@@ -68,5 +68,13 @@ public class ReviewImageService {
     reviewImageRepository.deleteAllByReview(review);
     s3Manager.deleteAllImageFiles(review.getId().toString(), dirName);
   }
+
+
+  //기존 리뷰 이미지 가져오기
+  @Transactional
+  public List<ReviewImage> findImageFromReviewImage(Review review){
+    List<ReviewImage> existingReviewImagesList = reviewImageRepository.findReviewImageByReview(review);
+    return existingReviewImagesList;
+  }
 }
 

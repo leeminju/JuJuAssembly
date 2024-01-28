@@ -103,7 +103,7 @@ public class ReviewController {
   }
 
 
-  //상품 수정 사진 삭제
+  //상품 사진 삭제
   @DeleteMapping("/categories/{categoryId}/products/{productId}/reviews/{reviewId}/images/{imageIndex}")
   public ResponseEntity<ApiResponse<ReviewResponseDto>> deleteProductsReviewImage(
       @PathVariable Long categoryId, @PathVariable Long productId,

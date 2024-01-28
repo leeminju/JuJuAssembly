@@ -8,11 +8,13 @@ import com.example.jujuassembly.domain.review.dto.ReviewRequestDto;
 import com.example.jujuassembly.domain.review.dto.ReviewResponseDto;
 import com.example.jujuassembly.domain.review.entity.Review;
 import com.example.jujuassembly.domain.review.repository.ReviewRepository;
+import com.example.jujuassembly.domain.reviewImage.entity.ReviewImage;
 import com.example.jujuassembly.domain.reviewImage.service.ReviewImageService;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.global.exception.ApiException;
 import jakarta.persistence.EntityManager;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -78,11 +80,17 @@ public class ReviewService {
     checkReviewProductAndProductIdEquality(review, productId);
 
     //기존의 파일 모두 삭제
-    reviewImageService.deleteAllReviewImages(review, "reviews");
-
-    if (images != null && images.length > 4) {
-      throw new ApiException("사진은 4장 까지만 업로드 가능합니다.", HttpStatus.BAD_REQUEST);
+    //reviewImageService.deleteAllReviewImages(review, "reviews");
+    List<ReviewImage> existingReviewImagesList = reviewImageService.findImageFromReviewImage(review);
+    if (existingReviewImagesList.size()>=1){
+      if ( existingReviewImagesList.size() + images.length > 4) {
+        throw new ApiException("사진은 4장 까지만 업로드 가능합니다.", HttpStatus.BAD_REQUEST);
+      }
     }
+
+ /*   if (images != null && images.length > 4) {
+      throw new ApiException("사진은 4장 까지만 업로드 가능합니다.", HttpStatus.BAD_REQUEST);
+    }*/
 
     //새로 업로드
     if (images != null) {
