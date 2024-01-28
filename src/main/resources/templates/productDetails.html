@@ -252,6 +252,7 @@
             let review = response[i];
 
             let id = review['id'];
+            current_review_id = id;
             let imagesString = JSON.stringify(review['images']);
             let images = imagesString.replaceAll('"', '').replaceAll('[', '').replaceAll(']',
                 '').split(',');
@@ -457,20 +458,16 @@
       let description = $('#update_description').val();
       let star = $('#update_star').val();
       let munchies = $('#update_munchies').val();
-      let existingImages = $('[id^="original-image-"]');
+      //let existingImages = $('[id^="original-image-"]');
 
       const formData = new FormData();
-      console.log("existingImages.length=", existingImages.length);
-      console.log("existingImages=", existingImages[0]);
-      console.log(typeof existingImages)
+      //console.log("existingImages.length=", existingImages.length);
+     // console.log("existingImages=", existingImages[0]);
+      //console.log(typeof existingImages)
 
-      if (existingImages >= 1) {
-        for (let i = 0; i < existingImages.length; i++) {
-          formData.append('images', existingImages[i]);
-        }
-      }
 
-      /*  let newImagesInput = $('#update_review_image')[0];
+
+       /* let newImagesInput = $('#update_review_image')[0];
         for (let i = 0; i < newImagesInput.files.length; i++) {
           formData.append('newImages', newImagesInput.files[i]);
         }*/
@@ -489,6 +486,8 @@
         for (let i = 0; i < update_imageFile.length; i++) {
           formData.append('images', update_imageFile[i]);
         }
+      }else {
+        formData.append('images', null);
       }
 
       $.ajax({
