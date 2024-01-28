@@ -206,7 +206,7 @@ public class UserController {
 
     return ResponseEntity.status(HttpStatus.FOUND)
         .header(HttpHeaders.LOCATION,
-            "http://www.jujuassembly.store")
+            "/")
         .body(new ApiResponse("카카오 로그인 성공 및 리다이렉트", HttpStatus.FOUND.value()));
   }
 

@@ -13,6 +13,7 @@ import com.example.jujuassembly.domain.review.repository.ReviewRepository;
 import com.example.jujuassembly.domain.room.entity.Room;
 import com.example.jujuassembly.domain.room.repository.RoomRepository;
 import com.example.jujuassembly.domain.user.entity.User;
+import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
 import com.example.jujuassembly.global.exception.ApiException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -147,7 +148,12 @@ public class NotificationService {
           Room room = optionalRoom.get();
           User partner = room.getPartner(user.getId()); // 상대방 정보
 
-          url = "/chatroom?roomId=" + entityId; // 채팅방 URL 지정
+          if (partner.getRole().equals(UserRoleEnum.ADMIN)) {
+            url = "/main/chat?userId=" + partner.getId();
+          } else {
+            url = "/admin/chat?userId=" + partner.getId();
+          }
+
           content = partner.getNickname() + "님에게 문의가 왔습니다.";
         }
         break;

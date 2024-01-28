@@ -79,7 +79,7 @@ class ReviewLikeServiceTest {
 
     category = Category.builder().id(categoryId).build();
     product = Product.builder().id(productId).category(category).build();
-    review = Review.builder().id(reviewId).product(product).user(reviewUser).build();
+    review = Review.builder().id(reviewId).product(product).user(reviewUser).likeCount(1).build();
 
     when(productRepository.findProductByIdOrElseThrow(productId)).thenReturn(product);
     when(categoryRepository.existsById(categoryId)).thenReturn(true);
@@ -131,20 +131,24 @@ class ReviewLikeServiceTest {
   @DisplayName("리뷰 추천 해제 테스트")
   void unlikeReviewTest() {
     // given
-    ReviewLike reviewLike = ReviewLike.builder().id(reviewLikeId).user(user)
+    int initialLikesCount = review.getLikeCount();
+    ReviewLike reviewLike = ReviewLike.builder()
+        .id(reviewLikeId)
+        .user(user)
         .status(ReviewLikeStatusEnum.LIKE)
+        .review(review)
         .build();
 
-    when(reviewLikeRepository.findByReviewAndUser(review, user)).thenReturn(
-        Optional.of(reviewLike));
+    when(reviewLikeRepository.findByReviewAndUser(review, user)).thenReturn(Optional.of(reviewLike));
+    when(reviewRepository.save(review)).thenReturn(review);
 
     // when
-    boolean result = reviewLikeService.likeReview(categoryId, productId,
-        reviewId, user);
+    boolean result = reviewLikeService.likeReview(categoryId, productId, reviewId, user);
 
     // then
-    assertFalse(result);
-    verify(reviewLikeRepository, times(1)).delete(reviewLike);
+    assertFalse(result); // 결과가 false로 기대됨
+    assertEquals(initialLikesCount - 1, review.getLikeCount()); // 추천 수가 감소했는지 확인
+    verify(reviewLikeRepository, times(1)).delete(reviewLike); // 추천이 삭제되었는지 확인
   }
 
   @Test

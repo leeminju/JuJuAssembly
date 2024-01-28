@@ -55,6 +55,9 @@ public class Product extends Timestamped {
   @Column(nullable = false)
   private Double alcoholDegree; // 제품의 알코올 도수
 
+  private int reviewCount = 0;
+  private int likesCount = 0;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "category_id")
   private Category category; // 제품이 속한 카테고리
@@ -80,14 +83,28 @@ public class Product extends Timestamped {
     this.image = url;
   }
 
-  // 리뷰 개수 반환 메서드
-  public int getReviewCount() {
-    return reviews.size();
+  // 리뷰 수 증가 메서드
+  public void incrementReviewCount() {
+    this.reviewCount++;
   }
 
-  // 좋아요 개수 반환 메서드
-  public int getLikesCount() {
-    return likes.size();
+  // 리뷰 수 감소 메서드
+  public void decrementReviewCount() {
+    if (this.reviewCount > 0) {
+      this.reviewCount--;
+    }
+  }
+
+  // 좋아요 수 증가 메서드
+  public void incrementLikesCount() {
+    this.likesCount++;
+  }
+
+  // 좋아요 수 감소 메서드
+  public void decrementLikesCount() {
+    if (this.likesCount > 0) {
+      this.likesCount--;
+    }
   }
 
 
@@ -98,7 +115,7 @@ public class Product extends Timestamped {
     this.company = requestDto.getCompany();
     this.category = category;
   }
-  
+
   // 평점 평균 반환 메서드,
   public Double getReviewAverage() {
     return reviews.stream()

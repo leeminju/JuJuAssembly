@@ -31,18 +31,18 @@ $(document).ready(async function () {
     $('#loginId').text(userInfo['loginId']);
     $('#nickname').text(userInfo['nickname']);
     $('#email').text(userInfo['email']);
+
     let firstId = userInfo['firstPreferredCategoryId'];
     let secondId = userInfo['secondPreferredCategoryId'];
-    console.log(userInfo);
-    console.log(firstId + " " + secondId);
 
-    let firstName = await getCategoryName(firstId);
-    let secondName = await getCategoryName(secondId);
-
-    console.log(firstName + " " + secondName);
-
-    $('#firstPreferredCategory').text(firstName);
-    $('#secondPreferredCategory').text(secondName);
+    if (firstId != null) {
+      let firstName = await getCategoryName(firstId);
+      $('#firstPreferredCategory').text(firstName);
+    }
+    if (secondId != null) {
+      let secondName = await getCategoryName(secondId);
+      $('#secondPreferredCategory').text(secondName);
+    }
 
     let image = userInfo['image'];
     if (!image) {

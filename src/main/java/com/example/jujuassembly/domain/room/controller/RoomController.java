@@ -9,10 +9,12 @@ import com.example.jujuassembly.global.filter.UserDetailsImpl;
 import com.example.jujuassembly.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1")
+@Slf4j
 public class RoomController {
 
   private final RoomService roomService;
@@ -39,6 +42,17 @@ public class RoomController {
   public void publish(@DestinationVariable Long roomId,
       @RequestBody @Valid ChatRequestDto chatRequestDto) {
     chatService.save(roomId, chatRequestDto);
+    simpMessagingTemplate.convertAndSend("/subscribe/rooms/" + roomId, chatRequestDto);
+  }
+  /**
+   * 채팅방 입장,퇴장 메시지 발행
+   *
+   * @param roomId         채팅방 ID
+   * @param chatRequestDto 채팅 요청 DTO
+   */
+  @MessageMapping("/rooms/enterexit/{roomId}")
+  public void enterOrExit(@DestinationVariable Long roomId,
+      @RequestBody @Valid ChatRequestDto chatRequestDto) {
     simpMessagingTemplate.convertAndSend("/subscribe/rooms/" + roomId, chatRequestDto);
   }
 
