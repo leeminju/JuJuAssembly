@@ -81,17 +81,18 @@ public class ReviewService {
 
     //기존의 파일 모두 삭제
     //reviewImageService.deleteAllReviewImages(review, "reviews");
-    List<ReviewImage> existingReviewImagesList = reviewImageService.findImageFromReviewImage(review);
-    if (existingReviewImagesList.size()>=1){
-      if (images == null){
+    List<ReviewImage> existingReviewImagesList = reviewImageService.findImageFromReviewImage(
+        review);
+    if (existingReviewImagesList.size() >= 1) {
+      if (images == null) {
         //기존 사진만 유지
         review.update(requestDto);
         return new ReviewResponseDto(review);
-      }else {
-        if ( existingReviewImagesList.size() + images.length > 4) {
+      } else {
+        if (existingReviewImagesList.size() + images.length > 4) {
           //4개 이상이면 사진 추가 안됌
           throw new ApiException("사진은 4장 까지만 업로드 가능합니다.", HttpStatus.BAD_REQUEST);
-        }else {
+        } else {
           //새 사진 추가
           reviewImageService.uploadReviewImages(review, images);
         }
@@ -171,6 +172,5 @@ public class ReviewService {
       throw new ApiException("해당 상품의 리뷰가 아닙니다.", HttpStatus.BAD_REQUEST);
     }
   }
-
 
 }

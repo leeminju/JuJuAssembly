@@ -44,14 +44,13 @@ public class ReviewImageService {
   }
 
 
-
   //사진 하나만 삭제
   @Transactional
   public void deleteReviewImage(Long reviewId, Long imageIndex) {
     Review review = reviewRepository.findReviewByIdOrElseThrow(reviewId);
     List<ReviewImage> reviewImages = reviewImageRepository.findReviewImageByReview(review);
     if (imageIndex == null || imageIndex >= reviewImages.size()) {
-      throw new ApiException("유효하지 않은 이미지 인덱스입니다.",HttpStatus.BAD_REQUEST);
+      throw new ApiException("유효하지 않은 이미지 인덱스입니다.", HttpStatus.BAD_REQUEST);
     }
     ReviewImage image = reviewImages.get(imageIndex.intValue());
     String imageUrl = image.getImageUrl();
@@ -72,8 +71,9 @@ public class ReviewImageService {
 
   //기존 리뷰 이미지 가져오기
   @Transactional
-  public List<ReviewImage> findImageFromReviewImage(Review review){
-    List<ReviewImage> existingReviewImagesList = reviewImageRepository.findReviewImageByReview(review);
+  public List<ReviewImage> findImageFromReviewImage(Review review) {
+    List<ReviewImage> existingReviewImagesList = reviewImageRepository.findReviewImageByReview(
+        review);
     return existingReviewImagesList;
   }
 }

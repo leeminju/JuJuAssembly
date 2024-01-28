@@ -453,24 +453,10 @@
 
     function updateReview() {
 
-      //let reviewId = $('#update_btn').val();
-
       let description = $('#update_description').val();
       let star = $('#update_star').val();
       let munchies = $('#update_munchies').val();
-      //let existingImages = $('[id^="original-image-"]');
-
       const formData = new FormData();
-      //console.log("existingImages.length=", existingImages.length);
-     // console.log("existingImages=", existingImages[0]);
-      //console.log(typeof existingImages)
-
-
-
-       /* let newImagesInput = $('#update_review_image')[0];
-        for (let i = 0; i < newImagesInput.files.length; i++) {
-          formData.append('newImages', newImagesInput.files[i]);
-        }*/
 
       let data = {
         "description": description,
@@ -486,7 +472,7 @@
         for (let i = 0; i < update_imageFile.length; i++) {
           formData.append('images', update_imageFile[i]);
         }
-      }else {
+      } else {
         formData.append('images', null);
       }
 
@@ -749,7 +735,6 @@
 
         <div id="imageList_container" style="width: 80%;margin: auto;"
              class="row row-cols-1 row-cols-md-2 g-4">
-          <!-- <div id="imageList" style="padding:10px; width: 100%;height: 160px;display: flex;flex-direction: row;"></div>-->
         </div>
 
         <input type="file" accept="image/*" id="update_review_image" multiple>
