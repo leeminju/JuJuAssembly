@@ -31,6 +31,7 @@
     var update_imageFile = null;
     var update_product_imageFile = null;
     var role = null;
+    var current_review_id;
 
     $(document).ready(function () {
 
@@ -251,7 +252,11 @@
             let review = response[i];
 
             let id = review['id'];
-            let images = review['images'];
+            current_review_id = id;
+            let imagesString = JSON.stringify(review['images']);
+            let images = imagesString.replaceAll('"', '').replaceAll('[', '').replaceAll(']',
+                '').split(',');
+            //let images = review['images'];
             let categoryId = review['categoryId'];
             let productId = review['productId'];
             let productName = review['productName'];
@@ -274,6 +279,7 @@
 
             let html = `<div style="padding: 20px;border: grey 1px solid; border-radius: 10px;margin-bottom: 20px;">
             <div id="imageList-${id}" style="padding:10px; width: 100%;height: 160px;display: flex;flex-direction: row;"></div>
+
             <div style="flex-direction: row;display: flex;magin:10px; padding: 10px">
               <img onclick="location.href='/userReview?userId=${user.id}'" src=${userImage} style="width: 40px;height: 40px;border-radius: 56px;margin-right: 10px;">
               <div onclick="location.href='/userReview?userId=${user.id}'" style="width: 90%;">작성자 : ${user.nickname}</div>
@@ -408,28 +414,56 @@
     }
 
     function updateId(categoryId, productId, id, description, star, munchies, images) {
-      console.log(images);
+      images = images.split(',')
       $('#update_description').val(description);
       $('#update_star').val(star);
       $('#update_munchies').val(munchies);
       $('#imageList').val(images);
+      current_review_id = id;
+      if (images.length > 0) {
 
+        for (let i = 0; i < images.length; i++) {
+          let img_html = `<img id="original-image-${i}" style="margin-right:10px; width: 150px;height: 150px;object-fit: contain" src="${images[i]}">`;
+          let btn_html = `<button class="btn btn-secondary" id="image_remove_btn" style="width: 15px; height: 15px; flex-direction: column;
+             align-items: center; justify-content: center;font-size: 10px;" onclick="removeImage(${id}, ${i})">X</button>`;
+          $('#imageList_container').append(img_html + btn_html);
+        }
+      } else {
+        $('#imageList').hide();
+      }
+    }
+
+    function removeImage(reviewId, imageIndex) {
+      console.log("reviewId=", reviewId);
+      console.log("imageIndex=", imageIndex);
+      $('#imageList_container').children('img').eq(imageIndex).remove();
+      $('#imageList_container').children('button').eq(imageIndex).remove();
+
+      $.ajax({
+        type: "DELETE",
+        url: `/v1/categories/${categoryId}/products/${productId}/reviews/${reviewId}/images/${imageIndex}`,
+        success: function (response) {
+          alert(response['msg']);
+          window.location.reload();
+        }, error: function (error) {
+          alert(error['response']['msg']);
+        }
+      });
     }
 
     function updateReview() {
 
-      let reviewId = $('#update_btn').val();
-
       let description = $('#update_description').val();
       let star = $('#update_star').val();
       let munchies = $('#update_munchies').val();
+      const formData = new FormData();
+
       let data = {
         "description": description,
         "star": star,
         "munchies": munchies
       }
 
-      const formData = new FormData();
       formData.append("data",
           new Blob([JSON.stringify(data)], {type: "application/json"}));
 
@@ -438,11 +472,13 @@
         for (let i = 0; i < update_imageFile.length; i++) {
           formData.append('images', update_imageFile[i]);
         }
+      } else {
+        formData.append('images', null);
       }
 
       $.ajax({
         type: "PATCH",
-        url: `/v1/categories/${categoryId}/products/${productId}/reviews/${reviewId}`,
+        url: `/v1/categories/${categoryId}/products/${productId}/reviews/${current_review_id}`,
         data: formData,
         enctype: "multipart/form-data",
         contentType: false,
@@ -698,8 +734,11 @@
           <option value="5">⭐⭐⭐⭐⭐</option>
         </select>
         <input type="text" class="form-control" id="update_munchies" placeholder="추천 안주">
-        <div id="imageList"
-             style="padding:10px; width: 100%;height: 160px;display: flex;flex-direction: row;"></div>
+
+        <div id="imageList_container" style="width: 80%;margin: auto;"
+             class="row row-cols-1 row-cols-md-2 g-4">
+        </div>
+      
         <input type="file" accept="image/*" id="update_review_image" multiple>
       </div>
       <div class="modal-footer">

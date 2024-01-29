@@ -6,6 +6,7 @@ import com.example.jujuassembly.domain.reviewImage.entity.ReviewImage;
 import com.example.jujuassembly.domain.reviewImage.repository.ReviewImageRepository;
 import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.s3.S3Manager;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -42,28 +43,16 @@ public class ReviewImageService {
     }
   }
 
-/*  //리뷰 이미지 1개 삭제
-  @Transactional(propagation = Propagation.MANDATORY)
-  public void deleteReviewImage(Review review, String fileUrl) {
-    reviewImageRepository.deleteByReview(review);
-    s3Manager.deleteImageFile(fileUrl, S3Manager.REVIEW_DIRECTORY_NAME);
-    for (ReviewImage image : review.getReviewImages()) {
-      if (image.getImageUrl().equals(fileUrl)) {
-        review.getReviewImages().remove(image);
-        reviewImageRepository.delete(image);
-        break;
-      }
-    }
-  }*/
-
 
   //사진 하나만 삭제
   @Transactional
-  public void deleteReviewImage(Long reviewId, Long imageId) {
-    ReviewImage image = reviewImageRepository.getById(imageId);
-    if (!image.getReview().getId().equals(reviewId)) {
-      throw new ApiException("해당 상품의 리뷰가 아닙니다.", HttpStatus.BAD_REQUEST);
+  public void deleteReviewImage(Long reviewId, Long imageIndex) {
+    Review review = reviewRepository.findReviewByIdOrElseThrow(reviewId);
+    List<ReviewImage> reviewImages = reviewImageRepository.findReviewImageByReview(review);
+    if (imageIndex == null || imageIndex >= reviewImages.size()) {
+      throw new ApiException("유효하지 않은 이미지 인덱스입니다.", HttpStatus.BAD_REQUEST);
     }
+    ReviewImage image = reviewImages.get(imageIndex.intValue());
     String imageUrl = image.getImageUrl();
 
     reviewImageRepository.delete(image);
@@ -77,6 +66,15 @@ public class ReviewImageService {
     review.getReviewImages().removeAll(review.getReviewImages());
     reviewImageRepository.deleteAllByReview(review);
     s3Manager.deleteAllImageFiles(review.getId().toString(), dirName);
+  }
+
+
+  //기존 리뷰 이미지 가져오기
+  @Transactional
+  public List<ReviewImage> findImageFromReviewImage(Review review) {
+    List<ReviewImage> existingReviewImagesList = reviewImageRepository.findReviewImageByReview(
+        review);
+    return existingReviewImagesList;
   }
 }
 
