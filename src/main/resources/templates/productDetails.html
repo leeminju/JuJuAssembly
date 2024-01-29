@@ -177,11 +177,24 @@
       window.location.reload();
     }
 
+    function XSSCheck(str, level) {
+      if (level == undefined || level == 0) {
+        str = str.replace(/\<|\>|\"|\'|\%|\;|\(|\)|\&|\+|\-/g, "");
+      } else if (level != undefined && level == 1) {
+        str = str.replace(/\</g, "&lt;");
+        str = str.replace(/\>/g, "&gt;");
+      }
+      return str;
+    }
+
     function createReview() {
 
       let description = $('#create_description').val();
       let star = $('#create_star').val();
       let munchies = $('#create_munchies').val();
+      description = XSSCheck(description, 0);
+      munchies=XSSCheck(munchies,0);
+
       let data = {
         "description": description,
         "star": star,
@@ -259,7 +272,6 @@
 
             let categoryId = review['categoryId'];
             let productId = review['productId'];
-            let productName = review['productName'];
             let description = review['description'];
             let createdAt = review['createdAt'];
             let modifiedAt = review['modifiedAt'];
@@ -286,9 +298,9 @@
               <img id="verifiy_mark-${id}" src="/images/verified.png" style="  width: 40px;   height: 40px;    float: right;">
             </div>
             <div style="margin-top:20px;margin-bottom: 20px">
-             설명 : ${description} <br>
+             설명 :${description} <br>
              별점 ★ : ${star} <br>
-             추천안주 : ${munchies}
+             추천안주 : "${munchies}"
             </div>
             <div >${createdAt_Text}에 작성<div>
             <div style="margin-bottom:20px" id="modifiedAt-${id}"> ${modifiedAt_Text}에 수정</div>
@@ -419,8 +431,6 @@
       $('#update_munchies').val(munchies);
       $('#imageList').val(images);
       current_review_id = id;
-
-
 
       if (images.length > 0 && images[0] !== "") {
         for (let i = 0; i < images.length; i++) {

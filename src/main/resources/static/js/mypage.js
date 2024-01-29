@@ -121,16 +121,29 @@ function showOriginal() {
   $('#show-area').show();
 }
 
+function XSSCheck(str, level) {
+  if (level == undefined || level == 0) {
+    str = str.replace(/\<|\>|\"|\'|\%|\;|\(|\)|\&|\+|\-/g, "");
+  } else if (level != undefined && level == 1) {
+    str = str.replace(/\</g, "&lt;");
+    str = str.replace(/\>/g, "&gt;");
+  }
+  return str;
+}
+
 function updateProfile() {
   let nickname = $('#edit-nickname').val();
+  nickname = XSSCheck(nickname, 0);
   let currentPassword = $('#current_password').val();
+  currentPassword = XSSCheck(currentPassword, 0);
   let password = $('#edit-password').val();
+  password = XSSCheck(password, 0);
   let passwordCheck = $('#edit-passwordCheck').val();
+  passwordCheck = XSSCheck(passwordCheck, 0);
   let firstPreferredCategoryId = $('#firstPreferredCategoryId').val();
   let secondPreferredCategoryId = $('#secondPreferredCategoryId').val();
   let email = $('#edit-email').val();
-
-  console.log(firstPreferredCategoryId + " " + secondPreferredCategoryId);
+  email = XSSCheck(email, 0);
 
   if (firstPreferredCategoryId === secondPreferredCategoryId) {
     alert("1순위 선호 주종과 2순위 선호 주종이 같습니다!");

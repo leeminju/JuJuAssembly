@@ -111,47 +111,48 @@
     }
     return params;
   }
-    function getAllUsers() {
-      var sorting = $("#sorting option:selected").val();
-      var isAsc = $(':radio[name="isAsc"]:checked').val();
 
-      let dataSource = `/v1/users?sort=${sorting},${isAsc}`;
+  function getAllUsers() {
+    var sorting = $("#sorting option:selected").val();
+    var isAsc = $(':radio[name="isAsc"]:checked').val();
 
-      $('#userList').empty();
-      $('#pagination').pagination({
-        dataSource,
-        locator: 'data.content',
-        alias: {
-          pageNumber: 'page',
-          pageSize: 'size'
-        },
-        totalNumberLocator: (response) => {
-          return response.data.totalElements;
-        },
-        pageSize: 9,
-        showPrevious: true,
-        showNext: true,
-        ajax: {
-          error(error, status, request) {
-            console.log(error);
+    let dataSource = `/v1/users?sort=${sorting},${isAsc}`;
+
+    $('#userList').empty();
+    $('#pagination').pagination({
+      dataSource,
+      locator: 'data.content',
+      alias: {
+        pageNumber: 'page',
+        pageSize: 'size'
+      },
+      totalNumberLocator: (response) => {
+        return response.data.totalElements;
+      },
+      pageSize: 9,
+      showPrevious: true,
+      showNext: true,
+      ajax: {
+        error(error, status, request) {
+          console.log(error);
+        }
+      },
+      callback: function (response, pagination) {
+        $('#userList').empty();
+        let users = response;
+        for (let i = 0; i < users.length; i++) {
+          let user = users[i];
+          let userId = user['id'];
+          let image = user['image'];
+          let loginId = user['loginId']
+          let nickname = user['nickname']
+          let email = user['email']
+          let role = user['role'];
+
+          if (!image) {
+            image = "/images/default_user_image.png"
           }
-        },
-        callback: function (response, pagination) {
-          $('#userList').empty();
-          let users = response;
-          for (let i = 0; i < users.length; i++) {
-            let user = users[i];
-            let userId = user['id'];
-            let image = user['image'];
-            let loginId = user['loginId']
-            let nickname = user['nickname']
-            let email = user['email']
-            let role = user['role'];
-
-            if (!image) {
-              image = "/images/default_user_image.png"
-            }
-            let html = `<div class="d-flex text-body-secondary pt-3">
+          let html = `<div class="d-flex text-body-secondary pt-3">
         <img style="margin: 7px; width: 40px;height: 40px;object-fit: contain;" src=${image}>
         <p class="pb-3 mb-0 small lh-sm border-bottom"  style="display: flex;flex-direction: row;justify-content: center;">
            <div style="width: 80%">
@@ -165,172 +166,183 @@
 
         </p>
     </div>`;
-            $('#userList').append(html);
+          $('#userList').append(html);
 
-          }
-        }, error(error, status, request) {
-          console.log(error);
         }
-      });
-    }
+      }, error(error, status, request) {
+        console.log(error);
+      }
+    });
+  }
 
-    function openChatModal(userId) {
-      let adminId = myId;
-      let usersId = userId;
+  function openChatModal(userId) {
+    let adminId = myId;
+    let usersId = userId;
 
-      $.ajax({
-        type: 'POST',
-        url: '/v1/rooms',
-        contentType: 'application/json',
-        data: JSON.stringify({
-          "userId": usersId,
-          "adminId": adminId
-        }),
-        success: function (response) {
-          let chatRoomId = response.data.roomId;
-          currentUserId = usersId;
-          currentChatRoomId = chatRoomId;
+    $.ajax({
+      type: 'POST',
+      url: '/v1/rooms',
+      contentType: 'application/json',
+      data: JSON.stringify({
+        "userId": usersId,
+        "adminId": adminId
+      }),
+      success: function (response) {
+        let chatRoomId = response.data.roomId;
+        currentUserId = usersId;
+        currentChatRoomId = chatRoomId;
 
-          // 웹소켓 연결
-          connectWebSocket(chatRoomId);
-          clearChatContainer();
-          // 채팅 모달 열기
-          $('#chatModal').modal('show');
+        // 웹소켓 연결
+        connectWebSocket(chatRoomId);
+        clearChatContainer();
+        // 채팅 모달 열기
+        $('#chatModal').modal('show');
 
-          fetchChatHistory(chatRoomId);
+        fetchChatHistory(chatRoomId);
 
-          var chatContainer = $('#chatContainer');
-          chatContainer.scrollTop(chatContainer.prop("scrollHeight"));
+        var chatContainer = $('#chatContainer');
+        chatContainer.scrollTop(chatContainer.prop("scrollHeight"));
 
-          console.log(`Chat Room ID: ${chatRoomId}`);
-        },
-        error: function (error) {
-          console.log(error);
-        }
-      });
-    }
+        console.log(`Chat Room ID: ${chatRoomId}`);
+      },
+      error: function (error) {
+        console.log(error);
+      }
+    });
+  }
 
-    // 웹소켓 연결 함수
-    function connectWebSocket(chatRoomId) {
-      // WebSocket 연결
-      var socket = new WebSocket('wss://' + window.location.host + '/ws-connection');
-      stompClient = Stomp.over(socket);
+  // 웹소켓 연결 함수
+  function connectWebSocket(chatRoomId) {
+    // WebSocket 연결
+    var socket = new WebSocket('wss://' + window.location.host + '/ws-connection');
+    stompClient = Stomp.over(socket);
 
-      stompClient.connect({}, function (frame) {
-        console.log('WebSocket에 연결됨');
-        enterChatRoom(chatRoomId)
-        // 채팅 룸에 구독
-        setTimeout(function () {
-          stompClient.subscribe(`/subscribe/rooms/${chatRoomId}`, function (response) {
-            var message = JSON.parse(response.body);
-            console.log(`채팅방 ${chatRoomId}에서 메시지 수신:`, message);
-            // 수신한 메시지를 채팅 창에 추가
-            addMessageToChatContainer(message.senderId, message.message);
+    stompClient.connect({}, function (frame) {
+      console.log('WebSocket에 연결됨');
+      enterChatRoom(chatRoomId)
+      // 채팅 룸에 구독
+      setTimeout(function () {
+        stompClient.subscribe(`/subscribe/rooms/${chatRoomId}`, function (response) {
+          var message = JSON.parse(response.body);
+          console.log(`채팅방 ${chatRoomId}에서 메시지 수신:`, message);
+          // 수신한 메시지를 채팅 창에 추가
+          addMessageToChatContainer(message.senderId, message.message);
 
-          });
-
-        }, 1000);
-
-      });
-    }
-
-    //웹소켓 연결 종료 함수
-    function disconnectWebSocket() {
-      exitChatRoom(currentChatRoomId)
-      stompClient.unsubscribe(`/subscribe/rooms/${currentChatRoomId}`);
-      if (stompClient !== null && stompClient.connected) {
-        stompClient.disconnect(function () {
-          console.log('웹 소켓 연결이 종료되었습니다.');
         });
-      }
-    }
 
-    // 채팅방 입장을 서버에 알리는 함수
-    function enterChatRoom() {
-      var message = "관리자가 입장했습니다."
-      stompClient.send(`/publish/rooms/enterexit/${currentChatRoomId}`, {}, JSON.stringify({
-        "senderId": 0,
-        "receiverId": 0,
-        "message": message
-      }));
-    }
+      }, 1000);
 
-    // 채팅방 퇴장을 서버에 알리는 함수
-    function exitChatRoom() {
-      var message = "관리자가 퇴장했습니다."
-      stompClient.send(`/publish/rooms/enterexit/${currentChatRoomId}`, {}, JSON.stringify({
-        "senderId": 0,
-        "receiverId": 0,
-        "message": message
-      }));
-    }
+    });
+  }
 
-    function fetchChatHistory(chatRoomId) {
-      // API를 통해 채팅 기록 가져오기
-      $.ajax({
-        type: 'GET',
-        url: `/v1/chats?roomId=${chatRoomId}`,
-        success: function (response) {
-          var chatHistory = response.data;
-
-          // 가져온 채팅 기록을 채팅 창에 추가
-          for (var i = 0; i < chatHistory.length; i++) {
-            var chat = chatHistory[i];
-            addMessageToChatContainer(chat.senderId, chat.message);
-          }
-          console.log("채팅불러오기가 실행도었습니다.")
-        },
-        error: function (error) {
-          console.log(error);
-        }
+  //웹소켓 연결 종료 함수
+  function disconnectWebSocket() {
+    exitChatRoom(currentChatRoomId)
+    stompClient.unsubscribe(`/subscribe/rooms/${currentChatRoomId}`);
+    if (stompClient !== null && stompClient.connected) {
+      stompClient.disconnect(function () {
+        console.log('웹 소켓 연결이 종료되었습니다.');
       });
     }
+  }
 
-    //채팅창에추가하는 메서드
-    function addMessageToChatContainer(senderId, message) {
-      // 채팅창 영역을 가져옴
-      var chatContainer = $('#chatContainer');
+  // 채팅방 입장을 서버에 알리는 함수
+  function enterChatRoom() {
+    var message = "관리자가 입장했습니다."
+    stompClient.send(`/publish/rooms/enterexit/${currentChatRoomId}`, {}, JSON.stringify({
+      "senderId": 0,
+      "receiverId": 0,
+      "message": message
+    }));
+  }
 
-      // 메시지를 표시할 HTML 생성
-      var messageHtml = `<div class="chat-message ${senderId === myId ? 'sent'
-          : 'received'}">${message}</div>`;
+  // 채팅방 퇴장을 서버에 알리는 함수
+  function exitChatRoom() {
+    var message = "관리자가 퇴장했습니다."
+    stompClient.send(`/publish/rooms/enterexit/${currentChatRoomId}`, {}, JSON.stringify({
+      "senderId": 0,
+      "receiverId": 0,
+      "message": message
+    }));
+  }
 
-      // 만약 senderId가 0이면 다른 CSS 적용
-      if (senderId === 0) {
-        messageHtml = `<div class="chat-message special">${message}</div>`;
+  function fetchChatHistory(chatRoomId) {
+    // API를 통해 채팅 기록 가져오기
+    $.ajax({
+      type: 'GET',
+      url: `/v1/chats?roomId=${chatRoomId}`,
+      success: function (response) {
+        var chatHistory = response.data;
+
+        // 가져온 채팅 기록을 채팅 창에 추가
+        for (var i = 0; i < chatHistory.length; i++) {
+          var chat = chatHistory[i];
+          addMessageToChatContainer(chat.senderId, chat.message);
+        }
+        console.log("채팅불러오기가 실행도었습니다.")
+      },
+      error: function (error) {
+        console.log(error);
       }
+    });
+  }
 
-      // 생성한 HTML을 채팅창에 추가
-      chatContainer.append(messageHtml);
-      // 스크롤을 가장 아래로 내림
-      chatContainer.scrollTop(chatContainer.prop("scrollHeight"));
+  //채팅창에추가하는 메서드
+  function addMessageToChatContainer(senderId, message) {
+    // 채팅창 영역을 가져옴
+    var chatContainer = $('#chatContainer');
+
+    // 메시지를 표시할 HTML 생성
+    var messageHtml = `<div class="chat-message ${senderId === myId ? 'sent'
+        : 'received'}">${message}</div>`;
+
+    // 만약 senderId가 0이면 다른 CSS 적용
+    if (senderId === 0) {
+      messageHtml = `<div class="chat-message special">${message}</div>`;
     }
 
-    //채팅기록 비우는 메서드
-    function clearChatContainer() {
-      // "chatContainer"라는 ID를 가진 요소를 찾아서 내용을 비워줌
-      var chatContainer = $('#chatContainer');
+    // 생성한 HTML을 채팅창에 추가
+    chatContainer.append(messageHtml);
+    // 스크롤을 가장 아래로 내림
+    chatContainer.scrollTop(chatContainer.prop("scrollHeight"));
+  }
 
-      // 채팅 창 내용 비우기
-      if (chatContainer.length) {
-        chatContainer.empty();
-      }
+  //채팅기록 비우는 메서드
+  function clearChatContainer() {
+    // "chatContainer"라는 ID를 가진 요소를 찾아서 내용을 비워줌
+    var chatContainer = $('#chatContainer');
+
+    // 채팅 창 내용 비우기
+    if (chatContainer.length) {
+      chatContainer.empty();
     }
+  }
 
-    // 채팅 메시지 전송 함수
-    function sendChatMessage() {
-      let message = $('#chatMessageInput').val();
-
-      // 서버에 메시지 전송
-      stompClient.send(`/publish/rooms/${currentChatRoomId}`, {}, JSON.stringify({
-        "senderId": myId,
-        "receiverId": currentUserId,
-        "message": message
-      }));
-
-      // 메시지 입력 창 초기화
-      $('#chatMessageInput').val('');
+  function XSSCheck(str, level) {
+    if (level == undefined || level == 0) {
+      str = str.replace(/\<|\>|\"|\'|\%|\;|\(|\)|\&|\+|\-/g, "");
+    } else if (level != undefined && level == 1) {
+      str = str.replace(/\</g, "&lt;");
+      str = str.replace(/\>/g, "&gt;");
     }
+    return str;
+  }
+
+  // 채팅 메시지 전송 함수
+  function sendChatMessage() {
+    let message = $('#chatMessageInput').val();
+    message = XSSCheck(message, 0);
+
+    // 서버에 메시지 전송
+    stompClient.send(`/publish/rooms/${currentChatRoomId}`, {}, JSON.stringify({
+      "senderId": myId,
+      "receiverId": currentUserId,
+      "message": message
+    }));
+
+    // 메시지 입력 창 초기화
+    $('#chatMessageInput').val('');
+  }
 </script>
 <body>
 
