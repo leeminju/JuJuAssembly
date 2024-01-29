@@ -79,7 +79,6 @@
     }
 
     let role = null;
-    var imageFile = null;
     let update_imageFile = null;
     var categoryId = -1;
 
@@ -93,7 +92,7 @@
       getProductByCategory();
 
       $("#image").on("change", function (event) {
-        imageFile = event.target.files[0];
+        update_imageFile = event.target.files[0];
       });
     });
 
@@ -285,7 +284,6 @@
     }
 
     function updateProduct() {
-
       if (!update_imageFile) {
         alert("이미지를 선택해주세요");
         return;
@@ -467,7 +465,7 @@
           정렬:
           <select id="sorting" onchange="getProductByCategory()" style="margin-right: 10px">
             <option value="reviewCount">리뷰 많은 순</option>
-            <option value="likesCount">좋아요 많은 순</option>
+            <option value="likesCount">찜 많은 순</option>
             <option value="createdAt">등록일 순</option>
             <option value="modifiedAt">수정일 순</option>
 
