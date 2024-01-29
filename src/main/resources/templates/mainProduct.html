@@ -87,6 +87,15 @@
   $(document).ready(function () {
     getMyprofile();
     getCategory();
+
+    // 페이지 로드 시 URL 파라미터 확인
+    let urlParams = new URLSearchParams(window.location.search);
+    let sortParam = urlParams.get('sort');
+    let orderParam = urlParams.get('order');
+    if (sortParam && orderParam) {
+      $("#sorting").val(sortParam);
+      $('input[name="isAsc"][value="' + orderParam + '"]').prop('checked', true);
+    }
     getAllProducts();
     $("#image").on("change", function (event) {
       update_imageFile = event.target.files[0];
@@ -177,6 +186,10 @@
     var isAsc = $(':radio[name="isAsc"]:checked').val();
 
     let dataSource = `/v1/products?sort=${sorting},${isAsc}`;
+
+    // URL에 정렬 파라미터 추가
+    window.history.replaceState(null, null, "?sort=" + sorting + "&order=" + isAsc);
+    window.history.replaceState(null, null, "?sort=" + sorting + "&order=" + isAsc);
 
     $('#all_product_container').empty();
     $('#pagination').pagination({
