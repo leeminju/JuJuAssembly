@@ -266,7 +266,7 @@ class ReviewServiceTest {
     Boolean result = reviewService.verifyReview(categoryId, productId, reviewId);
 
     //then
-    assertEquals(true, review.getIsVerified());
+    assertEquals(true, result);
   }
 
   @Test
@@ -284,6 +284,6 @@ class ReviewServiceTest {
     Boolean result = reviewService.verifyReview(categoryId, productId, reviewId);
 
     //then
-    assertEquals(false, review.getIsVerified());
+    assertEquals(false, result);
   }
 }
