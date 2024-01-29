@@ -79,7 +79,6 @@
     }
 
     let role = null;
-    var imageFile = null;
     let update_imageFile = null;
     var categoryId = -1;
 
@@ -93,7 +92,7 @@
       getProductByCategory();
 
       $("#image").on("change", function (event) {
-        imageFile = event.target.files[0];
+        update_imageFile = event.target.files[0];
       });
     });
 
@@ -285,7 +284,6 @@
     }
 
     function updateProduct() {
-
       if (!update_imageFile) {
         alert("이미지를 선택해주세요");
         return;
