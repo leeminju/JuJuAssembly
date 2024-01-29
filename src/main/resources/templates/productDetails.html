@@ -419,8 +419,10 @@
       $('#update_munchies').val(munchies);
       $('#imageList').val(images);
       current_review_id = id;
-      if (images.length > 0) {
 
+
+
+      if (images.length > 0 && images[0] !== "") {
         for (let i = 0; i < images.length; i++) {
           let img_html = `<img id="original-image-${i}" style="margin-right:10px; width: 150px;height: 150px;object-fit: contain" src="${images[i]}">`;
           let btn_html = `<button class="btn btn-secondary" id="image_remove_btn" style="width: 15px; height: 15px; flex-direction: column;
@@ -469,8 +471,6 @@
         for (let i = 0; i < update_imageFile.length; i++) {
           formData.append('images', update_imageFile[i]);
         }
-      } else {
-        formData.append('images', null);
       }
 
       $.ajax({
