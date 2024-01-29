@@ -158,8 +158,9 @@ public class ReviewService {
     Review review = reviewRepository.findReviewByIdOrElseThrow(reviewId);
     checkReviewProductAndProductIdEquality(review, productId);
 
-    review.changeVerified();//현재 값에서 바꾸기
-    if (review.getIsVerified()) {
+    reviewRepository.verifyReview(reviewId, !review.getIsVerified());
+
+    if (!review.getIsVerified()) {
       return true;
     } else {
       return false;
