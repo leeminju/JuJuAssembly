@@ -462,8 +462,11 @@
         <div class="pagination">
           정렬:
           <select id="sorting" onchange="getProductByCategory()" style="margin-right: 10px">
-            <option value="createdAt">작성일</option>
-            <option value="modifiedAt">수정일</option>
+            <option value="reviewCount">리뷰 많은 순</option>
+            <option value="likesCount">좋아요 많은 순</option>
+            <option value="createdAt">등록일 순</option>
+            <option value="modifiedAt">수정일 순</option>
+
           </select>
           <input type="radio" name="isAsc" value="asc" onchange="getProductByCategory()"/> 오름차순
           <input type="radio" name="isAsc" value="desc" onchange="getProductByCategory()" checked/>

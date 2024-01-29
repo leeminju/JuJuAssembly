@@ -8,10 +8,13 @@ import com.example.jujuassembly.domain.review.dto.ReviewRequestDto;
 import com.example.jujuassembly.domain.review.dto.ReviewResponseDto;
 import com.example.jujuassembly.domain.review.entity.Review;
 import com.example.jujuassembly.domain.review.repository.ReviewRepository;
+import com.example.jujuassembly.domain.reviewImage.entity.ReviewImage;
 import com.example.jujuassembly.domain.reviewImage.service.ReviewImageService;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.global.exception.ApiException;
+import jakarta.persistence.EntityManager;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +33,7 @@ public class ReviewService {
   private final UserRepository userRepository;
   private final ReviewImageService reviewImageService;
   private final NotificationService notificationService;
+  private final EntityManager entityManager;
 
   @Transactional
   public ReviewResponseDto createProductsReview(Long categoryId, Long productId,
@@ -79,31 +83,41 @@ public class ReviewService {
     checkReviewProductAndProductIdEquality(review, productId);
 
     //기존의 파일 모두 삭제
-    reviewImageService.deleteAllReviewImages(review, "reviews");
-
-    if (images != null && images.length > 4) {
-      throw new ApiException("사진은 4장 까지만 업로드 가능합니다.", HttpStatus.BAD_REQUEST);
-    }
-
-    //새로 업로드
-    if (images != null) {
-      reviewImageService.uploadReviewImages(review, images);
+    //reviewImageService.deleteAllReviewImages(review, "reviews");
+    List<ReviewImage> existingReviewImagesList = reviewImageService.findImageFromReviewImage(
+        review);
+    if (existingReviewImagesList.size() >= 1) {
+      if (images == null) {
+        //기존 사진만 유지
+        review.update(requestDto);
+        return new ReviewResponseDto(review);
+      } else {
+        if (existingReviewImagesList.size() + images.length > 4) {
+          //4개 이상이면 사진 추가 안됌
+          throw new ApiException("사진은 4장 까지만 업로드 가능합니다.", HttpStatus.BAD_REQUEST);
+        } else {
+          //새 사진 추가
+          reviewImageService.uploadReviewImages(review, images);
+        }
+      }
     }
 
     review.update(requestDto);
-
     return new ReviewResponseDto(review);
   }
 
 
   @Transactional
   public ReviewResponseDto deleteReviewImage(Long categoryId, Long productId,
-      Long reviewId, Long imageId) {
+      Long reviewId, Long imageIndex) {
     Product product = productRepository.findProductByIdOrElseThrow(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
     Review review = reviewRepository.findReviewByIdOrElseThrow(reviewId);
     checkReviewProductAndProductIdEquality(review, productId);
-    reviewImageService.deleteReviewImage(reviewId, imageId);
+
+    reviewImageService.deleteReviewImage(reviewId, imageIndex);
+    entityManager.detach(review);
+
     Review reviewAfterDelete = reviewRepository.findReviewByIdOrElseThrow(reviewId);
 
     return new ReviewResponseDto(reviewAfterDelete);
@@ -166,6 +180,5 @@ public class ReviewService {
       throw new ApiException("해당 상품의 리뷰가 아닙니다.", HttpStatus.BAD_REQUEST);
     }
   }
-
 
 }

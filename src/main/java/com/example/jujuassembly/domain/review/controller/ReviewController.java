@@ -4,8 +4,8 @@ import com.example.jujuassembly.domain.review.dto.ReviewRequestDto;
 import com.example.jujuassembly.domain.review.dto.ReviewResponseDto;
 import com.example.jujuassembly.domain.review.service.ReviewService;
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum.Authority;
-import com.example.jujuassembly.global.response.ApiResponse;
 import com.example.jujuassembly.global.filter.UserDetailsImpl;
+import com.example.jujuassembly.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -63,16 +63,17 @@ public class ReviewController {
   /**
    * 상품 리뷰 목록 조회 API
    *
-   * @param categoryId  조회할 상품이 속한 카테고리의 식별자
-   * @param productId   조회할 상품의 식별자
-   * @param pageable    페이지네이션 정보 (기본값: 페이지 크기 10, 생성일 기준 내림차순 정렬)
+   * @param categoryId 조회할 상품이 속한 카테고리의 식별자
+   * @param productId  조회할 상품의 식별자
+   * @param pageable   페이지네이션 정보 (기본값: 페이지 크기 10, 생성일 기준 내림차순 정렬)
    * @return 상태 코드 200(OK)와 함께 상품의 리뷰 목록을 응답
    */
   @GetMapping("/categories/{categoryId}/products/{productId}/reviews")
   public ResponseEntity<ApiResponse<Page<ReviewResponseDto>>> getProductsReview(
       @PathVariable Long categoryId, @PathVariable Long productId,
       @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-    Page<ReviewResponseDto> reviews = reviewService.getProductsReview(categoryId, productId, pageable);
+    Page<ReviewResponseDto> reviews = reviewService.getProductsReview(categoryId, productId,
+        pageable);
     return ResponseEntity.ok()
         .body(new ApiResponse(productId + "번 상품 내 리뷰 목록 입니다.", HttpStatus.OK.value(), reviews));
   }
@@ -80,11 +81,11 @@ public class ReviewController {
   /**
    * 상품 리뷰 수정 API
    *
-   * @param categoryId  수정할 상품이 속한 카테고리의 식별자
-   * @param productId   수정할 상품의 식별자
-   * @param reviewId    수정할 리뷰의 식별자
-   * @param images      변경된 리뷰 이미지 파일 배열 (선택적)
-   * @param requestDto  변경할 리뷰 정보를 담고 있는 객체
+   * @param categoryId 수정할 상품이 속한 카테고리의 식별자
+   * @param productId  수정할 상품의 식별자
+   * @param reviewId   수정할 리뷰의 식별자
+   * @param images     변경된 리뷰 이미지 파일 배열 (선택적)
+   * @param requestDto 변경할 리뷰 정보를 담고 있는 객체
    * @return 상태 코드 200(OK)와 함께 수정된 리뷰 정보를 응답
    * @throws Exception 예외 발생 시 처리
    */
@@ -103,14 +104,14 @@ public class ReviewController {
   }
 
 
-  //상품 수정 사진 삭제
-  @DeleteMapping("/categories/{categoryId}/products/{productId}/reviews/{reviewId}/images/{imageId}")
+  //상품 사진 삭제
+  @DeleteMapping("/categories/{categoryId}/products/{productId}/reviews/{reviewId}/images/{imageIndex}")
   public ResponseEntity<ApiResponse<ReviewResponseDto>> deleteProductsReviewImage(
       @PathVariable Long categoryId, @PathVariable Long productId,
-      @PathVariable Long reviewId, @PathVariable Long imageId ){
+      @PathVariable Long reviewId, @PathVariable Long imageIndex) {
 
     ReviewResponseDto responseDto = reviewService.deleteReviewImage(categoryId, productId,
-        reviewId, imageId);
+        reviewId, imageIndex);
 
     return ResponseEntity.ok()
         .body(new ApiResponse<>("선택 사진이 삭제되었습니다.", HttpStatus.OK.value(), responseDto));
@@ -119,9 +120,9 @@ public class ReviewController {
   /**
    * 상품 리뷰 삭제 API
    *
-   * @param categoryId  카테고리 ID
-   * @param productId   상품 ID
-   * @param reviewId    리뷰 ID
+   * @param categoryId 카테고리 ID
+   * @param productId  상품 ID
+   * @param reviewId   리뷰 ID
    * @return ApiResponse 객체를 ResponseEntity로 감싼 형태
    */
   @DeleteMapping("/categories/{categoryId}/products/{productId}/reviews/{reviewId}")
@@ -152,10 +153,9 @@ public class ReviewController {
   }
 
   /**
-   *
    * @param categoryId 현재 리뷰의 카테고리 아이디
-   * @param productId 현재 리뷰의 상품 아이디
-   * @param reviewId 현재 리뷰 아이디
+   * @param productId  현재 리뷰의 상품 아이디
+   * @param reviewId   현재 리뷰 아이디
    * @return
    */
   @Secured(Authority.ADMIN)

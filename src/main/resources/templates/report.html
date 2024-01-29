@@ -192,6 +192,8 @@
     let original = $('#image_remove_btn').val();
     const formData = new FormData();
     console.log(original);
+    console.log(update_imageFile)
+    console.log(typeof update_imageFile)
 
     if (!update_imageFile) {
       formData.append('image', null);
