@@ -11,10 +11,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.example.jujuassembly.domain.review.entity.Review;
+import com.example.jujuassembly.domain.review.repository.ReviewRepository;
 import com.example.jujuassembly.domain.reviewImage.entity.ReviewImage;
 import com.example.jujuassembly.domain.reviewImage.repository.ReviewImageRepository;
 import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.s3.S3Manager;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -44,6 +46,9 @@ class ReviewImageServiceTest {
 
   @Mock
   ReviewImage reviewImage;
+
+  @Mock
+  ReviewRepository reviewRepository;
 
   @InjectMocks
   ReviewImageService reviewImageService;
@@ -130,21 +135,28 @@ class ReviewImageServiceTest {
   void deleteReviewImageTest() {
     // given
     Long reviewId = 1L;
+    Long imageIndex = 0L;
     String imageUrl = "https://sparta.com/image.jpg";
+    List<ReviewImage> reviewImageList = new ArrayList<>();
 
     // 가상의 ReviewImage 객체 생성
     Review mockReview = Review.builder().id(reviewId).build();
-   ReviewImage mockImage2 = ReviewImage.builder().id(1L)
+   ReviewImage mockImage = ReviewImage.builder().id(1L)
         .review(mockReview).imageUrl(imageUrl).build();
+   reviewImageList.add(mockImage);
+
 
     // 가상의 이미지가 리뷰와 연관되어 있는지 확인하는 조건 설정
-    when(reviewImageRepository.getById(1L)).thenReturn(mockImage2);
+    //when(reviewImageRepository.getById(1L)).thenReturn(mockImage2);
+    when(reviewRepository.findReviewByIdOrElseThrow(1L)).thenReturn(mockReview);
+    when(reviewImageRepository.findReviewImageByReview(mockReview)).thenReturn(reviewImageList);
+
 
     // deleteReviewImage 메서드 호출
-    reviewImageService.deleteReviewImage(reviewId, 1L);
+    reviewImageService.deleteReviewImage(reviewId, imageIndex);
 
     // ReviewImage가 삭제되었는지 확인
-    verify(reviewImageRepository).delete(mockImage2);
+    verify(reviewImageRepository).delete(mockImage);
 
     // S3Manager로 이미지 파일이 삭제되었는지 확인
     verify(s3Manager).deleteImageFile(imageUrl, S3Manager.REVIEW_DIRECTORY_NAME);
