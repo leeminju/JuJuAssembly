@@ -256,7 +256,7 @@
             let imagesString = JSON.stringify(review['images']);
             let images = imagesString.replaceAll('"', '').replaceAll('[', '').replaceAll(']',
                 '').split(',');
-            //let images = review['images'];
+
             let categoryId = review['categoryId'];
             let productId = review['productId'];
             let productName = review['productName'];
@@ -326,8 +326,7 @@
               $('#delete_review_btn-' + id).hide();
             }
 
-            if (images.length > 0) {
-
+            if (imagesString !== "[]") {
               for (let i = 0; i < images.length; i++) {
                 let img_html = `<img style="margin-right:10px; width: 150px;height: 150px;object-fit: contain" src="${images[i]}">`;
                 $('#imageList-' + id).append(img_html);
@@ -434,8 +433,6 @@
     }
 
     function removeImage(reviewId, imageIndex) {
-      console.log("reviewId=", reviewId);
-      console.log("imageIndex=", imageIndex);
       $('#imageList_container').children('img').eq(imageIndex).remove();
       $('#imageList_container').children('button').eq(imageIndex).remove();
 
@@ -738,7 +735,7 @@
         <div id="imageList_container" style="width: 80%;margin: auto;"
              class="row row-cols-1 row-cols-md-2 g-4">
         </div>
-      
+
         <input type="file" accept="image/*" id="update_review_image" multiple>
       </div>
       <div class="modal-footer">
