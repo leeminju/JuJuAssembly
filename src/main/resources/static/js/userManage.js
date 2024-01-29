@@ -51,8 +51,8 @@ function getAllUsers() {
              role : ${role}
            </div>
            <div style="display: flex;flex-direction: row;align-items: center">
-              <button style="margin-right: 10px" class="btn btn-light" onclick="location.href='/userReview?userId=${userId}'">리뷰 목록</button>
-              <button style="margin-right: 10px" class="btn btn-light" onclick="location.href='/userReport?userId=${userId}'">제보 목록</button>
+              <button style="margin-right: 10px;width: 120px" class="btn btn-light" onclick="location.href='/userReview?userId=${userId}'">리뷰 목록</button>
+              <button style="margin-right: 10px;width: 120px" class="btn btn-light" onclick="location.href='/userReport?userId=${userId}'">제보 목록</button>
                <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                권한 변경
                </button>
