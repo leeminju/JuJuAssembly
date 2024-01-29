@@ -423,8 +423,9 @@
         <div class="pagination">
           정렬:
           <select id="sorting" onchange="getUserReview()" style="margin-right: 10px">
-            <option value="createdAt">작성일</option>
-            <option value="modifiedAt">수정일</option>
+            <option value="likeCount">좋아요 많은 순</option>
+            <option value="createdAt">작성일 순</option>
+            <option value="modifiedAt">수정일 순</option>
           </select>
           <input type="radio" name="isAsc" value="asc" onchange="getUserReview()"/> 오름차순
           <input type="radio" name="isAsc" value="desc" onchange="getUserReview()" checked/> 내림차순
