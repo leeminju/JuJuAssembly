@@ -80,7 +80,6 @@
     });
   }
 
-
   function getSearch() {
     var sorting = $("#sorting option:selected").val();
     var isAsc = $(':radio[name="isAsc"]:checked').val();
@@ -128,7 +127,7 @@
           let product_html = `
         <div class="col">
           <div class="card h-100">
-            <img style="object-fit: contain" onclick="window.location.href='/productDetails?productId=${id}&categoryId=${categoryId}'" src="${image}" class="card-img-top" alt="상품 이미지">
+            <img style="object-fit: cover;height: 400px" onclick="window.location.href='/productDetails?productId=${id}&categoryId=${categoryId}'" src="${image}" class="card-img-top" alt="상품 이미지">
             <div class="card-body">
               <h5 class="card-title">${name}</h5>
               <p class="card-text">${description}</p>
@@ -295,8 +294,10 @@
         <div class="pagination">
           정렬:
           <select id="sorting" onchange="getSearch()" style="margin-right: 10px">
-            <option value="createdAt">작성일</option>
-            <option value="modifiedAt">수정일</option>
+            <option value="likesCount">찜 많은 순</option>
+            <option value="reviewCount">리뷰 많은 순</option>
+            <option value="createdAt">등록일 순</option>
+            <option value="modifiedAt">수정일 순</option>
           </select>
           <input type="radio" name="isAsc" value="asc" onchange="getSearch()"/> 오름차순
           <input type="radio" name="isAsc" value="desc" onchange="getSearch()" checked/> 내림차순
