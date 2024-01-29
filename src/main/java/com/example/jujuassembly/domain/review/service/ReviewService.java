@@ -16,6 +16,7 @@ import com.example.jujuassembly.global.exception.ApiException;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -86,24 +87,21 @@ public class ReviewService {
     //reviewImageService.deleteAllReviewImages(review, "reviews");
     List<ReviewImage> existingReviewImagesList = reviewImageService.findImageFromReviewImage(
         review);
-    if (existingReviewImagesList.size() >= 1) {
-      if (images == null) {
-        //기존 사진만 유지
-        review.update(requestDto);
-        return new ReviewResponseDto(review);
-      } else {
-        if (existingReviewImagesList.size() + images.length > 4) {
-          //4개 이상이면 사진 추가 안됌
-          throw new ApiException("사진은 4장 까지만 업로드 가능합니다.", HttpStatus.BAD_REQUEST);
-        } else {
-          //새 사진 추가
-          reviewImageService.uploadReviewImages(review, images);
-        }
+
+    if (images == null && existingReviewImagesList.size() > 0) {
+      //기존 사진만 유지
+      review.update(requestDto);
+      return new ReviewResponseDto(review);
+    } else {
+      if (existingReviewImagesList.size() + images.length > 4) {
+        //4개 이상이면 사진 추가 안됌
+        throw new ApiException("사진은 4장 까지만 업로드 가능합니다.", HttpStatus.BAD_REQUEST);
       }
     }
-
     review.update(requestDto);
+    reviewImageService.uploadReviewImages(review, images);
     return new ReviewResponseDto(review);
+
   }
 
 
