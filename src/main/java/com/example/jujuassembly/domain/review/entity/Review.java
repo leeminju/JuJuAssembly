@@ -84,10 +84,6 @@ public class Review extends Timestamped {
     this.isVerified = false;//수정 했다면 인증을 다시 받아야함.
   }
 
-  // 리뷰를 인증 처리하는 메서드
-  public void changeVerified() {
-    this.isVerified = !this.getIsVerified();
-  }
 
 
   // 추천(좋아요) 추가 메서드
