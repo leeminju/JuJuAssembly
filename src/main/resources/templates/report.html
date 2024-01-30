@@ -76,11 +76,22 @@
 
   }
 
+  function XSSCheck(str, level) {
+    if (level == undefined || level == 0) {
+      str = str.replace(/\<|\>|\"|\'|\%|\;|\(|\)|\&|\+|\-/g, "");
+    } else if (level != undefined && level == 1) {
+      str = str.replace(/\</g, "&lt;");
+      str = str.replace(/\>/g, "&gt;");
+    }
+    return str;
+  }
+
   function createReport() {
 
     // 입력된 값 가져오기
     var productName = $('#productName').val();
     var categoryId = $('#categoryId').val();
+    productName = XSSCheck(productName, 0);
     let data = {'name': productName};
 
     // FormData를 사용하여 데이터 전송
@@ -191,13 +202,10 @@
   function updateReport() {
     let original = $('#image_remove_btn').val();
     const formData = new FormData();
-    console.log(original);
-    console.log(update_imageFile)
-    console.log(typeof update_imageFile)
 
     if (!update_imageFile) {
       formData.append('image', null);
-    }else{
+    } else {
       formData.append('image', update_imageFile);
     }
 
@@ -205,6 +213,7 @@
     let name = $('#update_report_name').val();
     let currentCategoryId = current_categoryId;
     let categoryId = $('#updateCategoryId').val();
+    name = XSSCheck(name, 0);
     let data = {
       "name": name,
       "modifiedCategoryId": categoryId
@@ -444,10 +453,11 @@
         <input type="text" class="form-control" id="update_report_name" placeholder="이름">
         <!-- <input type="file" accept="image/*" id="update_report_image">-->
         <img id="existing_image" src="" alt="기존 이미지" style="max-width: 100%; max-height: 200px;">
-        <button id="image_remove_btn" value=true class="btn btn-secondary" onclick="removeOriginal()">기존 이미지
+        <button id="image_remove_btn" value=true class="btn btn-secondary"
+                onclick="removeOriginal()">기존 이미지
           삭제
         </button>
-       <!-- <input th:class="form-control" type="file" accept="image/*" id="edit_image">-->
+        <!-- <input th:class="form-control" type="file" accept="image/*" id="edit_image">-->
         <!-- <input th:class="form-control" type="file" accept="image/*" id="edit_image">-->
         <input th:class="form-control" type="file" accept="image/*" id="update_report_image">
       </div>

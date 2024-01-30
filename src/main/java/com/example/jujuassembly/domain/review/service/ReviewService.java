@@ -93,13 +93,17 @@ public class ReviewService {
       review.update(requestDto);
       return new ReviewResponseDto(review);
     } else {
-      if (existingReviewImagesList.size() + images.length > 4) {
+      if (images != null && existingReviewImagesList.size() + images.length > 4) {
         //4개 이상이면 사진 추가 안됌
         throw new ApiException("사진은 4장 까지만 업로드 가능합니다.", HttpStatus.BAD_REQUEST);
       }
     }
     review.update(requestDto);
-    reviewImageService.uploadReviewImages(review, images);
+
+    if (images != null) {
+      reviewImageService.uploadReviewImages(review, images);
+    }
+
     return new ReviewResponseDto(review);
 
   }
