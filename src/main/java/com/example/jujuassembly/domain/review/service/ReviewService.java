@@ -150,6 +150,20 @@ public class ReviewService {
     return reviews.map(ReviewResponseDto::new);
   }
 
+  @Transactional(readOnly = true)
+  public Page<ReviewResponseDto> getVerifiedReviews(Long userId, Pageable pageable,
+      boolean isVerified) {
+    User user = userRepository.findUserByIdOrElseThrow(userId);
+
+    Page<Review> reviews;
+    if (isVerified) {
+      reviews = reviewRepository.findAllByUserAndIsVerified(user, true, pageable);
+    } else {
+      reviews = reviewRepository.findAllByUser(user, pageable);
+    }
+    return reviews.map(ReviewResponseDto::new);
+  }
+
   @Transactional
   public boolean verifyReview(Long categoryId, Long productId, Long reviewId) {
     categoryRepository.findCategoryByIdOrElseThrow(categoryId);

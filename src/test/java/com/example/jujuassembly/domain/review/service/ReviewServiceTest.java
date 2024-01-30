@@ -1,6 +1,7 @@
 package com.example.jujuassembly.domain.review.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -22,6 +23,7 @@ import com.example.jujuassembly.domain.reviewLike.entity.ReviewLike;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -249,6 +251,47 @@ class ReviewServiceTest {
     ReviewResponseDto secondReview = reviews.getContent().get(1);
     assertEquals(review2.getId(), secondReview.getId(), "리뷰 ID 검증");
     assertEquals(review2.getDescription(), secondReview.getDescription(), "리뷰 설명 검증");
+  }
+
+  @Test
+  @DisplayName("인증된 리뷰만 조회 테스트")
+  void getVerifiedReviewsTest() {
+    // given
+    Review verifiedReview = Review.builder()
+        .id(1L)
+        .description("인증된 리뷰")
+        .star(4.5)
+        .isVerified(true)
+        .product(product)
+        .reviewImages(reviewImages)
+        .reviewLikes(reviewLikes)
+        .user(user)
+        .build();
+
+    Review unverifiedReview = Review.builder()
+        .id(2L)
+        .description("인증되지 않은 리뷰")
+        .star(3.5)
+        .isVerified(false)
+        .product(product)
+        .reviewImages(reviewImages)
+        .reviewLikes(reviewLikes)
+        .user(user)
+        .build();
+
+    List<Review> verifiedReviews = Collections.singletonList(verifiedReview);
+    Page<Review> verifiedReviewsPage = new PageImpl<>(verifiedReviews, pageable, verifiedReviews.size());
+
+    given(userRepository.findUserByIdOrElseThrow(userId)).willReturn(user);
+    given(reviewRepository.findAllByUserAndIsVerified(user, true, pageable)).willReturn(verifiedReviewsPage);
+
+    // when
+    Page<ReviewResponseDto> response = reviewService.getVerifiedReviews(userId, pageable, true);
+
+    // then
+    assertEquals(1, response.getTotalElements());
+    assertEquals(verifiedReview.getDescription(), response.getContent().get(0).getDescription());
+    assertTrue(response.getContent().get(0).getIsVerified());
   }
 
   @Test
