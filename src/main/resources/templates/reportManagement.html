@@ -437,7 +437,6 @@
           <input type="radio" name="isAsc" value="asc" onchange="getAllReports()"/> 오름차순
           <input type="radio" name="isAsc" value="desc" onchange="getAllReports()" checked/> 내림차순
         </div>
-        <div id="pagination" class="pagination" style="margin-top:10px"></div>
       </div>
       <!-- 카테고리별 정렬 드롭다운 -->
       <select id="categorySorting" onchange="getReportsBycategoryId()">
@@ -446,6 +445,7 @@
       <div id="reports" class="row row-cols-1 row-cols-md-3 g-4 mt-3">
         <!-- 여기에 동적으로 추가될 상품 제보 카드가 나타날 것입니다. -->
       </div>
+      <div id="pagination" class="pagination" style="margin-top:25px; justify-content: center;"></div>
     </div>
   </div>
 </div>

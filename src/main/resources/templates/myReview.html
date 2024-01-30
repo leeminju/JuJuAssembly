@@ -397,7 +397,7 @@
       <h1 style="margin: 10px auto 10px auto;width: fit-content;"><span
           id="review_user_nickname"></span>님의 리뷰 목록</h1>
       <div style="display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
     padding: 10px">
@@ -412,13 +412,13 @@
           <input type="radio" name="isAsc" value="desc" onchange="getUserReview()" checked/> 내림차순
           <button id="verifiedReviews" onclick="getUserReview(true)" style="height: 30px; border-style: none; margin-left: 10px; border-radius: 5px; font-size: 15px">인증된 리뷰만 보기</button>
         </div>
-        <div id="pagination" class="pagination" style="margin-top:10px"></div>
       </div>
-
-
       <div id="reviewList" style="width: 60%;margin: auto;"
            class="row row-cols-1 row-cols-md-3 g-4">
       </div>
+      <div id="pagination" class="pagination" style="margin-top:25px; justify-content: center"></div>
+
+
     </div>
   </div>
 </div>
