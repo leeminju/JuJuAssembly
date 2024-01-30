@@ -63,28 +63,34 @@ $(document).ready(async function () {
     const selectedFile = event.target.files[0];
 
     if (selectedFile) {
-      // 선택한 파일을 미리보기에 표시
-      console.log(userId);
-      $('#image').attr('src', URL.createObjectURL(selectedFile));
+      const maxSize = 10 * 1024 * 1024; // 10MB, 최대 크기에 맞게 조절
+      //if (selectedFile.size <= maxSize) {
+      // 파일 크기가 최대 크기 이하인 경우에만 업로드 수행
       const formData = new FormData();
       formData.append('image', selectedFile);
+      //
+      //   // 나머지 업로드 코드...
+      // } else {
+      //   alert('파일 크기가 너무 큽니다. 10MB 이하의 파일을 선택해주세요.');
+      //   window.location.reload();
+      // }
 
       $.ajax({
         type: 'POST',
         url: `/v1/users/${userId}`,
         data: formData,
-        enctype: "multipart/form-data",
         contentType: false,
         processData: false,
         success: function (response) {
-          alert(response['msg']);
+          alert(response.msg);
+          $('#image').attr('src', URL.createObjectURL(selectedFile));
           window.location.reload();
         },
         error(error, status, request) {
           alert(error['responseJSON']['msg'])
         }
-      })
-      ;
+      });
+
     }
   });
 });
