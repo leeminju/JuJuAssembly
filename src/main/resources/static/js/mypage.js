@@ -88,6 +88,7 @@ $(document).ready(async function () {
         },
         error(error, status, request) {
           alert(error['responseJSON']['msg'])
+          window.location.reload();
         }
       });
 

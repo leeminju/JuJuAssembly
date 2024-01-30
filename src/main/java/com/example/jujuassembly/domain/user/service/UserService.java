@@ -208,6 +208,9 @@ public class UserService {
     s3Manager.deleteAllImageFiles(userId.toString(), S3Manager.USER_DIRECTORY_NAME);
 
     if (image != null && !image.isEmpty()) {
+      if (!image.getContentType().startsWith("image")) {
+        throw new ApiException("이미지 파일 형식이 아닙니다.", HttpStatus.BAD_REQUEST);
+      }
       String url = s3Manager.upload(image, S3Manager.USER_DIRECTORY_NAME, userId);
       user.updateUserImage(url);
     }
