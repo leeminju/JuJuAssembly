@@ -16,6 +16,7 @@ import com.example.jujuassembly.global.exception.ApiException;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -86,24 +87,25 @@ public class ReviewService {
     //reviewImageService.deleteAllReviewImages(review, "reviews");
     List<ReviewImage> existingReviewImagesList = reviewImageService.findImageFromReviewImage(
         review);
-    if (existingReviewImagesList.size() >= 1) {
-      if (images == null) {
-        //기존 사진만 유지
-        review.update(requestDto);
-        return new ReviewResponseDto(review);
-      } else {
-        if (existingReviewImagesList.size() + images.length > 4) {
-          //4개 이상이면 사진 추가 안됌
-          throw new ApiException("사진은 4장 까지만 업로드 가능합니다.", HttpStatus.BAD_REQUEST);
-        } else {
-          //새 사진 추가
-          reviewImageService.uploadReviewImages(review, images);
-        }
+
+    if (images == null && existingReviewImagesList.size() > 0) {
+      //기존 사진만 유지
+      review.update(requestDto);
+      return new ReviewResponseDto(review);
+    } else {
+      if (images != null && existingReviewImagesList.size() + images.length > 4) {
+        //4개 이상이면 사진 추가 안됌
+        throw new ApiException("사진은 4장 까지만 업로드 가능합니다.", HttpStatus.BAD_REQUEST);
       }
     }
-
     review.update(requestDto);
+
+    if (images != null) {
+      reviewImageService.uploadReviewImages(review, images);
+    }
+
     return new ReviewResponseDto(review);
+
   }
 
 
@@ -172,8 +174,9 @@ public class ReviewService {
     Review review = reviewRepository.findReviewByIdOrElseThrow(reviewId);
     checkReviewProductAndProductIdEquality(review, productId);
 
-    review.changeVerified();//현재 값에서 바꾸기
-    if (review.getIsVerified()) {
+    reviewRepository.verifyReview(reviewId, !review.getIsVerified());
+
+    if (!review.getIsVerified()) {
       return true;
     } else {
       return false;

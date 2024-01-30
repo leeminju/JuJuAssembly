@@ -160,7 +160,7 @@
           $('#product-image').attr("src", image);
           $('#alcoholDegree').text(alcoholDegree);
           $('#update_alcoholDegree').val(alcoholDegree);
-          $('#averageRating').text(averageRating);
+          $('#averageRating').text(averageRating.toFixed(2));
           $('#description').text(description);
           $('#update_product_description').val(description);
           $('#reviewCount').text(reviewCount);
@@ -177,11 +177,24 @@
       window.location.reload();
     }
 
+    function XSSCheck(str, level) {
+      if (level == undefined || level == 0) {
+        str = str.replace(/\<|\>|\"|\'|\%|\;|\(|\)|\&|\+|\-/g, "");
+      } else if (level != undefined && level == 1) {
+        str = str.replace(/\</g, "&lt;");
+        str = str.replace(/\>/g, "&gt;");
+      }
+      return str;
+    }
+
     function createReview() {
 
       let description = $('#create_description').val();
       let star = $('#create_star').val();
       let munchies = $('#create_munchies').val();
+      description = XSSCheck(description, 0);
+      munchies=XSSCheck(munchies,0);
+
       let data = {
         "description": description,
         "star": star,
@@ -256,10 +269,9 @@
             let imagesString = JSON.stringify(review['images']);
             let images = imagesString.replaceAll('"', '').replaceAll('[', '').replaceAll(']',
                 '').split(',');
-            //let images = review['images'];
+
             let categoryId = review['categoryId'];
             let productId = review['productId'];
-            let productName = review['productName'];
             let description = review['description'];
             let createdAt = review['createdAt'];
             let modifiedAt = review['modifiedAt'];
@@ -286,9 +298,9 @@
               <img id="verifiy_mark-${id}" src="/images/verified.png" style="  width: 40px;   height: 40px;    float: right;">
             </div>
             <div style="margin-top:20px;margin-bottom: 20px">
-             설명 : ${description} <br>
+             설명 :${description} <br>
              별점 ★ : ${star} <br>
-             추천안주 : ${munchies}
+             추천안주 : "${munchies}"
             </div>
             <div >${createdAt_Text}에 작성<div>
             <div style="margin-bottom:20px" id="modifiedAt-${id}"> ${modifiedAt_Text}에 수정</div>
@@ -326,8 +338,7 @@
               $('#delete_review_btn-' + id).hide();
             }
 
-            if (images.length > 0) {
-
+            if (imagesString !== "[]") {
               for (let i = 0; i < images.length; i++) {
                 let img_html = `<img style="margin-right:10px; width: 150px;height: 150px;object-fit: contain" src="${images[i]}">`;
                 $('#imageList-' + id).append(img_html);
@@ -420,8 +431,8 @@
       $('#update_munchies').val(munchies);
       $('#imageList').val(images);
       current_review_id = id;
-      if (images.length > 0) {
 
+      if (images.length > 0 && images[0] !== "") {
         for (let i = 0; i < images.length; i++) {
           let img_html = `<img id="original-image-${i}" style="margin-right:10px; width: 150px;height: 150px;object-fit: contain" src="${images[i]}">`;
           let btn_html = `<button class="btn btn-secondary" id="image_remove_btn" style="width: 15px; height: 15px; flex-direction: column;
@@ -434,8 +445,6 @@
     }
 
     function removeImage(reviewId, imageIndex) {
-      console.log("reviewId=", reviewId);
-      console.log("imageIndex=", imageIndex);
       $('#imageList_container').children('img').eq(imageIndex).remove();
       $('#imageList_container').children('button').eq(imageIndex).remove();
 
@@ -472,8 +481,6 @@
         for (let i = 0; i < update_imageFile.length; i++) {
           formData.append('images', update_imageFile[i]);
         }
-      } else {
-        formData.append('images', null);
       }
 
       $.ajax({
@@ -738,7 +745,7 @@
         <div id="imageList_container" style="width: 80%;margin: auto;"
              class="row row-cols-1 row-cols-md-2 g-4">
         </div>
-      
+
         <input type="file" accept="image/*" id="update_review_image" multiple>
       </div>
       <div class="modal-footer">
@@ -937,7 +944,7 @@
         <div class="pagination">
           정렬:
           <select id="sorting" onchange="getReviews()" style="margin-right: 10px">
-            <option value="likeCount">좋아요 많은 순</option>
+            <option value="likeCount">추천순</option>
             <option value="createdAt">작성일 순</option>
             <option value="modifiedAt">수정일 순</option>
           </select>

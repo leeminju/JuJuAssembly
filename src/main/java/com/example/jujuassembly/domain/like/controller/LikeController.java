@@ -44,7 +44,7 @@ public class LikeController {
     likeService.addLike(categoryId, productId, userDetails.getUser());
 
     return ResponseEntity.ok()
-        .body(new ApiResponse<>("좋아요 성공", HttpStatus.OK.value()));
+        .body(new ApiResponse<>("찜 성공", HttpStatus.OK.value()));
   }
 
   /**
@@ -63,7 +63,7 @@ public class LikeController {
         userId, loginUserDetails.getUser(), pageable
     );
     return ResponseEntity.ok()
-        .body(new ApiResponse<>("좋아요 목록 조회", HttpStatus.OK.value(), page));
+        .body(new ApiResponse<>("찜한 목록 조회", HttpStatus.OK.value(), page));
   }
 
 
@@ -81,7 +81,7 @@ public class LikeController {
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
     likeService.cancelLike(productId, userDetails.getUser());
     return ResponseEntity.ok()
-        .body(new ApiResponse<>("좋아요 취소", HttpStatus.OK.value()));
+        .body(new ApiResponse<>("찜 취소", HttpStatus.OK.value()));
   }
 
   /**
@@ -96,7 +96,7 @@ public class LikeController {
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
     Boolean islike = likeService.getLike(productId, userDetails.getUser());
     return ResponseEntity.ok()
-        .body(new ApiResponse<>("좋아요 존재 확인", HttpStatus.OK.value(), islike));
+        .body(new ApiResponse<>("찜 여부 확인", HttpStatus.OK.value(), islike));
   }
 
 
