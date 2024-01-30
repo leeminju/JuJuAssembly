@@ -14,44 +14,34 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.bson.types.ObjectId;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity
-@Table(name = "chats")
-public class Chat extends Timestamped {
+@Document(collection = "chats")
+public class Chat {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;//chat 아이디
+  private ObjectId id;//chat 아이디
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(nullable = false)
-  private Room room;//채팅방
+  private Long roomId;//채팅방
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(nullable = false)
-  private User sender;//chat을 보낸 사람
+  private Long senderId;//chat을 보낸 사람
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(nullable = false)
-  private User receiver;//chat을 받는 사람
+  private Long receiverId;//chat을 받는 사람
 
-  @Lob
-  @Column(nullable = false,columnDefinition = "TEXT")
   private String content;//채팅 내용
 
-  public Chat(Room room, User sender, User receiver, String content) {
-    this.room = room;
-    this.sender = sender;
-    this.receiver = receiver;
-    this.content = content;
-  }
+  private LocalDateTime createdAt;
+
 }

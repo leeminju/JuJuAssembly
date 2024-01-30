@@ -42,11 +42,6 @@ public class Room extends Timestamped {
   @JoinColumn(nullable = false)
   private User user;//대화할때 관리자가 아닌 유저
 
-  @OneToMany(mappedBy = "room", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-  @OrderBy("createdAt desc")
-  private List<Chat> chats = new ArrayList<>();//채팅방 안의 채팅리스트
-
-
   public Room(User admin, User user) {
     this.admin = admin;
     this.user = user;
@@ -57,11 +52,5 @@ public class Room extends Timestamped {
       return admin;
     }
     return user;
-  }//채팅하는 상대방 가져오는 메서드
-
-  public Chat getLatestChat() {
-    return chats.get(0);
   }
-//chats의 0번째 인덱스 가져가는 메서드
-
 }
