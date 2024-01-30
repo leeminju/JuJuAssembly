@@ -55,11 +55,11 @@ public class ChatResponseDto {
   private LocalDateTime createdAt;
 
   public ChatResponseDto(Chat chat) {
-    this.senderId = chat.getSender().getId();
-    this.senderNickname = chat.getSender().getNickname();
-    this.senderImage = chat.getSender().getImage();
-    this.receiverId = chat.getReceiver().getId();
-    this.receiverNickname = chat.getReceiver().getNickname();
+    this.senderId = chat.getSenderId();
+//    this.senderNickname = chat.getSender().getNickname();
+//    this.senderImage = chat.getSender().getImage();
+    this.receiverId = chat.getReceiverId();
+//    this.receiverNickname = chat.getReceiver().getNickname();
     this.message = chat.getContent();
     this.createdAt = chat.getCreatedAt();
   }
