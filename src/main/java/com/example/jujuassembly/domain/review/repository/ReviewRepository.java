@@ -25,8 +25,10 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
   Page<Review> findAllByProduct(Product product, Pageable pageable);
 
+  Page<Review> findAllByUserAndIsVerified(User user, boolean b, Pageable pageable);
 
   @Modifying
   @Query("UPDATE Review SET isVerified = :isVerified WHERE id = :reviewId")
   void verifyReview(@Param("reviewId") Long reviewId, @Param("isVerified") Boolean isVerified);
+  
 }
