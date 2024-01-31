@@ -50,17 +50,8 @@ public class ProductResponseDto {
     }
 
     this.reviewCount = product.getReviewCount();
-    this.averageRating = calculateAverageRating(product.getReviews());
+    this.averageRating = (product.getAverageRating() != null) ? product.getAverageRating() : 0.0;
     this.likesCount = product.getLikesCount();
   }
 
-
-  // 평균 별점 계산 메서드
-  private double calculateAverageRating(Set<Review> reviews) {
-    if (reviews.isEmpty()) {
-      return 0.0;
-    } else {
-      return reviews.stream().mapToDouble(Review::getStar).average().orElse(0.0);
-    }
-  }
 }

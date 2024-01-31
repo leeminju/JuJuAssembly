@@ -16,7 +16,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.AccessLevel;
@@ -24,6 +27,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Formula;
 
 @Getter
 @Builder
@@ -58,11 +62,14 @@ public class Product extends Timestamped {
   private int reviewCount = 0;
   private int likesCount = 0;
 
+  @Formula("(SELECT AVG(r.star) FROM reviews r WHERE r.product_id = id)")
+  private Double averageRating;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "category_id")
   private Category category; // 제품이 속한 카테고리
 
-  @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<Review> reviews = new LinkedHashSet<>(); // 제품과 연관된 리뷰 집합
 
   @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
@@ -107,20 +114,11 @@ public class Product extends Timestamped {
     }
   }
 
-
   public void update(ProductModifyRequestDto requestDto, Category category) {
     this.name = requestDto.getName();
     this.description = requestDto.getDescription();
     this.alcoholDegree = requestDto.getAlcoholDegree();
     this.company = requestDto.getCompany();
     this.category = category;
-  }
-
-  // 평점 평균 반환 메서드,
-  public Double getReviewAverage() {
-    return reviews.stream()
-        .mapToDouble(Review::getStar)
-        .average()
-        .orElse(0.0);
   }
 }
