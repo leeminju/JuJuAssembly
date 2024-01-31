@@ -125,7 +125,7 @@ class LikeServiceTest implements CategoryTest {
     //when(likeRepository.findAllByUserId(userId)).thenReturn(likeList);
 
     // when
-    Page<LikeResponseDto> likeResult = likeService.viewLikeProducts(userId, loginUser, pageable);
+    Page<LikeResponseDto> likeResult = likeService.viewMyLikeProducts(userId, loginUser, pageable);
 
     // then
     assertEquals(likeList.size(), likeResult.getContent().size(), "좋아요 개수 검증");
