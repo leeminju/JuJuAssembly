@@ -244,7 +244,11 @@
         alert(response['msg']);
         window.location.reload();
       }, error: function (error) {
-        alert(error['responseJSON']['msg']);
+        if (error['responseJSON']['data']) {
+          alert(JSON.stringify(error['responseJSON']['data']));
+        } else {
+          alert(error['responseJSON']['msg']);
+        }
       }
     });
   }
