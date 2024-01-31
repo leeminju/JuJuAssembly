@@ -177,8 +177,11 @@ function updateProfile() {
       window.location.reload();
     },
     error(error, status, request) {
-      console.log(error);
-      alert(error['responseJSON']['msg'])
+      if (error['responseJSON']['data']) {
+        alert(JSON.stringify(error['responseJSON']['data']));
+      } else {
+        alert(error['responseJSON']['msg']);
+      }
     }
   })
 }
