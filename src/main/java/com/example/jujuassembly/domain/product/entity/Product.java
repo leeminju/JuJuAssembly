@@ -124,7 +124,4 @@ public class Product extends Timestamped {
         .orElse(0.0);
   }
 
-  public void deleteCategory() {
-    this.category = null;
-  }
 }
