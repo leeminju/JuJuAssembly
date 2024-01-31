@@ -1,6 +1,6 @@
 package com.example.jujuassembly.domain.user.controller;
 
-import com.example.jujuassembly.domain.emailAuth.service.EmailAuthService;
+import com.example.jujuassembly.domain.user.emailAuth.service.EmailAuthService;
 import com.example.jujuassembly.domain.user.dto.LoginRequestDto;
 import com.example.jujuassembly.domain.user.dto.SignupRequestDto;
 import com.example.jujuassembly.domain.user.dto.UserDetailResponseDto;
@@ -17,7 +17,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -87,7 +86,7 @@ public class UserController {
     String verificationCode = request.getHeader(EmailAuthService.VERIFICATION_CODE_HEADER);
 
     UserResponseDto userResponseDto = userService.verificateCode(verificationCode, loginId);
-    emailAuthService.removeCookie(response);
+    emailAuthService.removeloginIdCookie(response);
 
     return ResponseEntity.ok()
         .body(new ApiResponse("회원가입 성공", HttpStatus.OK.value(), userResponseDto));
