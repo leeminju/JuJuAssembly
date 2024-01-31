@@ -31,6 +31,7 @@
     var update_imageFile = null;
     var update_product_imageFile = null;
     var role = null;
+    var current_review_id;
 
     $(document).ready(function () {
 
@@ -159,7 +160,7 @@
           $('#product-image').attr("src", image);
           $('#alcoholDegree').text(alcoholDegree);
           $('#update_alcoholDegree').val(alcoholDegree);
-          $('#averageRating').text(averageRating);
+          $('#averageRating').text(averageRating.toFixed(2));
           $('#description').text(description);
           $('#update_product_description').val(description);
           $('#reviewCount').text(reviewCount);
@@ -176,11 +177,24 @@
       window.location.reload();
     }
 
+    function XSSCheck(str, level) {
+      if (level == undefined || level == 0) {
+        str = str.replace(/\<|\>|\"|\'|\%|\;|\(|\)|\&|\+|\-/g, "");
+      } else if (level != undefined && level == 1) {
+        str = str.replace(/\</g, "&lt;");
+        str = str.replace(/\>/g, "&gt;");
+      }
+      return str;
+    }
+
     function createReview() {
 
       let description = $('#create_description').val();
       let star = $('#create_star').val();
       let munchies = $('#create_munchies').val();
+      description = XSSCheck(description, 0);
+      munchies=XSSCheck(munchies,0);
+
       let data = {
         "description": description,
         "star": star,
@@ -251,10 +265,13 @@
             let review = response[i];
 
             let id = review['id'];
-            let images = review['images'];
+            current_review_id = id;
+            let imagesString = JSON.stringify(review['images']);
+            let images = imagesString.replaceAll('"', '').replaceAll('[', '').replaceAll(']',
+                '').split(',');
+
             let categoryId = review['categoryId'];
             let productId = review['productId'];
-            let productName = review['productName'];
             let description = review['description'];
             let createdAt = review['createdAt'];
             let modifiedAt = review['modifiedAt'];
@@ -274,15 +291,16 @@
 
             let html = `<div style="padding: 20px;border: grey 1px solid; border-radius: 10px;margin-bottom: 20px;">
             <div id="imageList-${id}" style="padding:10px; width: 100%;height: 160px;display: flex;flex-direction: row;"></div>
+
             <div style="flex-direction: row;display: flex;magin:10px; padding: 10px">
               <img onclick="location.href='/userReview?userId=${user.id}'" src=${userImage} style="width: 40px;height: 40px;border-radius: 56px;margin-right: 10px;">
               <div onclick="location.href='/userReview?userId=${user.id}'" style="width: 90%;">작성자 : ${user.nickname}</div>
               <img id="verifiy_mark-${id}" src="/images/verified.png" style="  width: 40px;   height: 40px;    float: right;">
             </div>
             <div style="margin-top:20px;margin-bottom: 20px">
-             설명 : ${description} <br>
+             설명 :${description} <br>
              별점 ★ : ${star} <br>
-             추천안주 : ${munchies}
+             추천안주 : "${munchies}"
             </div>
             <div >${createdAt_Text}에 작성<div>
             <div style="margin-bottom:20px" id="modifiedAt-${id}"> ${modifiedAt_Text}에 수정</div>
@@ -303,7 +321,7 @@
 
        </div>
         <div style="display: flex;flex-direction: row;height: 40px">
-          <button style="width: 70px; margin-right: 10px" id="update_review_btn-${id}" onclick="updateId('${id}')" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateReview">
+          <button style="width: 70px; margin-right: 10px" id="update_review_btn-${id}" onclick="updateId('${categoryId}','${productId}','${id}','${description}','${star}','${munchies}','${images}')" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateReview">
           수정</button>
           <button style="width: 70px" id="delete_review_btn-${id}" onclick="removeReview('${id}')" class="btn btn-primary">삭제 </button>
         </div>
@@ -320,8 +338,7 @@
               $('#delete_review_btn-' + id).hide();
             }
 
-            if (images.length > 0) {
-
+            if (imagesString !== "[]") {
               for (let i = 0; i < images.length; i++) {
                 let img_html = `<img style="margin-right:10px; width: 150px;height: 150px;object-fit: contain" src="${images[i]}">`;
                 $('#imageList-' + id).append(img_html);
@@ -407,24 +424,55 @@
       return text;
     }
 
-    function updateId(id) {
-      $('#update_btn').val(id);
+    function updateId(categoryId, productId, id, description, star, munchies, images) {
+      images = images.split(',')
+      $('#update_description').val(description);
+      $('#update_star').val(star);
+      $('#update_munchies').val(munchies);
+      $('#imageList').val(images);
+      current_review_id = id;
+
+      if (images.length > 0 && images[0] !== "") {
+        for (let i = 0; i < images.length; i++) {
+          let img_html = `<img id="original-image-${i}" style="margin-right:10px; width: 150px;height: 150px;object-fit: contain" src="${images[i]}">`;
+          let btn_html = `<button class="btn btn-secondary" id="image_remove_btn" style="width: 15px; height: 15px; flex-direction: column;
+             align-items: center; justify-content: center;font-size: 10px;" onclick="removeImage(${id}, ${i})">X</button>`;
+          $('#imageList_container').append(img_html + btn_html);
+        }
+      } else {
+        $('#imageList').hide();
+      }
+    }
+
+    function removeImage(reviewId, imageIndex) {
+      $('#imageList_container').children('img').eq(imageIndex).remove();
+      $('#imageList_container').children('button').eq(imageIndex).remove();
+
+      $.ajax({
+        type: "DELETE",
+        url: `/v1/categories/${categoryId}/products/${productId}/reviews/${reviewId}/images/${imageIndex}`,
+        success: function (response) {
+          alert(response['msg']);
+          window.location.reload();
+        }, error: function (error) {
+          alert(error['response']['msg']);
+        }
+      });
     }
 
     function updateReview() {
 
-      let reviewId = $('#update_btn').val();
-
       let description = $('#update_description').val();
       let star = $('#update_star').val();
       let munchies = $('#update_munchies').val();
+      const formData = new FormData();
+
       let data = {
         "description": description,
         "star": star,
         "munchies": munchies
       }
 
-      const formData = new FormData();
       formData.append("data",
           new Blob([JSON.stringify(data)], {type: "application/json"}));
 
@@ -437,7 +485,7 @@
 
       $.ajax({
         type: "PATCH",
-        url: `/v1/categories/${categoryId}/products/${productId}/reviews/${reviewId}`,
+        url: `/v1/categories/${categoryId}/products/${productId}/reviews/${current_review_id}`,
         data: formData,
         enctype: "multipart/form-data",
         contentType: false,
@@ -446,7 +494,11 @@
           alert(response['msg']);
           window.location.reload();
         }, error: function (error) {
-          alert(error['responseJSON']['msg']);
+          if (error['responseJSON']['data']) {
+            alert(JSON.stringify(error['responseJSON']['data']));
+          } else {
+            alert(error['responseJSON']['msg']);
+          }
         }
       });
     }
@@ -640,7 +692,7 @@
 <!-- 리뷰 작성 -->
 <div class="modal fade" id="createReview" aria-hidden="true"
      aria-labelledby="exampleModalToggleLabel" tabindex="-1">
-  <div class="modal-dialog modal-dialog-scrollable">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
         <h1 class="modal-title fs-5">리뷰 작성</h1>
@@ -658,6 +710,8 @@
           <option value="5">⭐⭐⭐⭐⭐</option>
         </select>
         <input type="text" class="form-control" id="create_munchies" placeholder="추천 안주">
+        <small style="color: blue">사진과 함께 정성스러운 리뷰를 작성해주시면 관리자가 검토 후 리뷰에 인증 뱃지가 표시됩니다!
+          <br>사진은 최대 4장까지 업로드 가능하며, 해당 주류와 관련 없는 사진 업로드시 무통보 삭제와 계정이 차단될 수 있습니다.</small>
         <input type="file" accept="image/*" id="create_review_image" multiple>
       </div>
       <div class="modal-footer">
@@ -691,6 +745,11 @@
           <option value="5">⭐⭐⭐⭐⭐</option>
         </select>
         <input type="text" class="form-control" id="update_munchies" placeholder="추천 안주">
+
+        <div id="imageList_container" style="width: 80%;margin: auto;"
+             class="row row-cols-1 row-cols-md-2 g-4">
+        </div>
+
         <input type="file" accept="image/*" id="update_review_image" multiple>
       </div>
       <div class="modal-footer">
@@ -889,22 +948,25 @@
         <div class="pagination">
           정렬:
           <select id="sorting" onchange="getReviews()" style="margin-right: 10px">
-            <option value="createdAt">작성일</option>
-            <option value="modifiedAt">수정일</option>
+            <option value="likeCount">추천순</option>
+            <option value="createdAt">작성일 순</option>
+            <option value="modifiedAt">수정일 순</option>
           </select>
           <input type="radio" name="isAsc" value="asc" onchange="getReviews()"/> 오름차순
           <input type="radio" name="isAsc" value="desc" onchange="getReviews()" checked/> 내림차순
         </div>
-        <div id="pagination" class="pagination" style="margin-top:10px"></div>
       </div>
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createReview"
-              style="margin-left:75%">리뷰 작성
-      </button>
+      <h6 class="border-bottom pb-2 mb-0" style="margin:auto auto 10px auto;width: 60%;">리뷰 목록(<span
+          id="reviewCount"></span>)
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createReview"
+                style="margin-left:80%">리뷰 작성
+        </button>
+      </h6>
       <div class="my-3 p-3 bg-body rounded shadow-sm"
            style="margin: 10px auto 10px auto;width: 60%;"
            id="reviewList">
-        <h6 class="border-bottom pb-2 mb-0">리뷰 목록(<span id="reviewCount"></span>)</h6>
       </div>
+      <div id="pagination" class="pagination" style="margin-top:25px; justify-content: center;"></div>
     </div>
   </div>
 </div>

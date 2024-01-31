@@ -79,7 +79,6 @@
     }
 
     let role = null;
-    var imageFile = null;
     let update_imageFile = null;
     var categoryId = -1;
 
@@ -93,7 +92,7 @@
       getProductByCategory();
 
       $("#image").on("change", function (event) {
-        imageFile = event.target.files[0];
+        update_imageFile = event.target.files[0];
       });
     });
 
@@ -216,9 +215,12 @@
             let image = product['image'];
             let description = product['description'];
             let likesCount = product['likesCount'];
+            let reviewCount = product['reviewCount'];
             let area = product['area'];
             let company = product['company'];
             let alcoholDegree = product['alcoholDegree'];
+            let reviewAverage = product['averageRating'];
+            let average = reviewAverage.toFixed(2);
 
             if (!image) {
               image = "/images/default_product_image.png"
@@ -247,13 +249,21 @@
               <path fill-rule="evenodd"
                     d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>
             </svg>
-            <span id="likesCount-${id}">${likesCount}</span></div>
+            <span id="likesCount-${id}" style="margin-right: 5px">${likesCount}</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chat-right" viewBox="0 0 16 16">
+              <path d="M2 1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h9.586a2 2 0 0 1 1.414.586l2 2V2a1 1 0 0 0-1-1zm12-1a2 2 0 0 1 2 2v12.793a.5.5 0 0 1-.854.353l-2.853-2.853a1 1 0 0 0-.707-.293H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z"/>
+            </svg>
+                        <span id="reviewCount-${id}" style="margin-right: 5px">${reviewCount}</span>
+             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-star" viewBox="0 0 16 16">
+              <path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288L8 2.223l1.847 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.565.565 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z"/>
+            </svg>
+            <span class="card-text">${average}</span>
+            <div>
             <div class="card-footer">
             <button onclick="updateId('${id}','${name}','${description}','${area}','${company}','${alcoholDegree}')" data-bs-toggle="modal"
             data-bs-target="#updateProduct"
             type="button" class="btn btn-light">수정</button>
-            <button onclick="deleteProduct(${id})" type="button" class="btn btn-light">삭제</button>
-            </div>
+            <button onclick="deleteProduct(${categoryId},${id})" type="button" class="btn btn-light">삭제</button>
             </div>
           </div>
         </div>`;
@@ -281,7 +291,6 @@
     }
 
     function updateProduct() {
-
       if (!update_imageFile) {
         alert("이미지를 선택해주세요");
         return;
@@ -462,8 +471,11 @@
         <div class="pagination">
           정렬:
           <select id="sorting" onchange="getProductByCategory()" style="margin-right: 10px">
-            <option value="createdAt">작성일</option>
-            <option value="modifiedAt">수정일</option>
+            <option value="reviewCount">리뷰 많은 순</option>
+            <option value="likesCount">찜 많은 순</option>
+            <option value="createdAt">등록일 순</option>
+            <option value="modifiedAt">수정일 순</option>
+
           </select>
           <input type="radio" name="isAsc" value="asc" onchange="getProductByCategory()"/> 오름차순
           <input type="radio" name="isAsc" value="desc" onchange="getProductByCategory()" checked/>

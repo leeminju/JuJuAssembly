@@ -2,6 +2,8 @@ package com.example.jujuassembly.domain.user.dto;
 
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,6 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserDetailResponseDto {
+
   private Long id;
   private String loginId;
   private String nickname;
@@ -26,8 +29,12 @@ public class UserDetailResponseDto {
     this.id = user.getId();
     this.loginId = user.getLoginId();
     this.nickname = user.getNickname();
-    this.firstPreferredCategoryId = user.getFirstPreferredCategory().getId();
-    this.secondPreferredCategoryId = user.getSecondPreferredCategory().getId();
+    if (user.getFirstPreferredCategory() != null) {
+      this.firstPreferredCategoryId = user.getFirstPreferredCategory().getId();
+    }
+    if (user.getSecondPreferredCategory() != null) {
+      this.secondPreferredCategoryId = user.getSecondPreferredCategory().getId();
+    }
     this.email = user.getEmail();
     this.image = user.getImage();
     this.role = user.getRole();

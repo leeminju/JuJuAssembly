@@ -77,7 +77,7 @@ public class ReportService {
 
   //수정
   @Transactional
-  public ReportResponseDto patchReport(Long categoryId, Long reportId, MultipartFile image,
+  public ReportResponseDto patchReport(Long categoryId, Long reportId, MultipartFile image, Boolean original,
       ReportPatchRequestDto requestDto)
       throws IOException {
 
@@ -92,16 +92,21 @@ public class ReportService {
     report.updateName(requestDto.getName());
     report.updateCategory(ModifiedCategory);
 
-    s3Manager.deleteAllImageFiles(reportId.toString(), S3Manager.REPORT_DIRECTORY_NAME);
-
-
     if (image == null || image.getContentType() == null) {
       if (report.getImage() != null) {
-          report.updateImage(report.getImage());//원래 이미지 유지
+        if (original) {
+          String originalImage = report.getImage();
+          System.out.println("orignalImage"+originalImage);
+          report.updateImage(originalImage);//원래 이미지 유지
         } else {
-       report.updateImage(null);//원래 이미지 삭제
+          report.updateImage(null);//원래 이미지 삭제
+          s3Manager.deleteAllImageFiles(reportId.toString(), S3Manager.REPORT_DIRECTORY_NAME);
         }
-    } else {
+      } else {
+        report.updateImage(null);
+        s3Manager.deleteAllImageFiles(reportId.toString(), S3Manager.REPORT_DIRECTORY_NAME);
+      }
+    }else {
       if (!image.getContentType().startsWith("image")) {
         throw new ApiException("이미지 파일 형식이 아닙니다.", HttpStatus.BAD_REQUEST);
       }

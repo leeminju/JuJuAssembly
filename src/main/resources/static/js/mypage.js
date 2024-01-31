@@ -31,18 +31,18 @@ $(document).ready(async function () {
     $('#loginId').text(userInfo['loginId']);
     $('#nickname').text(userInfo['nickname']);
     $('#email').text(userInfo['email']);
+
     let firstId = userInfo['firstPreferredCategoryId'];
     let secondId = userInfo['secondPreferredCategoryId'];
-    console.log(userInfo);
-    console.log(firstId + " " + secondId);
 
-    let firstName = await getCategoryName(firstId);
-    let secondName = await getCategoryName(secondId);
-
-    console.log(firstName + " " + secondName);
-
-    $('#firstPreferredCategory').text(firstName);
-    $('#secondPreferredCategory').text(secondName);
+    if (firstId != null) {
+      let firstName = await getCategoryName(firstId);
+      $('#firstPreferredCategory').text(firstName);
+    }
+    if (secondId != null) {
+      let secondName = await getCategoryName(secondId);
+      $('#secondPreferredCategory').text(secondName);
+    }
 
     let image = userInfo['image'];
     if (!image) {
@@ -63,28 +63,35 @@ $(document).ready(async function () {
     const selectedFile = event.target.files[0];
 
     if (selectedFile) {
-      // 선택한 파일을 미리보기에 표시
-      console.log(userId);
-      $('#image').attr('src', URL.createObjectURL(selectedFile));
+      const maxSize = 10 * 1024 * 1024; // 10MB, 최대 크기에 맞게 조절
+      //if (selectedFile.size <= maxSize) {
+      // 파일 크기가 최대 크기 이하인 경우에만 업로드 수행
       const formData = new FormData();
       formData.append('image', selectedFile);
+      //
+      //   // 나머지 업로드 코드...
+      // } else {
+      //   alert('파일 크기가 너무 큽니다. 10MB 이하의 파일을 선택해주세요.');
+      //   window.location.reload();
+      // }
 
       $.ajax({
         type: 'POST',
         url: `/v1/users/${userId}`,
         data: formData,
-        enctype: "multipart/form-data",
         contentType: false,
         processData: false,
         success: function (response) {
-          alert(response['msg']);
+          alert(response.msg);
+          $('#image').attr('src', URL.createObjectURL(selectedFile));
           window.location.reload();
         },
         error(error, status, request) {
           alert(error['responseJSON']['msg'])
+          window.location.reload();
         }
-      })
-      ;
+      });
+
     }
   });
 });
@@ -121,16 +128,27 @@ function showOriginal() {
   $('#show-area').show();
 }
 
+function XSSCheck(str, level) {
+  if (level == undefined || level == 0) {
+    str = str.replace(/\<|\>|\"|\'|\%|\;|\(|\)|\&|\+|\-/g, "");
+  } else if (level != undefined && level == 1) {
+    str = str.replace(/\</g, "&lt;");
+    str = str.replace(/\>/g, "&gt;");
+  }
+  return str;
+}
+
 function updateProfile() {
   let nickname = $('#edit-nickname').val();
+  nickname = XSSCheck(nickname, 0);
   let currentPassword = $('#current_password').val();
+  currentPassword = XSSCheck(currentPassword, 0);
   let password = $('#edit-password').val();
+  password = XSSCheck(password, 0);
   let passwordCheck = $('#edit-passwordCheck').val();
+  passwordCheck = XSSCheck(passwordCheck, 0);
   let firstPreferredCategoryId = $('#firstPreferredCategoryId').val();
   let secondPreferredCategoryId = $('#secondPreferredCategoryId').val();
-  let email = $('#edit-email').val();
-
-  console.log(firstPreferredCategoryId + " " + secondPreferredCategoryId);
 
   if (firstPreferredCategoryId === secondPreferredCategoryId) {
     alert("1순위 선호 주종과 2순위 선호 주종이 같습니다!");
@@ -144,7 +162,6 @@ function updateProfile() {
     "passwordCheck": passwordCheck,
     "firstPreferredCategoryId": firstPreferredCategoryId,
     "secondPreferredCategoryId": secondPreferredCategoryId,
-    "email": email
   }
 
   $.ajax({
@@ -157,8 +174,11 @@ function updateProfile() {
       window.location.reload();
     },
     error(error, status, request) {
-      console.log(error);
-      alert(error['responseJSON']['msg'])
+      if (error['responseJSON']['data']) {
+        alert(JSON.stringify(error['responseJSON']['data']));
+      } else {
+        alert(error['responseJSON']['msg']);
+      }
     }
   })
 }

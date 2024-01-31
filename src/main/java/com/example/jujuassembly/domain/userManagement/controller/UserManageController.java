@@ -42,6 +42,20 @@ public class UserManageController {
   }
 
   /**
+   * 관리자 조회 API
+   *
+   * @return 관리자 목록을 포함한 ApiResponse
+   */
+
+  @GetMapping("/users/admin")
+  public ResponseEntity<ApiResponse<Page<UserDetailResponseDto>>> viewAdminUsers(
+      @PageableDefault(size = 10, sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
+    Page<UserDetailResponseDto> adminUserResponseDto = userManageService.viewAdminUsers(pageable);
+    return ResponseEntity.ok().body(
+        new ApiResponse<>("전체 관리자 조회", HttpStatus.OK.value(), adminUserResponseDto));
+  }
+
+  /**
    * 회원 권한 수정 API
    *
    * @param userId             권한을 수정할 사용자의 ID

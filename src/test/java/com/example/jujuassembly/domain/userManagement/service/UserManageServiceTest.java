@@ -3,6 +3,9 @@ package com.example.jujuassembly.domain.userManagement.service;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.example.jujuassembly.domain.category.entity.Category;
@@ -12,6 +15,7 @@ import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.domain.userManagement.dto.UserRoleRequestDto;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -62,7 +66,7 @@ class UserManageServiceTest {
 
     // then
     Assertions.assertNotNull(result);
-    Assertions.assertEquals(allUserList.size(), result.getContent().size());
+    assertEquals(allUserList.size(), result.getContent().size());
 
   }
 
@@ -84,6 +88,33 @@ class UserManageServiceTest {
 
     //then
     assertThat(result.getUserRole(), is(equalTo(user.getRole().getAuthority())));
+
+  }
+
+  @Test
+  @DisplayName("관리자 전체 조회 테스트 + 페이징 테스트")
+  void viewAdminUsersTest() {
+    // Mock 데이터 설정
+    User adminUser = User.builder().id(1L).nickname("nick").role(UserRoleEnum.ADMIN).build();
+
+    Pageable pageable = PageRequest.of(0, 10);
+
+    // userRepository.findAllByRole()이 호출될 때 모의 데이터를 반환하도록 설정
+    when(userRepository.findAllByRole(pageable, UserRoleEnum.ADMIN))
+        .thenReturn(new PageImpl<>(Collections.singletonList(adminUser)));
+
+    // 테스트 대상 메서드 호출
+    Page<UserDetailResponseDto> resultPage = userManageService.viewAdminUsers(pageable);
+
+    // 예상 결과 생성
+    UserDetailResponseDto expectedDto = new UserDetailResponseDto(adminUser);
+
+    // 결과 검증
+    assertEquals(1, resultPage.getTotalElements());
+    assertEquals(expectedDto.getNickname(), resultPage.getContent().get(0).getNickname());
+
+    // userRepository.findAllByRole()이 호출되었는지 검증
+    verify(userRepository, times(1)).findAllByRole(pageable, UserRoleEnum.ADMIN);
 
   }
 

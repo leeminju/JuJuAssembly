@@ -195,7 +195,7 @@ public class UserServiceTest implements EmailAuthUtil {
         .password("password").passwordCheck("password").nickname("modifiedUser")
         .firstPreferredCategoryId(1L)
         .secondPreferredCategoryId(2L)
-        .email("modifiedEmail").build();
+        .build();
 
     UserRepository userRepository = mock(UserRepository.class);
     PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
@@ -218,7 +218,6 @@ public class UserServiceTest implements EmailAuthUtil {
 
     assertEquals(user.getLoginId(), result.getLoginId());
     assertEquals(user.getNickname(), result.getNickname());
-    assertEquals(user.getEmail(), result.getEmail());
 
   }
 

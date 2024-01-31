@@ -23,12 +23,10 @@
   <script src="/js/basic.js"></script>
   <script src="/js/notification.js"></script>
   <script>
-    var myId = -1;
     var userId = -1;
-    var role = null;
     var update_imageFile = null;
-    var currentCategoryId = null;
-    var currentProductId = null;
+    var current_categoryId = -1;
+
     $(document).ready(function () {
       // 현재 페이지 URL에서 쿼리 문자열을 가져옴
       var currentUrl = window.location.href;
@@ -36,65 +34,46 @@
 
       // 특정 매개변수 값 가져오기
       userId = parsedParams['userId'];
-      getMyprofile()
-      getUserReview();
-      $("#update_review_image").on("change", function (event) {
-        update_imageFile = event.target.files;
+      getCategory();
+      getUserReports();
+
+      $("#update_report_image").on("change", function (event) {
+        update_imageFile = event.target.files[0];
       });
 
     })
 
-    function getMyprofile() {
-      //로그인한 회원 정보
-      const auth = getToken();
-
-      if (auth !== undefined && auth !== '') {
-        $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
-          jqXHR.setRequestHeader('Authorization', auth);
-        });
-      } else {
-        return;
-      }
-
+    function getCategory() {
       $.ajax({
-        type: 'GET',
-        url: `/v1/users/myprofile`,
+        type: "GET",
+        url: `/v1/categories`,
         success: function (response) {
-          let user = response['data'];
-          role = user['role'];
-          myId = user['id'];
+          let categories = response['data'];
+          for (let i = 0; i < categories.length; i++) {
+            let category = categories[i];
+            let id = category['id'];
+            let name = category['name'];
+            let category_html = `<option value=${id}>${name}</option>`
+            $('#updateCategoryId').append(category_html);
+          }
         },
         error(error, status, request) {
-          console.log(error)
+
         }
       });
+
     }
 
-    // 쿼리 문자열을 객체로 파싱하는 함수
-    function parseQueryString(url) {
-      var params = {};
-      var queryString = url.split('?')[1];
-
-      if (queryString) {
-        queryString.split('&').forEach(function (pair) {
-          var keyValue = pair.split('=');
-          var key = decodeURIComponent(keyValue[0]);
-          var value = decodeURIComponent(keyValue[1]);
-          params[key] = value;
-        });
-      }
-
-      return params;
-    }
-
-    function getUserReview() {
-
+    function getUserReports() {
+      // 서버로부터 상품 제보 리스트를 가져와서 동적으로 화면에 추가하는 코드를 작성합니다.
+      // 서버로의 Ajax 요청 등을 통해 필요한 데이터를 가져올 수 있습니다.
+      // 가져온 데이터를 이용하여 동적으로 카드를 생성하고 #reportList에 추가합니다.
       var sorting = $("#sorting option:selected").val();
       var isAsc = $(':radio[name="isAsc"]:checked').val();
 
-      let dataSource = `/v1/users/${userId}/reviews?sort=${sorting},${isAsc}`;
+      let dataSource = `/v1/users/${userId}/reports?sort=${sorting},${isAsc}`;
 
-      $('#reviewList').empty();
+      $('#reports').empty();
       $('#pagination').pagination({
         dataSource,
         locator: 'data.content',
@@ -114,155 +93,103 @@
           }
         },
         callback: function (response, pagination) {
-          $('#reviewList').empty();
+          $('#reports').empty();
           for (let i = 0; i < response.length; i++) {
-            let review = response[i];
+            let report = response[i];
+            let id = report['id'];
+            let name = report['name'];
+            let image = report['image'];
+            let status = report['status'];
+            let categoryDto = report['category'];
+            let categoryId = categoryDto.id;
 
-            let id = review['id'];
-            let images = review['images'];
-            let categoryId = review['categoryId'];
-            let productId = review['productId'];
-            let productImage = review['productImage'];
-            let productName = review['productName'];
-            let description = review['description'];
-            let createdAt = review['createdAt'];
-            let modifiedAt = review['modifiedAt'];
-            let munchies = review['munchies'];
-            let star = review['star'];
-            let isVerified = review['isVerified'];
-            let userNickname = review['user']['nickname'];
-            $('#review_user_nickname').text(userNickname);
-
-            let createdAt_Text = calulateTime(createdAt);
-            let modifiedAt_Text = calulateTime(modifiedAt);
-
-            let html = `<div class="col" >
-             <div class="card h-100">
-      <div style="height: 400px;">
-      <img style="height:400px; object-fit: cover" src = ${images[0]} id="review-image-${id}" class="card-img-top" onclick="location.href='/productDetails?productId=${productId}&categoryId=${categoryId}'">
-      </div>
-      <div class="card-body" onclick="location.href='/productDetails?productId=${productId}&categoryId=${categoryId}'">
-        <div style="display: flex;flex-direction: row">
-        <div style="width: 70%">
-          <h5 class="card-title">${productName}</h5>
-          <p class="card-text">${description}</p>
-          <p class="card-text">★${star}</p>
-          <p class="card-text">추천 안주: ${munchies}</p>
+            $('#report_user_nickname').text(report['user']['nickname']);
+            let html = `
+        <div class="col">
+          <div class="card h-100">
+            <img style="object-fit: cover;height: 400px" src="${image}" class="card-img-top" alt="상품 이미지">
+            <div class="card-body">
+              <h5 class="card-title">${name}</h5>
+              <p class="card-text">${status}</p>
+              <button onclick="updateStatus('${id}','${categoryId}','${status}')" data-bs-toggle="modal"
+            data-bs-target="#updateReportStatus"
+            class="btn btn-light" style="margin-left:10px;float: right">상태변경</button>
+          <div>
+         <button onclick="updateId('${id}','${categoryId}','${name}')" data-bs-toggle="modal"
+            data-bs-target="#updateReport"
+            class="btn btn-light" style="margin-left:10px;float: right">수정</button>
+          <button onclick="removeReport(${categoryId},${id})" class="btn btn-light" style="float: right">삭제</button></div>
         </div>
-        <div id="verifiy_mark-${id}" style="width: 30%">
-         <img style="object-fit: contain;width: 50px;height: 50px;" src="/images/verified.png">
-        </div>
-        </div>
-      </p>
+            </div>
+          </div>
+        </div>`;
 
-      </div>
-      <div class="card-footer">
-        <small class="text-body-secondary">${createdAt_Text} 작성</small>
-        <p></p>
-        <small id="modifiedAt-${id}" class="text-body-secondary">${modifiedAt_Text} 수정</small>
-       <div>
-        <button id="update_review_btn-${id}" onclick="updateId('${categoryId}','${productId}','${id}','${description}','${star}','${munchies}')" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#updateReview"
-        class="btn btn-light">수정</button>
-        <button id="delete_review_btn-${id}" onclick="removeReview(${categoryId},${productId},${id})" class="btn btn-light">삭제</button>
-        <button onclick="verify('${categoryId}','${productId}','${id}')" id="verify_btn-${id}" class="btn btn-light"></button>
-        </div>
-      </div>
-    </div>
-            </div>`
-
-            $('#reviewList').append(html);
-
-            if (images.length == 0) {
-              $('#review-image-' + id).attr("src", productImage);//이미지 없다면 숨기기
-            }
-
-            if (createdAt_Text === modifiedAt_Text) {
-              $('#modifiedAt-' + id).hide();
-            }
-            if (isVerified) {
-              $('#verify_btn-' + id).text("인증 취소");
-              $('#verifiy_mark-' + id).show();
-            } else {
-              $('#verify_btn-' + id).text("인증 처리");
-              $('#verifiy_mark-' + id).hide();
-            }
-
-            if (role != "ADMIN") {
-              $('#verify_btn-' + id).hide();
-            }
-
-            if (myId != userId && role != "ADMIN") {
-              $('#update_review_btn-' + id).hide();
-              $('#delete_review_btn-' + id).hide();
-            }
+            $('#reports').append(html);
           }
+        },
+        error(error, status, request) {
+
         }
       });
+
     }
 
-    function calulateTime(time) {
-      const localDateTime = new Date(time);
-      const currentTime = new Date();
-      const timeDifference = currentTime - localDateTime;//밀리초
-      let text = "";
-      if (timeDifference >= 2592000000) {
-        // 한달 이상
-        text = parseInt(timeDifference / 2592000000) + "달 전";
-      } else if (timeDifference >= 604800000) {
-        //7일 이상
-        text = parseInt(timeDifference / 604800000) + "주 전";
-      } else if (timeDifference >= 86400000) {
-        //1일 이상
-        text = parseInt(timeDifference / 86400000) + "일 전";
-      } else if (timeDifference >= 3600000) {
-        //1시간 이상
-        text = parseInt(timeDifference / 3600000) + "시간 전";
-      } else if (timeDifference >= 60000) {
-        //1분 이상
-        text = parseInt(timeDifference / 60000) + "분 전";
-      } else {
-        //1초 이상
-        text = parseInt(timeDifference / 1000) + " 초 전";
+    // 쿼리 문자열을 객체로 파싱하는 함수
+    function parseQueryString(url) {
+      var params = {};
+      var queryString = url.split('?')[1];
+
+      if (queryString) {
+        queryString.split('&').forEach(function (pair) {
+          var keyValue = pair.split('=');
+          var key = decodeURIComponent(keyValue[0]);
+          var value = decodeURIComponent(keyValue[1]);
+          params[key] = value;
+        });
       }
 
-      return text;
+      return params;
     }
 
-    function updateId(categoryId, productId, id, description, star, munchies) {
+    function updateId(id, categoryId, name) {
+      $('#update_report_name').val(name);
       $('#update_btn').val(id);
-      currentCategoryId = categoryId;
-      currentProductId = productId;
-      $('#update_description').val(description);
-      $('#update_star').val(star);
-      $('#update_munchies').val(munchies);
+      $('#updateCategoryId').val(categoryId);
+      current_categoryId = categoryId;
+
+      console.log(id);
+
     }
 
-    function updateReview() {
-      let reviewId = $('#update_btn').val();
+    function updateStatus(id, categoryId, status) {
+      $('#updateStatusSelected').val(status);
+      $('#update_btn').val(id);
+      current_categoryId = categoryId;
+      console.log(id);
+    }
 
-      let description = $('#update_description').val();
-      let star = $('#update_star').val();
-      let munchies = $('#update_munchies').val();
+    function updateReport() {
+      if (!update_imageFile) {
+        alert("이미지를 선택해주세요");
+      }
+
+      let id = $('#update_btn').val();
+      let name = $('#update_report_name').val();
+      let currentCategoryId = current_categoryId;
+      let categoryId = $('#updateCategoryId').val();
       let data = {
-        "description": description,
-        "star": star,
-        "munchies": munchies
+        "name": name,
+        "modifiedCategoryId": categoryId
       }
 
       const formData = new FormData();
+      formData.append('image', update_imageFile);
       formData.append("data",
           new Blob([JSON.stringify(data)], {type: "application/json"}));
 
-      // 배열의 각 파일을 순회하면서 FormData에 따로 추가합니다.
-      if (update_imageFile != null) {
-        for (let i = 0; i < update_imageFile.length; i++) {
-          formData.append('images', update_imageFile[i]);
-        }
-      }
-
       $.ajax({
         type: "PATCH",
-        url: `/v1/categories/${currentCategoryId}/products/${currentProductId}/reviews/${reviewId}`,
+        url: `/v1/categories/${currentCategoryId}/reports/${id}`,
         data: formData,
         enctype: "multipart/form-data",
         contentType: false,
@@ -271,42 +198,45 @@
           alert(response['msg']);
           window.location.reload();
         }, error: function (error) {
-          if (error['responseJSON']['data']) {
-            alert(JSON.stringify(error['responseJSON']['data']));
-          } else {
-            alert(error['responseJSON']['msg']);
-          }
+          alert(error['responseJSON']['msg'])
         }
       });
     }
 
-    function removeReview(categoryId, productId, id) {
+    function updateReportStatus() {
 
-      $.ajax({
-        type: "DELETE",
-        url: `/v1/categories/${categoryId}/products/${productId}/reviews/${id}`,
-        success: function (response) {
-          alert(response['msg']);
-          window.location.reload();
-        }, error: function (error) {
-          alert(error['responseJSON']['msg']);
-        }
-      });
-    }
-
-    function verify(categoryId, productId, id) {
+      let id = $('#update_btn').val();
+      let status = $('#updateStatusSelected').val();
+      let currentCategoryId = current_categoryId;
+      let data = {
+        "status": status
+      }
       $.ajax({
         type: "PATCH",
-        url: `/v1/categories/${categoryId}/products/${productId}/reviews/${id}/verification`,
+        url: `/v1/categories/${currentCategoryId}/reports/${id}/status`,
+        data: JSON.stringify(data),
+        contentType: "application/json",
         success: function (response) {
           alert(response['msg']);
           window.location.reload();
         }, error: function (error) {
-          alert(error['responseJSON']['msg']);
+          alert(error['responseJSON']['msg'])
         }
       });
     }
 
+    function removeReport(category, id) {
+      $.ajax({
+        type: "DELETE",
+        url: `/v1/categories/${category}/reports/${id}`,
+        success: function (response) {
+          alert(response['msg']);
+          window.location.reload();
+        }, error: function (error) {
+          alert(error['response']['msg']);
+        }
+      });
+    }
   </script>
 </head>
 <body>
@@ -418,7 +348,7 @@
     </header>
     <div style="height: fit-content;">
       <h1 style="margin: 10px auto 10px auto;width: fit-content;"><span
-          id="review_user_nickname"></span>님의 리뷰 목록</h1>
+          id="report_user_nickname"></span>님의 제보 목록</h1>
       <div style="display: flex;
     flex-direction: column;
     align-items: center;
@@ -426,18 +356,17 @@
     padding: 10px">
         <div class="pagination">
           정렬:
-          <select id="sorting" onchange="getUserReview()" style="margin-right: 10px">
-            <option value="likeCount">추천순</option>
-            <option value="createdAt">작성일 순</option>
-            <option value="modifiedAt">수정일 순</option>
+          <select id="sorting" onchange="getUserReports()" style="margin-right: 10px">
+            <option value="createdAt">작성일</option>
+            <option value="modifiedAt">수정일</option>
           </select>
-          <input type="radio" name="isAsc" value="asc" onchange="getUserReview()"/> 오름차순
-          <input type="radio" name="isAsc" value="desc" onchange="getUserReview()" checked/> 내림차순
+          <input type="radio" name="isAsc" value="asc" onchange="getUserReports()"/> 오름차순
+          <input type="radio" name="isAsc" value="desc" onchange="getUserReports()" checked/> 내림차순
         </div>
       </div>
 
 
-      <div id="reviewList" style="width: 60%;margin: auto;"
+      <div id="reports" style="width: 60%;margin: auto;"
            class="row row-cols-1 row-cols-md-3 g-4">
       </div>
       <div id="pagination" class="pagination" style="margin-top:25px; justify-content: center;"></div>
@@ -471,32 +400,78 @@
     </div>
   </div>
 </div>
-
-<!-- 리뷰 수정 모달 -->
-<div class="modal fade" id="updateReview" aria-hidden="true"
+<!--제보상품 상태 수정-->
+<div class="modal fade" id="updateReportStatus" aria-hidden="true"
      aria-labelledby="exampleModalToggleLabel" tabindex="-1">
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5">리뷰 수정</h1>
-        <button onclick="win_reload()" type="button" class="btn-close" data-bs-dismiss="modal"
+        <h1 class="modal-title fs-5">제보 상품 상태 수정</h1>
+        <button onclick="window.location.reload()" type="button" class="btn-close"
+                data-bs-dismiss="modal"
                 aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <input type="text" class="form-control" id="update_description" placeholder="설명">
-        <input type="number" class="form-control" id="update_star" placeholder="별점 1점 ~ 5점 사이">
-        <input type="text" class="form-control" id="update_munchies" placeholder="추천 안주">
-        <input type="file" accept="image/*" id="update_review_image" multiple>
+        <div class="form-floating" style="margin-top: 20px">
+          <div class="categoryLabel">
+            <label>제보 상품 상태 </label>
+          </div>
+          <div class="categorySelect">
+            <select class="form-select" id="updateStatusSelected"
+                    aria-label="Floating label select example" style="width: 200px;">
+              <option selected>상태를 선택해주세요</option>
+              <option>PROCEEDING</option>
+              <option>ADOPTED</option>
+              <option>UN_ADOPTED</option>
+              <!-- 추가적인 옵션들을 필요에 따라 계속해서 추가할 수 있습니다. -->
+            </select>
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
-        <button onclick="win_reload()" type="button" class="btn btn-secondary"
+        <button onclick="window.location.reload();" type="button" class="btn btn-secondary"
                 data-bs-dismiss="modal">Close
         </button>
-        <button class="btn btn-light" onclick="updateReview()" id="update_btn">Update</button>
+        <button id="updateStatus_btn" class="btn btn-light" onclick="updateReportStatus()">update
+        </button>
       </div>
     </div>
   </div>
 </div>
-
+<!--제보상품 수정-->
+<div class="modal fade" id="updateReport" aria-hidden="true"
+     aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">제보 상품 수정</h1>
+        <button onclick="window.location.reload()" type="button" class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-floating" style="margin-top: 20px">
+          <div class="categoryLabel">
+            <label for="updateCategoryId">카테고리 </label>
+          </div>
+          <div class="categorySelect">
+            <select class="form-select" id="updateCategoryId"
+                    aria-label="Floating label select example" style="width: 200px;">
+              <option selected>카테고리를 선택해주세요</option>
+            </select>
+          </div>
+        </div>
+        <input type="text" class="form-control" id="update_report_name" placeholder="이름">
+        <input type="file" accept="image/*" id="update_report_image">
+      </div>
+      <div class="modal-footer">
+        <button onclick="window.location.reload();" type="button" class="btn btn-secondary"
+                data-bs-dismiss="modal">Close
+        </button>
+        <button id="update_btn" class="btn btn-light" onclick="updateReport()">update</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>

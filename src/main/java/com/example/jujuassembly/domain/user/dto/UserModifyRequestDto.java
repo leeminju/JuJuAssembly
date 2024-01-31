@@ -34,9 +34,4 @@ public class UserModifyRequestDto {
 
   private Long secondPreferredCategoryId;
 
-  @NotBlank(message = "email을 입력하세요.")
-  @Email(message = "email 형식이 올바르지 않습니다.")
-  private String email;
-
-
 }

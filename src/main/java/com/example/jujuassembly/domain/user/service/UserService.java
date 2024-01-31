@@ -184,12 +184,6 @@ public class UserService {
       }
     }
 
-    //현재와 동일한 이메일로 변경 가능
-    if (!user.getEmail().equals(modifyRequestDto.getEmail())) {
-      if (userRepository.findByEmail(modifyRequestDto.getEmail()).isPresent()) {
-        throw new ApiException("중복된 email 입니다.", HttpStatus.BAD_REQUEST);
-      }
-    }
 
     User loginUser = userRepository.findUserByIdOrElseThrow(userId);
     Category category1 = categoryRepository.findCategoryByIdOrElseThrow(
@@ -209,6 +203,9 @@ public class UserService {
     s3Manager.deleteAllImageFiles(userId.toString(), S3Manager.USER_DIRECTORY_NAME);
 
     if (image != null && !image.isEmpty()) {
+      if (!image.getContentType().startsWith("image")) {
+        throw new ApiException("이미지 파일 형식이 아닙니다.", HttpStatus.BAD_REQUEST);
+      }
       String url = s3Manager.upload(image, S3Manager.USER_DIRECTORY_NAME, userId);
       user.updateUserImage(url);
     }

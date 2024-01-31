@@ -52,7 +52,11 @@ public class ReviewLikeService {
 
     reviewResponse.ifPresentOrElse(
         response -> cancelReviewResponse(response, reviewId, ReviewLikeStatusEnum.LIKE),
-        () -> saveReviewResponse(review, user, reviewId, ReviewLikeStatusEnum.LIKE));
+        () -> {
+          saveReviewResponse(review, user, reviewId, ReviewLikeStatusEnum.LIKE);
+          review.incrementLikesCount(); // 추천 수 증가
+          reviewRepository.save(review); // 리뷰 상태 업데이트
+        });
 
     return result;
   }
@@ -75,7 +79,12 @@ public class ReviewLikeService {
     Optional<ReviewLike> reviewResponse = reviewLikeRepository.findByReviewAndUser(review, user);
 
     reviewResponse.ifPresentOrElse(
-        response -> cancelReviewResponse(response, reviewId, ReviewLikeStatusEnum.DISLIKE),
+        response ->
+        {
+          cancelReviewResponse(response, reviewId, ReviewLikeStatusEnum.DISLIKE);
+          review.decrementLikesCount(); // 추천 수 감소
+          reviewRepository.save(review); // 리뷰 상태 업데이트
+        },
         () -> saveReviewResponse(review, user, reviewId, ReviewLikeStatusEnum.DISLIKE));
 
     return result;
@@ -99,6 +108,9 @@ public class ReviewLikeService {
     if (response.getStatus().equals(statusEnum)) {
       reviewLikeRepository.delete(response);
       if (statusEnum == ReviewLikeStatusEnum.LIKE) {
+        Review review = response.getReview();
+        review.decrementLikesCount(); // 추천 수 감소
+        reviewRepository.save(review); // 리뷰 상태 업데이트
         notificationService.deleteNotificationByEntity("REVIEW", reviewId);
       }
       result = false;
