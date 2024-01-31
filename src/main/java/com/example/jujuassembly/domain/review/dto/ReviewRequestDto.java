@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -19,6 +20,7 @@ import lombok.NoArgsConstructor;
 public class ReviewRequestDto {
 
   @NotBlank(message = "리뷰 설명을 입력해주세요!")
+  @Max(value = 255,message = "리뷰 설명은 255자 이내로 작성해 주세요")
   private String description;
 
   @JsonInclude(value = Include.ALWAYS)
@@ -28,5 +30,6 @@ public class ReviewRequestDto {
   private Double star;
 
   @JsonInclude(value = Include.NON_DEFAULT)
+  @Max(value = 30,message = "추천 안주는 30자 이내로 작성해 주세요")
   private String munchies;
 }
