@@ -4,8 +4,10 @@ import com.example.jujuassembly.domain.category.dto.CategoryRequestDto;
 import com.example.jujuassembly.domain.category.dto.CategoryResponseDto;
 import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
-import com.example.jujuassembly.domain.product.entity.Product;
 import com.example.jujuassembly.domain.product.repository.ProductRepository;
+import com.example.jujuassembly.domain.product.service.ProductService;
+import com.example.jujuassembly.domain.report.repository.ReportRepository;
+import com.example.jujuassembly.domain.report.service.ReportService;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.global.exception.ApiException;
@@ -26,6 +28,9 @@ public class CategoryService {
   private final S3Manager s3Manager;
   private final UserRepository userRepository;
   private final ProductRepository productRepository;
+  private final ProductService productService;
+  private final ReportRepository reportRepository;
+  private final ReportService reportService;
 
   public List<CategoryResponseDto> getCategories() {
     List<Category> categoryList = categoryRepository.findAll();
@@ -84,7 +89,13 @@ public class CategoryService {
     userRepository.findAllBySecondPreferredCategory_Id(categoryId).stream().forEach(
         User::deleteSecondPreferredCategoryCategory);
 
-    productRepository.findAllByCategory_Id(categoryId).stream().forEach(Product::deleteCategory);
+    reportRepository.findAllByCategory_Id(categoryId).stream().forEach(report -> {
+      reportService.deleteReport(categoryId, report.getId());
+    });
+
+    productRepository.findAllByCategory_Id(categoryId).stream().forEach(product -> {
+      productService.deleteProduct(product.getId());
+    });
 
     Category category = categoryRepository.findCategoryByIdOrElseThrow(categoryId);
     categoryRepository.delete(category);
