@@ -8,7 +8,16 @@
 * {
   font-family: 'NanumSquareNeo-Variable', serif;
 }
+.nav li:hover{
+  box-shadow: 0 0 50px rgba(255, 255, 0, 0.8);
+}
 
+.card:hover{
+  box-shadow: 0 0 50px rgba(255, 255, 0, 0.8);
+}
+.btn:hover{
+  box-shadow: 0 0 50px greenyellow;
+}
 
 #product-container {
   grid-template-columns: 100px 50px 100px;
