@@ -28,6 +28,8 @@
   var update_imageFile = null;
   var currentCategoryId = null;
   var currentProductId = null;
+  var productId = -1;
+  var categoryId = -1;
   var current_review_id;
 
   $(document).ready(function () {
@@ -158,13 +160,19 @@
     </div>
             </div>`
 
-
           $('#reviewList').append(html);
+          if (!isVerified) {
+            $('#verifiy_mark-' + id).hide();
+          }
+
+          if (role != "ADMIN" && myId != user.id) {
+            $('#update_review_btn-' + id).hide();
+            $('#delete_review_btn-' + id).hide();
+          }
 
           if (imagesString !== "[]") {
             for (let i = 0; i < images.length; i++) {
               let img_html = `<img style="margin-bottom: 10px; width: 150px; height: 150px; object-fit: contain" src="${images[i]}">`;
-              //let img_html = `<img style="margin-right:10px; margin-bottom: 10px width: 150px;height: 150px;object-fit: contain" src="${images[i]}">`;
               $('#imageList-' + id).append(img_html);
             }
           } else {
@@ -222,13 +230,14 @@
 
   //수정 눌렀을때
   function updateId(categoryId, productId, id, description, star, munchies, images) {
-    console.log("images=", images)
-    console.log("images.length=", images.length)
+
     images = images.split(',')
     $('#update_description').val(description);
     $('#update_star').val(star);
     $('#update_munchies').val(munchies);
     $('#imageList').val(images);
+    currentCategoryId = categoryId;
+    currentProductId = productId;
     current_review_id = id;
 
     if (images.length > 0 && images[0] !== "") {
@@ -249,7 +258,7 @@
 
     $.ajax({
       type: "DELETE",
-      url: `/v1/categories/${categoryId}/products/${productId}/reviews/${reviewId}/images/${imageIndex}`,
+      url: `/v1/categories/${currentCategoryId}/products/${currentProductId}/reviews/${reviewId}/images/${imageIndex}`,
       success: function (response) {
         alert(response['msg']);
         window.location.reload();
@@ -284,7 +293,7 @@
 
     $.ajax({
       type: "PATCH",
-      url: `/v1/categories/${categoryId}/products/${productId}/reviews/${current_review_id}`,
+      url: `/v1/categories/${currentCategoryId}/products/${currentProductId}/reviews/${current_review_id}`,
       data: formData,
       enctype: "multipart/form-data",
       contentType: false,
@@ -509,12 +518,33 @@
         <button onclick="win_reload()" type="button" class="btn-close" data-bs-dismiss="modal"
                 aria-label="Close"></button>
       </div>
-      <div class="modal-body">
+      <!--<div class="modal-body">
         <input type="text" class="form-control" id="update_description" placeholder="설명">
         <input type="number" class="form-control" id="update_star" placeholder="별점 1점 ~ 5점 사이">
         <input type="text" class="form-control" id="update_munchies" placeholder="추천 안주">
         <input type="file" accept="image/*" id="update_review_image" multiple>
+      </div>-->
+
+      <div class="modal-body">
+        <input type="text" class="form-control" id="update_description" placeholder="설명">
+        <select class="form-control" id="update_star" style="color: dimgray">
+          <option class="form-control" selected placeholder="별점선택">별점선택</option>
+          <option value="1">⭐</option>
+          <option value="2">⭐⭐</option>
+          <option value="3">⭐⭐⭐</option>
+          <option value="4">⭐⭐⭐⭐</option>
+          <option value="5">⭐⭐⭐⭐⭐</option>
+        </select>
+        <input type="text" class="form-control" id="update_munchies" placeholder="추천 안주">
+
+        <div id="imageList_container" style="width: 80%;margin: auto;"
+             class="row row-cols-1 row-cols-md-2 g-4">
+        </div>
+
+        <input type="file" accept="image/*" id="update_review_image" multiple>
       </div>
+
+
       <div class="modal-footer">
         <button onclick="win_reload()" type="button" class="btn btn-secondary"
                 data-bs-dismiss="modal">Close
