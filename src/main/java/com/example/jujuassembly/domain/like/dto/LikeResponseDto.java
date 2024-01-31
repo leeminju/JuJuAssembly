@@ -32,7 +32,7 @@ public class LikeResponseDto {
     this.description = like.getProduct().getDescription();
     this.categoryId = like.getProduct().getCategory().getId();
     this.reviewCount = like.getProduct().getReviewCount();
-    this.reviewAverage = like.getProduct().getReviewAverage();
+    // this.reviewAverage = like.getProduct().getAverageRating();
     this.likesCount = like.getProduct().getLikesCount();
   }
 }
