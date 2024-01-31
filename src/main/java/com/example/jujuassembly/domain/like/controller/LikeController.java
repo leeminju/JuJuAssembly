@@ -55,11 +55,11 @@ public class LikeController {
    * @return 작업 성공 여부와 좋아요 리스트를 담은 ResponseEntity
    */
   @GetMapping("/users/{userId}/like")
-  private ResponseEntity<ApiResponse<Page<LikeResponseDto>>> viewLikeProducts(
+  private ResponseEntity<ApiResponse<Page<LikeResponseDto>>> viewMyLikeProducts(
       @PathVariable Long userId,
       @AuthenticationPrincipal UserDetailsImpl loginUserDetails,
       @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-    Page<LikeResponseDto> page = likeService.viewLikeProducts(
+    Page<LikeResponseDto> page = likeService.viewMyLikeProducts(
         userId, loginUserDetails.getUser(), pageable
     );
     return ResponseEntity.ok()
@@ -91,10 +91,10 @@ public class LikeController {
    * @return
    */
   @GetMapping("/categories/{categoryId}/products/{productId}/like")
-  private ResponseEntity<ApiResponse<Boolean>> getLike(
+  private ResponseEntity<ApiResponse<Boolean>> getProductIsLiked(
       @PathVariable Long productId,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
-    Boolean islike = likeService.getLike(productId, userDetails.getUser());
+    Boolean islike = likeService.getProductIsLiked(productId, userDetails.getUser());
     return ResponseEntity.ok()
         .body(new ApiResponse<>("찜 여부 확인", HttpStatus.OK.value(), islike));
   }

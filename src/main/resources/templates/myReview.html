@@ -28,6 +28,9 @@
   var update_imageFile = null;
   var currentCategoryId = null;
   var currentProductId = null;
+  var productId = -1;
+  var categoryId = -1;
+  var current_review_id;
 
   $(document).ready(function () {
     getMyprofile()
@@ -105,7 +108,11 @@
           let review = response[i];
 
           let id = review['id'];
-          let images = review['images'];
+          current_review_id = id;
+          let imagesString = JSON.stringify(review['images']);
+          let images = imagesString.replaceAll('"', '').replaceAll('[', '').replaceAll(']',
+              '').split(',');
+
           let categoryId = review['categoryId'];
           let productId = review['productId'];
           let productImage = review['productImage'];
@@ -120,11 +127,11 @@
           let createdAt_Text = calulateTime(createdAt);
           let modifiedAt_Text = calulateTime(modifiedAt);
 
-          let html = `<div class="col" >
-             <div class="card h-100">
-       <div style="height: 400px;">
-      <img style="height: 400px;object-fit: cover" src = ${images[0]} id="review-image-${id}" class="card-img-top" onclick="location.href='/productDetails?productId=${productId}&categoryId=${categoryId}'">
-      </div>
+         let html = `<div class="col-md-4" >
+      <div class="card h-100">
+         <div id="imageList-${id}" style="padding: 10px; height: 400px; display: flex; flex-direction: column; align-items: center;">
+            <div id="imageList-${id}" style="padding:10px; width: 100%; height: 160px; margin-bottom: 20px; display: flex; flex-direction: column;"></div>
+            </div>
       <div class="card-body" onclick="location.href='/productDetails?productId=${productId}&categoryId=${categoryId}'">
         <div style="display: flex;flex-direction: row">
         <div style="width: 70%">
@@ -145,7 +152,7 @@
         <p></p>
         <small id="modifiedAt-${id}" class="text-body-secondary">${modifiedAt_Text} 수정</small>
        <div>
-        <button id="update_review_btn-${id}" onclick="updateId('${categoryId}','${productId}','${id}','${description}','${star}','${munchies}')" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#updateReview"
+        <button id="update_review_btn-${id}" onclick="updateId('${categoryId}','${productId}','${id}','${description}','${star}','${munchies}','${images}')" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#updateReview"
         class="btn btn-light">수정</button>
         <button id="delete_review_btn-${id}" onclick="removeReview(${categoryId},${productId},${id})" class="btn btn-light">삭제</button>
         </div>
@@ -154,9 +161,22 @@
             </div>`
 
           $('#reviewList').append(html);
+          if (!isVerified) {
+            $('#verifiy_mark-' + id).hide();
+          }
 
-          if (images.length == 0) {
-            $('#review-image-' + id).attr("src", productImage);
+          if (role != "ADMIN" && myId != user.id) {
+            $('#update_review_btn-' + id).hide();
+            $('#delete_review_btn-' + id).hide();
+          }
+
+          if (imagesString !== "[]") {
+            for (let i = 0; i < images.length; i++) {
+              let img_html = `<img style="margin-bottom: 10px; width: 150px; height: 150px; object-fit: contain" src="${images[i]}">`;
+              $('#imageList-' + id).append(img_html);
+            }
+          } else {
+            $('#imageList-' + id).hide();
           }
 
           if (createdAt_Text === modifiedAt_Text) {
@@ -209,34 +229,63 @@
   }
 
   //수정 눌렀을때
-  function updateId(categoryId, productId, id, description, star, munchies) {
-    console.log(description);
-    $('#update_btn').val(id);
-    currentCategoryId = categoryId;
-    currentProductId = productId;
+  function updateId(categoryId, productId, id, description, star, munchies, images) {
+
+    images = images.split(',')
     $('#update_description').val(description);
     $('#update_star').val(star);
     $('#update_munchies').val(munchies);
+    $('#imageList').val(images);
+    currentCategoryId = categoryId;
+    currentProductId = productId;
+    current_review_id = id;
+
+    if (images.length > 0 && images[0] !== "") {
+      for (let i = 0; i < images.length; i++) {
+        let img_html = `<img id="original-image-${i}" style="margin-right:10px; width: 150px;height: 150px;object-fit: contain" src="${images[i]}">`;
+        let btn_html = `<button class="btn btn-secondary" id="image_remove_btn" style="width: 15px; height: 15px; flex-direction: column;
+             align-items: center; justify-content: center;font-size: 10px;" onclick="removeImage(${id}, ${i})">X</button>`;
+        $('#imageList_container').append(img_html + btn_html);
+      }
+    } else {
+      $('#imageList').hide();
+    }
+  }
+
+  function removeImage(reviewId, imageIndex) {
+    $('#imageList_container').children('img').eq(imageIndex).remove();
+    $('#imageList_container').children('button').eq(imageIndex).remove();
+
+    $.ajax({
+      type: "DELETE",
+      url: `/v1/categories/${currentCategoryId}/products/${currentProductId}/reviews/${reviewId}/images/${imageIndex}`,
+      success: function (response) {
+        alert(response['msg']);
+        window.location.reload();
+      }, error: function (error) {
+        alert(error['response']['msg']);
+      }
+    });
   }
 
   function updateReview() {
-    let reviewId = $('#update_btn').val();
 
     let description = $('#update_description').val();
     let star = $('#update_star').val();
     let munchies = $('#update_munchies').val();
+    const formData = new FormData();
+
     let data = {
       "description": description,
       "star": star,
       "munchies": munchies
     }
 
-    const formData = new FormData();
     formData.append("data",
         new Blob([JSON.stringify(data)], {type: "application/json"}));
 
     // 배열의 각 파일을 순회하면서 FormData에 따로 추가합니다.
-    if (update_imageFile != null) {
+    if (update_imageFile) {
       for (let i = 0; i < update_imageFile.length; i++) {
         formData.append('images', update_imageFile[i]);
       }
@@ -244,7 +293,7 @@
 
     $.ajax({
       type: "PATCH",
-      url: `/v1/categories/${currentCategoryId}/products/${currentProductId}/reviews/${reviewId}`,
+      url: `/v1/categories/${currentCategoryId}/products/${currentProductId}/reviews/${current_review_id}`,
       data: formData,
       enctype: "multipart/form-data",
       contentType: false,
@@ -261,6 +310,8 @@
       }
     });
   }
+
+
 
   function removeReview(categoryId, productId, id) {
     console.log("removeReview");
@@ -414,13 +465,17 @@
           </select>
           <input type="radio" name="isAsc" value="asc" onchange="getUserReview()"/> 오름차순
           <input type="radio" name="isAsc" value="desc" onchange="getUserReview()" checked/> 내림차순
-          <button id="verifiedReviews" onclick="getUserReview(true)" style="height: 30px; border-style: none; margin-left: 10px; border-radius: 5px; font-size: 15px">인증된 리뷰만 보기</button>
+          <button id="verifiedReviews" onclick="getUserReview(true)"
+                  style="height: 30px; border-style: none; margin-left: 10px; border-radius: 5px; font-size: 15px">
+            인증된 리뷰만 보기
+          </button>
         </div>
       </div>
-      <div id="reviewList" style="width: 60%;margin: auto;"
+      <div id="reviewList" style="width: 90%;margin: auto;"
            class="row row-cols-1 row-cols-md-3 g-4">
       </div>
-      <div id="pagination" class="pagination" style="margin-top:25px; justify-content: center"></div>
+      <div id="pagination" class="pagination"
+           style="margin-top:25px; justify-content: center"></div>
 
 
     </div>
@@ -463,12 +518,33 @@
         <button onclick="win_reload()" type="button" class="btn-close" data-bs-dismiss="modal"
                 aria-label="Close"></button>
       </div>
-      <div class="modal-body">
+      <!--<div class="modal-body">
         <input type="text" class="form-control" id="update_description" placeholder="설명">
         <input type="number" class="form-control" id="update_star" placeholder="별점 1점 ~ 5점 사이">
         <input type="text" class="form-control" id="update_munchies" placeholder="추천 안주">
         <input type="file" accept="image/*" id="update_review_image" multiple>
+      </div>-->
+
+      <div class="modal-body">
+        <input type="text" class="form-control" id="update_description" placeholder="설명">
+        <select class="form-control" id="update_star" style="color: dimgray">
+          <option class="form-control" selected placeholder="별점선택">별점선택</option>
+          <option value="1">⭐</option>
+          <option value="2">⭐⭐</option>
+          <option value="3">⭐⭐⭐</option>
+          <option value="4">⭐⭐⭐⭐</option>
+          <option value="5">⭐⭐⭐⭐⭐</option>
+        </select>
+        <input type="text" class="form-control" id="update_munchies" placeholder="추천 안주">
+
+        <div id="imageList_container" style="width: 80%;margin: auto;"
+             class="row row-cols-1 row-cols-md-2 g-4">
+        </div>
+
+        <input type="file" accept="image/*" id="update_review_image" multiple>
       </div>
+
+
       <div class="modal-footer">
         <button onclick="win_reload()" type="button" class="btn btn-secondary"
                 data-bs-dismiss="modal">Close
