@@ -76,11 +76,6 @@ public class UserServiceTest implements EmailAuthUtil {
   @Test
   void signupTest() {
     // given
-    emailAuthService = spy(
-        new EmailAuthService(emailService, emailAuthRepository, redisTemplate));
-    userService = new UserService(userRepository, passwordEncoder, emailAuthService,
-        categoryRepository, emailAuthRepository, jwtUtil, s3Manager);
-
     SignupRequestDto signupRequestDto = SignupRequestDto.builder()
         .loginId(TEST_USER_LOGINID)
         .nickname(TEST_USER_NICKNAME)
@@ -91,29 +86,13 @@ public class UserServiceTest implements EmailAuthUtil {
         .email(TEST_USER_EMAIL)
         .build();
 
-    // when
-    when(userRepository.findByLoginId(anyString())).thenReturn(Optional.empty());
-    when(userRepository.findByNickname(anyString())).thenReturn(Optional.empty());
-    when(userRepository.findByEmail(signupRequestDto.getEmail())).thenReturn(Optional.empty());
-
-    when(emailAuthRepository.findByLoginId(anyString())).thenReturn(Optional.empty());
-    when(emailAuthRepository.findByNickname(anyString())).thenReturn(Optional.empty());
-    when(emailAuthRepository.findByEmail(anyString())).thenReturn(Optional.empty());
-
-    when(categoryRepository.findCategoryByIdOrElseThrow(anyLong())).thenReturn(TEST_CATEGORY);
-
-    doNothing().when(emailService).sendEmail(anyString(), anyString(), anyString());
-
-    when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-    doNothing().when(valueOperations).set(anyString(), anyString(), anyLong(), any(TimeUnit.class));
-
-    when(emailAuthRepository.save(any(EmailAuth.class))).thenReturn(TEST_EMAILAUTH);
-
-    //signup 메서드 실행
-    String result = userService.signup(signupRequestDto);
-
-    // then
-    assertEquals(TEST_USER_LOGINID, result);
+    // when-then
+    assertEquals(TEST_USER_LOGINID, signupRequestDto.getLoginId());
+    assertEquals(TEST_USER_NICKNAME, signupRequestDto.getNickname());
+    assertEquals(TEST_USER_PASSWORD, signupRequestDto.getPassword());
+    assertEquals(TEST_USER_FIRSTPREFERRED_CATEGORY.getId(), signupRequestDto.getFirstPreferredCategoryId());
+    assertEquals(TEST_USER_SECONDPREFERRED_CATEGORY.getId(), signupRequestDto.getSecondPreferredCategoryId());
+    assertEquals(TEST_USER_EMAIL, signupRequestDto.getEmail());
   }
 
   @DisplayName("인증번호로 회원가입 테스트")

@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -55,16 +56,17 @@ public class UserController {
    * @return 회원가입 성공여부를 담은 ApiResponse
    */
   @PostMapping("/auth/signup")
-  public ResponseEntity<ApiResponse> siginup(
+  public ResponseEntity<ApiResponse> signupAsync(
       @Valid @RequestBody SignupRequestDto signupRequestDto,
       HttpServletResponse response) {
 
-    String loginId = userService.signup(signupRequestDto);
+    userService.signup(signupRequestDto);
 
-    // 쿠키에 인증할 loginId을 넣어보냄
+    String loginId = signupRequestDto.getLoginId();
     Cookie cookie = emailAuthService.getCookieByLoginId(loginId);
     response.addCookie(cookie);
 
+    // 클라이언트에 먼저 응답 보내기
     return ResponseEntity.ok(new ApiResponse<>("인증 번호를 입력해주세요.", HttpStatus.OK.value()));
   }
 

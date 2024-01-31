@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -53,6 +54,7 @@ public class EmailAuthService {
     emailAuthRepository.delete(emailAuth);
   }
 
+  @Async
   public void setSentCodeByLoginIdAtRedis(String loginId, String sentCode) {
     redisTemplate.opsForValue().set(loginId, sentCode, 5 * 60 * 1000, TimeUnit.MILLISECONDS);
   }

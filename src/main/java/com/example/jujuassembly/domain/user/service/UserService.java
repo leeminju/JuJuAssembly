@@ -16,11 +16,13 @@ import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.jwt.JwtUtil;
 import com.example.jujuassembly.global.s3.S3Manager;
 import com.example.jujuassembly.global.filter.UserDetailsImpl;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,7 +41,7 @@ public class UserService {
   private final JwtUtil jwtUtil;
   private final S3Manager s3Manager;
 
-  public String signup(SignupRequestDto signupRequestDto) {
+  public void signup(SignupRequestDto signupRequestDto) {
 
     String loginId = signupRequestDto.getLoginId();
     String nickname = signupRequestDto.getNickname();
@@ -94,11 +96,10 @@ public class UserService {
     emailAuthService.setSentCodeByLoginIdAtRedis(loginId, sentCode);
 
     // 재입력 방지를 위해 DB에 입력된 데이터를 임시 저장
-    EmailAuth emailAuth = emailAuthRepository.save(
+    emailAuthRepository.save(
         new EmailAuth(loginId, nickname, email, passwordEncoder.encode(password),
             firstPreferredCategoryId, secondPreferredCategoryId, sentCode));
 
-    return emailAuth.getLoginId();
   }
 
   public UserResponseDto verificateCode(String verificationCode, String loginId) {

@@ -22,7 +22,9 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
       AuthenticationException authException)
       throws IOException {
 
-    filterUtil.setMassageToResponse("인증 불가", response, HttpStatus.UNAUTHORIZED);
+    filterUtil.setMassageToResponse(
+        authException.getMessage() + ", caused by: " + authException.getCause(), response,
+        HttpStatus.UNAUTHORIZED);
 
   }
 }
