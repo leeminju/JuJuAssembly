@@ -9,24 +9,27 @@
   font-family: 'NanumSquareNeo-Variable', serif;
 }
 .nav li:hover{
-  box-shadow: 0 0 50px rgba(255, 255, 0, 0.8);
+  font-size: 17px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 
 
 .image_input:hover {
   border-radius: 50%;
-  box-shadow: 0 0 50px rgba(255, 255, 0, 0.8);
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.2);
   cursor: pointer;
-  transform: scale(1.25);
+  transform: scale(1.005);
 }
 
 .card:hover{
-  box-shadow: 0 0 50px rgba(255, 255, 0, 0.8);
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.2);
+  transform: scale(1.005);
 }
   
 .btn:hover{
-  box-shadow: 0 0 50px greenyellow;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  transform: scale(1.005);
 }
 
 #product-container {
