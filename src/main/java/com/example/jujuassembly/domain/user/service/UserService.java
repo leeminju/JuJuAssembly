@@ -2,9 +2,8 @@ package com.example.jujuassembly.domain.user.service;
 
 import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
-import com.example.jujuassembly.domain.emailAuth.entity.EmailAuth;
-import com.example.jujuassembly.domain.emailAuth.repository.EmailAuthRepository;
-import com.example.jujuassembly.domain.emailAuth.service.EmailAuthService;
+import com.example.jujuassembly.domain.user.emailAuth.dto.EmailAuthDto;
+import com.example.jujuassembly.domain.user.emailAuth.service.EmailAuthService;
 import com.example.jujuassembly.domain.user.dto.LoginRequestDto;
 import com.example.jujuassembly.domain.user.dto.SignupRequestDto;
 import com.example.jujuassembly.domain.user.dto.UserDetailResponseDto;
@@ -13,16 +12,14 @@ import com.example.jujuassembly.domain.user.dto.UserResponseDto;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.global.exception.ApiException;
+import com.example.jujuassembly.global.filter.UserDetailsImpl;
 import com.example.jujuassembly.global.jwt.JwtUtil;
 import com.example.jujuassembly.global.s3.S3Manager;
-import com.example.jujuassembly.global.filter.UserDetailsImpl;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +34,6 @@ public class UserService {
   private final PasswordEncoder passwordEncoder;
   private final EmailAuthService emailAuthService;
   private final CategoryRepository categoryRepository;
-  private final EmailAuthRepository emailAuthRepository;
   private final JwtUtil jwtUtil;
   private final S3Manager s3Manager;
 
@@ -64,17 +60,6 @@ public class UserService {
       throw new ApiException("중복된 email 입니다.", HttpStatus.BAD_REQUEST);
     }
 
-    // 회원가입을 하고있는(인증번호 확인중인 상태) id, nickname, email 중복 검증
-    if (emailAuthRepository.findByLoginId(loginId).isPresent()) {
-      throw new ApiException("현재 회원가입 중인 loginId 입니다.", HttpStatus.BAD_REQUEST);
-    }
-    if (emailAuthRepository.findByNickname(nickname).isPresent()) {
-      throw new ApiException("현재 회원가입 중인 nickname 입니다.", HttpStatus.BAD_REQUEST);
-    }
-    if (emailAuthRepository.findByEmail(email).isPresent()) {
-      throw new ApiException("현재 회원가입중인 email 입니다.", HttpStatus.BAD_REQUEST);
-    }
-
     // categoryId 검증
     categoryRepository.findCategoryByIdOrElseThrow(firstPreferredCategoryId);
     categoryRepository.findCategoryByIdOrElseThrow(secondPreferredCategoryId);
@@ -93,25 +78,22 @@ public class UserService {
     String sentCode = emailAuthService.sendVerificationCode(email);
 
     // redis에 저장하여 5분 내로 인증하도록 설정
-    emailAuthService.setSentCodeByLoginIdAtRedis(loginId, sentCode);
-
-    // 재입력 방지를 위해 DB에 입력된 데이터를 임시 저장
-    emailAuthRepository.save(
-        new EmailAuth(loginId, nickname, email, passwordEncoder.encode(password),
-            firstPreferredCategoryId, secondPreferredCategoryId, sentCode));
+    emailAuthService.setSentCodeByLoginIdAtRedis(loginId, nickname, email, passwordEncoder.encode(password), firstPreferredCategoryId, secondPreferredCategoryId, sentCode);
 
   }
 
+  @Transactional
   public UserResponseDto verificateCode(String verificationCode, String loginId) {
 
-    EmailAuth emailAuth = emailAuthService.checkVerifyVerificationCode(loginId, verificationCode);
-    String nickname = emailAuth.getNickname();
-    String email = emailAuth.getEmail();
-    String password = emailAuth.getPassword();
-    Long firstPreferredCategoryId = emailAuth.getFirstPreferredCategoryId();
+    EmailAuthDto emailAuthDto = emailAuthService.checkVerifyVerificationCode(loginId, verificationCode);
+
+    String nickname = emailAuthDto.getNickname();
+    String email = emailAuthDto.getEmail();
+    String password = emailAuthDto.getPassword();
+    Long firstPreferredCategoryId = emailAuthDto.getFirstPreferredCategoryId();
     Category firstPreferredCategory = categoryRepository.findCategoryByIdOrElseThrow(
         firstPreferredCategoryId);
-    Long secondPreferredCategoryId = emailAuth.getSecondPreferredCategoryId();
+    Long secondPreferredCategoryId = emailAuthDto.getSecondPreferredCategoryId();
     Category secondPreferredCategory = categoryRepository.findCategoryByIdOrElseThrow(
         secondPreferredCategoryId);
 
@@ -120,8 +102,8 @@ public class UserService {
 
     userRepository.save(user);
 
-    //인증 완료되면 임시 데이터 삭제
-    emailAuthService.concludeEmailAuthentication(emailAuth);
+    //인증 완료되면 redis의 임시 데이터 삭제
+    emailAuthService.concludeEmailAuthentication(loginId);
 
     return new UserResponseDto(user);
   }

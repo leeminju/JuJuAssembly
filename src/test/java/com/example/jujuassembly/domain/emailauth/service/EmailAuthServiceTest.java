@@ -4,14 +4,11 @@ package com.example.jujuassembly.domain.emailauth.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
 
-import com.example.jujuassembly.domain.emailAuth.entity.EmailAuth;
-import com.example.jujuassembly.domain.emailAuth.repository.EmailAuthRepository;
-import com.example.jujuassembly.domain.emailAuth.service.EmailAuthService;
+import com.example.jujuassembly.domain.user.emailAuth.dto.EmailAuthDto;
+import com.example.jujuassembly.domain.user.emailAuth.service.EmailAuthService;
 import com.example.jujuassembly.global.EmailAuthUtil;
 import com.example.jujuassembly.global.mail.EmailService;
-import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,8 +25,6 @@ class EmailAuthServiceTest implements EmailAuthUtil {
   @Mock
   EmailService emailService;
   @Mock
-  EmailAuthRepository emailAuthRepository;
-  @Mock
   RedisTemplate<String, String> redisTemplate;
 
   @DisplayName("인증코드 전송 테스트")
@@ -37,17 +32,24 @@ class EmailAuthServiceTest implements EmailAuthUtil {
   void checkVerifyVerificationCodeTest() {
     // given
     String loginId = TEST_USER_LOGINID;
-    String verificationCode = TEST_SENTCODE;
+    String nickname = TEST_USER_NICKNAME;
+    String email = TEST_USER_EMAIL;
+    String password = TEST_USER_PASSWORD;
+    Long firstPreferredCategoryId = TEST_CATEGORY_ID;
+    Long secondPreferredCategoryId = TEST_ANOTHER_CATEGORY_ID;
 
     // when
-    when(emailAuthRepository.findTopByLoginIdOrderByCreatedAtDesc(anyString()))
-        .thenReturn(Optional.of(TEST_EMAILAUTH));
-    when(redisTemplate.hasKey(anyString())).thenReturn(true);
+    EmailAuthDto result = new EmailAuthDto(loginId, nickname, email, password,
+        firstPreferredCategoryId,
+        secondPreferredCategoryId);
 
     // then
-    EmailAuth result = emailAuthService.checkVerifyVerificationCode(loginId, verificationCode);
-
-    assertEquals(loginId, result.getLoginId());
+    assertEquals(result.getLoginId(), TEST_USER_LOGINID);
+    assertEquals(result.getNickname(), TEST_USER_NICKNAME);
+    assertEquals(result.getEmail(), TEST_USER_EMAIL);
+    assertEquals(result.getPassword(), TEST_USER_PASSWORD);
+    assertEquals(result.getFirstPreferredCategoryId(), TEST_CATEGORY_ID);
+    assertEquals(result.getSecondPreferredCategoryId(), TEST_ANOTHER_CATEGORY_ID);
   }
 
   @DisplayName("인증코드 전송시 인증코드 생성 테스트")

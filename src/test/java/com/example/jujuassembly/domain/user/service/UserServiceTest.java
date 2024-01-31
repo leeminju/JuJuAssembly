@@ -4,26 +4,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
-import com.example.jujuassembly.domain.emailAuth.entity.EmailAuth;
-import com.example.jujuassembly.domain.emailAuth.repository.EmailAuthRepository;
-import com.example.jujuassembly.domain.emailAuth.service.EmailAuthService;
 import com.example.jujuassembly.domain.user.dto.LoginRequestDto;
 import com.example.jujuassembly.domain.user.dto.SignupRequestDto;
 import com.example.jujuassembly.domain.user.dto.UserDetailResponseDto;
 import com.example.jujuassembly.domain.user.dto.UserModifyRequestDto;
 import com.example.jujuassembly.domain.user.dto.UserResponseDto;
+import com.example.jujuassembly.domain.user.emailAuth.dto.EmailAuthDto;
+import com.example.jujuassembly.domain.user.emailAuth.service.EmailAuthService;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
@@ -33,7 +30,6 @@ import com.example.jujuassembly.global.mail.EmailService;
 import com.example.jujuassembly.global.s3.S3Manager;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,8 +55,6 @@ public class UserServiceTest implements EmailAuthUtil {
   PasswordEncoder passwordEncoder;
   @Mock
   CategoryRepository categoryRepository;
-  @Mock
-  EmailAuthRepository emailAuthRepository;
   @Mock
   S3Manager s3Manager;
   @Mock
@@ -90,8 +84,10 @@ public class UserServiceTest implements EmailAuthUtil {
     assertEquals(TEST_USER_LOGINID, signupRequestDto.getLoginId());
     assertEquals(TEST_USER_NICKNAME, signupRequestDto.getNickname());
     assertEquals(TEST_USER_PASSWORD, signupRequestDto.getPassword());
-    assertEquals(TEST_USER_FIRSTPREFERRED_CATEGORY.getId(), signupRequestDto.getFirstPreferredCategoryId());
-    assertEquals(TEST_USER_SECONDPREFERRED_CATEGORY.getId(), signupRequestDto.getSecondPreferredCategoryId());
+    assertEquals(TEST_USER_FIRSTPREFERRED_CATEGORY.getId(),
+        signupRequestDto.getFirstPreferredCategoryId());
+    assertEquals(TEST_USER_SECONDPREFERRED_CATEGORY.getId(),
+        signupRequestDto.getSecondPreferredCategoryId());
     assertEquals(TEST_USER_EMAIL, signupRequestDto.getEmail());
   }
 
@@ -99,16 +95,17 @@ public class UserServiceTest implements EmailAuthUtil {
   @Test
   void verificateCodeTest() {
     // given
-    EmailAuth emailAuth = new EmailAuth(TEST_USER_LOGINID, TEST_USER_NICKNAME, TEST_USER_EMAIL,
-        TEST_USER_PASSWORD, TEST_CATEGORY_ID, TEST_ANOTHER_CATEGORY_ID, TEST_SENTCODE);
+    EmailAuthDto emailAuthDto = new EmailAuthDto(TEST_USER_LOGINID, TEST_USER_NICKNAME,
+        TEST_USER_EMAIL,
+        TEST_USER_PASSWORD, TEST_CATEGORY_ID, TEST_ANOTHER_CATEGORY_ID);
     String loginId = TEST_USER_LOGINID;
 
     // when-then
-    String getNicknameResult = emailAuth.getNickname();
-    String getEmailResult = emailAuth.getEmail();
-    String getPasswordResult = emailAuth.getPassword();
-    Long getFirstPreferredCategoryIdResult = emailAuth.getFirstPreferredCategoryId();
-    Long getSecondPreferredCategoryIdResult = emailAuth.getSecondPreferredCategoryId();
+    String getNicknameResult = emailAuthDto.getNickname();
+    String getEmailResult = emailAuthDto.getEmail();
+    String getPasswordResult = emailAuthDto.getPassword();
+    Long getFirstPreferredCategoryIdResult = emailAuthDto.getFirstPreferredCategoryId();
+    Long getSecondPreferredCategoryIdResult = emailAuthDto.getSecondPreferredCategoryId();
 
     User userResult = new User(loginId, getNicknameResult, getEmailResult, getPasswordResult,
         TEST_CATEGORY, TEST_ANOTHER_CATEGORY);
@@ -206,7 +203,7 @@ public class UserServiceTest implements EmailAuthUtil {
 
     UserService userService = new UserService(
         userRepository, passwordEncoder, mock(EmailAuthService.class),
-        categoryRepository, mock(EmailAuthRepository.class), mock(JwtUtil.class),
+        categoryRepository, mock(JwtUtil.class),
         mock(S3Manager.class)
     );
 
