@@ -115,7 +115,6 @@ public class User extends Timestamped {
       Category category1,
       Category category2) {
     this.nickname = modifyRequestDto.getNickname();
-    this.email = modifyRequestDto.getEmail();
     this.password = encodePassword;
     this.firstPreferredCategory = category1;
     this.secondPreferredCategory = category2;
