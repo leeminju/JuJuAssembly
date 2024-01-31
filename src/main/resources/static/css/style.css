@@ -9,6 +9,12 @@
   font-family: 'NanumSquareNeo-Variable', serif;
 }
 
+.image_input:hover {
+  border-radius: 50%;
+  box-shadow: 0 0 50px rgba(255, 255, 0, 0.8);
+  cursor: pointer;
+  transform: scale(1.5);
+}
 
 #product-container {
   grid-template-columns: 100px 50px 100px;
