@@ -123,4 +123,8 @@ public class Product extends Timestamped {
         .average()
         .orElse(0.0);
   }
+
+  public void deleteCategory() {
+    this.category = null;
+  }
 }

@@ -2,6 +2,7 @@ package com.example.jujuassembly.domain.product.repository;
 
 import com.example.jujuassembly.domain.product.entity.Product;
 import com.example.jujuassembly.global.exception.ApiException;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -24,4 +25,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
   @Query("SELECT p FROM Product p WHERE p.name LIKE %:keyword% OR p.description LIKE %:keyword%")
   Page<Product> findByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
+  List<Product> findAllByCategory_Id(Long categoryId);
 }

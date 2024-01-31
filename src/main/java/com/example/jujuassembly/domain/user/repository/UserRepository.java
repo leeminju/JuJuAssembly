@@ -3,6 +3,7 @@ package com.example.jujuassembly.domain.user.repository;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
 import com.example.jujuassembly.global.exception.ApiException;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,11 +12,12 @@ import org.springframework.http.HttpStatus;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-  default User findUserByIdOrElseThrow(Long id){
+  default User findUserByIdOrElseThrow(Long id) {
     return findById(id).orElseThrow(
         () -> new ApiException("해당하는 사용자가 없습니다.", HttpStatus.NOT_FOUND)
     );
   }
+
   Optional<User> findByLoginId(String loginId);
 
   Optional<User> findByNickname(String nickname);
@@ -25,4 +27,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
   Optional<User> findByKakaoId(Long kakoId);
 
   Page<User> findAllByRole(Pageable pageable, UserRoleEnum admin);
+
+  List<User> findAllByFirstPreferredCategory_Id(Long categoryId);
+
+  List<User> findAllBySecondPreferredCategory_Id(Long categoryId);
 }

@@ -144,5 +144,13 @@ public class User extends Timestamped {
     return this.id.equals(id);
   }
 
+  public void deleteFirstPreferredCategoryCategory() {
+    this.firstPreferredCategory = null;
+  }
+
+  public void deleteSecondPreferredCategoryCategory() {
+    this.secondPreferredCategory = null;
+  }
+
 
 }
