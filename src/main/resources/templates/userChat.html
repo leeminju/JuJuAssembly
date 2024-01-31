@@ -117,7 +117,7 @@
     var sorting = $("#sorting option:selected").val();
     var isAsc = $(':radio[name="isAsc"]:checked').val();
 
-    let dataSource = `/v1/users?sort=${sorting},${isAsc}`;
+    let dataSource = `/v1/users/admin?sort=${sorting},${isAsc}`;
 
     $('#pagination').pagination({
       dataSource,
@@ -142,7 +142,6 @@
         let users = response;
         for (let i = 0; i < users.length; i++) {
           let user = users[i];
-          if (user['role'] === 'ADMIN') {
             let userId = user['id'];
             let image = user['image'];
             let loginId = user['loginId']
@@ -168,7 +167,7 @@
         </p>
     </div>`;
             $('#adminList').append(html);
-          }
+
         }
       }, error(error, status, request) {
         console.log(error);

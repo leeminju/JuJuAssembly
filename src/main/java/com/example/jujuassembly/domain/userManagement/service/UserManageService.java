@@ -2,6 +2,7 @@ package com.example.jujuassembly.domain.userManagement.service;
 
 import com.example.jujuassembly.domain.user.dto.UserDetailResponseDto;
 import com.example.jujuassembly.domain.user.entity.User;
+import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.domain.userManagement.dto.UserRoleRequestDto;
 import com.example.jujuassembly.domain.userManagement.dto.UserRoleResponseDto;
@@ -33,5 +34,11 @@ public class UserManageService {
     user.changeRole(userRoleRequestDto.getUserRole());
     userRepository.save(user);
     return new UserRoleResponseDto(user);
+  }
+
+  //전체 관리자 조회
+  public Page<UserDetailResponseDto> viewAdminUsers(Pageable pageable) {
+    Page<User> adminUsers = userRepository.findAllByRole(pageable, UserRoleEnum.ADMIN);
+    return adminUsers.map(UserDetailResponseDto::new);
   }
 }
