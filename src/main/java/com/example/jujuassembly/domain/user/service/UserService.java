@@ -183,12 +183,6 @@ public class UserService {
       }
     }
 
-    //현재와 동일한 이메일로 변경 가능
-    if (!user.getEmail().equals(modifyRequestDto.getEmail())) {
-      if (userRepository.findByEmail(modifyRequestDto.getEmail()).isPresent()) {
-        throw new ApiException("중복된 email 입니다.", HttpStatus.BAD_REQUEST);
-      }
-    }
 
     User loginUser = userRepository.findUserByIdOrElseThrow(userId);
     Category category1 = categoryRepository.findCategoryByIdOrElseThrow(

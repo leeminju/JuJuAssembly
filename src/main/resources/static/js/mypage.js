@@ -149,8 +149,6 @@ function updateProfile() {
   passwordCheck = XSSCheck(passwordCheck, 0);
   let firstPreferredCategoryId = $('#firstPreferredCategoryId').val();
   let secondPreferredCategoryId = $('#secondPreferredCategoryId').val();
-  let email = $('#edit-email').val();
-  email = XSSCheck(email, 0);
 
   if (firstPreferredCategoryId === secondPreferredCategoryId) {
     alert("1순위 선호 주종과 2순위 선호 주종이 같습니다!");
@@ -164,7 +162,6 @@ function updateProfile() {
     "passwordCheck": passwordCheck,
     "firstPreferredCategoryId": firstPreferredCategoryId,
     "secondPreferredCategoryId": secondPreferredCategoryId,
-    "email": email
   }
 
   $.ajax({
