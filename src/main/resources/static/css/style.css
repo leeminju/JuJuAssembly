@@ -41,6 +41,16 @@
   transform: scale(1.005);
 }
 
+
+button:hover {
+  transform: scale(1.2);
+}
+
+/* 알림 버튼에 Hover 효과 추가 */
+#notification-btn:hover {
+  transform: scale(1.2);
+}
+
 #product-container {
   grid-template-columns: 100px 50px 100px;
   grid-template-rows: 80px auto 80px;
