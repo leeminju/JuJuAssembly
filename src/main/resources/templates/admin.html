@@ -130,7 +130,7 @@
     <div style="height: fit-content;">
       <h6 class="border-bottom pb-2 mb-0">전체 회원 목록</h6>
       <div style="display: flex;
-        flex-direction: column;
+        flex-direction: row;
         align-items: center;
         justify-content: center;
         padding: 10px">
@@ -143,13 +143,12 @@
           <input type="radio" name="isAsc" value="asc" onchange="getAllUsers"/> 오름차순
           <input type="radio" name="isAsc" value="desc" onchange="getAllUsers()" checked/> 내림차순
         </div>
-        <div id="pagination" class="pagination" style="margin-top:10px"></div>
       </div>
-
       <div class="my-3 p-3 bg-body rounded shadow-sm"
           style="margin: 10px auto 10px auto;width: 60%;"
           id="userList" >
       </div>
+      <div id="pagination" class="pagination" style="margin-top:25px; justify-content: center"></div>
     </div>
   </div>
   </div>

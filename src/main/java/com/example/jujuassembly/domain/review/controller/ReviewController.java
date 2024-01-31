@@ -152,6 +152,24 @@ public class ReviewController {
         .body(new ApiResponse(userId + "번 사용자 리뷰 목록 입니다.", HttpStatus.OK.value(), reviews));
   }
 
+
+  /**
+   * 인증된 리뷰 목록을 가져오는 API
+   *
+   * @param userId   사용자 ID
+   * @param pageable 페이지 정보 (기본값: 1페이지, 10개씩, 생성일 기준 내림차순 정렬)
+   * @return ApiResponse 객체를 ResponseEntity로 감싼 형태
+   */
+  @GetMapping("/users/{userId}/verifiedReviews")
+  public ResponseEntity<ApiResponse<Page<ReviewResponseDto>>> getMyVerifiedReviews(
+      @PathVariable Long userId,
+      Pageable pageable
+  ) {
+    Page<ReviewResponseDto> reviews = reviewService.getVerifiedReviews(userId, pageable, true);
+    return ResponseEntity.ok()
+        .body(new ApiResponse(userId + "번 사용자 인증된 리뷰 목록 입니다.", HttpStatus.OK.value(), reviews));
+  }
+
   /**
    * @param categoryId 현재 리뷰의 카테고리 아이디
    * @param productId  현재 리뷰의 상품 아이디
