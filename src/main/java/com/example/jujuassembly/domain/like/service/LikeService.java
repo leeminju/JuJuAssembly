@@ -45,7 +45,7 @@ public class LikeService {
   }
 
   //본인 좋아요 목록 조회
-  public Page<LikeResponseDto> viewLikeProducts(Long userId, User loginUser, Pageable pageable) {
+  public Page<LikeResponseDto> viewMyLikeProducts(Long userId, User loginUser, Pageable pageable) {
     User user = userRepository.findUserByIdOrElseThrow(userId);
 
     if (!user.getId().equals(loginUser.getId())) {
@@ -74,7 +74,7 @@ public class LikeService {
     likeRepository.delete(like);
   }
 
-  public Boolean getLike(Long productId, User user) {
+  public Boolean getProductIsLiked(Long productId, User user) {
     Product product = productRepository.findProductByIdOrElseThrow(productId);
     return likeRepository.existsByProductAndUser(product, user);
   }
