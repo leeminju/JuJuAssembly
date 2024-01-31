@@ -41,7 +41,6 @@ public class UserService {
   private final JwtUtil jwtUtil;
   private final S3Manager s3Manager;
 
-  @Async
   public void signup(SignupRequestDto signupRequestDto) {
 
     String loginId = signupRequestDto.getLoginId();
@@ -97,7 +96,7 @@ public class UserService {
     emailAuthService.setSentCodeByLoginIdAtRedis(loginId, sentCode);
 
     // 재입력 방지를 위해 DB에 입력된 데이터를 임시 저장
-    EmailAuth emailAuth = emailAuthRepository.save(
+    emailAuthRepository.save(
         new EmailAuth(loginId, nickname, email, passwordEncoder.encode(password),
             firstPreferredCategoryId, secondPreferredCategoryId, sentCode));
 

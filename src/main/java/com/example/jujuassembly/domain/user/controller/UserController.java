@@ -60,10 +60,9 @@ public class UserController {
       @Valid @RequestBody SignupRequestDto signupRequestDto,
       HttpServletResponse response) {
 
-    String loginId = signupRequestDto.getLoginId();
-
-    // 쿠키를 클라이언트에 먼저 추가
     userService.signup(signupRequestDto);
+
+    String loginId = signupRequestDto.getLoginId();
     Cookie cookie = emailAuthService.getCookieByLoginId(loginId);
     response.addCookie(cookie);
 
