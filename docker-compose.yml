@@ -1,0 +1,14 @@
+version: "3"
+services:
+  spring-boot-app:
+    image: mjburger/JuJuAssembly:latest
+    container_name: JuJuAssembly
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - 6379:6379
