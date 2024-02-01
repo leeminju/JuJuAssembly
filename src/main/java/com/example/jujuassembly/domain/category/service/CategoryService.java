@@ -4,6 +4,12 @@ import com.example.jujuassembly.domain.category.dto.CategoryRequestDto;
 import com.example.jujuassembly.domain.category.dto.CategoryResponseDto;
 import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
+import com.example.jujuassembly.domain.product.repository.ProductRepository;
+import com.example.jujuassembly.domain.product.service.ProductService;
+import com.example.jujuassembly.domain.report.repository.ReportRepository;
+import com.example.jujuassembly.domain.report.service.ReportService;
+import com.example.jujuassembly.domain.user.entity.User;
+import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.s3.S3Manager;
 import java.io.IOException;
@@ -20,6 +26,11 @@ public class CategoryService {
 
   private final CategoryRepository categoryRepository;
   private final S3Manager s3Manager;
+  private final UserRepository userRepository;
+  private final ProductRepository productRepository;
+  private final ProductService productService;
+  private final ReportRepository reportRepository;
+  private final ReportService reportService;
 
   public List<CategoryResponseDto> getCategories() {
     List<Category> categoryList = categoryRepository.findAll();
@@ -41,7 +52,8 @@ public class CategoryService {
       if (!image.getContentType().startsWith("image")) {
         throw new ApiException("이미지 파일 형식이 아닙니다.", HttpStatus.BAD_REQUEST);
       }
-      String imageUrl = s3Manager.upload(image, S3Manager.CATEGORY_DIRECTORY_NAME, category.getId());
+      String imageUrl = s3Manager.upload(image, S3Manager.CATEGORY_DIRECTORY_NAME,
+          category.getId());
       category.updateImage(imageUrl);
     }
 
@@ -61,7 +73,8 @@ public class CategoryService {
       if (!image.getContentType().startsWith("image")) {
         throw new ApiException("이미지 파일 형식이 아닙니다.", HttpStatus.BAD_REQUEST);
       }
-      String imageUrl = s3Manager.upload(image, S3Manager.CATEGORY_DIRECTORY_NAME, category.getId());
+      String imageUrl = s3Manager.upload(image, S3Manager.CATEGORY_DIRECTORY_NAME,
+          category.getId());
       category.updateImage(imageUrl);
     }
 
@@ -70,6 +83,20 @@ public class CategoryService {
 
   @Transactional
   public void deleteCategory(Long categoryId) {
+
+    userRepository.findAllByFirstPreferredCategory_Id(categoryId).stream().forEach(
+        User::deleteFirstPreferredCategoryCategory);
+    userRepository.findAllBySecondPreferredCategory_Id(categoryId).stream().forEach(
+        User::deleteSecondPreferredCategoryCategory);
+
+    reportRepository.findAllByCategory_Id(categoryId).stream().forEach(report -> {
+      reportService.deleteReport(categoryId, report.getId());
+    });
+
+    productRepository.findAllByCategory_Id(categoryId).stream().forEach(product -> {
+      productService.deleteProduct(product.getId());
+    });
+
     Category category = categoryRepository.findCategoryByIdOrElseThrow(categoryId);
     categoryRepository.delete(category);
     s3Manager.deleteAllImageFiles(categoryId.toString(), S3Manager.CATEGORY_DIRECTORY_NAME);

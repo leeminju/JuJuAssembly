@@ -7,6 +7,8 @@ import com.example.jujuassembly.domain.product.dto.ProductRequestDto;
 import com.example.jujuassembly.domain.product.dto.ProductResponseDto;
 import com.example.jujuassembly.domain.product.entity.Product;
 import com.example.jujuassembly.domain.product.repository.ProductRepository;
+import com.example.jujuassembly.domain.review.repository.ReviewRepository;
+import com.example.jujuassembly.domain.review.service.ReviewService;
 import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.s3.S3Manager;
 import java.io.IOException;
@@ -26,6 +28,8 @@ public class ProductService {
   private final S3Manager s3Manager;
   private final ProductRepository productRepository;
   private final CategoryRepository categoryRepository;
+  private final ReviewRepository reviewRepository;
+  private final ReviewService reviewService;
 
   // 이미지 업로드 + 상품 등록
   @Transactional
@@ -116,7 +120,17 @@ public class ProductService {
   }
 
   // 상품 삭제
+  @Transactional
   public void deleteProduct(Long productId) {
+
+    // 제품에 해당하는 모든 리뷰 삭제
+    reviewRepository.findAllByProduct_Id(productId).stream().forEach(review -> {
+      reviewService.deleteProductsReview(
+          review.getProduct().getCategory().getId(),
+          review.getProduct().getId(),
+          review.getId());
+    });
+
     Product product = productRepository.findProductByIdOrElseThrow(productId);
 
     //기존의 파일 모두 삭제
