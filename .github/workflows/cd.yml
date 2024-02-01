@@ -1,15 +1,17 @@
 name: JuJuAssembly Deploy
+
 on:
   workflow_run:
     workflows: ["JuJuAssembly"]
     types:
       - completed
+
 jobs:
   deploy:
     runs-on: [self-hosted, label-development]
     steps:
-    - name: Docker-compose run
-      run: |
-          docker-compose down
-          docker-compose pull
-          docker-compose up -d
+      - name: Docker-compose run
+        run: |
+          docker compose down
+          docker compose pull
+          docker compose up -d
