@@ -1,25 +1,15 @@
 name: JuJuAssembly Deploy
-
 on:
   workflow_run:
     workflows: ["JuJuAssembly"]
     types:
       - completed
-
 jobs:
   deploy:
     runs-on: [self-hosted, label-development]
     steps:
-      - name: Deploy to server
-        uses: appleboy/ssh-action@master
-        id: deploy
-        with:
-          host: ${{ secrets.HOST }}
-          username: ubuntu
-          key: ${{ secrets.KEY }}
-          envs: GITHUB_SHA
-          script: |
-            sudo docker rm -f $(docker ps -qa)
-            sudo docker pull mjburger/jujuassembly
-            docker-compose up -d
-            docker image prune -f
+    - name: Docker-compose run
+      run: |
+          docker-compose down
+          docker-compose pull mjburger/jujuassembly
+          docker-compose up -d
