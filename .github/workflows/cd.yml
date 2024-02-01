@@ -11,5 +11,5 @@ jobs:
     - name: Docker-compose run
       run: |
           docker-compose down
-          docker-compose pull mjburger/jujuassembly
+          docker-compose pull
           docker-compose up -d
