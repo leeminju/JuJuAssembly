@@ -32,5 +32,14 @@ public class ChatRequestDto {
   @NotBlank
   private String message;
 
+  /**
+   * 송신자 닉네임
+   */
+  private String senderNickname;
+
+  /**
+   * 송신자 프로필 이미지
+   */
+  private String senderImage;
 
 }
