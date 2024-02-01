@@ -25,25 +25,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1")
-@Slf4j
 public class RoomController {
 
   private final RoomService roomService;
-  private final ChatService chatService;
   private final SimpMessagingTemplate simpMessagingTemplate;
 
-  /**
-   * 채팅 메시지 발행 및 저장
-   *
-   * @param roomId         채팅방 ID
-   * @param chatRequestDto 채팅 요청 DTO
-   */
-  @MessageMapping("/rooms/{roomId}")
-  public void publish(@DestinationVariable Long roomId,
-      @RequestBody @Valid ChatRequestDto chatRequestDto) {
-    chatService.save(roomId, chatRequestDto);
-    simpMessagingTemplate.convertAndSend("/subscribe/rooms/" + roomId, chatRequestDto);
-  }
   /**
    * 채팅방 입장,퇴장 메시지 발행
    *
@@ -53,7 +39,7 @@ public class RoomController {
   @MessageMapping("/rooms/enterexit/{roomId}")
   public void enterOrExit(@DestinationVariable Long roomId,
       @RequestBody @Valid ChatRequestDto chatRequestDto) {
-    simpMessagingTemplate.convertAndSend("/subscribe/rooms/" + roomId, chatRequestDto);
+    simpMessagingTemplate.convertAndSend("/subscribe/rooms/" + roomId + "/chats", chatRequestDto);
   }
 
   /**
@@ -64,8 +50,10 @@ public class RoomController {
    */
   @PostMapping("/rooms") // ModelAttribute
   public ResponseEntity<ApiResponse> createOrGet(
-      @RequestBody @Valid RoomRequestDto roomRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-    RoomIdResponseDto roomIdResponseDto = roomService.getOrCreate(roomRequestDto, userDetails.getUser());
+      @RequestBody @Valid RoomRequestDto roomRequestDto,
+      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    RoomIdResponseDto roomIdResponseDto = roomService.getOrCreate(roomRequestDto,
+        userDetails.getUser());
     return ResponseEntity.status(HttpStatus.OK)
         .body(new ApiResponse("채팅방 생성 or 조회 완료", HttpStatus.OK.value(),
             roomIdResponseDto));
