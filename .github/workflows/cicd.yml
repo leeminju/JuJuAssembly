@@ -10,7 +10,7 @@ name: CI/CD
 run-name: Running
 on:
   push:
-    branches: [ dev ]
+    branches: [ main ]
 
 env:
   AWS_REGION: ap-northeast-2
