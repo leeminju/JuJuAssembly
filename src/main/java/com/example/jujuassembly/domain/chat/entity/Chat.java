@@ -44,4 +44,13 @@ public class Chat {
 
   private LocalDateTime createdAt;
 
+  private String senderImage;
+
+  private String senderNickname;
+
+  public void updateSender(String senderImage,String senderNickname){
+    this.senderImage = senderImage;
+    this.senderNickname = senderNickname;
+  }
+
 }
