@@ -21,7 +21,6 @@ import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
 import com.example.jujuassembly.global.s3.S3Manager;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
