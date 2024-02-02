@@ -52,8 +52,8 @@ class RoomServiceTest {
     // 가짜 채팅방 데이터 생성
     Room fakeRoom = new Room(adminUser, normalUser);
     // Mocking 설정
-    when(userRepository.getById(adminId)).thenReturn(adminUser);
-    when(userRepository.getById(userId)).thenReturn(normalUser);
+    when(userRepository.findUserByIdOrElseThrow(adminId)).thenReturn(adminUser);
+    when(userRepository.findUserByIdOrElseThrow(userId)).thenReturn(normalUser);
     when(roomRepository.findByAdminIdAndUserId(adminId, userId)).thenReturn(Optional.of(fakeRoom));
     when(roomRepository.save(any(Room.class))).thenReturn(fakeRoom);
 
