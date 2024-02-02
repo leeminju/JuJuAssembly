@@ -24,16 +24,20 @@
   <script src="/js/basic.js"></script>
   <script src="/js/notification.js"></script>
   <script>
-    var myId = -1;
+    // var myId = -1;
     var productId = -1;
     var categoryId = -1;
     var create_imageFile = null;
     var update_imageFile = null;
     var update_product_imageFile = null;
-    var role = null;
+    // var role = null;
     var current_review_id;
 
     $(document).ready(function () {
+      if (role != "ADMIN") {
+        $('#update_product_btn').hide();
+        $('#delete_product_btn').hide();
+      }
 
       // 현재 페이지 URL에서 쿼리 문자열을 가져옴
       var currentUrl = window.location.href;
@@ -44,7 +48,7 @@
       categoryId = parsedParams['categoryId'];
 
       getCategory();
-      getMyprofile();
+      // getMyprofile();
       getProductDetails();
       getReviews();
       getLike();
@@ -85,37 +89,37 @@
 
     }
 
-    function getMyprofile() {
-      //로그인한 회원 정보
-      const auth = getToken();
-
-      if (auth !== undefined && auth !== '') {
-        $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
-          jqXHR.setRequestHeader('Authorization', auth);
-        });
-      } else {
-        $('#update_product_btn').hide();
-        $('#delete_product_btn').hide();
-        return;
-      }
-
-      $.ajax({
-        type: 'GET',
-        url: `/v1/users/myprofile`,
-        success: function (response) {
-          let user = response['data'];
-          role = user['role'];
-          myId = user['id'];
-          if (role != "ADMIN") {
-            $('#update_product_btn').hide();
-            $('#delete_product_btn').hide();
-          }
-        },
-        error(error, status, request) {
-          console.log(error)
-        }
-      });
-    }
+    // function getMyprofile() {
+    //   //로그인한 회원 정보
+    //   const auth = getToken();
+    //
+    //   if (auth !== undefined && auth !== '') {
+    //     $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+    //       jqXHR.setRequestHeader('Authorization', auth);
+    //     });
+    //   } else {
+    //     $('#update_product_btn').hide();
+    //     $('#delete_product_btn').hide();
+    //     return;
+    //   }
+    //
+    //   $.ajax({
+    //     type: 'GET',
+    //     url: `/v1/users/myprofile`,
+    //     success: function (response) {
+    //       let user = response['data'];
+    //       role = user['role'];
+    //       myId = user['id'];
+    //       if (role != "ADMIN") {
+    //         $('#update_product_btn').hide();
+    //         $('#delete_product_btn').hide();
+    //       }
+    //     },
+    //     error(error, status, request) {
+    //       console.log(error)
+    //     }
+    //   });
+    // }
 
     function parseQueryString(url) {
       var params = {};
@@ -193,7 +197,7 @@
       let star = $('#create_star').val();
       let munchies = $('#create_munchies').val();
       description = XSSCheck(description, 0);
-      munchies=XSSCheck(munchies,0);
+      munchies = XSSCheck(munchies, 0);
 
       let data = {
         "description": description,
@@ -966,7 +970,8 @@
            style="margin: 10px auto 10px auto;width: 60%;"
            id="reviewList">
       </div>
-      <div id="pagination" class="pagination" style="margin-top:25px; justify-content: center;"></div>
+      <div id="pagination" class="pagination"
+           style="margin-top:25px; justify-content: center;"></div>
     </div>
   </div>
 </div>

@@ -1,5 +1,3 @@
-let userId = -1;
-
 async function getCategoryName(id) {
   try {
     const response = await $.ajax({
@@ -17,41 +15,34 @@ async function getCategoryName(id) {
   }
 }
 
-$(document).ready(async function () {
-  getCategory();
+async function getUserInfo() {
+  $('#loginId').text(loginId);
+  $('#nickname').text(nickname);
+  $('#email').text(email);
 
-  try {
-    const response = await $.ajax({
-      type: 'GET',
-      url: `/v1/users/myprofile`
-    });
-
-    userInfo = response['data'];
-    userId = userInfo['id'];
-    $('#loginId').text(userInfo['loginId']);
-    $('#nickname').text(userInfo['nickname']);
-    $('#email').text(userInfo['email']);
-
-    let firstId = userInfo['firstPreferredCategoryId'];
-    let secondId = userInfo['secondPreferredCategoryId'];
-
-    if (firstId != null) {
-      let firstName = await getCategoryName(firstId);
-      $('#firstPreferredCategory').text(firstName);
-    }
-    if (secondId != null) {
-      let secondName = await getCategoryName(secondId);
-      $('#secondPreferredCategory').text(secondName);
-    }
-
-    let image = userInfo['image'];
-    if (!image) {
-      image = "/images/default_user_image.png"
-    }
-    $('#image').attr('src', image);
-  } catch (error) {
-    alert(error['responseJSON']['msg']);
+  if (firstId != null) {
+    let firstName = await getCategoryName(firstId);
+    $('#firstPreferredCategory').text(firstName);
   }
+  if (secondId != null) {
+    let secondName = await getCategoryName(secondId);
+    $('#secondPreferredCategory').text(secondName);
+  }
+
+  if (!profileImage) {
+    profileImage = "/images/default_user_image.png"
+  }
+  $('#image').attr('src', profileImage);
+}
+
+$(document).ready(async function () {
+  if (myId == null) {
+    alert("로그인이 필요한 서비스 입니다.");
+    window.location.href = "/login";
+  } else {
+    getUserInfo();
+  }
+  getCategory();
 
   $('#image').click(function () {
     $('#imageInput').click();
@@ -63,21 +54,12 @@ $(document).ready(async function () {
     const selectedFile = event.target.files[0];
 
     if (selectedFile) {
-      const maxSize = 10 * 1024 * 1024; // 10MB, 최대 크기에 맞게 조절
-      //if (selectedFile.size <= maxSize) {
-      // 파일 크기가 최대 크기 이하인 경우에만 업로드 수행
       const formData = new FormData();
       formData.append('image', selectedFile);
-      //
-      //   // 나머지 업로드 코드...
-      // } else {
-      //   alert('파일 크기가 너무 큽니다. 10MB 이하의 파일을 선택해주세요.');
-      //   window.location.reload();
-      // }
 
       $.ajax({
         type: 'POST',
-        url: `/v1/users/${userId}`,
+        url: `/v1/users/${myId}`,
         data: formData,
         contentType: false,
         processData: false,

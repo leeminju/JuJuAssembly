@@ -23,26 +23,17 @@
 </head>
 
 <script>
-  var userId = -1;
+
   var create_imageFile = null;
   var update_imageFile = null;
   var current_categoryId = -1;
   $(document).ready(function () {
-    $.ajax({
-      type: 'GET',
-      url: `/v1/users/myprofile`,
-      success: function (response) {
-        userId = response['data']['id'];
-        getUserReports();
-      },
-
-      error(error, status, request) {
-        alert("로그인이 필요한 서비스 입니다.");
-        window.location.href = "/login"
-      }
-    });
+    if (myId == null) {
+      alert("로그인이 필요한 서비스 입니다.");
+      window.location.href = "/login"
+    }
+    getUserReports();
     getCategory('categoryId');
-    // // // 초기화면 로드 시 상품 제보 리스트 가져오기
 
     $("#image").on("change", function (event) {
       create_imageFile = event.target.files[0];
@@ -129,8 +120,8 @@
     var sorting = $("#sorting option:selected").val();
     var isAsc = $(':radio[name="isAsc"]:checked').val();
 
-    let dataSource = `/v1/users/${userId}/reports?sort=${sorting},${isAsc}`;
-
+    let dataSource = `/v1/users/${myId}/reports?sort=${sorting},${isAsc}`;
+serid
     $('#reports').empty();
     $('#pagination').pagination({
       dataSource,
@@ -423,7 +414,8 @@
       <div id="reports" class="row row-cols-1 row-cols-md-3 g-4 mt-3">
         <!-- 여기에 동적으로 추가될 상품 제보 카드가 나타날 것입니다. -->
       </div>
-      <div id="pagination" class="pagination" style="margin-top:25px; justify-content: center;"></div>
+      <div id="pagination" class="pagination"
+           style="margin-top:25px; justify-content: center;"></div>
     </div>
   </div>
 </div>

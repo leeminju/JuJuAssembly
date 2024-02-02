@@ -23,12 +23,11 @@
   <script src="/js/basic.js"></script>
   <script src="/js/notification.js"></script>
   <script>
-    var myId = -1;
     var userId = -1;
-    var role = null;
     var update_imageFile = null;
     var currentCategoryId = null;
     var currentProductId = null;
+
     $(document).ready(function () {
       // 현재 페이지 URL에서 쿼리 문자열을 가져옴
       var currentUrl = window.location.href;
@@ -36,39 +35,12 @@
 
       // 특정 매개변수 값 가져오기
       userId = parsedParams['userId'];
-      getMyprofile()
+
       getUserReview();
       $("#update_review_image").on("change", function (event) {
         update_imageFile = event.target.files;
       });
-
-    })
-
-    function getMyprofile() {
-      //로그인한 회원 정보
-      const auth = getToken();
-
-      if (auth !== undefined && auth !== '') {
-        $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
-          jqXHR.setRequestHeader('Authorization', auth);
-        });
-      } else {
-        return;
-      }
-
-      $.ajax({
-        type: 'GET',
-        url: `/v1/users/myprofile`,
-        success: function (response) {
-          let user = response['data'];
-          role = user['role'];
-          myId = user['id'];
-        },
-        error(error, status, request) {
-          console.log(error)
-        }
-      });
-    }
+    });
 
     // 쿼리 문자열을 객체로 파싱하는 함수
     function parseQueryString(url) {
@@ -119,7 +91,10 @@
             let review = response[i];
 
             let id = review['id'];
-            let images = review['images'];
+            let imagesString = JSON.stringify(review['images']);
+            let images = imagesString.replaceAll('"', '').replaceAll('[', '').replaceAll(']',
+                '').split(',');
+
             let categoryId = review['categoryId'];
             let productId = review['productId'];
             let productImage = review['productImage'];
@@ -138,9 +113,9 @@
 
             let html = `<div class="col" >
              <div class="card h-100">
-      <div style="height: 400px;">
-      <img style="height:400px; object-fit: cover" src = ${images[0]} id="review-image-${id}" class="card-img-top" onclick="location.href='/productDetails?productId=${productId}&categoryId=${categoryId}'">
-      </div>
+              <div style="height: 400px;">
+                <img style="height:400px; object-fit: cover" src ="${images[0]}"  id="review-image-${id}" class="card-img-top" onclick="location.href='/productDetails?productId=${productId}&categoryId=${categoryId}'">
+              </div>
       <div class="card-body" onclick="location.href='/productDetails?productId=${productId}&categoryId=${categoryId}'">
         <div style="display: flex;flex-direction: row">
         <div style="width: 70%">
@@ -172,7 +147,8 @@
 
             $('#reviewList').append(html);
 
-            if (images.length == 0) {
+            if (imagesString === "[]") {
+              console.log(productImage);
               $('#review-image-' + id).attr("src", productImage);//이미지 없다면 숨기기
             }
 
@@ -196,6 +172,7 @@
               $('#delete_review_btn-' + id).hide();
             }
           }
+
         }
       });
     }
@@ -309,6 +286,7 @@
 
   </script>
 </head>
+<link rel="icon" href="data:;base64,iVBORw0KGgo=">
 <body>
 
 
@@ -416,6 +394,8 @@
 
 
     </header>
+
+
     <div style="height: fit-content;">
       <h1 style="margin: 10px auto 10px auto;width: fit-content;"><span
           id="review_user_nickname"></span>님의 리뷰 목록</h1>
@@ -440,7 +420,8 @@
       <div id="reviewList" style="width: 60%;margin: auto;"
            class="row row-cols-1 row-cols-md-3 g-4">
       </div>
-      <div id="pagination" class="pagination" style="margin-top:25px; justify-content: center;"></div>
+      <div id="pagination" class="pagination"
+           style="margin-top:25px; justify-content: center;"></div>
     </div>
   </div>
 

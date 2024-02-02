@@ -23,12 +23,12 @@
 </head>
 
 <script>
-  let role = null;
+  //let role = null;
   let update_imageFile = null;
   var currentCategoryId = -1;
 
   $(document).ready(function () {
-    getMyprofile();
+    // getMyprofile();
     getCategory();
     // 페이지 로드 시 URL 파라미터 확인
     let urlParams = new URLSearchParams(window.location.search);
@@ -55,30 +55,30 @@
     return auth;
   }
 
-  function getMyprofile() {
-    //로그인한 회원 정보
-    const auth = getToken();
-
-    if (auth !== undefined && auth !== '') {
-      $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
-        jqXHR.setRequestHeader('Authorization', auth);
-      });
-    } else {
-      return;
-    }
-
-    $.ajax({
-      type: 'GET',
-      url: `/v1/users/myprofile`,
-      success: function (response) {
-        let user = response['data'];
-        role = user['role'];
-      },
-      error(error, status, request) {
-        console.log(error)
-      }
-    });
-  }
+  // function getMyprofile() {
+  //   //로그인한 회원 정보
+  //   const auth = getToken();
+  //
+  //   if (auth !== undefined && auth !== '') {
+  //     $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+  //       jqXHR.setRequestHeader('Authorization', auth);
+  //     });
+  //   } else {
+  //     return;
+  //   }
+  //
+  //   $.ajax({
+  //     type: 'GET',
+  //     url: `/v1/users/myprofile`,
+  //     success: function (response) {
+  //       let user = response['data'];
+  //       role = user['role'];
+  //     },
+  //     error(error, status, request) {
+  //       console.log(error)
+  //     }
+  //   });
+  // }
 
   function getCategory() {
     $.ajax({
