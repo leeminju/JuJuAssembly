@@ -232,6 +232,7 @@
   function updateId(categoryId, productId, id, description, star, munchies, images) {
 
     images = images.split(',')
+    $('#imageList_container').html('');
     $('#update_description').val(description);
     $('#update_star').val(star);
     $('#update_munchies').val(munchies);
