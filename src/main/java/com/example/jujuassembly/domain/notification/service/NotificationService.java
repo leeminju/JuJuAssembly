@@ -1,5 +1,7 @@
 package com.example.jujuassembly.domain.notification.service;
 
+import com.example.jujuassembly.domain.chat.entity.Chat;
+import com.example.jujuassembly.domain.chat.repository.ChatRepository;
 import com.example.jujuassembly.domain.notification.dto.NotificationRequestDto;
 import com.example.jujuassembly.domain.notification.dto.NotificationResponseDto;
 import com.example.jujuassembly.domain.notification.dto.NotificationsResponseDto;
@@ -40,6 +42,7 @@ public class NotificationService {
   private final ReviewRepository reviewRepository;
   private final ReportRepository reportRepository;
   private final RoomRepository roomRepository;
+  private final ChatRepository chatRepository;
 
 
   // 사용자가 SSE를 통해 알림을 실시간으로 받을 수 있게 설정하는 메서드
@@ -141,6 +144,7 @@ public class NotificationService {
         }
         break;
 
+
       case "ROOM":
         // 채팅방 ID를 기반으로 채팅방 정보 조회
         Optional<Room> optionalRoom = roomRepository.findById(entityId);
@@ -148,12 +152,7 @@ public class NotificationService {
           Room room = optionalRoom.get();
           User partner = room.getPartner(user.getId()); // 상대방 정보
 
-          if (partner.getRole().equals(UserRoleEnum.ADMIN)) {
-            url = "/main/chat?userId=" + partner.getId();
-          } else {
-            url = "/admin/chat?userId=" + partner.getId();
-          }
-
+          url = "/chatroom?roomId=" + entityId; // 채팅방 URL 지정
           content = partner.getNickname() + "님에게 문의가 왔습니다.";
         }
         break;
