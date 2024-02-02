@@ -31,14 +31,14 @@ public class RoomService {
         );
     Room savedRoom = roomRepository.save(room);
 
-    // 알림을 받을 사용자
-    Long recipientId = user.getId().equals(roomRequestDto.getAdminId())
-        ? roomRequestDto.getUserId()
-        : roomRequestDto.getAdminId();
-    User recipient = userRepository.findUserByIdOrElseThrow(recipientId);
-
-    // 해당 유저에게 알림 전송
-    notificationService.send(recipient, "ROOM", savedRoom.getId(), user);
+//    // 알림을 받을 사용자
+//    Long recipientId = user.getId().equals(roomRequestDto.getAdminId())
+//        ? roomRequestDto.getUserId()
+//        : roomRequestDto.getAdminId();
+//    User recipient = userRepository.findUserByIdOrElseThrow(recipientId);
+//
+//    // 해당 유저에게 알림 전송
+//    notificationService.send(recipient, "ROOM", savedRoom.getId(), user);
 
     return RoomIdResponseDto.builder().roomId(savedRoom.getId()).build();
   }
