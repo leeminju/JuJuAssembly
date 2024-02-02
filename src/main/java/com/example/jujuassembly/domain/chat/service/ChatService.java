@@ -9,6 +9,7 @@ import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,7 +54,8 @@ public class ChatService {
     Chat lastChat = chatRepository.findFirstByRoomIdOrderByCreatedAtDesc(roomId);
 
     // 마지막 메시지가 없거나 마지막 메시지의 발신자가 현재 메시지의 발신자와 다른 경우 알림 전송
-    if (lastChat == null || !lastChat.getSenderId().equals(chatRequestDto.getSenderId())) {
+    if (lastChat == null || !lastChat.getSenderId().equals(chatRequestDto.getSenderId())
+        || ChronoUnit.MINUTES.between(lastChat.getCreatedAt().atZone(ZoneId.systemDefault()), ZonedDateTime.now()) > 5) {
       Long recipientId = chatRequestDto.getReceiverId(); // 메시지 수신자 ID
       User recipient = userRepository.findUserByIdOrElseThrow(recipientId); // 수신자 정보 조회
       User sender = userRepository.findUserByIdOrElseThrow(
