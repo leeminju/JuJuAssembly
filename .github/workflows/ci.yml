@@ -1,5 +1,5 @@
 name : jujuAssembly
-
+run-name: CI
 on:
   push:
     branches: [ "dev" ]
