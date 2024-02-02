@@ -78,23 +78,19 @@
   var currentSenderNickname;
   var currentSenderImage;
 
-  // var myId = -1;
   var partenerId = -1;
   $(document).ready(function () {
-    // $.ajax({
-    //   type: 'GET',
-    //   url: `/v1/users/myprofile`,
-    //   success: function (response) {
-    //     myId = response['data']['id'];
-
-    currentSenderNickname = nickname;
-    currentSenderImage = profileImage;
-    if (role === "ADMIN") {
-      window.location.href = "/admin/chat";
-    } else {
+    if (myId == null) {
       alert("로그인이 필요한 서비스 입니다.");
       window.location.href = "/login"
     }
+
+    if (role === "ADMIN") {
+      window.location.href = "/admin/chat";
+    }
+
+    currentSenderNickname = nickname;
+    currentSenderImage = profileImage;
     getAllAdminUsers();
     var currentUrl = window.location.href;
     var parsedParams = parseQueryString(currentUrl);
@@ -102,14 +98,7 @@
     if (partenerId != -1 && partenerId !== undefined) {
       openChatModal(partenerId);
     }
-    // },
-    // error(error, status, request)
-    // {
-    //   alert("로그인이 필요한 서비스 입니다.");
-    //   window.location.href = "/login"
-    // }
-    // })
-    // ;
+
     $('#chatMessageInput').on('keydown', function (event) {
       if (event.keyCode === 13) {
         // 엔터 키를 누르면 버튼 클릭 이벤트 발생
