@@ -33,8 +33,8 @@ public class ChatController {
   @MessageMapping("/rooms/{roomId}/chats")
   public void publish(@DestinationVariable Long roomId,
       @RequestBody @Valid ChatRequestDto chatRequestDto) {
-    chatService.save(roomId, chatRequestDto);
     chatService.publish(roomId, chatRequestDto);
+    chatService.save(roomId, chatRequestDto);
   }
 
   /**

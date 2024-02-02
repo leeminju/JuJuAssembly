@@ -46,7 +46,6 @@ public class ChatService {
     chatRepository.save(chat);
   }
 
-  @Transactional
   public void publish(Long roomId, ChatRequestDto chatRequestDto) {
     simpMessagingTemplate.convertAndSend("/subscribe/rooms/" + roomId + "/chats", chatRequestDto);
 
@@ -55,7 +54,7 @@ public class ChatService {
     Chat lastChat = chatRepository.findFirstByRoomIdOrderByCreatedAtDesc(roomId);
 
     // 마지막 메시지가 없거나 마지막 메시지의 발신자가 현재 메시지의 발신자와 다른 경우 알림 전송
-    if (lastChat == null || !lastChat.getReceiverId().equals(chatRequestDto.getSenderId())) {
+    if (lastChat == null || !lastChat.getSenderId().equals(chatRequestDto.getSenderId())) {
       Long recipientId = chatRequestDto.getReceiverId(); // 메시지 수신자 ID
       User recipient = userRepository.findUserByIdOrElseThrow(recipientId); // 수신자 정보 조회
       User sender = userRepository.findUserByIdOrElseThrow(
