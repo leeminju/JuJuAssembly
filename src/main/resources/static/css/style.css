@@ -9,25 +9,36 @@
   font-family: 'NanumSquareNeo-Variable', serif;
 }
 
-.col > card-head{
+.header a:hover {
+  color: #8d94c7; /* 원하는 hover 색상으로 조절 */
+  text-decoration: underline; /* 원하는 hover 효과로 조절 */
+}
 
+.nav li:hover{
+  font-size: 17px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+#category_menu li:hover {
+ /* box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); !* 그림자 효과 *!*/
+  transform: scale(1.05);
 }
 
 .image_input:hover {
   border-radius: 50%;
-  box-shadow: 0 0 50px rgba(255, 255, 0, 0.8);
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.2);
   cursor: pointer;
-  transform: scale(1.25);
+  transform: scale(1.005);
 }
 
-
-button:hover {
-  transform: scale(1.2);
+.card:hover{
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.2);
+  transform: scale(1.005);
 }
-
-/* 알림 버튼에 Hover 효과 추가 */
-#notification-btn:hover {
-  transform: scale(1.2);
+  
+.btn:hover{
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  transform: scale(1.005);
 }
 
 
@@ -59,6 +70,22 @@ button:hover {
   border-radius: 10px;
   box-shadow: 0 4px 25px 0 rgba(0, 0, 0, 0.15);
   background-color: #ffffff;
+}
+
+#logout-btn {
+  border-color: #b7cff7;
+  color: #b7cff7;
+}
+
+#logout-btn:hover {
+  background-color: #b7cff7;
+  color: #5974bd; /* 마우스 호버 시 글자 색을 변경할 경우 설정 */
+}
+
+#mypage {
+  background-color: #5974bd;
+  border-color: #5974bd;
+  color: white;
 }
 
 #login-form {
@@ -154,7 +181,7 @@ button:hover {
   margin: 10px auto 10px auto;
   padding: 11px 12px;
   border-radius: 5px;
-  background-color: mediumturquoise;
+  background-color: #b7cff7;
   font-size: 20px;
   font-weight: bold;
   font-stretch: normal;
@@ -179,7 +206,7 @@ button:hover {
   /*margin: 0 0 8px;*/
   padding: 11px 12px;
   border-radius: 5px;
-  background-color: #ffd43b;
+  background-color: #8d94c7;
 
   font-family: SpoqaHanSansNeo;
   font-size: 20px;
@@ -226,7 +253,7 @@ button:hover {
   margin: 40px 0 0;
   padding: 11px 12px;
   border-radius: 5px;
-  background-color: mediumturquoise;
+  background-color: #5974bd;
   font-size: 20px;
   font-weight: bold;
   font-stretch: normal;
@@ -276,7 +303,7 @@ button:hover {
   .header {
     height: 120px;
     box-sizing: border-box;
-    background-color: mediumturquoise;
+    background-color: #b7cff7;
     color: black;
     text-align: center;
     padding-top: 20px;
