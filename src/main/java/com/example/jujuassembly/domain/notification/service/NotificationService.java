@@ -1,6 +1,5 @@
 package com.example.jujuassembly.domain.notification.service;
 
-import com.example.jujuassembly.domain.chat.entity.Chat;
 import com.example.jujuassembly.domain.chat.repository.ChatRepository;
 import com.example.jujuassembly.domain.notification.dto.NotificationRequestDto;
 import com.example.jujuassembly.domain.notification.dto.NotificationResponseDto;
@@ -129,13 +128,16 @@ public class NotificationService {
 
             switch (statusString) {
               case "PROCEEDING":
-                content = report.getUser().getNickname() + "님이 제보한 상품 " + report.getName() + "가(이) 진행중입니다.";
+                content = report.getUser().getNickname() + "님이 제보한 상품 " + report.getName()
+                    + "가(이) 진행중입니다.";
                 break;
               case "ADOPTED":
-                content = report.getUser().getNickname() + "님이 제보한 상품 " + report.getName() + "가(이) 채택되었습니다.";
+                content = report.getUser().getNickname() + "님이 제보한 상품 " + report.getName()
+                    + "가(이) 채택되었습니다.";
                 break;
               case "UN_ADOPTED":
-                content = report.getUser().getNickname() + "님이 제보한 상품 " + report.getName() + "가(이) 비채택되었습니다.";
+                content = report.getUser().getNickname() + "님이 제보한 상품 " + report.getName()
+                    + "가(이) 비채택되었습니다.";
                 break;
               default:
                 content = "알 수 없는 상태입니다.";
@@ -143,7 +145,6 @@ public class NotificationService {
           }
         }
         break;
-
 
       case "ROOM":
         // 채팅방 ID를 기반으로 채팅방 정보 조회
