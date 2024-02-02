@@ -89,6 +89,17 @@
       categoryId = Number(temp[5]);
       getMyprofile();
       getCategory();
+
+      // 페이지 로드 시 URL 파라미터 확인
+      let urlParams = new URLSearchParams(window.location.search);
+
+      let sortParam = urlParams.get('sort');
+      let orderParam = urlParams.get('order');
+      if (sortParam && orderParam) {
+        $("#sorting").val(sortParam);
+        $('input[name="isAsc"][value="' + orderParam + '"]').prop('checked', true);
+      }
+
       getProductByCategory();
 
       $("#image").on("change", function (event) {
@@ -182,6 +193,9 @@
       var isAsc = $(':radio[name="isAsc"]:checked').val();
 
       let dataSource = `/v1/categories/` + categoryId + `/products?sort=${sorting},${isAsc}`;
+
+      // URL에 정렬 파라미터 추가
+      window.history.replaceState(null, null, "?sort=" + sorting + "&order=" + isAsc);
 
       $('#product_container').empty();
       $('#pagination').pagination({
