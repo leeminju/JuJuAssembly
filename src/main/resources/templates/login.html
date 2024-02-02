@@ -16,7 +16,8 @@
   <script src="//code.jquery.com/jquery-latest.js"></script>
   <link rel="stylesheet" type="text/css" href="/css/style.css">
   <meta charset="UTF-8">
-  <title>주주　총회　로그인</title>
+  <title>주주총회 : 로그인</title>
+  <link rel="icon" href="/images/favicon.png">
 </head>
 <body>
 <div id="login-form">
@@ -38,10 +39,11 @@
     <button id="login-id-submit" onclick="onLogin()">로그인</button>
     <button id="login-kakao-btn"
             onclick="location.href='https://kauth.kakao.com/oauth/authorize?client_id=384eb140b7adc777306aa35e86b7fa7f&redirect_uri=https://jujuassembly.store/v1/auth/kakao/callback&response_type=code'">
+      <img src="/images/kakao.png" style="width: 22px; height: 20px;">
       카카오로 로그인하기
     </button>
   </div>
-  <div id="login-failed" style="display:none" class="alert alert-danger" role="alert"></div>
+
 </div>
 </body>
 <script>
@@ -84,17 +86,7 @@
         }
       }
     });
-    // $.ajax({
-    //   type: 'POST'
-    //   , url: `/v1/users/logout`
-    //   , success: function (response) {
-    //     alert(response['msg']);
-    //     CookieRemove();
-    //     window.location.reload();
-    //   }, error(error, status, request) {
-    //     console.log(error);
-    //   }
-    // });
+
   }
 
   function CookieRemove() {

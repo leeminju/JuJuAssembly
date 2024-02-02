@@ -1,4 +1,12 @@
 const host = 'http://' + window.location.host;
+let role = null;
+let myId = null;
+let nickname = null;
+let email = null;
+let firstId = null;
+let secondId = null;
+let loginId = null;
+let profileImage = null;
 
 $(document).ready(function () {
   authorizationCheck();
@@ -28,9 +36,19 @@ function authorizationCheck() {
   $.ajax({
     type: 'GET',
     url: `/v1/users/myprofile`,
+    async: false,
     success: function (response) {
-      role = response['data']['role'];
-      if (response['data']['role'] === "ADMIN") {
+      let user = response['data'];
+      role = user['role'];
+      myId = user['id'];
+      nickname = user['nickname'];
+      profileImage = user['image'];
+      loginId = user['loginId'];
+      email = user['email'];
+      firstId = user['firstPreferredCategoryId'];
+      secondId = user['secondPreferredCategoryId'];
+
+      if (role === "ADMIN") {
         $('#admin_btn').show();
       }
 
@@ -38,7 +56,7 @@ function authorizationCheck() {
       $('#sign-up-btn').hide();
       $('#mypage').show();
       $('#logout-btn').show();
-      $('#header_nickname').text(response['data']['nickname']);
+      $('#header_nickname').text(nickname);
     },
     error(error, status, request) {
       if (error['responseJSON']['data']) {
@@ -79,24 +97,6 @@ function logout() {
     }
   });
 
-
-  // // SSE 연결 종료
-  // if (source) {
-  //   source.close();
-  //   source = null; // 참조 제거
-  // }
-
-  // $.ajax({
-  //   type: 'POST'
-  //   , url: `/v1/users/logout`
-  //   , success: function (response) {
-  //     alert(response['msg']);
-  //     CookieRemove();
-  //     window.location.reload();
-  //   }, error(error, status, request) {
-  //     console.log(error);
-  //   }
-  // });
 }
 
 function CookieRemove() {

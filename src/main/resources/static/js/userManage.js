@@ -1,4 +1,8 @@
 $(document).ready(function () {
+  if (role !== "ADMIN") {
+    alert("관리자 페이지 입니다.");
+    window.location.href = "/"
+  }
   getAllUsers();
 })
 

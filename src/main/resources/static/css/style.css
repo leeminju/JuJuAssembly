@@ -14,13 +14,13 @@
   text-decoration: underline; /* 원하는 hover 효과로 조절 */
 }
 
-.nav li:hover{
+.nav li:hover {
   font-size: 17px;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 #category_menu li:hover {
- /* box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); !* 그림자 효과 *!*/
+  /* box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); !* 그림자 효과 *!*/
   transform: scale(1.05);
 }
 
@@ -31,12 +31,12 @@
   transform: scale(1.005);
 }
 
-.card:hover{
+.card:hover {
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.2);
   transform: scale(1.005);
 }
-  
-.btn:hover{
+
+.btn:hover {
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
   transform: scale(1.005);
 }
@@ -192,6 +192,8 @@ button:hover {
   color: black;
 }
 
+
+
 #login-kakao-btn {
   border-width: 0;
   margin: 10px auto 10px auto;
@@ -206,14 +208,14 @@ button:hover {
   /*margin: 0 0 8px;*/
   padding: 11px 12px;
   border-radius: 5px;
-  background-color: #8d94c7;
-
+  background-color: #fee500;
+  border: 1px solid #F6DD00;
   font-family: SpoqaHanSansNeo;
   font-size: 20px;
   font-weight: bold;
   font-stretch: normal;
   font-style: normal;
-  color: #414141;
+
 }
 
 #email-send {

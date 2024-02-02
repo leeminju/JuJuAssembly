@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>주주총회</title>
-  <link rel="shortcut icon" href="#">
+  <link rel="icon" href="/images/favicon.png">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
         rel="stylesheet"
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
@@ -22,9 +22,6 @@
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <script>
-  var role = null;
-  var myId = null;
-
   var update_imageFile = null;
   var currentCategoryId = null;
   var currentProductId = null;
@@ -33,7 +30,13 @@
   var current_review_id;
 
   $(document).ready(function () {
-    getMyprofile()
+    if (myId == null) {
+      alert("로그인이 필요한 서비스 입니다.");
+      window.location.href = "/login";
+    }
+
+    $('#review_user_nickname').text(nickname);
+    getUserReview();
 
     $("#update_review_image").on("change", function (event) {
       update_imageFile = event.target.files;
@@ -41,41 +44,7 @@
 
   })
 
-  function getMyprofile() {
-    //로그인한 회원 정보
-    const auth = getToken();
-
-    if (auth !== undefined && auth !== '') {
-      $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
-        jqXHR.setRequestHeader('Authorization', auth);
-      });
-    } else {
-      alert("로그인이 필요한 서비스 입니다.");
-      window.location.href = "/login";
-      return;
-    }
-
-    $.ajax({
-      type: 'GET',
-      url: `/v1/users/myprofile`,
-      success: function (response) {
-        let user = response['data'];
-        role = user['role'];
-        myId = user['id'];
-        console.log(myId);
-        let nickname = user['nickname'];
-        $('#review_user_nickname').text(nickname);
-        getUserReview();
-      },
-      error(error, status, request) {
-        console.log(error)
-      }
-    });
-  }
-
   function getUserReview(showVerifiedOnly = false) {
-    console.log(myId);
-    console.log(role);
     var sorting = $("#sorting option:selected").val();
     var isAsc = $(':radio[name="isAsc"]:checked').val();
 
@@ -127,11 +96,11 @@
           let createdAt_Text = calulateTime(createdAt);
           let modifiedAt_Text = calulateTime(modifiedAt);
 
-         let html = `<div class="col-md-4" >
+          let html = `<div class="col-md-4" >
       <div class="card h-100">
-         <div id="imageList-${id}" style="padding: 10px; height: 400px; display: flex; flex-direction: column; align-items: center;">
-            <div id="imageList-${id}" style="padding:10px; width: 100%; height: 160px; margin-bottom: 20px; display: flex; flex-direction: column;"></div>
-            </div>
+        <div style="height: 400px;">
+      <img style="height:400px; object-fit: cover" src = "${images[0]}" id="review-image-${id}" class="card-img-top" onclick="location.href='/productDetails?productId=${productId}&categoryId=${categoryId}'">
+      </div>
       <div class="card-body" onclick="location.href='/productDetails?productId=${productId}&categoryId=${categoryId}'">
         <div style="display: flex;flex-direction: row">
         <div style="width: 70%">
@@ -161,22 +130,18 @@
             </div>`
 
           $('#reviewList').append(html);
+
           if (!isVerified) {
             $('#verifiy_mark-' + id).hide();
           }
 
-          if (role != "ADMIN" && myId != user.id) {
+          if (role != "ADMIN") {
             $('#update_review_btn-' + id).hide();
             $('#delete_review_btn-' + id).hide();
           }
 
-          if (imagesString !== "[]") {
-            for (let i = 0; i < images.length; i++) {
-              let img_html = `<img style="margin-bottom: 10px; width: 150px; height: 150px; object-fit: contain" src="${images[i]}">`;
-              $('#imageList-' + id).append(img_html);
-            }
-          } else {
-            $('#imageList-' + id).hide();
+          if (imagesString === "[]") {
+            $('#review-image-' + id).attr("src", productImage);//이미지 없다면 상품 이미지로
           }
 
           if (createdAt_Text === modifiedAt_Text) {
@@ -312,10 +277,7 @@
     });
   }
 
-
-
   function removeReview(categoryId, productId, id) {
-    console.log("removeReview");
     $.ajax({
       type: "DELETE",
       url: `/v1/categories/${categoryId}/products/${productId}/reviews/${id}`,

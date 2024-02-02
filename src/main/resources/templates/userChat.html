@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>주주총회</title>
-  <link rel="shortcut icon" href="#">
+  <link rel="icon" href="/images/favicon.png">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
         rel="stylesheet"
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
@@ -56,6 +56,7 @@
       border-radius: 0; /* 모서리 둥글기 제거 */
       max-width: calc(100% - 20px); /* 최대 너비 설정 (모달창 가로크기에서 왼쪽, 오른쪽 여백 10px씩 뺀 크기) */
     }
+
     .sender-image {
       width: 40px;
       height: 40px;
@@ -77,32 +78,38 @@
   var currentSenderNickname;
   var currentSenderImage;
 
-  var myId = -1;
+  // var myId = -1;
   var partenerId = -1;
   $(document).ready(function () {
-    $.ajax({
-      type: 'GET',
-      url: `/v1/users/myprofile`,
-      success: function (response) {
-        myId = response['data']['id'];
-        currentSenderNickname = response['data']['nickname'];
-        currentSenderImage = response['data']['image']
-        if (response['data']['role'] == "ADMIN") {
-          window.location.href = "/admin/chat";
-        }
-        getAllAdminUsers();
-        var currentUrl = window.location.href;
-        var parsedParams = parseQueryString(currentUrl);
-        partenerId = parsedParams['userId'];
-        if (partenerId != -1 && partenerId !== undefined) {
-          openChatModal(partenerId);
-        }
-      },
-      error(error, status, request) {
-        alert("로그인이 필요한 서비스 입니다.");
-        window.location.href = "/login"
-      }
-    });
+    // $.ajax({
+    //   type: 'GET',
+    //   url: `/v1/users/myprofile`,
+    //   success: function (response) {
+    //     myId = response['data']['id'];
+
+    currentSenderNickname = nickname;
+    currentSenderImage = profileImage;
+    if (role === "ADMIN") {
+      window.location.href = "/admin/chat";
+    } else {
+      alert("로그인이 필요한 서비스 입니다.");
+      window.location.href = "/login"
+    }
+    getAllAdminUsers();
+    var currentUrl = window.location.href;
+    var parsedParams = parseQueryString(currentUrl);
+    partenerId = parsedParams['userId'];
+    if (partenerId != -1 && partenerId !== undefined) {
+      openChatModal(partenerId);
+    }
+    // },
+    // error(error, status, request)
+    // {
+    //   alert("로그인이 필요한 서비스 입니다.");
+    //   window.location.href = "/login"
+    // }
+    // })
+    // ;
     $('#chatMessageInput').on('keydown', function (event) {
       if (event.keyCode === 13) {
         // 엔터 키를 누르면 버튼 클릭 이벤트 발생
@@ -156,17 +163,17 @@
         let users = response;
         for (let i = 0; i < users.length; i++) {
           let user = users[i];
-            let userId = user['id'];
-            let image = user['image'];
-            let loginId = user['loginId']
-            let nickname = user['nickname']
-            let email = user['email']
-            let role = user['role'];
+          let userId = user['id'];
+          let image = user['image'];
+          let loginId = user['loginId']
+          let nickname = user['nickname']
+          let email = user['email']
+          let role = user['role'];
 
-            if (!image) {
-              image = "/images/default_user_image.png"
-            }
-            let html = `<div class="d-flex text-body-secondary pt-3">
+          if (!image) {
+            image = "/images/default_user_image.png"
+          }
+          let html = `<div class="d-flex text-body-secondary pt-3">
         <img style="margin: 7px; width: 40px;height: 40px;object-fit: contain;" src=${image}>
         <p class="pb-3 mb-0 small lh-sm border-bottom"  style="display: flex;flex-direction: row;justify-content: center;">
            <div style="width: 80%">
@@ -180,7 +187,7 @@
 
         </p>
     </div>`;
-            $('#adminList').append(html);
+          $('#adminList').append(html);
 
         }
       }, error(error, status, request) {
@@ -257,7 +264,7 @@
     if (stompClient !== null && stompClient.connected) {
       stompClient.disconnect(function () {
         console.log('웹 소켓 연결이 종료되었습니다.');
-        window.location.href="/main/chat"
+        window.location.href = "/main/chat"
       });
     }
   }
@@ -305,7 +312,7 @@
   }
 
   //채팅창에추가하는 메서드
-  function addMessageToChatContainer(senderId, message,senderNickname,senderImage) {
+  function addMessageToChatContainer(senderId, message, senderNickname, senderImage) {
     // 채팅창 영역을 가져옴
     var chatContainer = $('#chatContainer');
     if (!senderImage) {
@@ -495,7 +502,8 @@
         <div id="adminList">
         </div>
       </div>
-      <div id="pagination" class="pagination" style="margin-top:25px; justify-content: center;"></div>
+      <div id="pagination" class="pagination"
+           style="margin-top:25px; justify-content: center;"></div>
     </div>
   </div>
 </div>
