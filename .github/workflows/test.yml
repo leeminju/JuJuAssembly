@@ -1,4 +1,4 @@
-name : jujuAssembly
+name : jujuAssembly test
 run-name: Build Test
 on:
   pull_request:
