@@ -50,7 +50,6 @@ public class ChatService {
   public void publish(Long roomId, ChatRequestDto chatRequestDto) {
     simpMessagingTemplate.convertAndSend("/subscribe/rooms/" + roomId + "/chats", chatRequestDto);
 
-
     // 마지막으로 메시지를 보낸 채팅 조회
     Chat lastChat = chatRepository.findFirstByRoomIdOrderByCreatedAtDesc(roomId);
 
