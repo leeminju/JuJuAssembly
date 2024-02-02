@@ -152,7 +152,11 @@ public class NotificationService {
           Room room = optionalRoom.get();
           User partner = room.getPartner(user.getId()); // 상대방 정보
 
-          url = "/chatroom?roomId=" + entityId; // 채팅방 URL 지정
+          if (partner.getRole().equals(UserRoleEnum.ADMIN)) {
+            url = "/main/chat?userId=" + partner.getId();
+          } else {
+            url = "/admin/chat?userId=" + partner.getId();
+          }
           content = partner.getNickname() + "님에게 문의가 왔습니다.";
         }
         break;
