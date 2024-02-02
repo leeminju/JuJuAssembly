@@ -39,6 +39,7 @@
       update_imageFile = event.target.files;
     });
 
+
   })
 
   function getMyprofile() {
@@ -232,6 +233,7 @@
   function updateId(categoryId, productId, id, description, star, munchies, images) {
 
     images = images.split(',')
+    $('#imageList_container').html('');
     $('#update_description').val(description);
     $('#update_star').val(star);
     $('#update_munchies').val(munchies);
@@ -239,6 +241,14 @@
     currentCategoryId = categoryId;
     currentProductId = productId;
     current_review_id = id;
+
+    console.log("currentCategoryId=",currentCategoryId);
+    console.log("currentProductId=",currentProductId);
+    console.log("current_review_id=",current_review_id);
+    console.log("images=",images)
+    console.log("images.length=", images.length)
+    console.log("images[0]=",images[0])
+
 
     if (images.length > 0 && images[0] !== "") {
       for (let i = 0; i < images.length; i++) {
