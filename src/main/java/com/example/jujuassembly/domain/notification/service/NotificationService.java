@@ -1,5 +1,6 @@
 package com.example.jujuassembly.domain.notification.service;
 
+import com.example.jujuassembly.domain.chat.repository.ChatRepository;
 import com.example.jujuassembly.domain.notification.dto.NotificationRequestDto;
 import com.example.jujuassembly.domain.notification.dto.NotificationResponseDto;
 import com.example.jujuassembly.domain.notification.dto.NotificationsResponseDto;
@@ -40,6 +41,7 @@ public class NotificationService {
   private final ReviewRepository reviewRepository;
   private final ReportRepository reportRepository;
   private final RoomRepository roomRepository;
+  private final ChatRepository chatRepository;
 
 
   // 사용자가 SSE를 통해 알림을 실시간으로 받을 수 있게 설정하는 메서드
@@ -126,13 +128,16 @@ public class NotificationService {
 
             switch (statusString) {
               case "PROCEEDING":
-                content = report.getUser().getNickname() + "님이 제보한 상품 " + report.getName() + "가(이) 진행중입니다.";
+                content = report.getUser().getNickname() + "님이 제보한 상품 " + report.getName()
+                    + "가(이) 진행중입니다.";
                 break;
               case "ADOPTED":
-                content = report.getUser().getNickname() + "님이 제보한 상품 " + report.getName() + "가(이) 채택되었습니다.";
+                content = report.getUser().getNickname() + "님이 제보한 상품 " + report.getName()
+                    + "가(이) 채택되었습니다.";
                 break;
               case "UN_ADOPTED":
-                content = report.getUser().getNickname() + "님이 제보한 상품 " + report.getName() + "가(이) 비채택되었습니다.";
+                content = report.getUser().getNickname() + "님이 제보한 상품 " + report.getName()
+                    + "가(이) 비채택되었습니다.";
                 break;
               default:
                 content = "알 수 없는 상태입니다.";
@@ -153,7 +158,6 @@ public class NotificationService {
           } else {
             url = "/admin/chat?userId=" + partner.getId();
           }
-
           content = partner.getNickname() + "님에게 문의가 왔습니다.";
         }
         break;

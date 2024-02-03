@@ -1,25 +1,9 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-# This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
-# test
-
-name: CI/CD
-run-name: Running
+name : jujuAssembly
+run-name: CI
 on:
   push:
-    branches: [ dev ]
+    branches: [ "dev" ]
 
-env:
-  AWS_REGION: ap-northeast-2
-  AWS_S3_BUCKET: jujuassembly
-  AWS_CODE_DEPLOY_APPLICATION:  jujuAssembly-CD
-  AWS_CODE_DEPLOY_GROUP:  jujuAssembly-CD-group
-
-permissions:
-  contents: read
 
 jobs:
   build-with-gradle:
@@ -69,18 +53,33 @@ jobs:
       - name: Grant execute permission to gradlew
         run: chmod +x ./gradlew
 
-      - name: Build Project
-        run: ./gradlew clean build 
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+      - name: cache
+        uses: actions/cache@v2
         with:
-          aws-region: ${{ env.AWS_REGION }}
-          aws-access-key-id: ${{ secrets.CICD_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.CICD_SECRET_KEY }}
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
-      - name: Upload to S3
-        run: aws deploy push --application-name ${{ env.AWS_CODE_DEPLOY_APPLICATION }} --ignore-hidden-files --s3-location s3://${{ env.AWS_S3_BUCKET }}/mj-ec2/$GITHUB_SHA.zip --source .
+      - name: Build Project
+        run: ./gradlew build 
 
-      - name: Deploy to EC2
-        run: aws deploy create-deployment --application-name ${{ env.AWS_CODE_DEPLOY_APPLICATION }} --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name ${{ env.AWS_CODE_DEPLOY_GROUP }} --s3-location bucket=${{ env.AWS_S3_BUCKET }},key=mj-ec2/$GITHUB_SHA.zip,bundleType=zip
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push to DockerHub
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ${{ secrets.DOCKERHUB_TAG }}

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>주주총회</title>
-  <link rel="shortcut icon" href="#">
+  <link rel="icon" href="/images/favicon.png">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
         rel="stylesheet"
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
@@ -80,21 +80,21 @@
     });
   }
 
-  let role = null;
   let update_imageFile = null;
   var currentCategoryId = -1;
 
   $(document).ready(function () {
-    getMyprofile();
     getCategory();
     // 페이지 로드 시 URL 파라미터 확인
     let urlParams = new URLSearchParams(window.location.search);
-    // let sortParam = urlParams.get('sort');
-    // let orderParam = urlParams.get('order');
-    // if (sortParam && orderParam) {
-    //   $("#sorting").val(sortParam);
-    //   $('input[name="isAsc"][value="' + orderParam + '"]').prop('checked', true);
-    // }
+
+    let sortParam = urlParams.get('sort');
+    let orderParam = urlParams.get('order');
+    if (sortParam && orderParam) {
+      $("#sorting").val(sortParam);
+      $('input[name="isAsc"][value="' + orderParam + '"]').prop('checked', true);
+    }
+
     getAllProducts();
     $("#image").on("change", function (event) {
       update_imageFile = event.target.files[0];
@@ -109,31 +109,6 @@
     }
 
     return auth;
-  }
-
-  function getMyprofile() {
-    //로그인한 회원 정보
-    const auth = getToken();
-
-    if (auth !== undefined && auth !== '') {
-      $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
-        jqXHR.setRequestHeader('Authorization', auth);
-      });
-    } else {
-      return;
-    }
-
-    $.ajax({
-      type: 'GET',
-      url: `/v1/users/myprofile`,
-      success: function (response) {
-        let user = response['data'];
-        role = user['role'];
-      },
-      error(error, status, request) {
-        console.log(error)
-      }
-    });
   }
 
   function getCategory() {
@@ -187,7 +162,6 @@
     let dataSource = `/v1/products?sort=${sorting},${isAsc}`;
 
     // URL에 정렬 파라미터 추가
-    window.history.replaceState(null, null, "?sort=" + sorting + "&order=" + isAsc);
     window.history.replaceState(null, null, "?sort=" + sorting + "&order=" + isAsc);
 
     $('#all_product_container').empty();
@@ -499,7 +473,8 @@
       <div id="all_product_container" style="width: 80%;margin: auto;"
            class="row row-cols-1 row-cols-md-3 g-4">
       </div>
-      <div id="pagination" class="pagination" style="margin-top:25px; justify-content: center;"></div>
+      <div id="pagination" class="pagination"
+           style="margin-top:25px; justify-content: center;"></div>
     </div>
   </div>
 </div>

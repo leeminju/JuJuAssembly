@@ -1,0 +1,67 @@
+name : jujuAssembly test
+run-name: Build Test
+on:
+  pull_request:
+    branches: [ "dev" ]
+
+
+jobs:
+  build-with-gradle:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+       # 환경별 yml 파일 생성 - application-properties.yml
+
+      - name: make application.properties
+        if: |
+          contains(github.ref, 'dev') || contains(github.ref, 'main')
+        run: |
+          cd ./src/main/resources # resources 폴더로 이동
+          touch ./application.properties # application.properties 생성
+          echo "${{ secrets.APP_PROPERTIES }}" > ./application.properties
+        shell: bash
+
+      - name: make application-dev.properties
+        if: |
+          contains(github.ref, 'dev') || contains(github.ref, 'main')
+        run: |
+          cd ./src/main/resources # resources 폴더로 이동
+          touch ./application-dev.properties # application-dev.properties 생성
+          echo "${{ secrets.APP_DEV_PROPERTIES }}" > ./application-dev.properties
+        shell: bash
+
+      - name: make application-test.properties
+        if: |
+          contains(github.ref, 'dev') || contains(github.ref, 'main')
+        run: |
+          cd ./src/main/resources # resources 폴더로 이동
+          touch ./application-test.properties # application-test.properties 생성
+          echo "${{ secrets.APP_TEST_PROPERTIES }}" > ./application-test.properties
+        shell: bash
+
+
+      - name: Grant execute permission to gradlew
+        run: chmod +x ./gradlew
+
+      - name: cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Build Project
+        run: ./gradlew build

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>주주총회</title>
-  <link rel="shortcut icon" href="#">
+  <link rel="icon" href="/images/favicon.png">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
         rel="stylesheet"
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
@@ -58,6 +58,17 @@
       border-radius: 0; /* 모서리 둥글기 제거 */
       max-width: calc(100% - 20px); /* 최대 너비 설정 (모달창 가로크기에서 왼쪽, 오른쪽 여백 10px씩 뺀 크기) */
     }
+
+    .sender-image {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+    }
+
+    .sender-nickname {
+      font-size: 13px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <script>
@@ -65,29 +76,27 @@
   var stompClient;
   var currentUserId;
   var currentChatRoomId;
+  var currentSenderNickname;
+  var currentSenderImage;
 
-  var myId = -1;
   var partenerId = -1;
   $(document).ready(function () {
-    $.ajax({
-      type: 'GET',
-      url: `/v1/users/myprofile`,
-      success: function (response) {
-        myId = response['data']['id'];
 
-        getAllUsers();
-        var currentUrl = window.location.href;
-        var parsedParams = parseQueryString(currentUrl);
-        partenerId = parsedParams['userId'];
-        if (partenerId != -1) {
-          openChatModal(partenerId);
-        }
-      },
-      error(error, status, request) {
-        alert("로그인이 필요한 서비스 입니다.");
-        window.location.href = "/login"
-      }
-    });
+    if (myId == null) {
+      alert("로그인이 필요한 서비스 입니다.");
+      window.location.href = "/login"
+    }
+
+    currentSenderNickname = nickname;
+    currentSenderImage = profileImage;
+    getAllUsers();
+
+    var currentUrl = window.location.href;
+    var parsedParams = parseQueryString(currentUrl);
+    partenerId = parsedParams['userId'];
+    if (partenerId != -1 && partenerId !== undefined) {
+      openChatModal(partenerId);
+    }
 
     $('#chatMessageInput').on('keydown', function (event) {
       if (event.keyCode === 13) {
@@ -156,7 +165,7 @@
         <img style="margin: 7px; width: 40px;height: 40px;object-fit: contain;" src=${image}>
         <p class="pb-3 mb-0 small lh-sm border-bottom"  style="display: flex;flex-direction: row;justify-content: center;">
            <div style="width: 80%">
-             <button class="btn btn-light" onclick="openChatModal(${userId})" data-userid="${userId}">채팅 하기</button>
+             <button class="btn btn-light" onclick="openChatModal('${userId}')" data-userid="${userId}">채팅 하기</button>
              <strong class="d-block text-gray-dark">${loginId}(${nickname})</strong>
              email : ${email}<br>
              role : ${role}
@@ -175,7 +184,7 @@
     });
   }
 
-  function openChatModal(userId) {
+  function openChatModal(userId, image, nickname) {
     let adminId = myId;
     let usersId = userId;
 
@@ -222,11 +231,12 @@
       enterChatRoom(chatRoomId)
       // 채팅 룸에 구독
       setTimeout(function () {
-        stompClient.subscribe(`/subscribe/rooms/${chatRoomId}`, function (response) {
+        stompClient.subscribe(`/subscribe/rooms/${chatRoomId}/chats`, function (response) {
           var message = JSON.parse(response.body);
           console.log(`채팅방 ${chatRoomId}에서 메시지 수신:`, message);
           // 수신한 메시지를 채팅 창에 추가
-          addMessageToChatContainer(message.senderId, message.message);
+          addMessageToChatContainer(message.senderId, message.message, message.senderNickname,
+              message.senderImage);
 
         });
 
@@ -238,16 +248,18 @@
   //웹소켓 연결 종료 함수
   function disconnectWebSocket() {
     exitChatRoom(currentChatRoomId)
-    stompClient.unsubscribe(`/subscribe/rooms/${currentChatRoomId}`);
+    stompClient.unsubscribe(`/subscribe/rooms/${currentChatRoomId}/chats`);
     if (stompClient !== null && stompClient.connected) {
       stompClient.disconnect(function () {
         console.log('웹 소켓 연결이 종료되었습니다.');
+        window.location.href = "/admin/chat"
       });
     }
   }
 
   // 채팅방 입장을 서버에 알리는 함수
   function enterChatRoom() {
+    console.log("관리자입장알림메서드실행")
     var message = "관리자가 입장했습니다."
     stompClient.send(`/publish/rooms/enterexit/${currentChatRoomId}`, {}, JSON.stringify({
       "senderId": 0,
@@ -258,6 +270,7 @@
 
   // 채팅방 퇴장을 서버에 알리는 함수
   function exitChatRoom() {
+    console.log("관리자퇴장알림메서드실행")
     var message = "관리자가 퇴장했습니다."
     stompClient.send(`/publish/rooms/enterexit/${currentChatRoomId}`, {}, JSON.stringify({
       "senderId": 0,
@@ -276,10 +289,10 @@
 
         // 가져온 채팅 기록을 채팅 창에 추가
         for (var i = 0; i < chatHistory.length; i++) {
-          var chat = chatHistory[i];
-          addMessageToChatContainer(chat.senderId, chat.message);
+          var message = chatHistory[i];
+          addMessageToChatContainer(message.senderId, message.message, message.senderNickname,
+              message.senderImage);
         }
-        console.log("채팅불러오기가 실행도었습니다.")
       },
       error: function (error) {
         console.log(error);
@@ -288,17 +301,31 @@
   }
 
   //채팅창에추가하는 메서드
-  function addMessageToChatContainer(senderId, message) {
+  function addMessageToChatContainer(senderId, message, senderNickname, senderImage) {
     // 채팅창 영역을 가져옴
     var chatContainer = $('#chatContainer');
+    if (!senderImage) {
+      senderImage = "/images/default_user_image.png"
+    }
 
     // 메시지를 표시할 HTML 생성
-    var messageHtml = `<div class="chat-message ${senderId === myId ? 'sent'
-        : 'received'}">${message}</div>`;
+    var messageHtml = `
+<div class="chat-message ${senderId === myId ? 'sent' : 'received'}">
+    <div class="message-header">
+        <img src="${senderImage}" alt="보낸 사람 이미지" class="sender-image">
+        <span class="sender-nickname">${senderNickname}</span>
+    </div>
+    <div class="message-content">${message}</div>
+</div>
+  `;
 
     // 만약 senderId가 0이면 다른 CSS 적용
     if (senderId === 0) {
-      messageHtml = `<div class="chat-message special">${message}</div>`;
+      messageHtml = `
+      <div class="chat-message special">
+        <div>${message}</div>
+      </div>
+    `;
     }
 
     // 생성한 HTML을 채팅창에 추가
@@ -334,10 +361,12 @@
     message = XSSCheck(message, 0);
 
     // 서버에 메시지 전송
-    stompClient.send(`/publish/rooms/${currentChatRoomId}`, {}, JSON.stringify({
+    stompClient.send(`/publish/rooms/${currentChatRoomId}/chats`, {}, JSON.stringify({
       "senderId": myId,
       "receiverId": currentUserId,
-      "message": message
+      "message": message,
+      "senderNickname": currentSenderNickname,
+      "senderImage": currentSenderImage
     }));
 
     // 메시지 입력 창 초기화
@@ -477,7 +506,8 @@
 
         </div>
       </div>
-      <div id="pagination" class="pagination" style="margin-top:25px; justify-content: center;"></div>
+      <div id="pagination" class="pagination"
+           style="margin-top:25px; justify-content: center;"></div>
     </div>
   </div>
 </div>
