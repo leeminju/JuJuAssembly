@@ -13,6 +13,7 @@ import java.net.URI;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +34,9 @@ public class KakaoService {
   private final UserRepository userRepository;
   private final JwtUtil jwtUtil;
   private final CategoryRepository categoryRepository;
+
+  @Value("${kakao.client.id}")
+  private String clientId;
 
   public String kakaoLogin(String code)
       throws JsonProcessingException {
@@ -81,7 +85,7 @@ public class KakaoService {
     // HTTP Body 생성
     MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
     body.add("grant_type", "authorization_code");
-    body.add("client_id", "384eb140b7adc777306aa35e86b7fa7f");
+    body.add("client_id", clientId);
     body.add("redirect_uri", "https://jujuassembly.store/v1/auth/kakao/callback");
     body.add("code", code);
 
