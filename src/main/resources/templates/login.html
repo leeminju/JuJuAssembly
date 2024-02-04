@@ -13,6 +13,10 @@
           integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
           crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+  <script>
+  var clientId = "${kakao.client.id}"
+  var redirectUri = "https://jujuassembly.store/v1/auth/kakao/callback"
+  </script>
   <script src="//code.jquery.com/jquery-latest.js"></script>
   <link rel="stylesheet" type="text/css" href="/css/style.css">
   <meta charset="UTF-8">
@@ -38,7 +42,7 @@
     </span></div>
     <button id="login-id-submit" onclick="onLogin()">로그인</button>
     <button id="login-kakao-btn"
-            onclick="location.href='https://kauth.kakao.com/oauth/authorize?client_id='+${kakao.client.id}+'&redirect_uri=https://jujuassembly.store/v1/auth/kakao/callback&response_type=code'">
+            onclick="location.href='https://kauth.kakao.com/oauth/authorize?client_id='+clientId+'&redirect_uri='+redirectUri+'&response_type=code'">
       <img src="/images/kakao.png" style="width: 22px; height: 20px;">
       카카오로 로그인하기
     </button>
