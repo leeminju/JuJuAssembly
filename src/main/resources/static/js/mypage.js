@@ -42,11 +42,13 @@ $(document).ready(async function () {
   } else {
     getUserInfo();
   }
-  if (kakaoId !== null) {
+  if (kakaoId !== undefined) {
+    console.log(kakaoId);
     //비밀번호 입력 부분 숨기기
     $('#current_password').hide();
     $('#edit-password').hide();
     $('#edit-passwordCheck').hide();
+    $('.password-label').hide();
   }
 
   getCategory();
@@ -145,7 +147,7 @@ function updateProfile() {
   }
   let data = null;
 
-  if (kakaoId != null) {
+  if (kakaoId !== undefined) {
     data = {
       "nickname": nickname,
       "firstPreferredCategoryId": firstPreferredCategoryId,
@@ -163,7 +165,7 @@ function updateProfile() {
   }
   $.ajax({
     type: 'PATCH',
-    url: `/v1/users/${userId}`,
+    url: `/v1/users/${myId}`,
     contentType: "application/json",
     data: JSON.stringify(data),
     success: function (response) {
