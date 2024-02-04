@@ -3,6 +3,7 @@ package com.example.jujuassembly.domain.category.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -12,15 +13,12 @@ import com.example.jujuassembly.domain.category.dto.CategoryRequestDto;
 import com.example.jujuassembly.domain.category.dto.CategoryResponseDto;
 import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
-import com.example.jujuassembly.domain.product.dto.ProductRequestDto;
 import com.example.jujuassembly.domain.product.entity.Product;
 import com.example.jujuassembly.domain.product.repository.ProductRepository;
-import com.example.jujuassembly.domain.report.dto.ReportRequestDto;
+import com.example.jujuassembly.domain.product.service.ProductService;
 import com.example.jujuassembly.domain.report.entity.Report;
-import com.example.jujuassembly.domain.report.entity.StatusEnum;
 import com.example.jujuassembly.domain.report.repository.ReportRepository;
-import com.example.jujuassembly.domain.review.repository.ReviewRepository;
-import com.example.jujuassembly.domain.user.entity.User;
+import com.example.jujuassembly.domain.report.service.ReportService;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.global.UserTestUtil;
 import com.example.jujuassembly.global.s3.S3Manager;
@@ -33,7 +31,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,8 +48,6 @@ class CategoryServiceTest implements UserTestUtil {
   ReportRepository reportRepository;
   @Mock
   ProductRepository productRepository;
-  @Mock
-  ReviewRepository reviewRepository;
 
   @Test
   void getCategoriesTest() {
@@ -155,8 +150,13 @@ class CategoryServiceTest implements UserTestUtil {
 
   }
 
+  @InjectMocks
+  ReportService reportService;
+  @InjectMocks
+  ProductService productService;
+
   @Test
-  void deleteCategoryTest() {
+  void deleteCategory() {
     // Given
     Long categoryId = 1L;
     CategoryRequestDto categoryRequestDto = CategoryRequestDto.builder().name("ExistingCategory")
@@ -164,57 +164,20 @@ class CategoryServiceTest implements UserTestUtil {
     Category existingCategory = new Category(categoryRequestDto);
     when(categoryRepository.findCategoryByIdOrElseThrow(categoryId)).thenReturn(existingCategory);
 
-    List<User> userList = new ArrayList<>();
-    userList.add(TEST_USER);
-    when(userRepository.findAllByFirstPreferredCategory_Id(categoryId)).thenReturn(userList);
-    when(userRepository.findAllBySecondPreferredCategory_Id(categoryId)).thenReturn(userList);
+    when(userRepository.findAllByFirstPreferredCategory_Id(categoryId)).thenReturn(null);
+    when(userRepository.findAllBySecondPreferredCategory_Id(categoryId)).thenReturn(null);
 
-    Report report = Report.builder().id(1L).name("TEST_REPORT_NAME").image("TEST_IMAGE_URL").status(
-        StatusEnum.UN_ADOPTED).user(TEST_USER).category(TEST_CATEGORY).build();
+    Report TEST_REPORT = Report.builder().id(1L).user(TEST_USER).category(TEST_CATEGORY).build();
     List<Report> reportList = new ArrayList<>();
-    reportList.add(report);
+    reportList.add(TEST_REPORT);
     when(reportRepository.findAllByCategory_Id(categoryId)).thenReturn(reportList);
+    doNothing().when(reportService).deleteReport(any(Long.class), any(Long.class));
 
-    //카테고리초기화
-    ReportRequestDto requestDto = ReportRequestDto.builder().name("제보상품이름").build();
-    Category category = new Category(CategoryRequestDto.builder().name("카테고리1").build());
-    ReflectionTestUtils.setField(category, Category.class, "id", 1L, Long.class);
-    //유저초기화
-    User user = new User("loginId", "nickname", "email", "password", category, category);
-    ReflectionTestUtils.setField(user, User.class, "id", 1L, Long.class);
-    //리포트 초기화
-    Report report2 = new Report(requestDto);
-    ReflectionTestUtils.setField(report2, Report.class, "id", 1L, Long.class);
-
-    CategoryRequestDto categoryRequestDto2 = CategoryRequestDto.builder().name("ExistingCategory")
-        .build();
-    Category existingCategory2 = new Category(categoryRequestDto2);
-    when(categoryRepository.findCategoryByIdOrElseThrow(category.getId())).thenReturn(existingCategory2);
-    when(reportRepository.findReportByIdOrElseThrow(report2.getId())).thenReturn(report2);
-
-    Product product = Product.builder().id(1L).image("TEST_IMAGE_URL").name("TEST_PRODUCT_NAME")
-        .description("TEST_PRODUCT_DESCRIPTION").area("TEST_PRODUCT_AREA")
-        .company("TEST_PRODUCT_COMPANY").alcoholDegree(1d).category(TEST_CATEGORY).build();
+    Product TEST_PRODUCT = Product.builder().category(TEST_CATEGORY).reviews(null).likes(null).build();
     List<Product> productList = new ArrayList<>();
-    productList.add(product);
+    productList.add(TEST_PRODUCT);
     when(productRepository.findAllByCategory_Id(categoryId)).thenReturn(productList);
-    categoryId = 1L;
-    Long productId = 100L;
-
-    ProductRequestDto requestDto5 = ProductRequestDto.builder()
-        .name("테스트 상품")
-        .description("테스트 설명")
-        .area("테스트 지역")
-        .company("테스트 회사")
-        .alcoholDegree(5.0)
-        .build();
-
-    Product product2 = new Product(requestDto5, category);
-    when(productRepository.findProductByIdOrElseThrow(productId)).thenReturn(product2);
-
-    when(reviewRepository.findAllByProduct_Id(productId)).thenReturn(null);
-
-
+    doNothing().when(productService).deleteProduct(any(Long.class));
 
     // When
     categoryService.deleteCategory(categoryId);
@@ -224,7 +187,7 @@ class CategoryServiceTest implements UserTestUtil {
     verify(categoryRepository, times(1)).findCategoryByIdOrElseThrow(categoryId);
 
     // CategoryRepository.delete() 메소드가 호출되었는지 확인
-    verify(categoryRepository, times(1)).delete(existingCategory2);
+    verify(categoryRepository, times(1)).delete(existingCategory);
 
     // S3Manager.deleteAllImageFiles() 메소드가 호출되었는지 확인
     verify(s3Manager, times(1)).deleteAllImageFiles(categoryId.toString(), "categories");
