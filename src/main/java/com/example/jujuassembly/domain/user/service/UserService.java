@@ -78,14 +78,17 @@ public class UserService {
     String sentCode = emailAuthService.sendVerificationCode(email);
 
     // redis에 저장하여 5분 내로 인증하도록 설정
-    emailAuthService.setSentCodeByLoginIdAtRedis(loginId, nickname, email, passwordEncoder.encode(password), firstPreferredCategoryId, secondPreferredCategoryId, sentCode);
+    emailAuthService.setSentCodeByLoginIdAtRedis(loginId, nickname, email,
+        passwordEncoder.encode(password), firstPreferredCategoryId, secondPreferredCategoryId,
+        sentCode);
 
   }
 
   @Transactional
   public UserResponseDto verificateCode(String verificationCode, String loginId) {
 
-    EmailAuthDto emailAuthDto = emailAuthService.checkVerifyVerificationCode(loginId, verificationCode);
+    EmailAuthDto emailAuthDto = emailAuthService.checkVerifyVerificationCode(loginId,
+        verificationCode);
 
     String nickname = emailAuthDto.getNickname();
     String email = emailAuthDto.getEmail();
@@ -148,32 +151,38 @@ public class UserService {
   @Transactional
   public UserDetailResponseDto modifyProfile(Long userId, User user,
       UserModifyRequestDto modifyRequestDto) {
+
     if (!user.getId().equals(userId)) {
       throw new ApiException("본인만 변경할 수 있습니다.", HttpStatus.UNAUTHORIZED);
     }
-    if (!passwordEncoder.matches(modifyRequestDto.getCurrentPassword(), user.getPassword())) {
-      throw new ApiException("현재 비밀번호가 일치 하지 않습니다!", HttpStatus.BAD_REQUEST);
-    }
-
-    if (!modifyRequestDto.getPassword().equals(modifyRequestDto.getPasswordCheck())) {
-      throw new ApiException("비밀번호 확인이 일치 하지 않습니다!", HttpStatus.BAD_REQUEST);
-    }
-
-    //현재와 동일한 닉네임으로 변경 가능
-    if (!user.getNickname().equals(modifyRequestDto.getNickname())) {
-      if (userRepository.findByNickname(modifyRequestDto.getNickname()).isPresent()) {
-        throw new ApiException("중복된 nickname 입니다.", HttpStatus.BAD_REQUEST);
-      }
-    }
-
 
     User loginUser = userRepository.findUserByIdOrElseThrow(userId);
     Category category1 = categoryRepository.findCategoryByIdOrElseThrow(
         modifyRequestDto.getFirstPreferredCategoryId());
     Category category2 = categoryRepository.findCategoryByIdOrElseThrow(
         modifyRequestDto.getSecondPreferredCategoryId());
-    String encodePassword = passwordEncoder.encode(modifyRequestDto.getPassword());
-    loginUser.updateUser(modifyRequestDto, encodePassword, category1, category2);
+
+    if (user.getKakaoId() == null) {
+
+      if (!passwordEncoder.matches(modifyRequestDto.getCurrentPassword(), user.getPassword())) {
+        throw new ApiException("현재 비밀번호가 일치 하지 않습니다!", HttpStatus.BAD_REQUEST);
+      }
+
+      if (!modifyRequestDto.getPassword().equals(modifyRequestDto.getPasswordCheck())) {
+        throw new ApiException("비밀번호 확인이 일치 하지 않습니다!", HttpStatus.BAD_REQUEST);
+      }
+
+      //현재와 동일한 닉네임으로 변경 가능
+      if (!user.getNickname().equals(modifyRequestDto.getNickname())) {
+        if (userRepository.findByNickname(modifyRequestDto.getNickname()).isPresent()) {
+          throw new ApiException("중복된 nickname 입니다.", HttpStatus.BAD_REQUEST);
+        }
+      }
+      String encodePassword = passwordEncoder.encode(modifyRequestDto.getPassword());
+      loginUser.updateUser(modifyRequestDto, encodePassword, category1, category2);
+    } else {
+      loginUser.updateKakaoUser(modifyRequestDto, category1, category2);
+    }
 
     return new UserDetailResponseDto(loginUser);
   }

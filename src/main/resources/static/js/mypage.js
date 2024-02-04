@@ -41,7 +41,8 @@ $(document).ready(async function () {
   } else {
     getUserInfo();
   }
-  if (kakaoId !== undefined) {
+  if (kakaoId !== null) {
+    console.log(kakaoId);
     //비밀번호 입력 부분 숨기기
     $('#current_password').hide();
     $('#edit-password').hide();
@@ -144,7 +145,8 @@ function updateProfile() {
   }
   let data = null;
 
-  if (kakaoId !== undefined) {
+  if (kakaoId !== null) {
+    console.log(kakaoId);
     data = {
       "nickname": nickname,
       "firstPreferredCategoryId": firstPreferredCategoryId,

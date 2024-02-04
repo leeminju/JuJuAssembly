@@ -120,6 +120,13 @@ public class User extends Timestamped {
     this.secondPreferredCategory = category2;
   }
 
+  public void updateKakaoUser(UserModifyRequestDto modifyRequestDto, Category category1,
+      Category category2) {
+    this.nickname = modifyRequestDto.getNickname();
+    this.firstPreferredCategory = category1;
+    this.secondPreferredCategory = category2;
+  }
+
   //유저 상태 설정
   public void setIsArchived(boolean b) {
     this.isArchived = b;
