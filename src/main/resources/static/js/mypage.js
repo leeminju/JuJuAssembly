@@ -42,6 +42,13 @@ $(document).ready(async function () {
   } else {
     getUserInfo();
   }
+  if (kakaoId !== null) {
+    //비밀번호 입력 부분 숨기기
+    $('#current_password').hide();
+    $('#edit-password').hide();
+    $('#edit-passwordCheck').hide();
+  }
+
   getCategory();
 
   $('#image').click(function () {
@@ -136,16 +143,24 @@ function updateProfile() {
     alert("1순위 선호 주종과 2순위 선호 주종이 같습니다!");
     return;
   }
+  let data = null;
 
-  let data = {
-    "nickname": nickname,
-    "currentPassword": currentPassword,
-    "password": password,
-    "passwordCheck": passwordCheck,
-    "firstPreferredCategoryId": firstPreferredCategoryId,
-    "secondPreferredCategoryId": secondPreferredCategoryId,
+  if (kakaoId != null) {
+    data = {
+      "nickname": nickname,
+      "firstPreferredCategoryId": firstPreferredCategoryId,
+      "secondPreferredCategoryId": secondPreferredCategoryId,
+    }
+  } else {
+    data = {
+      "nickname": nickname,
+      "currentPassword": currentPassword,
+      "password": password,
+      "passwordCheck": passwordCheck,
+      "firstPreferredCategoryId": firstPreferredCategoryId,
+      "secondPreferredCategoryId": secondPreferredCategoryId,
+    }
   }
-
   $.ajax({
     type: 'PATCH',
     url: `/v1/users/${userId}`,
