@@ -83,18 +83,4 @@ public class Review extends Timestamped {
     this.star = requestDto.getStar();
     this.isVerified = false;//수정 했다면 인증을 다시 받아야함.
   }
-
-
-
-  // 추천(좋아요) 추가 메서드
-  public void incrementLikesCount() {
-    this.likeCount++;
-  }
-
-  // 추천(좋아요) 제거 메서드
-  public void decrementLikesCount() {
-    if (this.likeCount > 0) {
-      this.likeCount--;
-    }
-  }
 }
