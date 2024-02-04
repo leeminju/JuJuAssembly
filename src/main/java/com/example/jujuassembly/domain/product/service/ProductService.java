@@ -7,11 +7,13 @@ import com.example.jujuassembly.domain.product.dto.ProductRequestDto;
 import com.example.jujuassembly.domain.product.dto.ProductResponseDto;
 import com.example.jujuassembly.domain.product.entity.Product;
 import com.example.jujuassembly.domain.product.repository.ProductRepository;
+import com.example.jujuassembly.domain.review.entity.Review;
 import com.example.jujuassembly.domain.review.repository.ReviewRepository;
 import com.example.jujuassembly.domain.review.service.ReviewService;
 import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.s3.S3Manager;
 import java.io.IOException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -124,12 +126,15 @@ public class ProductService {
   public void deleteProduct(Long productId) {
 
     // 제품에 해당하는 모든 리뷰 삭제
-    reviewRepository.findAllByProduct_Id(productId).stream().forEach(review -> {
-      reviewService.deleteProductsReview(
-          review.getProduct().getCategory().getId(),
-          review.getProduct().getId(),
-          review.getId());
-    });
+    List<Review> reviews = reviewRepository.findAllByProduct_Id(productId);
+    if (reviews!=null) {
+      reviews.stream().forEach(review -> {
+        reviewService.deleteProductsReview(
+            review.getProduct().getCategory().getId(),
+            review.getProduct().getId(),
+            review.getId());
+      });
+    }
 
     Product product = productRepository.findProductByIdOrElseThrow(productId);
 
