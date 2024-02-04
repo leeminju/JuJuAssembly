@@ -13,8 +13,14 @@ import com.example.jujuassembly.domain.category.dto.CategoryRequestDto;
 import com.example.jujuassembly.domain.category.dto.CategoryResponseDto;
 import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
+import com.example.jujuassembly.domain.product.repository.ProductRepository;
+import com.example.jujuassembly.domain.report.repository.ReportRepository;
+import com.example.jujuassembly.domain.user.entity.User;
+import com.example.jujuassembly.domain.user.repository.UserRepository;
+import com.example.jujuassembly.global.UserTestUtil;
 import com.example.jujuassembly.global.s3.S3Manager;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -25,7 +31,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
-class CategoryServiceTest implements CategoryTest {
+class CategoryServiceTest implements UserTestUtil {
 
   @InjectMocks
   CategoryService categoryService;
@@ -33,6 +39,12 @@ class CategoryServiceTest implements CategoryTest {
   CategoryRepository categoryRepository;
   @Mock
   S3Manager s3Manager;
+  @Mock
+  UserRepository userRepository;
+  @Mock
+  ReportRepository reportRepository;
+  @Mock
+  ProductRepository productRepository;
 
   @Test
   void getCategoriesTest() {
@@ -133,25 +145,34 @@ class CategoryServiceTest implements CategoryTest {
 
   }
 
-//  @Test
-//  void deleteCategory() {
-//    // Given
-//    Long categoryId = 1L;
-//    CategoryRequestDto categoryRequestDto =CategoryRequestDto.builder().name("ExistingCategory").build();
-//    Category existingCategory = new Category(categoryRequestDto);
-//    when(categoryRepository.findCategoryByIdOrElseThrow(categoryId)).thenReturn(existingCategory);
-//
-//    // When
-//    categoryService.deleteCategory(categoryId);
-//
-//    // Then
-//    // CategoryRepository.findCategoryByIdOrElseThrow() 메소드가 호출되었는지 확인
-//    verify(categoryRepository, times(1)).findCategoryByIdOrElseThrow(categoryId);
-//
-//    // CategoryRepository.delete() 메소드가 호출되었는지 확인
-//    verify(categoryRepository, times(1)).delete(existingCategory);
-//
-//    // S3Manager.deleteAllImageFiles() 메소드가 호출되었는지 확인
-//    verify(s3Manager, times(1)).deleteAllImageFiles(categoryId.toString(), "categories");
-//  }
+  @Test
+  void deleteCategoryTest() {
+    // Given
+    Long categoryId = 1L;
+    CategoryRequestDto categoryRequestDto =CategoryRequestDto.builder().name("ExistingCategory").build();
+    Category existingCategory = new Category(categoryRequestDto);
+    when(categoryRepository.findCategoryByIdOrElseThrow(categoryId)).thenReturn(existingCategory);
+
+    List<User> userList = new ArrayList<>();
+    userList.add(TEST_USER);
+    when(userRepository.findAllByFirstPreferredCategory_Id(categoryId)).thenReturn(userList);
+    when(userRepository.findAllBySecondPreferredCategory_Id(categoryId)).thenReturn(userList);
+
+    when(reportRepository.findAllByCategory_Id(categoryId)).thenReturn(null);
+
+    when(productRepository.findAllByCategory_Id(categoryId)).thenReturn(null);
+
+    // When
+    categoryService.deleteCategory(categoryId);
+
+    // Then
+    // CategoryRepository.findCategoryByIdOrElseThrow() 메소드가 호출되었는지 확인
+    verify(categoryRepository, times(1)).findCategoryByIdOrElseThrow(categoryId);
+
+    // CategoryRepository.delete() 메소드가 호출되었는지 확인
+    verify(categoryRepository, times(1)).delete(existingCategory);
+
+    // S3Manager.deleteAllImageFiles() 메소드가 호출되었는지 확인
+    verify(s3Manager, times(1)).deleteAllImageFiles(categoryId.toString(), "categories");
+  }
 }

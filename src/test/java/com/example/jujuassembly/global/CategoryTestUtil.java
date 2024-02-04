@@ -1,5 +1,6 @@
 package com.example.jujuassembly.global;
 
+import com.example.jujuassembly.domain.category.dto.CategoryRequestDto;
 import com.example.jujuassembly.domain.category.entity.Category;
 
 public interface CategoryTestUtil {
@@ -9,6 +10,10 @@ public interface CategoryTestUtil {
   Long TEST_ANOTHER_CATEGORY_ID = 2L;
   String TEST_CATEGORY_NAME = "name";
 
+  CategoryRequestDto requestDto = CategoryRequestDto.builder().name(TEST_CATEGORY_NAME).build();
+
+  CategoryRequestDto anotherRequestDto = CategoryRequestDto.builder()
+      .name(ANOTHER_PREDIX + TEST_CATEGORY_NAME).build();
 
   Category TEST_CATEGORY = Category.builder()
       .id(TEST_CATEGORY_ID)
