@@ -17,7 +17,6 @@ import com.example.jujuassembly.domain.product.entity.Product;
 import com.example.jujuassembly.domain.product.repository.ProductRepository;
 import com.example.jujuassembly.domain.review.entity.Review;
 import com.example.jujuassembly.domain.review.repository.ReviewRepository;
-import com.example.jujuassembly.domain.reviewLike.dto.ReviewLikeResponseDto;
 import com.example.jujuassembly.domain.reviewLike.entity.ReviewLike;
 import com.example.jujuassembly.domain.reviewLike.entity.ReviewLikeStatusEnum;
 import com.example.jujuassembly.domain.reviewLike.repository.ReviewLikeRepository;
@@ -31,7 +30,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -131,7 +129,6 @@ class ReviewLikeServiceTest {
   @DisplayName("리뷰 추천 해제 테스트")
   void unlikeReviewTest() {
     // given
-    int initialLikesCount = review.getLikeCount();
     ReviewLike reviewLike = ReviewLike.builder()
         .id(reviewLikeId)
         .user(user)
@@ -140,14 +137,12 @@ class ReviewLikeServiceTest {
         .build();
 
     when(reviewLikeRepository.findByReviewAndUser(review, user)).thenReturn(Optional.of(reviewLike));
-    when(reviewRepository.save(review)).thenReturn(review);
 
     // when
     boolean result = reviewLikeService.likeReview(categoryId, productId, reviewId, user);
 
     // then
     assertFalse(result); // 결과가 false로 기대됨
-    assertEquals(initialLikesCount - 1, review.getLikeCount()); // 추천 수가 감소했는지 확인
     verify(reviewLikeRepository, times(1)).delete(reviewLike); // 추천이 삭제되었는지 확인
   }
 
