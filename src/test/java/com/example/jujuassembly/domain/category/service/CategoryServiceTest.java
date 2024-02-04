@@ -48,6 +48,10 @@ class CategoryServiceTest implements UserTestUtil {
   ReportRepository reportRepository;
   @Mock
   ProductRepository productRepository;
+  @Mock
+  ReportService reportService;
+  @Mock
+  ProductService productService;
 
   @Test
   void getCategoriesTest() {
@@ -150,46 +154,39 @@ class CategoryServiceTest implements UserTestUtil {
 
   }
 
-  @InjectMocks
-  ReportService reportService;
-  @InjectMocks
-  ProductService productService;
-
   @Test
   void deleteCategory() {
     // Given
-    Long categoryId = 1L;
-    CategoryRequestDto categoryRequestDto = CategoryRequestDto.builder().name("ExistingCategory")
-        .build();
-    Category existingCategory = new Category(categoryRequestDto);
-    when(categoryRepository.findCategoryByIdOrElseThrow(categoryId)).thenReturn(existingCategory);
-
-    when(userRepository.findAllByFirstPreferredCategory_Id(categoryId)).thenReturn(null);
-    when(userRepository.findAllBySecondPreferredCategory_Id(categoryId)).thenReturn(null);
+    when(userRepository.findAllByFirstPreferredCategory_Id(TEST_CATEGORY_ID)).thenReturn(null);
+    when(userRepository.findAllBySecondPreferredCategory_Id(TEST_CATEGORY_ID)).thenReturn(null);
 
     Report TEST_REPORT = Report.builder().id(1L).user(TEST_USER).category(TEST_CATEGORY).build();
     List<Report> reportList = new ArrayList<>();
     reportList.add(TEST_REPORT);
-    when(reportRepository.findAllByCategory_Id(categoryId)).thenReturn(reportList);
-    doNothing().when(reportService).deleteReport(any(Long.class), any(Long.class));
+    when(reportRepository.findAllByCategory_Id(TEST_CATEGORY_ID)).thenReturn(reportList);
+    doNothing().when(reportService).deleteReport(TEST_CATEGORY_ID, TEST_REPORT.getId());
 
-    Product TEST_PRODUCT = Product.builder().category(TEST_CATEGORY).reviews(null).likes(null).build();
+    Product TEST_PRODUCT = Product.builder().id(1L).category(TEST_CATEGORY).reviews(null)
+        .likes(null).build();
     List<Product> productList = new ArrayList<>();
     productList.add(TEST_PRODUCT);
-    when(productRepository.findAllByCategory_Id(categoryId)).thenReturn(productList);
+    when(productRepository.findAllByCategory_Id(TEST_CATEGORY_ID)).thenReturn(productList);
     doNothing().when(productService).deleteProduct(any(Long.class));
 
+    when(categoryRepository.findCategoryByIdOrElseThrow(TEST_CATEGORY_ID)).thenReturn(
+        TEST_CATEGORY);
+
     // When
-    categoryService.deleteCategory(categoryId);
+    categoryService.deleteCategory(TEST_CATEGORY_ID);
 
     // Then
     // CategoryRepository.findCategoryByIdOrElseThrow() 메소드가 호출되었는지 확인
-    verify(categoryRepository, times(1)).findCategoryByIdOrElseThrow(categoryId);
+    verify(categoryRepository, times(1)).findCategoryByIdOrElseThrow(TEST_CATEGORY_ID);
 
     // CategoryRepository.delete() 메소드가 호출되었는지 확인
-    verify(categoryRepository, times(1)).delete(existingCategory);
+    verify(categoryRepository, times(1)).delete(eq(TEST_CATEGORY));
 
     // S3Manager.deleteAllImageFiles() 메소드가 호출되었는지 확인
-    verify(s3Manager, times(1)).deleteAllImageFiles(categoryId.toString(), "categories");
+    verify(s3Manager, times(1)).deleteAllImageFiles(TEST_CATEGORY_ID.toString(), "categories");
   }
 }

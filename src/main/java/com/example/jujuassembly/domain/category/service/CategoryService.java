@@ -84,10 +84,17 @@ public class CategoryService {
   @Transactional
   public void deleteCategory(Long categoryId) {
 
-    userRepository.findAllByFirstPreferredCategory_Id(categoryId).stream().forEach(
-        User::deleteFirstPreferredCategoryCategory);
-    userRepository.findAllBySecondPreferredCategory_Id(categoryId).stream().forEach(
-        User::deleteSecondPreferredCategoryCategory);
+    List<User> usersWithFirstPreferredCategory = userRepository.findAllByFirstPreferredCategory_Id(
+        categoryId);
+    if (usersWithFirstPreferredCategory != null) {
+      usersWithFirstPreferredCategory.stream().forEach(User::deleteFirstPreferredCategoryCategory);
+    }
+    List<User> usersWithSecondPreferredCategory = userRepository.findAllBySecondPreferredCategory_Id(
+        categoryId);
+    if (usersWithSecondPreferredCategory != null) {
+      usersWithSecondPreferredCategory.stream()
+          .forEach(User::deleteSecondPreferredCategoryCategory);
+    }
 
     reportRepository.findAllByCategory_Id(categoryId).stream().forEach(report -> {
       reportService.deleteReport(categoryId, report.getId());
