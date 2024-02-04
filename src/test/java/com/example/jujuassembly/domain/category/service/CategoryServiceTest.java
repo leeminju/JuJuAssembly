@@ -8,12 +8,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.example.jujuassembly.domain.category.CategoryTest;
 import com.example.jujuassembly.domain.category.dto.CategoryRequestDto;
 import com.example.jujuassembly.domain.category.dto.CategoryResponseDto;
 import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
+import com.example.jujuassembly.domain.product.entity.Product;
 import com.example.jujuassembly.domain.product.repository.ProductRepository;
+import com.example.jujuassembly.domain.report.entity.Report;
+import com.example.jujuassembly.domain.report.entity.StatusEnum;
 import com.example.jujuassembly.domain.report.repository.ReportRepository;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
@@ -50,7 +52,7 @@ class CategoryServiceTest implements UserTestUtil {
   void getCategoriesTest() {
     //given
     // 가짜 Category 목록 생성
-    CategoryRequestDto requestDto2=CategoryRequestDto.builder().name("카테고리2").build();
+    CategoryRequestDto requestDto2 = CategoryRequestDto.builder().name("카테고리2").build();
     Category category1 = new Category(requestDto);
     Category category2 = new Category(requestDto2);
     List<Category> fakeCategoryList = Arrays.asList(category1, category2);
@@ -92,7 +94,6 @@ class CategoryServiceTest implements UserTestUtil {
 
     when(s3Manager.upload(any(), eq("categories"), eq(category.getId()))).thenReturn(mockImageUrl);
 
-
     CategoryResponseDto result = categoryService.createCategory(requestDto, image);
 
     // Then
@@ -111,7 +112,8 @@ class CategoryServiceTest implements UserTestUtil {
   @Test
   void updateCategoryTest() throws IOException {
     // Given
-    CategoryRequestDto categoryRequestDto =CategoryRequestDto.builder().name("UpdatedCategory").build();
+    CategoryRequestDto categoryRequestDto = CategoryRequestDto.builder().name("UpdatedCategory")
+        .build();
     MultipartFile image = mock(MultipartFile.class);
     when(image.isEmpty()).thenReturn(false);
     when(image.getContentType()).thenReturn("image/jpeg");
@@ -119,13 +121,15 @@ class CategoryServiceTest implements UserTestUtil {
 
     Category existingCategory = new Category(requestDto1);
     existingCategory.builder().image("https://exapmple.com/image.jpg").build();
-    when(categoryRepository.findCategoryByIdOrElseThrow(TEST_CATEGORY_ID)).thenReturn(existingCategory);
-
+    when(categoryRepository.findCategoryByIdOrElseThrow(TEST_CATEGORY_ID)).thenReturn(
+        existingCategory);
 
     //when
     String mockImageUrl = "https://modified.com/image.jpg";
-    when(s3Manager.upload(any(), eq("categories"), eq(existingCategory.getId()))).thenReturn(mockImageUrl);
-    CategoryResponseDto result = categoryService.updateCategory(categoryRequestDto, TEST_CATEGORY_ID, image);
+    when(s3Manager.upload(any(), eq("categories"), eq(existingCategory.getId()))).thenReturn(
+        mockImageUrl);
+    CategoryResponseDto result = categoryService.updateCategory(categoryRequestDto,
+        TEST_CATEGORY_ID, image);
 
     // Then
     // CategoryRepository.findCategoryByIdOrElseThrow() 메소드가 호출되었는지 확인
@@ -149,7 +153,8 @@ class CategoryServiceTest implements UserTestUtil {
   void deleteCategoryTest() {
     // Given
     Long categoryId = 1L;
-    CategoryRequestDto categoryRequestDto =CategoryRequestDto.builder().name("ExistingCategory").build();
+    CategoryRequestDto categoryRequestDto = CategoryRequestDto.builder().name("ExistingCategory")
+        .build();
     Category existingCategory = new Category(categoryRequestDto);
     when(categoryRepository.findCategoryByIdOrElseThrow(categoryId)).thenReturn(existingCategory);
 
@@ -158,9 +163,18 @@ class CategoryServiceTest implements UserTestUtil {
     when(userRepository.findAllByFirstPreferredCategory_Id(categoryId)).thenReturn(userList);
     when(userRepository.findAllBySecondPreferredCategory_Id(categoryId)).thenReturn(userList);
 
-    when(reportRepository.findAllByCategory_Id(categoryId)).thenReturn(null);
+    Report report = Report.builder().id(1L).name("TEST_REPORT_NAME").image("TEST_IMAGE_URL").status(
+        StatusEnum.UN_ADOPTED).user(TEST_USER).category(TEST_CATEGORY).build();
+    List<Report> reportList = new ArrayList<>();
+    reportList.add(report);
+    when(reportRepository.findAllByCategory_Id(categoryId)).thenReturn(reportList);
 
-    when(productRepository.findAllByCategory_Id(categoryId)).thenReturn(null);
+    Product product = Product.builder().id(1L).image("TEST_IMAGE_URL").name("TEST_PRODUCT_NAME")
+        .description("TEST_PRODUCT_DESCRIPTION").area("TEST_PRODUCT_AREA")
+        .company("TEST_PRODUCT_COMPANY").alcoholDegree(1d).category(TEST_CATEGORY).build();
+    List<Product> productList = new ArrayList<>();
+    productList.add(product);
+    when(productRepository.findAllByCategory_Id(categoryId)).thenReturn(productList);
 
     // When
     categoryService.deleteCategory(categoryId);
