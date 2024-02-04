@@ -192,9 +192,14 @@ public class UserController {
     return ResponseEntity.ok().body(new ApiResponse("회원 탈퇴 성공", HttpStatus.OK.value()));
   }
 
-  // https://kauth.kakao.com/oauth/authorize?response_type=code&client_id= ${REST_API_KEY} &redirect_uri= ${REDIRECT_URI}
-  // https://kauth.kakao.com/oauth/authorize?client_id=384eb140b7adc777306aa35e86b7fa7f&redirect_uri=https://jujuassembly.store/v1/auth/kakao/callback&response_type=code
-  // 카카오 로그인 요청 url
+  /**
+   * 카카오 로그인 요청
+   *
+   * @param code 카카오에서 전달해주는 인증코드
+   * @param response HttpServletResponse 객체
+   * @return 홈페이지로 리다이렉트
+   * @throws JsonProcessingException
+   */
   @GetMapping("/auth/kakao/callback")
   public ResponseEntity<ApiResponse> kakaoLogin(
       @RequestParam String code,

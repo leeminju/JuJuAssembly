@@ -13,7 +13,9 @@ import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.global.exception.ApiException;
 import com.example.jujuassembly.global.s3.S3Manager;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -84,18 +86,30 @@ public class CategoryService {
   @Transactional
   public void deleteCategory(Long categoryId) {
 
-    userRepository.findAllByFirstPreferredCategory_Id(categoryId).stream().forEach(
-        User::deleteFirstPreferredCategoryCategory);
-    userRepository.findAllBySecondPreferredCategory_Id(categoryId).stream().forEach(
-        User::deleteSecondPreferredCategoryCategory);
+    List<User> usersWithFirstPreferredCategory = userRepository.findAllByFirstPreferredCategory_Id(
+        categoryId);
+    if (usersWithFirstPreferredCategory != null) {
+      usersWithFirstPreferredCategory.stream().forEach(User::deleteFirstPreferredCategoryCategory);
+    }
+    List<User> usersWithSecondPreferredCategory = userRepository.findAllBySecondPreferredCategory_Id(
+        categoryId);
+    if (usersWithSecondPreferredCategory != null) {
+      usersWithSecondPreferredCategory.stream()
+          .forEach(User::deleteSecondPreferredCategoryCategory);
+    }
 
-    reportRepository.findAllByCategory_Id(categoryId).stream().forEach(report -> {
-      reportService.deleteReport(categoryId, report.getId());
-    });
+    Optional.ofNullable(reportRepository.findAllByCategory_Id(categoryId))
+        .orElse(Collections.emptyList())
+        .stream()
+        .forEach(report -> {
+          reportService.deleteReport(categoryId, report.getId());
+        });
 
-    productRepository.findAllByCategory_Id(categoryId).stream().forEach(product -> {
-      productService.deleteProduct(product.getId());
-    });
+    Optional.ofNullable(productRepository.findAllByCategory_Id(categoryId))
+        .orElse(Collections.emptyList())
+        .stream().forEach(product -> {
+          productService.deleteProduct(product.getId());
+        });
 
     Category category = categoryRepository.findCategoryByIdOrElseThrow(categoryId);
     categoryRepository.delete(category);

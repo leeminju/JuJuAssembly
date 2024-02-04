@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -15,6 +16,7 @@ import com.example.jujuassembly.domain.product.dto.ProductRequestDto;
 import com.example.jujuassembly.domain.product.dto.ProductResponseDto;
 import com.example.jujuassembly.domain.product.entity.Product;
 import com.example.jujuassembly.domain.product.repository.ProductRepository;
+import com.example.jujuassembly.domain.review.repository.ReviewRepository;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
 import com.example.jujuassembly.global.s3.S3Manager;
@@ -48,6 +50,9 @@ public class ProductServiceTest {
 
   @Mock
   Pageable pageable;
+
+  @Mock
+  ReviewRepository reviewRepository;
 
 
   @InjectMocks
@@ -307,25 +312,27 @@ public class ProductServiceTest {
     assertEquals(testUpdateDto.getAlcoholDegree(), updatedProduct.getAlcoholDegree());
   }
 
-//  @Test
-//  @DisplayName("상품 삭제 테스트")
-//  public void deleteProductTest() throws Exception {
-//    // given
-//    categoryId = 1L;
-//    productId = 100L;
-//
-//    Product product = new Product(requestDto, category);
-//    when(productRepository.findProductByIdOrElseThrow(productId)).thenReturn(product);
-//
-//    // when
-//    productService.deleteProduct(productId);
-//
-//    // then
-//    // 상품이 삭제되었는지 확인
-//    verify(productRepository, times(1)).delete(product);
-//
-//    // 이미지 파일 삭제가 호출되었는지 확인
-//    verify(s3Manager, times(1)).deleteAllImageFiles(productId.toString(), "products");
-//  }
+  @Test
+  @DisplayName("상품 삭제 테스트")
+  public void deleteProductTest() throws Exception {
+    // given
+    categoryId = 1L;
+    productId = 100L;
+
+    Product product = new Product(requestDto, category);
+    when(productRepository.findProductByIdOrElseThrow(productId)).thenReturn(product);
+
+    when(reviewRepository.findAllByProduct_Id(productId)).thenReturn(null);
+
+    // when
+    productService.deleteProduct(productId);
+
+    // then
+    // 상품이 삭제되었는지 확인
+    verify(productRepository, times(1)).delete(product);
+
+    // 이미지 파일 삭제가 호출되었는지 확인
+    verify(s3Manager, times(1)).deleteAllImageFiles(productId.toString(), "products");
+  }
 
 }
