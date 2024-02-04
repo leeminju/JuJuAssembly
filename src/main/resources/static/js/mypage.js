@@ -7,7 +7,6 @@ async function getCategoryName(id) {
 
     let category = response['data'];
     let name = category['name'];
-    console.log(name);
     return name;
   } catch (error) {
     alert(error['responseJSON']['msg']);
@@ -43,7 +42,6 @@ $(document).ready(async function () {
     getUserInfo();
   }
   if (kakaoId !== undefined) {
-    console.log(kakaoId);
     //비밀번호 입력 부분 숨기기
     $('#current_password').hide();
     $('#edit-password').hide();
@@ -93,7 +91,6 @@ function getCategory() {
     url: `/v1/categories`,
     success: function (response) {
       let categories = response['data'];
-      console.log(categories);
       for (let i = 0; i < categories.length; i++) {
         let category = categories[i];
         let id = category['id'];
