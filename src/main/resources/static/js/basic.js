@@ -7,6 +7,7 @@ let firstId = null;
 let secondId = null;
 let loginId = null;
 let profileImage = null;
+let kakaoId = null;
 
 $(document).ready(function () {
   authorizationCheck();
@@ -44,6 +45,7 @@ function authorizationCheck() {
       nickname = user['nickname'];
       profileImage = user['image'];
       loginId = user['loginId'];
+      kakaoId = user['kakaoId'];
       email = user['email'];
       firstId = user['firstPreferredCategoryId'];
       secondId = user['secondPreferredCategoryId'];
