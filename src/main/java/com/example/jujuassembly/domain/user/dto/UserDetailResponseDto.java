@@ -2,8 +2,6 @@ package com.example.jujuassembly.domain.user.dto;
 
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,6 +22,7 @@ public class UserDetailResponseDto {
   private String email;
   private String image;
   private UserRoleEnum role;
+  private Long kakaoId;
 
   public UserDetailResponseDto(User user) {
     this.id = user.getId();
@@ -38,5 +37,6 @@ public class UserDetailResponseDto {
     this.email = user.getEmail();
     this.image = user.getImage();
     this.role = user.getRole();
+    this.kakaoId = user.getKakaoId();
   }
 }
