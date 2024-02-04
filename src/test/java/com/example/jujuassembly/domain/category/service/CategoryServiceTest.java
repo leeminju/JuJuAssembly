@@ -12,11 +12,14 @@ import com.example.jujuassembly.domain.category.dto.CategoryRequestDto;
 import com.example.jujuassembly.domain.category.dto.CategoryResponseDto;
 import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
+import com.example.jujuassembly.domain.product.dto.ProductRequestDto;
 import com.example.jujuassembly.domain.product.entity.Product;
 import com.example.jujuassembly.domain.product.repository.ProductRepository;
+import com.example.jujuassembly.domain.report.dto.ReportRequestDto;
 import com.example.jujuassembly.domain.report.entity.Report;
 import com.example.jujuassembly.domain.report.entity.StatusEnum;
 import com.example.jujuassembly.domain.report.repository.ReportRepository;
+import com.example.jujuassembly.domain.review.repository.ReviewRepository;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
 import com.example.jujuassembly.global.UserTestUtil;
@@ -30,6 +33,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,6 +51,8 @@ class CategoryServiceTest implements UserTestUtil {
   ReportRepository reportRepository;
   @Mock
   ProductRepository productRepository;
+  @Mock
+  ReviewRepository reviewRepository;
 
   @Test
   void getCategoriesTest() {
@@ -169,12 +175,46 @@ class CategoryServiceTest implements UserTestUtil {
     reportList.add(report);
     when(reportRepository.findAllByCategory_Id(categoryId)).thenReturn(reportList);
 
+    //카테고리초기화
+    ReportRequestDto requestDto = ReportRequestDto.builder().name("제보상품이름").build();
+    Category category = new Category(CategoryRequestDto.builder().name("카테고리1").build());
+    ReflectionTestUtils.setField(category, Category.class, "id", 1L, Long.class);
+    //유저초기화
+    User user = new User("loginId", "nickname", "email", "password", category, category);
+    ReflectionTestUtils.setField(user, User.class, "id", 1L, Long.class);
+    //리포트 초기화
+    Report report2 = new Report(requestDto);
+    ReflectionTestUtils.setField(report2, Report.class, "id", 1L, Long.class);
+
+    CategoryRequestDto categoryRequestDto2 = CategoryRequestDto.builder().name("ExistingCategory")
+        .build();
+    Category existingCategory2 = new Category(categoryRequestDto2);
+    when(categoryRepository.findCategoryByIdOrElseThrow(category.getId())).thenReturn(existingCategory2);
+    when(reportRepository.findReportByIdOrElseThrow(report2.getId())).thenReturn(report2);
+
     Product product = Product.builder().id(1L).image("TEST_IMAGE_URL").name("TEST_PRODUCT_NAME")
         .description("TEST_PRODUCT_DESCRIPTION").area("TEST_PRODUCT_AREA")
         .company("TEST_PRODUCT_COMPANY").alcoholDegree(1d).category(TEST_CATEGORY).build();
     List<Product> productList = new ArrayList<>();
     productList.add(product);
     when(productRepository.findAllByCategory_Id(categoryId)).thenReturn(productList);
+    categoryId = 1L;
+    Long productId = 100L;
+
+    ProductRequestDto requestDto5 = ProductRequestDto.builder()
+        .name("테스트 상품")
+        .description("테스트 설명")
+        .area("테스트 지역")
+        .company("테스트 회사")
+        .alcoholDegree(5.0)
+        .build();
+
+    Product product2 = new Product(requestDto5, category);
+    when(productRepository.findProductByIdOrElseThrow(productId)).thenReturn(product2);
+
+    when(reviewRepository.findAllByProduct_Id(productId)).thenReturn(null);
+
+
 
     // When
     categoryService.deleteCategory(categoryId);
@@ -184,7 +224,7 @@ class CategoryServiceTest implements UserTestUtil {
     verify(categoryRepository, times(1)).findCategoryByIdOrElseThrow(categoryId);
 
     // CategoryRepository.delete() 메소드가 호출되었는지 확인
-    verify(categoryRepository, times(1)).delete(existingCategory);
+    verify(categoryRepository, times(1)).delete(existingCategory2);
 
     // S3Manager.deleteAllImageFiles() 메소드가 호출되었는지 확인
     verify(s3Manager, times(1)).deleteAllImageFiles(categoryId.toString(), "categories");
