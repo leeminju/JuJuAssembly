@@ -33,7 +33,7 @@
       window.location.href = "/login"
     }
     getUserReports();
-    getCategory('categoryId');
+    getCategory();
 
     $("#image").on("change", function (event) {
       create_imageFile = event.target.files[0];
@@ -121,7 +121,7 @@
     var isAsc = $(':radio[name="isAsc"]:checked').val();
 
     let dataSource = `/v1/users/${myId}/reports?sort=${sorting},${isAsc}`;
-serid
+
     $('#reports').empty();
     $('#pagination').pagination({
       dataSource,
