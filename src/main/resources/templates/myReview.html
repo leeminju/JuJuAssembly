@@ -135,11 +135,6 @@
             $('#verifiy_mark-' + id).hide();
           }
 
-          if (role != "ADMIN") {
-            $('#update_review_btn-' + id).hide();
-            $('#delete_review_btn-' + id).hide();
-          }
-
           if (imagesString === "[]") {
             $('#review-image-' + id).attr("src", productImage);//이미지 없다면 상품 이미지로
           }
