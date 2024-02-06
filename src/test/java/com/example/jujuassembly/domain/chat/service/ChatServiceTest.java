@@ -15,6 +15,7 @@ import com.example.jujuassembly.domain.chat.dto.ChatResponseDto;
 import com.example.jujuassembly.domain.chat.entity.Chat;
 import com.example.jujuassembly.domain.chat.repository.ChatRepository;
 import com.example.jujuassembly.domain.notification.service.NotificationService;
+import com.example.jujuassembly.domain.room.controller.RoomController;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.entity.UserRoleEnum;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,6 +51,8 @@ class ChatServiceTest {
   private SimpMessagingTemplate simpMessagingTemplate;
   @Mock
   private NotificationService notificationService;
+  @Mock
+  RoomController roomController;
   @Test
   @DisplayName("채팅 내용 저장 테스트")
   void saveTest() {
@@ -122,9 +126,13 @@ class ChatServiceTest {
     Chat chat = Chat.builder().roomId(roomId).content("hi").senderId(3L).receiverId(2L).build();
 
     // Mocking
+
     when(chatRepository.findFirstByRoomIdOrderByCreatedAtDesc(roomId)).thenReturn(chat);
     when(userRepository.findUserByIdOrElseThrow(eq(2L))).thenReturn(receiver);
     when(userRepository.findUserByIdOrElseThrow(eq(3L))).thenReturn(sender);
+
+    roomController.connectedUser = new ConcurrentHashMap<>();
+    roomController.connectedUser.put(roomId, new ArrayList<>(List.of("session-id-1")));
 
     // When
     chatService.publish(roomId, chatRequestDto);
