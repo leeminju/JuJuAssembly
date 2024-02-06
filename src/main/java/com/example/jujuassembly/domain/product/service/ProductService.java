@@ -16,7 +16,9 @@ import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +58,8 @@ public class ProductService {
   // 상품 전체 조회 + 페이징 정렬(상품 등록순)
   @Transactional(readOnly = true)
   public Page<ProductResponseDto> getProducts(Pageable pageable) {
+    pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+        pageable.getSort().and(Sort.by("id")));
     Page<Product> products = productRepository.findAll(pageable);
     // "Page" 인터페이스가 제공하는 'map' 메서드 활용
     return products.map(ProductResponseDto::new);
@@ -63,10 +67,11 @@ public class ProductService {
 
   // 카테고리별 상품 조회 + 페이징 정렬(상품 등록순)
   public Page<ProductResponseDto> getProductsByCategory(Long categoryId, Pageable pageable) {
-
     if (!categoryRepository.existsById(categoryId)) {
       throw new ApiException("해당 카테고리가 존재하지 않습니다.", HttpStatus.NOT_FOUND);
     }
+    pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+        pageable.getSort().and(Sort.by("id")));
 
     Page<Product> products = productRepository.findByCategoryId(categoryId, pageable);
     return products.map(ProductResponseDto::new);
@@ -89,7 +94,8 @@ public class ProductService {
     if (!StringUtils.hasText(keyword)) {
       throw new ApiException("검색어를 입력해주세요.", HttpStatus.BAD_REQUEST);
     }
-
+    pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+        pageable.getSort().and(Sort.by("id")));
     Page<Product> products = productRepository.findByKeyword(keyword, pageable);
     return products.map(ProductResponseDto::new);
   }
@@ -127,7 +133,7 @@ public class ProductService {
 
     // 제품에 해당하는 모든 리뷰 삭제
     List<Review> reviews = reviewRepository.findAllByProduct_Id(productId);
-    if (reviews!=null) {
+    if (reviews != null) {
       reviews.stream().forEach(review -> {
         reviewService.deleteProductsReview(
             review.getProduct().getCategory().getId(),
