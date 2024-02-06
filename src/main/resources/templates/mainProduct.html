@@ -25,6 +25,12 @@
 </head>
 <script>
   function getLike(categoryId, id) {
+    if (myId == null) {
+      $('#emptyHeart-' + id).show();
+      $('#fullHeart-' + id).hide();
+      return;
+    }
+    ;
     $.ajax({
       type: "GET",
       url: `/v1/categories/${categoryId}/products/${id}/like`,
@@ -46,6 +52,10 @@
   }
 
   function likeProduct(categoryId, id) {
+    if (myId == null) {
+      alert("로그인한 사용자만 찜할 수 있습니다.");
+      return;
+    }
     $.ajax({
       type: "POST",
       url: `/v1/categories/${categoryId}/products/${id}/like`,
@@ -462,6 +472,7 @@
           <select id="sorting" onchange="getAllProducts()" style="margin-right: 10px">
             <option value="reviewCount">리뷰 많은 순</option>
             <option value="likesCount">찜 많은 순</option>
+            <option value="name">이름 순</option>
             <option value="createdAt">등록일 순</option>
             <option value="modifiedAt">수정일 순</option>
 
