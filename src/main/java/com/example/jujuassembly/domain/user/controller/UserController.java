@@ -1,16 +1,16 @@
 package com.example.jujuassembly.domain.user.controller;
 
-import com.example.jujuassembly.domain.user.emailAuth.service.EmailAuthService;
 import com.example.jujuassembly.domain.user.dto.LoginRequestDto;
 import com.example.jujuassembly.domain.user.dto.SignupRequestDto;
 import com.example.jujuassembly.domain.user.dto.UserDetailResponseDto;
 import com.example.jujuassembly.domain.user.dto.UserModifyRequestDto;
 import com.example.jujuassembly.domain.user.dto.UserResponseDto;
+import com.example.jujuassembly.domain.user.emailAuth.service.EmailAuthService;
 import com.example.jujuassembly.domain.user.kakao.KakaoService;
 import com.example.jujuassembly.domain.user.service.UserService;
+import com.example.jujuassembly.global.filter.UserDetailsImpl;
 import com.example.jujuassembly.global.jwt.JwtUtil;
 import com.example.jujuassembly.global.response.ApiResponse;
-import com.example.jujuassembly.global.filter.UserDetailsImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -195,13 +195,23 @@ public class UserController {
   /**
    * 카카오 로그인 요청
    *
-   * @param code 카카오에서 전달해주는 인증코드
+   * @return 요청 주소로 redirect
+   */
+  @GetMapping("/auth/kakao/login")
+  public ResponseEntity<ApiResponse> kakaoLogin() {
+    return ResponseEntity.ok().body(new ApiResponse(kakaoService.clientId, HttpStatus.OK.value()));
+  }
+
+  /**
+   * 카카오 로그인 콜백
+   *
+   * @param code     카카오에서 전달해주는 인증코드
    * @param response HttpServletResponse 객체
    * @return 홈페이지로 리다이렉트
    * @throws JsonProcessingException
    */
   @GetMapping("/auth/kakao/callback")
-  public ResponseEntity<ApiResponse> kakaoLogin(
+  public ResponseEntity<ApiResponse> kakaoLoginCallback(
       @RequestParam String code,
       HttpServletResponse response) throws JsonProcessingException {
 
