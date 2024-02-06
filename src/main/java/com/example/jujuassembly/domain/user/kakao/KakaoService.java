@@ -36,7 +36,7 @@ public class KakaoService {
   private final CategoryRepository categoryRepository;
 
   @Value("${kakao.client.id}")
-  private String clientId;
+  public String clientId;
 
   public String kakaoLogin(String code)
       throws JsonProcessingException {
