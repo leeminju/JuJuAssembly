@@ -87,19 +87,6 @@ public class Product extends Timestamped {
     this.image = url;
   }
 
-  // 리뷰 수 증가 메서드
-  public void incrementReviewCount() {
-    this.reviewCount++;
-  }
-
-  // 리뷰 수 감소 메서드
-  public void decrementReviewCount() {
-    if (this.reviewCount > 0) {
-      this.reviewCount--;
-    }
-  }
-
-
   public void update(ProductModifyRequestDto requestDto, Category category) {
     this.name = requestDto.getName();
     this.description = requestDto.getDescription();
