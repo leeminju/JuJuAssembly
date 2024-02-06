@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -26,6 +27,7 @@ public class LikeService {
   private final UserRepository userRepository;
 
   //좋아요
+  @Transactional
   public void addLike(Long categoryId, Long productId, User user) {
     //상품, 카테고리 존재여부 확인
     Product product = productRepository.findProductByIdOrElseThrow(productId);
@@ -42,8 +44,8 @@ public class LikeService {
     Like like = new Like(product, user);
     likeRepository.save(like);
 
-    product.incrementLikesCount(); // 좋아요 수 증가
-    productRepository.save(product);
+    // 좋아요 수 증가
+    productRepository.increaseLikesCount(productId);
   }
 
   //본인 좋아요 목록 조회
@@ -62,6 +64,7 @@ public class LikeService {
   }
 
   //좋아요 취소
+  @Transactional
   public void cancelLike(Long productId, User user) {
     Product product = productRepository.findProductByIdOrElseThrow(productId);
     Like like = likeRepository.findByProductAndUser(product, user).orElseThrow
@@ -73,8 +76,7 @@ public class LikeService {
     }
 
     // 좋아요 취소 전에 좋아요 카운트 감소
-    product.decrementLikesCount();
-    productRepository.save(product);
+    productRepository.decreaseLikesCount(productId);
 
     likeRepository.delete(like);
   }

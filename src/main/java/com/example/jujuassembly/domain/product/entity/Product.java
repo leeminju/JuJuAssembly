@@ -99,17 +99,6 @@ public class Product extends Timestamped {
     }
   }
 
-  // 좋아요 수 증가 메서드
-  public void incrementLikesCount() {
-    this.likesCount++;
-  }
-
-  // 좋아요 수 감소 메서드
-  public void decrementLikesCount() {
-    if (this.likesCount > 0) {
-      this.likesCount--;
-    }
-  }
 
   public void update(ProductModifyRequestDto requestDto, Category category) {
     this.name = requestDto.getName();
