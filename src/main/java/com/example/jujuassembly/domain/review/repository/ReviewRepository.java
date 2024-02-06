@@ -34,12 +34,12 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
   //리뷰 추천 수 증가
   @Modifying
   @Query("UPDATE Review r SET r.likeCount = r.likeCount+1 WHERE r.id = :reviewId")
-  void incrementLikesCount(@Param("reviewId") Long reviewId);
+  void increaseLikesCount(@Param("reviewId") Long reviewId);
 
   //리뷰 추천 수 감소
   @Modifying
   @Query("UPDATE Review r SET r.likeCount = r.likeCount-1 WHERE r.id = :reviewId")
-  void decrementLikesCount(@Param("reviewId") Long reviewId);
+  void decreaseLikesCount(@Param("reviewId") Long reviewId);
 
   List<Review> findAllByProduct_Id(Long productId);
 

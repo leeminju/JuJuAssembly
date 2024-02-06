@@ -47,9 +47,8 @@ public class ReviewService {
 
     Review review = new Review(requestDto, product, user);
     Review savedReview = reviewRepository.save(review);
-
-    product.incrementReviewCount(); // 리뷰 수 증가
-    productRepository.save(product);
+    // 상품의 리뷰 수 증가
+    productRepository.increaseReviewCount(productId);
 
     if (images != null && images.length > 4) {
       throw new ApiException("사진은 4장 까지만 업로드 가능합니다.", HttpStatus.BAD_REQUEST);
@@ -137,8 +136,7 @@ public class ReviewService {
     checkReviewProductAndProductIdEquality(review, productId);
 
     // 리뷰 삭제 전에 리뷰 카운트 감소
-    product.decrementReviewCount();
-    productRepository.save(product);
+    productRepository.decreaseReviewCount(productId);
 
     // 해당 리뷰에 대한 모든 알림 삭제
     notificationService.deleteNotificationByEntity("REVIEW", reviewId);
