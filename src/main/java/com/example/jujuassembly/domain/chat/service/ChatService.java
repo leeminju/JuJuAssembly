@@ -5,6 +5,7 @@ import com.example.jujuassembly.domain.chat.dto.ChatResponseDto;
 import com.example.jujuassembly.domain.chat.entity.Chat;
 import com.example.jujuassembly.domain.chat.repository.ChatRepository;
 import com.example.jujuassembly.domain.notification.service.NotificationService;
+import com.example.jujuassembly.domain.room.controller.RoomController;
 import com.example.jujuassembly.domain.user.entity.User;
 import com.example.jujuassembly.domain.user.repository.UserRepository;
 import java.time.ZoneId;
@@ -20,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class ChatService {
 
@@ -28,6 +28,7 @@ public class ChatService {
   private final UserRepository userRepository;
   private final SimpMessagingTemplate simpMessagingTemplate;
   private final NotificationService notificationService;
+  private final RoomController roomController;
 
   @Transactional
   public void save(Long roomId, ChatRequestDto chatRequestDto) {
@@ -52,17 +53,19 @@ public class ChatService {
 
     // 마지막으로 메시지를 보낸 채팅 조회
     Chat lastChat = chatRepository.findFirstByRoomIdOrderByCreatedAtDesc(roomId);
-
     // 마지막 메시지가 없거나 마지막 메시지의 발신자가 현재 메시지의 발신자와 다른 경우 알림 전송
-    if (lastChat == null || !lastChat.getSenderId().equals(chatRequestDto.getSenderId())
-        || ChronoUnit.MINUTES.between(lastChat.getCreatedAt().atZone(ZoneId.systemDefault()), ZonedDateTime.now()) > 5) {
-      Long recipientId = chatRequestDto.getReceiverId(); // 메시지 수신자 ID
-      User recipient = userRepository.findUserByIdOrElseThrow(recipientId); // 수신자 정보 조회
-      User sender = userRepository.findUserByIdOrElseThrow(
-          chatRequestDto.getSenderId()); // 발신자 정보 조회
+    if (roomController.connectedUser.get(roomId).size() != 2) {
+      if (lastChat == null || !lastChat.getSenderId().equals(chatRequestDto.getSenderId())
+          || ChronoUnit.MINUTES.between(lastChat.getCreatedAt().atZone(ZoneId.systemDefault()),
+          ZonedDateTime.now()) > 5) {
+        Long recipientId = chatRequestDto.getReceiverId(); // 메시지 수신자 ID
+        User recipient = userRepository.findUserByIdOrElseThrow(recipientId); // 수신자 정보 조회
+        User sender = userRepository.findUserByIdOrElseThrow(
+            chatRequestDto.getSenderId()); // 발신자 정보 조회
 
-      // 해당 유저(수신자)에게 채팅 알림 전송
-      notificationService.send(recipient, "ROOM", roomId, sender);
+        // 해당 유저(수신자)에게 채팅 알림 전송
+        notificationService.send(recipient, "ROOM", roomId, sender);
+      }
     }
   }
 

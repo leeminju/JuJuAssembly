@@ -40,6 +40,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -75,6 +76,7 @@ class ReviewServiceTest {
   private Product product;
   private Product product2;
   private Pageable pageable;
+  private Pageable pageable2;
   private Set<ReviewImage> reviewImages;
   private Set<ReviewLike> reviewLikes;
   private MultipartFile[] images;
@@ -109,7 +111,8 @@ class ReviewServiceTest {
 
     reviewImages = new LinkedHashSet<>();
     reviewLikes = new LinkedHashSet<>();
-    pageable = PageRequest.of(0, 10);
+    pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
+    pageable2 = PageRequest.of(0, 10, Sort.by("createdAt").descending().and(Sort.by("id")));
   }
 
   @Test
@@ -195,8 +198,8 @@ class ReviewServiceTest {
     // 가상의 Review 엔티티 리스트 생성
     List<Review> reviewList = Arrays.asList(review, review2);
 
-    Page<Review> mockReviews = new PageImpl<>(reviewList, pageable, reviewList.size());
-    when(reviewRepository.findAllByProduct(product, pageable)).thenReturn(mockReviews);
+    Page<Review> mockReviews = new PageImpl<>(reviewList, pageable2, reviewList.size());
+    when(reviewRepository.findAllByProduct(product, pageable2)).thenReturn(mockReviews);
 
     //when
     Page<ReviewResponseDto> reviews = reviewService.getProductsReview(categoryId, productId,
@@ -232,9 +235,9 @@ class ReviewServiceTest {
     given(userRepository.findUserByIdOrElseThrow(userId)).willReturn(user);
 
     List<Review> reviewList = Arrays.asList(review, review2);
-    Page<Review> mockReviews = new PageImpl<>(reviewList, pageable, reviewList.size());
+    Page<Review> mockReviews = new PageImpl<>(reviewList, pageable2, reviewList.size());
 
-    when(reviewRepository.findAllByUser(user, pageable)).thenReturn(mockReviews);
+    when(reviewRepository.findAllByUser(user, pageable2)).thenReturn(mockReviews);
 
     //when
     Page<ReviewResponseDto> reviews = reviewService.getMyReviews(userId, pageable);
@@ -280,10 +283,12 @@ class ReviewServiceTest {
         .build();
 
     List<Review> verifiedReviews = Collections.singletonList(verifiedReview);
-    Page<Review> verifiedReviewsPage = new PageImpl<>(verifiedReviews, pageable, verifiedReviews.size());
+    Page<Review> verifiedReviewsPage = new PageImpl<>(verifiedReviews, pageable2,
+        verifiedReviews.size());
 
     given(userRepository.findUserByIdOrElseThrow(userId)).willReturn(user);
-    given(reviewRepository.findAllByUserAndIsVerified(user, true, pageable)).willReturn(verifiedReviewsPage);
+    given(reviewRepository.findAllByUserAndIsVerified(user, true, pageable2)).willReturn(
+        verifiedReviewsPage);
 
     // when
     Page<ReviewResponseDto> response = reviewService.getVerifiedReviews(userId, pageable, true);

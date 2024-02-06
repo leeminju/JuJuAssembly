@@ -362,6 +362,10 @@
     }
 
     function likeReview(categoryId, productId, reviewId) {
+      if (myId == null) {
+        alert("로그인한 사용자만 추천할 수 있습니다.");
+        return;
+      }
       $.ajax({
         url: `/v1/categories/${categoryId}/products/${productId}/reviews/${reviewId}/like`,
         type: 'POST',
@@ -382,6 +386,10 @@
     }
 
     function dislikeReview(categoryId, productId, reviewId) {
+      if (myId == null) {
+        alert("로그인한 사용자만 비추천할 수 있습니다.");
+        return;
+      }
       $.ajax({
         url: `/v1/categories/${categoryId}/products/${productId}/reviews/${reviewId}/dislike`,
         type: 'POST',
@@ -523,13 +531,7 @@
     }
 
     function getLike() {
-      const auth = getToken();
-
-      if (auth !== undefined && auth !== '') {
-        $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
-          jqXHR.setRequestHeader('Authorization', auth);
-        });
-      } else {
+      if (myId == null) {
         $('#emptyHeart').show();
         $('#fullHeart').hide();
         return;
@@ -557,6 +559,10 @@
     }
 
     function likeProduct() {
+      if (myId == null) {
+        alert("로그인한 사용자만 찜할 수 있습니다.");
+        return;
+      }
       $.ajax({
         type: "POST",
         url: `/v1/categories/${categoryId}/products/${productId}/like`,

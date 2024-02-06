@@ -33,6 +33,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -149,17 +150,20 @@ public class ProductServiceTest {
   @DisplayName("전체 상품 조회 + 페이징 테스트")
   public void getProductsTest() throws Exception {
     // given
-    pageable = PageRequest.of(0, 10); // 예시 페이지 요청
+    pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending()); // 예시 페이지 요청
 
     // Product 리스트 생성 및 초기화
     List<Product> productList = new ArrayList<>();
     productList.add(new Product(requestDto, category));
     productList.add(new Product(requestDto, category));
 
-    Page<Product> productPage = new PageImpl<>(productList, pageable, productList.size());
+    Pageable pageable2 = PageRequest.of(0, 10,
+        Sort.by("createdAt").descending().and(Sort.by("id")));
+
+    Page<Product> productPage = new PageImpl<>(productList, pageable2, productList.size());
 
     // when
-    when(productRepository.findAll(pageable)).thenReturn(productPage);
+    when(productRepository.findAll(pageable2)).thenReturn(productPage);
 
     // 서비스 메소드 호출
     Page<ProductResponseDto> responseDto = productService.getProducts(pageable);
@@ -211,17 +215,19 @@ public class ProductServiceTest {
   public void getProductsByCategoryTest() throws Exception {
     // given
     categoryId = 1L;
-    pageable = PageRequest.of(0, 10);
+    pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
 
     List<Product> productList = new ArrayList<>();
     productList.add(new Product(requestDto, category));
     productList.add(new Product(requestDto, category));
 
-    Page<Product> productPage = new PageImpl<>(productList, pageable, productList.size());
+    Pageable pageable2 = PageRequest.of(0, 10,
+        Sort.by("createdAt").descending().and(Sort.by("id")));
+    Page<Product> productPage = new PageImpl<>(productList, pageable2, productList.size());
 
     // Repository 모의 설정
     when(categoryRepository.existsById(categoryId)).thenReturn(true);
-    when(productRepository.findByCategoryId(categoryId, pageable)).thenReturn(productPage);
+    when(productRepository.findByCategoryId(categoryId, pageable2)).thenReturn(productPage);
 
     // when
     Page<ProductResponseDto> responseDtoList = productService.getProductsByCategory(categoryId,
@@ -237,16 +243,18 @@ public class ProductServiceTest {
   public void searchProductsTest() throws Exception {
     // given
     String keyword = "test";
-    pageable = PageRequest.of(0, 10); // 예시 페이지 요청
+    pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());// 예시 페이지 요청
 
     List<Product> productList = new ArrayList<>();
     productList.add(new Product(requestDto, category));
     productList.add(new Product(requestDto, category));
 
-    Page<Product> productPage = new PageImpl<>(productList, pageable, productList.size());
+    Pageable pageable2 = PageRequest.of(0, 10,
+        Sort.by("createdAt").descending().and(Sort.by("id")));
+    Page<Product> productPage = new PageImpl<>(productList, pageable2, productList.size());
 
     // when
-    when(productRepository.findByKeyword(keyword, pageable)).thenReturn(productPage);
+    when(productRepository.findByKeyword(keyword, pageable2)).thenReturn(productPage);
 
     // 서비스 메소드 호출
     Page<ProductResponseDto> responseDtoList = productService.getProductsBySearch(keyword,

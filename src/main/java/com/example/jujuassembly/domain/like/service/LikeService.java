@@ -11,7 +11,9 @@ import com.example.jujuassembly.global.exception.ApiException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -51,6 +53,9 @@ public class LikeService {
     if (!user.getId().equals(loginUser.getId())) {
       throw new ApiException("본인의 좋아요 목록만 조회 가능힙니다.", HttpStatus.BAD_REQUEST);
     }
+    pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+        pageable.getSort().and(Sort.by("id")));
+
     Page<Like> likeList = likeRepository.findAllByUser(user, pageable);
 
     return likeList.map(LikeResponseDto::new);
