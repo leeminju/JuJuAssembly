@@ -2,7 +2,6 @@ package com.example.jujuassembly.domain.report.service;
 
 import com.example.jujuassembly.domain.category.entity.Category;
 import com.example.jujuassembly.domain.category.repository.CategoryRepository;
-import com.example.jujuassembly.domain.notification.repository.NotificationRepository;
 import com.example.jujuassembly.domain.notification.service.NotificationService;
 import com.example.jujuassembly.domain.report.dto.ReportPatchRequestDto;
 import com.example.jujuassembly.domain.report.dto.ReportRequestDto;
@@ -16,7 +15,9 @@ import com.example.jujuassembly.global.s3.S3Manager;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,25 +60,32 @@ public class ReportService {
   //조회
   //전체 제보상품 조회
   public Page<ReportResponseDto> getAllReports(Pageable pageable) {
+    pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+        pageable.getSort().and(Sort.by("id")));
     Page<Report> allReports = reportRepository.findAll(pageable);
     return allReports.map(ReportResponseDto::new);
   }
 
   //유저별 제보상품 조회
   public Page<ReportResponseDto> getUserReports(Long userId, Pageable pageable) {
+    pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+        pageable.getSort().and(Sort.by("id")));
     Page<Report> reports = reportRepository.findAllByUserId(userId, pageable);
     return reports.map(ReportResponseDto::new);
   }
 
   //카테고리별 제보상품 조회
   public Page<ReportResponseDto> getReportsByCategoryId(Long categoryId, Pageable pageable) {
+    pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+        pageable.getSort().and(Sort.by("id")));
     Page<Report> reports = reportRepository.findAllByCategoryId(categoryId, pageable);
     return reports.map(ReportResponseDto::new);
   }
 
   //수정
   @Transactional
-  public ReportResponseDto patchReport(Long categoryId, Long reportId, MultipartFile image, Boolean original,
+  public ReportResponseDto patchReport(Long categoryId, Long reportId, MultipartFile image,
+      Boolean original,
       ReportPatchRequestDto requestDto)
       throws IOException {
 
@@ -87,7 +95,8 @@ public class ReportService {
       throw new ApiException("현재 카테고리가 아닙니다.", HttpStatus.BAD_REQUEST);
     }
 
-    Category ModifiedCategory = categoryRepository.findCategoryByIdOrElseThrow(requestDto.getModifiedCategoryId());
+    Category ModifiedCategory = categoryRepository.findCategoryByIdOrElseThrow(
+        requestDto.getModifiedCategoryId());
 
     report.updateName(requestDto.getName());
     report.updateCategory(ModifiedCategory);
@@ -95,9 +104,7 @@ public class ReportService {
     if (image == null || image.getContentType() == null) {
       if (report.getImage() != null) {
         if (original) {
-          String originalImage = report.getImage();
-          System.out.println("orignalImage"+originalImage);
-          report.updateImage(originalImage);//원래 이미지 유지
+          report.updateImage(report.getImage());//원래 이미지 유지
         } else {
           report.updateImage(null);//원래 이미지 삭제
           s3Manager.deleteAllImageFiles(reportId.toString(), S3Manager.REPORT_DIRECTORY_NAME);
@@ -106,7 +113,7 @@ public class ReportService {
         report.updateImage(null);
         s3Manager.deleteAllImageFiles(reportId.toString(), S3Manager.REPORT_DIRECTORY_NAME);
       }
-    }else {
+    } else {
       if (!image.getContentType().startsWith("image")) {
         throw new ApiException("이미지 파일 형식이 아닙니다.", HttpStatus.BAD_REQUEST);
       }
@@ -117,7 +124,8 @@ public class ReportService {
   }
 
   @Transactional
-  public ReportResponseDto patchReportStatus(Long categoryId, Long reportId, ReportStatusRequestDto requestDto, User user) {
+  public ReportResponseDto patchReportStatus(Long categoryId, Long reportId,
+      ReportStatusRequestDto requestDto, User user) {
     categoryRepository.findCategoryByIdOrElseThrow(categoryId);
     Report report = reportRepository.findReportByIdOrElseThrow(reportId);
     report.updateStatus(requestDto.getStatus());

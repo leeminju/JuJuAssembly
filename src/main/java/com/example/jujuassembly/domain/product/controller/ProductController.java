@@ -61,7 +61,7 @@ public class ProductController {
    */
   @GetMapping("/products")
   public ResponseEntity<ApiResponse<Page<ProductResponseDto>>> getProducts(
-      @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+      @PageableDefault Pageable pageable) {
     Page<ProductResponseDto> page = productService.getProducts(pageable);
     return ResponseEntity.ok()
         .body(new ApiResponse<>("상품 전체 조회에 성공하였습니다.", HttpStatus.OK.value(), page));

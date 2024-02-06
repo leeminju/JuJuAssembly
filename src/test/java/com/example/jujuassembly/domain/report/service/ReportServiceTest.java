@@ -35,6 +35,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -72,7 +73,7 @@ class ReportServiceTest {
     MultipartFile image = mock(MultipartFile.class);
 
     given(categoryRepository.findCategoryByIdOrElseThrow(category.getId())).willReturn(category);
-   given(image.getContentType()).willReturn("image/png");
+    given(image.getContentType()).willReturn("image/png");
 
     //when
 
@@ -97,6 +98,7 @@ class ReportServiceTest {
     assertEquals(expectReport.getImage(), resultReport.getImage());
     assertEquals(expectReport.getStatus(), resultReport.getStatus());
   }
+
   @Test
   @DisplayName("전체 제보 상품 조회 테스트")
   void getAllReportsTest() {
@@ -108,12 +110,14 @@ class ReportServiceTest {
     User user = User.builder().id(1L).nickname("이름").email("이메일").build();
     Report report = Report.builder().id(1L).name("제보이름").user(user).category(category).build();
     // 가짜 페이지네이션 데이터 생성
-    Pageable pageable = PageRequest.of(0, 10);
+    Pageable pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
     List<Report> fakeReports = Arrays.asList(report);
-    Page<Report> fakePage = new PageImpl<>(fakeReports, pageable, fakeReports.size());
 
-    // Mockito를 사용하여 findAll 메서드 호출시 가짜 데이터 반환하도록 설정
-    when(reportRepository.findAll(pageable)).thenReturn(fakePage);
+    Pageable pageable2 = PageRequest.of(0, 10,
+        Sort.by("createdAt").descending().and(Sort.by("id")));
+
+    Page<Report> fakePage = new PageImpl<>(fakeReports, pageable2, fakeReports.size());
+    when(reportRepository.findAll(pageable2)).thenReturn(fakePage);
 
     // 테스트 실행
     Page<ReportResponseDto> result = reportService.getAllReports(pageable);
@@ -122,7 +126,7 @@ class ReportServiceTest {
     assertNotNull(result);
     assertEquals(fakeReports.size(), result.getContent().size());
     // 여기에서 필요한 추가적인 검증을 수행할 수 있습니다.
-    assertEquals(fakeReports.get(0).getName(),result.getContent().get(0).getName());
+    assertEquals(fakeReports.get(0).getName(), result.getContent().get(0).getName());
   }
 
   @Test
@@ -130,19 +134,23 @@ class ReportServiceTest {
   void getReportsTest() {
     // Mock 데이터 생성
     Long userId = 1L;
-    Pageable pageable = PageRequest.of(0,10);
+    Pageable pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
+
     CategoryRequestDto requestDto = CategoryRequestDto.builder().name("카테고리").build();
     Category category = new Category(requestDto);
     category.builder().image("imageurl").id(1L).build();
     User user = User.builder().id(1L).nickname("이름").email("이메일").build();
     Report report1 = Report.builder().id(1L).name("제보이름").user(user).category(category).build();
     Report report2 = Report.builder().id(2L).name("제보이름").user(user).category(category).build();
-    List<Report> reportList = Arrays.asList(report1,report2);
-    Page<Report> mockReport = new PageImpl<>(reportList, pageable, reportList.size());
+    List<Report> reportList = Arrays.asList(report1, report2);
 
-    when(reportRepository.findAllByUserId(userId, pageable)).thenReturn(mockReport);
-//    when(reportRepository.findByUserId(userId)).thenReturn(Optional.of(report1));
-//    when(reportRepository.findByUserId(userId)).thenReturn(Optional.of(report2));
+    // mock 데이터를 기반으로한 pageable 설정
+    Pageable pageable2 = PageRequest.of(0, 10,
+        Sort.by("createdAt").descending().and(Sort.by("id")));
+    Page<Report> mockReport = new PageImpl<>(reportList, pageable2, reportList.size());
+
+    // findAllByUserId 메서드 호출 시 예상되는 인자와 일치하도록 수정
+    when(reportRepository.findAllByUserId(userId, pageable2)).thenReturn(mockReport);
 
     // 테스트할 메서드 호출
     Page<ReportResponseDto> result = reportService.getUserReports(userId, pageable);
@@ -163,7 +171,7 @@ class ReportServiceTest {
     assertEquals(report2.getName(), secondreport.getName());
 
     // reportRepository.findAllByUserId() 메서드가 1번 호출되었는지 검증
-    verify(reportRepository, times(1)).findAllByUserId(userId, pageable);
+    verify(reportRepository, times(1)).findAllByUserId(userId, pageable2);
   }
 
   @Test
@@ -175,16 +183,17 @@ class ReportServiceTest {
     User user = User.builder().id(1L).nickname("이름").email("이메일").build();
     Report report = Report.builder().id(1L).name("제보이름").user(user).category(category).build();
 
-
     // 가짜 페이지네이션 데이터 생성
-    Pageable pageable = PageRequest.of(0, 10);
+    Pageable pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
+    Pageable pageable2 = PageRequest.of(0, 10,
+        Sort.by("createdAt").descending().and(Sort.by("id")));
 
     // 가짜 카테고리별 제보 상품 데이터 생성
     List<Report> fakeReports = Arrays.asList(report);
-    Page<Report> fakePage = new PageImpl<>(fakeReports, pageable, fakeReports.size());
+    Page<Report> fakePage = new PageImpl<>(fakeReports, pageable2, fakeReports.size());
 
     // Mockito를 사용하여 findAllByCategoryId 메서드 호출시 가짜 데이터 반환하도록 설정
-    when(reportRepository.findAllByCategoryId(categoryId, pageable)).thenReturn(fakePage);
+    when(reportRepository.findAllByCategoryId(categoryId, pageable2)).thenReturn(fakePage);
 
     // 테스트 실행
     Page<ReportResponseDto> result = reportService.getReportsByCategoryId(categoryId, pageable);
@@ -193,7 +202,7 @@ class ReportServiceTest {
     assertNotNull(result);
     assertEquals(fakeReports.size(), result.getContent().size());
     // 여기에서 필요한 추가적인 검증을 수행할 수 있습니다.
-    assertEquals(fakeReports.get(0).getName(),result.getContent().get(0).getName());
+    assertEquals(fakeReports.get(0).getName(), result.getContent().get(0).getName());
   }
 
   @Test
@@ -222,7 +231,8 @@ class ReportServiceTest {
 
     //수정할 report 생성
     //리포트 초기화
-    ReportPatchRequestDto requestDto = ReportPatchRequestDto.builder().modifiedCategoryId(1L).name("수정할 상품이름").build();
+    ReportPatchRequestDto requestDto = ReportPatchRequestDto.builder().modifiedCategoryId(1L)
+        .name("수정할 상품이름").build();
     Report updatereport = new Report(requestDto1);
     ReflectionTestUtils.setField(updatereport, Report.class, "id", 1L, Long.class);
 
@@ -330,7 +340,8 @@ class ReportServiceTest {
     CategoryRequestDto categoryRequestDto = CategoryRequestDto.builder().name("ExistingCategory")
         .build();
     Category existingCategory = new Category(categoryRequestDto);
-    when(categoryRepository.findCategoryByIdOrElseThrow(category.getId())).thenReturn(existingCategory);
+    when(categoryRepository.findCategoryByIdOrElseThrow(category.getId())).thenReturn(
+        existingCategory);
     when(reportRepository.findReportByIdOrElseThrow(report.getId())).thenReturn(report);
 
     // When

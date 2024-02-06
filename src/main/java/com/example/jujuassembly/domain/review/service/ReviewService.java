@@ -16,9 +16,10 @@ import com.example.jujuassembly.global.exception.ApiException;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,6 +65,8 @@ public class ReviewService {
 
   public Page<ReviewResponseDto> getProductsReview(Long categoryId, Long productId,
       Pageable pageable) {
+    pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+        pageable.getSort().and(Sort.by("id")));
     categoryRepository.findCategoryByIdOrElseThrow(categoryId);
     Product product = productRepository.findProductByIdOrElseThrow(productId);
     checkProductCategoryAndCategoryIdEquality(product, categoryId);
@@ -146,6 +149,8 @@ public class ReviewService {
   }
 
   public Page<ReviewResponseDto> getMyReviews(Long userId, Pageable pageable) {
+    pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+        pageable.getSort().and(Sort.by("id")));
     User user = userRepository.findUserByIdOrElseThrow(userId);
 
     Page<Review> reviews = reviewRepository.findAllByUser(user, pageable);
@@ -155,6 +160,8 @@ public class ReviewService {
   @Transactional(readOnly = true)
   public Page<ReviewResponseDto> getVerifiedReviews(Long userId, Pageable pageable,
       boolean isVerified) {
+    pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+        pageable.getSort().and(Sort.by("id")));
     User user = userRepository.findUserByIdOrElseThrow(userId);
 
     Page<Review> reviews;

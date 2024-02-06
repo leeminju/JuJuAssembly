@@ -39,6 +39,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 @ExtendWith(MockitoExtension.class)
 class LikeServiceTest implements CategoryTest {
@@ -107,7 +108,7 @@ class LikeServiceTest implements CategoryTest {
     // given
     Long userId = 123L;
     User loginUser = User.builder().id(userId).build();
-    Pageable pageable = PageRequest.of(0, 10);
+    Pageable pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
 
     User user = User.builder().id(userId).build();
 
@@ -118,11 +119,12 @@ class LikeServiceTest implements CategoryTest {
     Like like2 = Like.builder().id(2L).user(user).product(createProductWithLikes(2L)).build();
     likeList.add(like2);
 
-    Page<Like> mockReport = new PageImpl<>(likeList, pageable, likeList.size());
+    Pageable pageable2 = PageRequest.of(0, 10,
+        Sort.by("createdAt").descending().and(Sort.by("id")));
+    Page<Like> mockReport = new PageImpl<>(likeList, pageable2, likeList.size());
 
-    when(likeRepository.findAllByUser(user, pageable)).thenReturn(mockReport);
+    when(likeRepository.findAllByUser(user, pageable2)).thenReturn(mockReport);
     when(userRepository.findUserByIdOrElseThrow(userId)).thenReturn(user);
-    //when(likeRepository.findAllByUserId(userId)).thenReturn(likeList);
 
     // when
     Page<LikeResponseDto> likeResult = likeService.viewMyLikeProducts(userId, loginUser, pageable);

@@ -28,7 +28,6 @@
   var currentCategoryId = -1;
 
   $(document).ready(function () {
-    // getMyprofile();
     getCategory();
     // 페이지 로드 시 URL 파라미터 확인
     let urlParams = new URLSearchParams(window.location.search);
@@ -54,31 +53,6 @@
 
     return auth;
   }
-
-  // function getMyprofile() {
-  //   //로그인한 회원 정보
-  //   const auth = getToken();
-  //
-  //   if (auth !== undefined && auth !== '') {
-  //     $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
-  //       jqXHR.setRequestHeader('Authorization', auth);
-  //     });
-  //   } else {
-  //     return;
-  //   }
-  //
-  //   $.ajax({
-  //     type: 'GET',
-  //     url: `/v1/users/myprofile`,
-  //     success: function (response) {
-  //       let user = response['data'];
-  //       role = user['role'];
-  //     },
-  //     error(error, status, request) {
-  //       console.log(error)
-  //     }
-  //   });
-  // }
 
   function getCategory() {
     $.ajax({
@@ -125,6 +99,11 @@
   }
 
   function getLike(categoryId, id) {
+    if (myId == null) {
+      $('#emptyHeart-' + id).show();
+      $('#fullHeart-' + id).hide();
+      return;
+    }
     $.ajax({
       type: "GET",
       url: `/v1/categories/${categoryId}/products/${id}/like`,
@@ -141,11 +120,16 @@
       }, error: function (error) {
         $('#emptyHeart-' + id).show();
         $('#fullHeart-' + id).hide();
+        console.log(error);
       }
     });
   }
 
   function likeProduct(categoryId, id) {
+    if (myId == null) {
+      alert("로그인한 사용자만 찜할 수 있습니다.");
+      return;
+    }
     $.ajax({
       type: "POST",
       url: `/v1/categories/${categoryId}/products/${id}/like`,
@@ -157,7 +141,7 @@
         $('#likesCount-' + id).text(Number(count) + 1);
 
       }, error: function (error) {
-        alert("로그인한 회원만 찜할 수 있습니다.");
+        console.log(error);
       }
     });
 
@@ -175,7 +159,7 @@
         $('#likesCount-' + id).text(Number(count) - 1);
 
       }, error: function (error) {
-        alert("로그인한 회원만 찜 취소할 수 있습니다.");
+        console.log(error);
       }
     });
   }
@@ -488,8 +472,9 @@
         <div class="pagination">
           정렬:
           <select id="sorting" onchange="getSearch()" style="margin-right: 10px">
-            <option value="likesCount">찜 많은 순</option>
             <option value="reviewCount">리뷰 많은 순</option>
+            <option value="likesCount">찜 많은 순</option>
+            <option value="name">이름 순</option>
             <option value="createdAt">등록일 순</option>
             <option value="modifiedAt">수정일 순</option>
           </select>
@@ -501,7 +486,8 @@
       <div id="search-product-container" style="width: 80%;margin: auto;"
            class="row row-cols-1 row-cols-md-3 g-4">
       </div>
-      <div id="pagination" class="pagination" style="margin-top:25px; justify-content: center;"></div>
+      <div id="pagination" class="pagination"
+           style="margin-top:25px; justify-content: center;"></div>
 
     </div>
   </div>
