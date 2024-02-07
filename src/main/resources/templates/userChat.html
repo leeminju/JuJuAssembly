@@ -32,6 +32,35 @@
       padding: 10px;
     }
 
+    .message-content-sent {
+      float: right;
+      width: fit-content;
+      height: fit-content;
+      padding: 8px;
+      border-radius: 8px;
+      max-width: 70%;
+      background-color: #d3f5d3
+    }
+
+    .message-content-received {
+      width: fit-content;
+      height: fit-content;
+      padding: 8px;
+      border-radius: 8px;
+      max-width: 70%;
+      background-color: #e0e0e0;
+    }
+
+    .message-header-sent {
+      text-align: right;
+      margin-bottom: 10px;
+    }
+
+    .message-header-received {
+      margin-bottom: 10px;
+    }
+
+
     .chat-message {
       padding: 8px;
       border-radius: 8px;
@@ -40,12 +69,10 @@
 
     .sent {
       align-self: flex-end;
-      background-color: #d3f5d3; /* 내가 보낸 메시지 배경색 */
     }
 
     .received {
       align-self: flex-start;
-      background-color: #e0e0e0; /* 상대방이 보낸 메시지 배경색 */
     }
 
     .special {
@@ -309,15 +336,15 @@
     }
 
     // 메시지를 표시할 HTML 생성
-    var messageHtml = `
+        var messageHtml = `
 <div class="chat-message ${senderId === myId ? 'sent' : 'received'}">
-    <div class="message-header">
+    <div class="message-header-${senderId === myId ? 'sent' : 'received'}">
         <img src="${senderImage}" alt="보낸 사람 이미지" class="sender-image">
         <span class="sender-nickname">${senderNickname}</span>
     </div>
-    <div class="message-content">${message}</div>
+    <div class="message-content-${senderId === myId ? 'sent' : 'received'}">${message}</div>
 </div>
-`;
+  `;
     // 만약 senderId가 0이면 다른 CSS 적용
     if (senderId === 0) {
       messageHtml = `
@@ -511,7 +538,7 @@
       <div class="modal-body">
         <!-- 채팅창을 표시할 영역 -->
         <div id="chatContainer"
-             style="height: 200px; overflow-y: auto; word-wrap: break-word;"></div>
+             style="height: 400px; overflow-y: auto; word-wrap: break-word;"></div>
 
         <!-- 메시지 전송 버튼 -->
         <div class="input-group mb-3">
