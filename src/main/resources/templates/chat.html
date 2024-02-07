@@ -34,6 +34,35 @@
       padding: 10px;
     }
 
+    .message-content-sent {
+      float: right;
+      width: fit-content;
+      height: fit-content;
+      padding: 8px;
+      border-radius: 8px;
+      max-width: 70%;
+      background-color: #d3f5d3
+    }
+
+    .message-content-received {
+      width: fit-content;
+      height: fit-content;
+      padding: 8px;
+      border-radius: 8px;
+      max-width: 70%;
+      background-color: #e0e0e0;
+    }
+
+    .message-header-sent{
+      text-align: right;
+      margin-bottom: 10px;
+    }
+
+    .message-header-received{
+      margin-bottom: 10px;
+    }
+
+
     .chat-message {
       padding: 8px;
       border-radius: 8px;
@@ -42,12 +71,10 @@
 
     .sent {
       align-self: flex-end;
-      background-color: #d3f5d3; /* 내가 보낸 메시지 배경색 */
     }
 
     .received {
       align-self: flex-start;
-      background-color: #e0e0e0; /* 상대방이 보낸 메시지 배경색 */
     }
 
     .special {
@@ -66,6 +93,7 @@
     }
 
     .sender-nickname {
+      margin-left: 10px;
       font-size: 13px;
       font-weight: bold;
     }
@@ -311,11 +339,11 @@
     // 메시지를 표시할 HTML 생성
     var messageHtml = `
 <div class="chat-message ${senderId === myId ? 'sent' : 'received'}">
-    <div class="message-header">
+    <div class="message-header-${senderId === myId ? 'sent' : 'received'}">
         <img src="${senderImage}" alt="보낸 사람 이미지" class="sender-image">
         <span class="sender-nickname">${senderNickname}</span>
     </div>
-    <div class="message-content">${message}</div>
+    <div class="message-content-${senderId === myId ? 'sent' : 'received'}">${message}</div>
 </div>
   `;
 
@@ -424,7 +452,8 @@
             style="object-fit: contain;width: 30px;height: 30px" src="/images/menu.png"></button>
       <div class="col-md-3 mb-2 mb-md-0" style="font-size: 30px; margin-left: 20px">
         <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
-          <img src="/images/jujuAssemblyPabi.png" alt="주주 총회 아이콘" style="height: 40px; width: 40px; margin-right: 10px"> 주주 총회
+          <img src="/images/jujuAssemblyPabi.png" alt="주주 총회 아이콘"
+               style="height: 40px; width: 40px; margin-right: 10px"> 주주 총회
         </a>
       </div>
 
@@ -526,7 +555,7 @@
       <div class="modal-body">
         <!-- 채팅창을 표시할 영역 -->
         <div id="chatContainer"
-             style="height: 200px; overflow-y: auto; word-wrap: break-word;"></div>
+             style="height: 400px; overflow-y: auto; word-wrap: break-word;"></div>
 
         <!-- 메시지 전송 버튼 -->
         <div class="input-group mb-3">
