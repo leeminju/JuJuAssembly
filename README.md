@@ -37,7 +37,7 @@
 |-- |-----|----|----|----|-----|
 |블로그 |[블로그](https://velog.io/@leemj4090/posts)| [블로그](https://velog.io/@jeiho/posts)|[블로그](https://velog.io/@tntlr92)|[블로그](https://studymode.tistory.com/)|[블로그](https://velog.io/@yeong_do/posts)|
 |깃퍼브 |[GitHub](https://github.com/leeminju?tab=repositories) |[GitHub](https://github.com/k-jaehyun) |[GitHub](https://github.com/susik2023) |[GitHub](https://github.com/yeonwoopark20231003)|[GitHub](https://github.com/yeongdo99) |
-|담당기능 |- CI/CD 구축<br>- 도메인, HTTPS 적용<br>- 리뷰 기능<br>- Front 주도       |- Spring Security<br>- 소셜로그인<br>- 이메일 인증 | - 웹소켓 활용한 <br>채팅 기능 <br>- 주류 CRUD|- 주류 찜 기능<br>- 카트<br>- 프로필 기능<br> - 리뷰/제보 이미지 수정 |- SSE 알림 기능<br>- 주류 CRUD |
+|담당기능 |- CI/CD 구축<br>- 도메인, HTTPS 적용<br>- 리뷰 기능<br>- Front 주도       |- Spring Security<br>- 소셜로그인<br>- 이메일 인증 | - 웹소켓 활용한 <br>채팅 기능 <br>- 주류 CRUD|- 주류 찜 기능<br>- 관리자 기능<br> - 리뷰/제보 이미지 수정 |- SSE 알림 기능<br>- 주류 CRUD |
 
 <p><br></p>
 
