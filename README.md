@@ -29,6 +29,11 @@
 
 ![사진](https://www.notion.so/image/https%3A%2F%2Fprod-files-secure.s3.us-west-2.amazonaws.com%2F83c75a39-3aba-4ba4-a792-7aefe4b07895%2F85d47b3b-e1d5-462a-8ae4-51caf0028c4e%2F%25E1%2584%258C%25E1%2585%25AE%25E1%2584%258C%25E1%2585%25AE%25E1%2584%258E%25E1%2585%25A9%25E1%2586%25BC%25E1%2584%2592%25E1%2585%25AC_%25E1%2584%2589%25E1%2585%25A9%25E1%2584%2580%25E1%2585%25A2%25E1%2584%2591%25E1%2585%25A6%25E1%2584%258B%25E1%2585%25B5%25E1%2584%258C%25E1%2585%25B5.png?table=block&id=cb466992-ee26-4b0a-b5c1-af941d0926fd&spaceId=83c75a39-3aba-4ba4-a792-7aefe4b07895&width=2000&userId=ca0c5ffb-e774-49d1-8001-e9462600093c&cache=v2)
 
+
+## 📋서비스 아키텍쳐
+<img width="1020" alt="서비스 아키텍쳐" src="https://github.com/leeminju/JuJuAssembly/assets/146754105/9cc4d7a4-9952-41d2-b953-d08bb1596b56">
+
+
 <p><br></p>
 
 ## 👥 팀원 소개
@@ -144,6 +149,7 @@ hotfix : 출시 버전에서 발생한 버그를 수정 하는 브랜치<br>
 **작업의 버그 수정, 새로운 추가될 기능, 개선해야하는 기능, 질문 등이 있을 때 git issue적극 활용**
     
 <p><br></p>
+
 
 ## ERD
 ![ERD](https://www.notion.so/image/https%3A%2F%2Fprod-files-secure.s3.us-west-2.amazonaws.com%2F83c75a39-3aba-4ba4-a792-7aefe4b07895%2F02f4f7b9-a86e-4bbe-8a8a-1467fcac4587%2F%25EC%25A3%25BC%25EC%25A3%25BC%25EC%25B4%259D%25ED%259A%258C_-_%25EC%25B5%259C%25EC%25A2%2585_%25EB%25B0%259C%25ED%2591%259C_ERD.png?table=block&id=70a5c3c8-7a79-48ab-ad9f-87a6131a7c52&spaceId=83c75a39-3aba-4ba4-a792-7aefe4b07895&width=2000&userId=ca0c5ffb-e774-49d1-8001-e9462600093c&cache=v2)
